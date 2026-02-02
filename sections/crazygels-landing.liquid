@@ -1,0 +1,1158 @@
+{% style %}
+  /* CrazyGels Landing Page Styles */
+  :root {
+    --cg-pink: #ff00b0;
+    --cg-purple: #391241;
+    --cg-lavender: #cfb4d9;
+    --cg-blush: #fdeef5;
+    --cg-cream: #fff9f7;
+    --cg-dark: #0d0d0d;
+    --cg-white: #ffffff;
+  }
+
+  .cg-landing {
+    font-family: var(--baseFont);
+  }
+
+  /* Hero Section */
+  .cg-hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--cg-cream) 0%, var(--cg-blush) 50%, var(--cg-lavender) 100%);
+    overflow: hidden;
+    padding: 2rem;
+  }
+
+  .cg-hero__content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 900px;
+    padding: 3rem 2rem;
+  }
+
+  .cg-hero__badge {
+    display: inline-block;
+    background: var(--cg-dark);
+    color: var(--cg-white);
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    font-weight: 500;
+  }
+
+  .cg-hero__title {
+    font-family: var(--titleFont);
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 400;
+    line-height: 1.1;
+    color: var(--cg-dark);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .cg-hero__title em {
+    font-style: italic;
+    color: var(--cg-purple);
+  }
+
+  .cg-hero__subtitle {
+    font-size: clamp(1rem, 2vw, 1.25rem);
+    color: var(--cg-dark);
+    opacity: 0.8;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.6;
+  }
+
+  .cg-hero__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+  }
+
+  .cg-btn--primary {
+    background: var(--cg-dark);
+    color: var(--cg-white);
+  }
+
+  .cg-btn--primary:hover {
+    background: var(--cg-purple);
+    transform: translateY(-2px);
+  }
+
+  .cg-btn--secondary {
+    background: transparent;
+    color: var(--cg-dark);
+    border: 2px solid var(--cg-dark);
+  }
+
+  .cg-btn--secondary:hover {
+    background: var(--cg-dark);
+    color: var(--cg-white);
+  }
+
+  .cg-btn__arrow {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  .cg-btn:hover .cg-btn__arrow {
+    transform: translateX(4px);
+  }
+
+  /* Decorative Elements */
+  .cg-hero__decoration {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.3;
+  }
+
+  .cg-hero__decoration--1 {
+    width: 400px;
+    height: 400px;
+    background: var(--cg-pink);
+    top: -100px;
+    right: -100px;
+    filter: blur(80px);
+  }
+
+  .cg-hero__decoration--2 {
+    width: 300px;
+    height: 300px;
+    background: var(--cg-lavender);
+    bottom: -50px;
+    left: -50px;
+    filter: blur(60px);
+  }
+
+  /* Stats Section */
+  .cg-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: var(--cg-dark);
+    color: var(--cg-white);
+  }
+
+  @media (max-width: 768px) {
+    .cg-stats {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .cg-stats__item {
+    padding: 2.5rem 2rem;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .cg-stats__item:last-child {
+    border-right: none;
+  }
+
+  @media (max-width: 768px) {
+    .cg-stats__item:nth-child(2) {
+      border-right: none;
+    }
+    .cg-stats__item:nth-child(3),
+    .cg-stats__item:nth-child(4) {
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+  }
+
+  .cg-stats__number {
+    font-family: var(--titleFont);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--cg-pink);
+  }
+
+  .cg-stats__label {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Features Section */
+  .cg-features {
+    padding: 6rem 2rem;
+    background: var(--cg-white);
+  }
+
+  .cg-features__container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .cg-features__header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .cg-features__label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--cg-pink);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .cg-features__title {
+    font-family: var(--titleFont);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--cg-dark);
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .cg-features__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+  }
+
+  @media (max-width: 900px) {
+    .cg-features__grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .cg-feature {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 20px;
+    background: var(--cg-cream);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .cg-feature:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(57, 18, 65, 0.1);
+  }
+
+  .cg-feature__icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: var(--cg-lavender);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cg-feature__icon svg {
+    width: 40px;
+    height: 40px;
+    color: var(--cg-purple);
+  }
+
+  .cg-feature__title {
+    font-family: var(--titleFont);
+    font-size: 1.25rem;
+    color: var(--cg-dark);
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+  }
+
+  .cg-feature__text {
+    color: var(--cg-dark);
+    opacity: 0.7;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  /* CTA Banner */
+  .cg-cta-banner {
+    background: linear-gradient(135deg, var(--cg-purple) 0%, #5d2d6a 100%);
+    padding: 5rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cg-cta-banner__content {
+    position: relative;
+    z-index: 2;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .cg-cta-banner__title {
+    font-family: var(--titleFont);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    color: var(--cg-white);
+    margin-bottom: 1rem;
+    font-weight: 400;
+  }
+
+  .cg-cta-banner__text {
+    color: var(--cg-white);
+    opacity: 0.9;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  .cg-cta-banner .cg-btn--primary {
+    background: var(--cg-white);
+    color: var(--cg-purple);
+  }
+
+  .cg-cta-banner .cg-btn--primary:hover {
+    background: var(--cg-pink);
+    color: var(--cg-white);
+  }
+
+  .cg-cta-banner__decoration {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    right: -200px;
+    top: -200px;
+  }
+
+  /* Image Text Section */
+  .cg-image-text {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+  }
+
+  @media (max-width: 900px) {
+    .cg-image-text {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .cg-image-text__image {
+    background: var(--cg-lavender);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cg-image-text__image img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 20px;
+  }
+
+  .cg-image-text__placeholder {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, var(--cg-blush) 0%, var(--cg-cream) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background-image: url('{{ "crazygels-lifestyle.jpg" | asset_url }}');
+    background-size: cover;
+    background-position: center;
+  }
+
+  .cg-image-text__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem;
+    background: var(--cg-cream);
+  }
+
+  .cg-image-text__label {
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--cg-pink);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .cg-image-text__title {
+    font-family: var(--titleFont);
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    color: var(--cg-dark);
+    margin-bottom: 1.5rem;
+    font-weight: 400;
+    line-height: 1.2;
+  }
+
+  .cg-image-text__text {
+    color: var(--cg-dark);
+    opacity: 0.8;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+
+  .cg-image-text__list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem 0;
+  }
+
+  .cg-image-text__list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--cg-dark);
+  }
+
+  .cg-image-text__list li::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--cg-pink);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Testimonial Section */
+  .cg-testimonial {
+    background: var(--cg-blush);
+    padding: 6rem 2rem;
+    text-align: center;
+  }
+
+  .cg-testimonial__container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .cg-testimonial__quote {
+    font-family: var(--titleFont);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--cg-dark);
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+    font-weight: 400;
+  }
+
+  .cg-testimonial__author {
+    font-weight: 600;
+    color: var(--cg-purple);
+    margin-bottom: 0.25rem;
+  }
+
+  .cg-testimonial__role {
+    color: var(--cg-dark);
+    opacity: 0.7;
+    font-size: 0.9rem;
+  }
+
+  /* Newsletter Section */
+  .cg-newsletter {
+    background: var(--cg-dark);
+    padding: 5rem 2rem;
+  }
+
+  .cg-newsletter__container {
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .cg-newsletter__title {
+    font-family: var(--titleFont);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    color: var(--cg-white);
+    margin-bottom: 1rem;
+    font-weight: 400;
+  }
+
+  .cg-newsletter__text {
+    color: var(--cg-white);
+    opacity: 0.8;
+    margin-bottom: 2rem;
+  }
+
+  .cg-newsletter__form {
+    display: flex;
+    gap: 1rem;
+    max-width: 450px;
+    margin: 0 auto;
+  }
+
+  @media (max-width: 500px) {
+    .cg-newsletter__form {
+      flex-direction: column;
+    }
+  }
+
+  .cg-newsletter__input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    background: var(--cg-white);
+    color: var(--cg-dark);
+  }
+
+  .cg-newsletter__input::placeholder {
+    color: var(--cg-dark);
+    opacity: 0.5;
+  }
+
+  .cg-newsletter__btn {
+    background: var(--cg-pink);
+    color: var(--cg-white);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .cg-newsletter__btn:hover {
+    background: var(--cg-lavender);
+    color: var(--cg-purple);
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .cg-hero__content {
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  .cg-hero__badge {
+    animation: fadeInUp 0.8s ease-out 0.1s both;
+  }
+
+  .cg-hero__title {
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+  }
+
+  .cg-hero__subtitle {
+    animation: fadeInUp 0.8s ease-out 0.3s both;
+  }
+
+  .cg-hero__cta {
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+  }
+
+  .cg-hero__decoration {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .cg-hero__decoration--2 {
+    animation-delay: -3s;
+  }
+
+  .cg-feature {
+    opacity: 0;
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .cg-feature:nth-child(1) { animation-delay: 0.1s; }
+  .cg-feature:nth-child(2) { animation-delay: 0.2s; }
+  .cg-feature:nth-child(3) { animation-delay: 0.3s; }
+
+  /* Mobile Optimizations */
+  @media (max-width: 600px) {
+    .cg-hero {
+      min-height: 80vh;
+      padding: 1.5rem;
+    }
+
+    .cg-hero__content {
+      padding: 2rem 1rem;
+    }
+
+    .cg-hero__badge {
+      font-size: 0.75rem;
+      padding: 0.4rem 1rem;
+    }
+
+    .cg-features {
+      padding: 4rem 1.5rem;
+    }
+
+    .cg-cta-banner {
+      padding: 4rem 1.5rem;
+    }
+
+    .cg-image-text__content {
+      padding: 3rem 1.5rem;
+    }
+
+    .cg-testimonial {
+      padding: 4rem 1.5rem;
+    }
+
+    .cg-newsletter {
+      padding: 4rem 1.5rem;
+    }
+  }
+
+  /* Scroll reveal effect for features */
+  @media (prefers-reduced-motion: no-preference) {
+    .cg-feature {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+  }
+
+  /* Focus states for accessibility */
+  .cg-btn:focus-visible {
+    outline: 2px solid var(--cg-pink);
+    outline-offset: 2px;
+  }
+
+  .cg-newsletter__input:focus {
+    outline: 2px solid var(--cg-pink);
+    outline-offset: 2px;
+  }
+
+  .cg-newsletter__btn:focus-visible {
+    outline: 2px solid var(--cg-white);
+    outline-offset: 2px;
+  }
+{% endstyle %}
+
+<div class="cg-landing">
+  <!-- Hero Section -->
+  <section class="cg-hero">
+    <div class="cg-hero__decoration cg-hero__decoration--1"></div>
+    <div class="cg-hero__decoration cg-hero__decoration--2"></div>
+    
+    <div class="cg-hero__content">
+      <span class="cg-hero__badge">{{ section.settings.badge_text }}</span>
+      <h1 class="cg-hero__title">{{ section.settings.hero_title }}</h1>
+      <p class="cg-hero__subtitle">{{ section.settings.hero_subtitle }}</p>
+      <div class="cg-hero__cta">
+        <a href="{{ section.settings.primary_cta_link }}" class="cg-btn cg-btn--primary">
+          {{ section.settings.primary_cta_text }}
+          <svg class="cg-btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+        <a href="{{ section.settings.secondary_cta_link }}" class="cg-btn cg-btn--secondary">
+          {{ section.settings.secondary_cta_text }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="cg-stats">
+    {% for block in section.blocks %}
+      {% if block.type == 'stat' %}
+        <div class="cg-stats__item" {{ block.shopify_attributes }}>
+          <div class="cg-stats__number">{{ block.settings.stat_number }}</div>
+          <div class="cg-stats__label">{{ block.settings.stat_label }}</div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </section>
+
+  <!-- Features Section -->
+  <section class="cg-features">
+    <div class="cg-features__container">
+      <div class="cg-features__header">
+        <p class="cg-features__label">{{ section.settings.features_label }}</p>
+        <h2 class="cg-features__title">{{ section.settings.features_title }}</h2>
+      </div>
+      <div class="cg-features__grid">
+        {% for block in section.blocks %}
+          {% if block.type == 'feature' %}
+            <div class="cg-feature" {{ block.shopify_attributes }}>
+              <div class="cg-feature__icon">
+                {% case block.settings.feature_icon %}
+                  {% when 'clock' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M12 6v6l4 2"/>
+                    </svg>
+                  {% when 'shield' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  {% when 'sparkles' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                  {% when 'heart' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                  {% when 'wallet' %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="1" y="4" width="22" height="16" rx="2"/>
+                      <path d="M1 10h22"/>
+                    </svg>
+                  {% else %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                {% endcase %}
+              </div>
+              <h3 class="cg-feature__title">{{ block.settings.feature_title }}</h3>
+              <p class="cg-feature__text">{{ block.settings.feature_text }}</p>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cg-cta-banner">
+    <div class="cg-cta-banner__decoration"></div>
+    <div class="cg-cta-banner__content">
+      <h2 class="cg-cta-banner__title">{{ section.settings.cta_title }}</h2>
+      <p class="cg-cta-banner__text">{{ section.settings.cta_text }}</p>
+      <a href="{{ section.settings.cta_link }}" class="cg-btn cg-btn--primary">
+        {{ section.settings.cta_button_text }}
+        <svg class="cg-btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Image Text Section -->
+  <section class="cg-image-text">
+    <div class="cg-image-text__image">
+      {% if section.settings.image_section_image %}
+        {{ section.settings.image_section_image | image_url: width: 800 | image_tag: loading: 'lazy' }}
+      {% else %}
+        <div class="cg-image-text__placeholder">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <path d="M21 15l-5-5L5 21"/>
+          </svg>
+        </div>
+      {% endif %}
+    </div>
+    <div class="cg-image-text__content">
+      <p class="cg-image-text__label">{{ section.settings.image_section_label }}</p>
+      <h2 class="cg-image-text__title">{{ section.settings.image_section_title }}</h2>
+      <p class="cg-image-text__text">{{ section.settings.image_section_text }}</p>
+      <ul class="cg-image-text__list">
+        {% if section.settings.list_item_1 != blank %}
+          <li>{{ section.settings.list_item_1 }}</li>
+        {% endif %}
+        {% if section.settings.list_item_2 != blank %}
+          <li>{{ section.settings.list_item_2 }}</li>
+        {% endif %}
+        {% if section.settings.list_item_3 != blank %}
+          <li>{{ section.settings.list_item_3 }}</li>
+        {% endif %}
+        {% if section.settings.list_item_4 != blank %}
+          <li>{{ section.settings.list_item_4 }}</li>
+        {% endif %}
+      </ul>
+      <a href="{{ section.settings.image_section_link }}" class="cg-btn cg-btn--primary">
+        {{ section.settings.image_section_button }}
+        <svg class="cg-btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Testimonial Section -->
+  <section class="cg-testimonial">
+    <div class="cg-testimonial__container">
+      <blockquote class="cg-testimonial__quote">"{{ section.settings.testimonial_quote }}"</blockquote>
+      <p class="cg-testimonial__author">{{ section.settings.testimonial_author }}</p>
+      <p class="cg-testimonial__role">{{ section.settings.testimonial_role }}</p>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="cg-newsletter">
+    <div class="cg-newsletter__container">
+      <h2 class="cg-newsletter__title">{{ section.settings.newsletter_title }}</h2>
+      <p class="cg-newsletter__text">{{ section.settings.newsletter_text }}</p>
+      {% form 'customer', class: 'cg-newsletter__form' %}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <input 
+          type="email" 
+          name="contact[email]" 
+          class="cg-newsletter__input" 
+          placeholder="{{ section.settings.newsletter_placeholder }}"
+          required
+        >
+        <button type="submit" class="cg-newsletter__btn">{{ section.settings.newsletter_button }}</button>
+      {% endform %}
+    </div>
+  </section>
+</div>
+
+{% schema %}
+{
+  "name": "CrazyGels Landing",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Hero Section"
+    },
+    {
+      "type": "text",
+      "id": "badge_text",
+      "label": "Badge Text",
+      "default": "Premium Semi-Cured Gel Nails"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_title",
+      "label": "Hero Title",
+      "default": "Flawless nails in <em>minutes</em>"
+    },
+    {
+      "type": "textarea",
+      "id": "hero_subtitle",
+      "label": "Hero Subtitle",
+      "default": "Enjoy salon-quality nails without the damage. Transform your look at home with our premium semi-cured gel nail strips."
+    },
+    {
+      "type": "text",
+      "id": "primary_cta_text",
+      "label": "Primary CTA Text",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "primary_cta_link",
+      "label": "Primary CTA Link"
+    },
+    {
+      "type": "text",
+      "id": "secondary_cta_text",
+      "label": "Secondary CTA Text",
+      "default": "Learn More"
+    },
+    {
+      "type": "url",
+      "id": "secondary_cta_link",
+      "label": "Secondary CTA Link"
+    },
+    {
+      "type": "header",
+      "content": "Features Section"
+    },
+    {
+      "type": "text",
+      "id": "features_label",
+      "label": "Features Label",
+      "default": "Why Choose Us"
+    },
+    {
+      "type": "textarea",
+      "id": "features_title",
+      "label": "Features Title",
+      "default": "The smarter way to beautiful nails"
+    },
+    {
+      "type": "header",
+      "content": "CTA Banner"
+    },
+    {
+      "type": "text",
+      "id": "cta_title",
+      "label": "CTA Title",
+      "default": "Limited Time: 15% Off Your First Order"
+    },
+    {
+      "type": "textarea",
+      "id": "cta_text",
+      "label": "CTA Text",
+      "default": "Join thousands of women who've discovered the secret to perfect nails. Use code WELCOME15 at checkout."
+    },
+    {
+      "type": "text",
+      "id": "cta_button_text",
+      "label": "CTA Button Text",
+      "default": "Claim Offer"
+    },
+    {
+      "type": "url",
+      "id": "cta_link",
+      "label": "CTA Link"
+    },
+    {
+      "type": "header",
+      "content": "Image + Text Section"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_section_image",
+      "label": "Image"
+    },
+    {
+      "type": "text",
+      "id": "image_section_label",
+      "label": "Label",
+      "default": "Our Story"
+    },
+    {
+      "type": "textarea",
+      "id": "image_section_title",
+      "label": "Title",
+      "default": "Beauty without compromise"
+    },
+    {
+      "type": "textarea",
+      "id": "image_section_text",
+      "label": "Text",
+      "default": "We believe everyone deserves stunning nails without the hassle of salon visits or the damage of traditional acrylics."
+    },
+    {
+      "type": "text",
+      "id": "list_item_1",
+      "label": "List Item 1",
+      "default": "No damage to natural nails"
+    },
+    {
+      "type": "text",
+      "id": "list_item_2",
+      "label": "List Item 2",
+      "default": "Lasts up to 2 weeks"
+    },
+    {
+      "type": "text",
+      "id": "list_item_3",
+      "label": "List Item 3",
+      "default": "Easy DIY application"
+    },
+    {
+      "type": "text",
+      "id": "list_item_4",
+      "label": "List Item 4",
+      "default": "Salon-quality results"
+    },
+    {
+      "type": "text",
+      "id": "image_section_button",
+      "label": "Button Text",
+      "default": "Discover More"
+    },
+    {
+      "type": "url",
+      "id": "image_section_link",
+      "label": "Button Link"
+    },
+    {
+      "type": "header",
+      "content": "Testimonial"
+    },
+    {
+      "type": "textarea",
+      "id": "testimonial_quote",
+      "label": "Quote",
+      "default": "I've tried every nail brand out there, but Crazy Gels is the only one that looks salon-perfect and doesn't damage my natural nails. Absolutely obsessed!"
+    },
+    {
+      "type": "text",
+      "id": "testimonial_author",
+      "label": "Author Name",
+      "default": "Sarah M."
+    },
+    {
+      "type": "text",
+      "id": "testimonial_role",
+      "label": "Author Role",
+      "default": "Verified Customer"
+    },
+    {
+      "type": "header",
+      "content": "Newsletter"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_title",
+      "label": "Newsletter Title",
+      "default": "Join the Crazy Gels Family"
+    },
+    {
+      "type": "textarea",
+      "id": "newsletter_text",
+      "label": "Newsletter Text",
+      "default": "Subscribe for exclusive offers, nail tips, and early access to new designs."
+    },
+    {
+      "type": "text",
+      "id": "newsletter_placeholder",
+      "label": "Input Placeholder",
+      "default": "Enter your email"
+    },
+    {
+      "type": "text",
+      "id": "newsletter_button",
+      "label": "Button Text",
+      "default": "Subscribe"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "stat",
+      "name": "Statistic",
+      "settings": [
+        {
+          "type": "text",
+          "id": "stat_number",
+          "label": "Number",
+          "default": "50K+"
+        },
+        {
+          "type": "text",
+          "id": "stat_label",
+          "label": "Label",
+          "default": "Happy Customers"
+        }
+      ]
+    },
+    {
+      "type": "feature",
+      "name": "Feature",
+      "settings": [
+        {
+          "type": "select",
+          "id": "feature_icon",
+          "label": "Icon",
+          "options": [
+            { "value": "clock", "label": "Clock" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "sparkles", "label": "Sparkles" },
+            { "value": "heart", "label": "Heart" },
+            { "value": "wallet", "label": "Wallet" },
+            { "value": "star", "label": "Star" }
+          ],
+          "default": "clock"
+        },
+        {
+          "type": "text",
+          "id": "feature_title",
+          "label": "Title",
+          "default": "Quick Application"
+        },
+        {
+          "type": "textarea",
+          "id": "feature_text",
+          "label": "Text",
+          "default": "Apply your nails in under 10 minutes with our easy-to-follow process."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "CrazyGels Landing",
+      "blocks": [
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "50K+",
+            "stat_label": "Happy Customers"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "100+",
+            "stat_label": "Unique Designs"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "2 Weeks",
+            "stat_label": "Long Lasting"
+          }
+        },
+        {
+          "type": "stat",
+          "settings": {
+            "stat_number": "4.9/5",
+            "stat_label": "Customer Rating"
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "clock",
+            "feature_title": "Quick Application",
+            "feature_text": "Apply your perfect nails in under 10 minutes. No salon appointment needed."
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "shield",
+            "feature_title": "Zero Damage",
+            "feature_text": "Our gentle formula protects your natural nails while delivering stunning results."
+          }
+        },
+        {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "wallet",
+            "feature_title": "Save Money",
+            "feature_text": "Get salon-quality nails at a fraction of the cost. Skip the expensive appointments."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

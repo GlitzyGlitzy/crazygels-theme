@@ -48,5 +48,4 @@ div.beae-sections .beae-x4gqkt5v .beae-quantity-btn{ background-color: var(--bea
 
 div.beae-sections .beae-flexbox-block.flexbox-beae-fkhnm7zc { --beae-animation-delay: 375ms;--beae-animation-delay-mobile: 375ms;}
 
-div.beae-sections .beae-fkhnm7zc .beae-add-to-cart--submit{ padding: 3%;display: inline-block;width: 100%;cursor: pointer;}div.beae-sections .beae-fkhnm7zc .beae-add-to-cart-icon-mobile{ display: none;}div.beae-sections .beae-fkhnm7zc .beae-add-to-cart-text-content{ display: block;} @media only screen and (max-width: 768px) {div.beae-sections .beae-fkhnm7zc .beae-add-to-cart-icon-mobile{ display: block;} } 
- 
+div.beae-sections .beae-fkhnm7zc .beae-add-to-cart--submit{ padding: 3%;display: inline-block;width: 100%;cursor: pointer;}div.beae-sections .beae-fkhnm7zc .beae-add-to-cart-icon-mobile{ display: none;}div.beae-sections .beae-fkhnm7zc .beae-add-to-cart-text-content{ display: block;} @media only screen and (max-width: 768px) {div.beae-sections .beae-fkhnm7zc .beae-add-to-cart-icon-mobile{ display: block;} }
