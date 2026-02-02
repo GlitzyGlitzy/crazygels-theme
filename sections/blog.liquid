@@ -1,0 +1,33 @@
+{% paginate blog.articles by 10 %}
+
+  <div class="row article__max-width row__blog">
+  {% for article in blog.articles %}
+    <div class="col-12 blog__listing--horizontal">
+      <a href="{{article.url}}" class="blog__listing--ratio">
+        {% unless article.image == nil %}
+            {% render 'ratio-image', ratioType: 'vw', dratio: '50', mratio: '100', image: article.image.src, alt: article.image.alt, class: 'blog__listing--image' %}
+        {% else %}
+            {% assign imagesrc = 'no-blog-image.png' %}
+            {% render 'ratio-image-asset', ratioType: 'vw', dratio: '50', mratio: '100', image: imagesrc, class: 'blog__listing--image' %}
+        {% endunless %}
+      </a>
+      <div class="blog__listing--info">
+        <div class="blog__listing--tags">
+          {% for tag in article.tags %}
+            <span class="blog__listing--tag">{{tag | upcase}}</span>
+          {% endfor %}
+        </div>
+        <a href="{{article.url}}" class="blog__listing--title">
+          {{ article.title }}
+        </a>
+        <p class="p-reset blog__listing--excerpt">
+          {{article.excerpt | default: article.content | truncate: 280 | strip_html }}
+        </p>
+        {% render 'button', type: 'primary', url: article.url, text: 'Read more' %}
+      </div>
+    </div>
+  {% endfor %}
+  {% render 'pagination', paginate: paginate, type: 'links' %}
+  </div>
+
+{% endpaginate %}

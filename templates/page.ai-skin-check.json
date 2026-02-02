@@ -1,0 +1,46 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "banner": {
+      "type": "banner--page",
+      "settings": {}
+    },
+    "content": {
+      "type": "page",
+      "settings": {
+        "layout": "default",
+        "enableShortcodes": true
+      }
+    },
+    "1753913355b38624f2": {
+      "type": "apps",
+      "blocks": {
+        "tangent_quiz_tangent_iframe_DTcjjw": {
+          "type": "shopify://apps/tangent-quiz/blocks/tangent-iframe/51b4f65b-1bd1-4373-a212-7af0ce5a9774",
+          "settings": {
+            "form_id": "688a1f6c9faa76b80bafcbb3",
+            "width": 80,
+            "scroll_margin": 120
+          }
+        }
+      },
+      "block_order": [
+        "tangent_quiz_tangent_iframe_DTcjjw"
+      ],
+      "settings": {}
+    }
+  },
+  "order": [
+    "banner",
+    "content",
+    "1753913355b38624f2"
+  ]
+}

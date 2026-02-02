@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+
+     <meta name="facebook-domain-verification" content="w9imaq0zz321y0fgn2216i9r4e1dde" />
+     
+    <!-- Google Tag Manager -->
+    <script>
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-W7NQG2QL');
+    </script>
+    <!-- End Google Tag Manager -->
+
+    <script src="beae_header" async></script>
+    <script src="pandectes-rules" defer></script>
+
+    <!--
+      888888b.                              888                88888888888 888
+      888  "88b                             888                    888     888
+      888  .88P                             888                    888     888
+      8888888K.   .d88b.   .d88b.  .d8888b  888888 .d88b.  888d888 888     88888b.   .d88b.  88888b.d88b.   .d88b.
+      888  "Y88b d88""88b d88""88b 88K      888   d8P  Y8b 888P"   888     888 "88b d8P  Y8b 888 "888 "88b d8P  Y8b
+      888    888 888  888 888  888 "Y8888b. 888   88888888 888     888     888  888 88888888 888  888  888 88888888
+      888   d88P Y88..88P Y88..88P      X88 Y88b. Y8b.     888     888     888  888 Y8b.     888  888  888 Y8b.
+      8888888P"   "Y88P"   "Y88P"   88888P'  "Y888 "Y8888  888     888     888  888  "Y8888  888  888  888  "Y8888
+    -->
+    <title>
+      {{ page_title }}
+      {% if current_tags %}
+        &ndash; tagged "
+        {{-
+          current_tags |
+          <link rel = "preload" href = "orig.css" type = "text / css" as = "style" onload = "this.onload = null; this.rel = 'stylesheet' ; "/>
+          join: ', '
+        -}}
+        "
+      {%- endif %}
+      {% if current_page != 1 %}
+        &ndash; Page {{ current_page -}}
+      {%- endif %}
+      {% unless page_title contains shop.name %}
+        &ndash; {{ shop.name -}}
+      {%- endunless %}
+    </title>
+
+    {% if page_description %}
+      <meta name="description" content="{{ page_description | escape }}">
+    {% endif %}
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link href="https://static.boostertheme.co" rel="preconnect" crossorigin>
+    <link rel="dns-prefetch" href="//static.boostertheme.co">
+    <link href="https://theme.boostertheme.com" rel="preconnect" crossorigin>
+    <link rel="dns-prefetch" href="//theme.boostertheme.com">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,shrink-to-fit=no">
+
+    {% render 'layout__favicon' %}
+
+    {{ content_for_header }}
+
+    <style>
+      {% render 'global-scss' %}
+    </style>
+    {% unless settings.headHTML == blank %}
+      {{ settings.headHTML }}
+    {% endunless %}
+    {% unless settings.headJS == blank %}
+      <script>
+        {{settings.headJS}}
+      </script>
+    {% endunless %}
+    {% render 'layout__custom-code--head' %}
+    <script src="https://cdn.younet.network/main.js" defer></script>
+
+    {% capture the_snippet_beae-global-theme-setting %}{% include 'beae-global-theme-setting' %}{% endcapture %}
+    {% unless the_snippet_beae-global-theme-setting contains 'Liquid error' %}
+      {{ the_snippet_beae-global-theme-setting }}
+    {% endunless %}
+  </head>
+  <body class="template--{{template}}">
+    <!--
+      888888b.                              888                88888888888 888
+      888  "88b                             888                    888     888
+      888  .88P                             888                    888     888
+      8888888K.   .d88b.   .d88b.  .d8888b  888888 .d88b.  888d888 888     88888b.   .d88b.  88888b.d88b.   .d88b.
+      888  "Y88b d88""88b d88""88b 88K      888   d8P  Y8b 888P"   888     888 "88b d8P  Y8b 888 "888 "88b d8P  Y8b
+      888    888 888  888 888  888 "Y8888b. 888   88888888 888     888     888  888 88888888 888  888  888 88888888
+      888   d88P Y88..88P Y88..88P      X88 Y88b. Y8b.     888     888     888  888 Y8b.     888  888  888 Y8b.
+      8888888P"   "Y88P"   "Y88P"   88888P'  "Y888 "Y8888  888     888     888  888  "Y8888  888  888  888  "Y8888
+    -->
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-W7NQG2QL"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      ></iframe
+    ></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div class="container">
+      <div class="container__top-part">
+        {% section 'top-info-bar' %}
+
+        <div id="booster__popup--holder" class="booster__popup--holder"></div>
+
+        {% if template.suffix == 'no-header' or template.suffix == 'landing-no-header' %}
+        {% elsif template.suffix == 'landing-alt-header' %}
+          {% section 'header-alt' %}
+        {% else %}
+          {% case settings.headerType %}
+            {% when 'default' %}
+              {% section 'header--default' %}
+            {% when 'inline-search' %}
+              {% section 'header--inline-search' %}
+            {% when 'logo-top' %}
+              {% section 'header--logo-top' %}
+          {% endcase %}
+        {% endif %}
+
+        {% section 'bottom-info-bar' %}
+      </div>
+
+      <div id="quickbuy__modal" class="modal">
+        <div onclick="closeModal(event)" class="overlay"></div>
+        <div class="content"></div>
+      </div>
+
+      {% if settings.recentlyBought %}
+        <a
+          id="recently-bought--holder"
+          class="recently-bought--holder {% unless settings.recentlyBoughtMobile -%}hide-mobile{%-endunless-%}"
+        >
+          <div class="recently-bought--img-ratio">
+            <div class="recently-bought--img"><img src=""></div>
+          </div>
+          <div class="recently-bought--info">
+            <div class="recently-bought--who"></div>
+            <div class="recently-bought--what"></div>
+            <div class="recently-bought--price"><span class="current-price"></span><span class="old-price"></span></div>
+            <div class="recently-bought--when"></div>
+          </div>
+        </a>
+        <script>
+          const recentlyBoughtConfig = { useNames: {{settings.recentlyBoughtNames}}, nameFormat: '{{settings.recentlyBoughtNameFormat}}', allProductsUrl: '{{routes.all_products_collection_url}}' }
+        </script>
+      {% endif %}
+
+      <div class="add-to-cart__success--holder modal">
+        {% unless settings.cartAction == 'message' %}
+          <div onclick="closeModal(event)" class="overlay add-to-cart__success--overlay"></div>
+        {% endunless %}
+        <div class="add-to-cart__success" id="checkout--success">
+          {% render 'add-to-cart__template--success' %}
+        </div>
+      </div>
+
+      {% render 'layout__template--specific' %}
+
+      <main role="main">
+        {{ content_for_layout }}
+
+        <div class="wrapper--bottom">
+          {% section 'info-badges' %}
+          {% section 'footer' %}
+          {% section 'subfooter' %}
+        </div>
+      </main>
+    </div>
+
+    {% render 'layout__app--code' %}
+    {% render 'layout__bstr--constants' %}
+
+    <script src="/services/javascripts/currencies.js" defer></script>
+    {% comment %} If you want to serve the non-minified version, remove .min extension {% endcomment %}
+    {{ 'booster.min.js' | asset_url | script_tag }}
+    {{ 'unicons.css' | asset_url | stylesheet_tag }}
+
+    {% unless settings.bodyHTML == blank %}
+      {{ settings.bodyHTML }}
+    {% endunless %}
+    {% unless settings.bodyCSS == blank %}
+      <style>
+        {{settings.bodyCSS}}
+      </style>
+    {% endunless %}
+    {% unless settings.bodyJS == blank %}
+      <script>
+        {{settings.bodyJS}}
+      </script>
+    {% endunless %}
+
+    {% render 'layout__custom-code--body' %}
+
+    {% if settings.backTopBtn %}
+      {% render 'scroll_top_button' %}
+    {% endif %}
+
+    <!--
+      888888b.                              888                88888888888 888
+      888  "88b                             888                    888     888
+      888  .88P                             888                    888     888
+      8888888K.   .d88b.   .d88b.  .d8888b  888888 .d88b.  888d888 888     88888b.   .d88b.  88888b.d88b.   .d88b.
+      888  "Y88b d88""88b d88""88b 88K      888   d8P  Y8b 888P"   888     888 "88b d8P  Y8b 888 "888 "88b d8P  Y8b
+      888    888 888  888 888  888 "Y8888b. 888   88888888 888     888     888  888 88888888 888  888  888 88888888
+      888   d88P Y88..88P Y88..88P      X88 Y88b. Y8b.     888     888     888  888 Y8b.     888  888  888 Y8b.
+      8888888P"   "Y88P"   "Y88P"   88888P'  "Y888 "Y8888  888     888     888  888  "Y8888  888  888  888  "Y8888
+    -->
+
+    {%- render 'beae_footer' -%}
+  </body>
+</html>

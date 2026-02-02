@@ -1,0 +1,321 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breadcrumbs": {
+      "type": "breadcrumbs",
+      "settings": {}
+    },
+    "page": {
+      "type": "product-page__product",
+      "blocks": {
+        "ppTitle": {
+          "type": "productPageTitle",
+          "settings": {
+            "noMargin": false,
+            "color": "rgba(0,0,0,0)",
+            "fontFamily": "title",
+            "fontSize": "medium"
+          }
+        },
+        "ppPrice": {
+          "type": "productPagePrice",
+          "settings": {
+            "noMargin": true,
+            "color": "#391241",
+            "newPriceColor": "rgba(0,0,0,0)",
+            "oldPriceColor": "rgba(0,0,0,0)",
+            "fontFamily": "base",
+            "fontSize": "medium"
+          }
+        },
+        "61e680c1-2639-4afd-8b13-014cffc55c4d": {
+          "type": "productPageCountdown",
+          "disabled": true,
+          "settings": {
+            "noMargin": true,
+            "style": "compact",
+            "title": "LIMITED TIME OFFER",
+            "text": "The price of this item will revert back to %price% at the end of this countdown."
+          }
+        },
+        "ppSwatch": {
+          "type": "productPageSwatch",
+          "settings": {
+            "noMargin": false
+          }
+        },
+        "ppStock": {
+          "type": "productPageStock",
+          "disabled": true,
+          "settings": {
+            "noMargin": true,
+            "stockLeft": "10",
+            "reduce": 8
+          }
+        },
+        "ppATC": {
+          "type": "productPageATC",
+          "settings": {
+            "noMargin": false,
+            "stickyATC": "always"
+          }
+        },
+        "1e2ad93a-c5ae-4584-8e97-5c978c648363": {
+          "type": "productPageLDelivery",
+          "settings": {
+            "noMargin": true,
+            "icon": "",
+            "iconColor": "rgba(0,0,0,0)",
+            "text": "<p>Products will be delivered between %start% and %end%.</p>",
+            "start": "1",
+            "end": "5",
+            "textColor": "rgba(0,0,0,0)"
+          }
+        },
+        "74e54e84-2bfb-4087-bb4f-45c574a0f0c6": {
+          "type": "productPageBadge",
+          "disabled": true,
+          "settings": {
+            "noMargin": false,
+            "imageAlt": ""
+          }
+        },
+        "03fa9fdf-96ee-4b54-8245-e433dc807a01": {
+          "type": "productPageAccordion",
+          "settings": {
+            "noMargin": true,
+            "heading": "Description",
+            "content": "description",
+            "metafieldNS": "global",
+            "metafieldKey": "",
+            "page": "",
+            "customContent": "<p>Add custom content here!</p>"
+          }
+        },
+        "f3279b01-af70-4142-b9e9-c387459e2ade": {
+          "type": "productPageAccordion",
+          "disabled": true,
+          "settings": {
+            "noMargin": false,
+            "heading": "How to Apply",
+            "content": "page",
+            "metafieldNS": "global",
+            "metafieldKey": "How to Apply",
+            "page": "how-to-apply",
+            "customContent": "<p>Add custom content here!</p>"
+          }
+        },
+        "c0a183a1-26a9-41a6-8caa-95ad0a7deda4": {
+          "type": "productPageAccordion",
+          "settings": {
+            "noMargin": true,
+            "heading": "Returns",
+            "content": "custom",
+            "metafieldNS": "global",
+            "metafieldKey": "",
+            "page": "",
+            "customContent": "Free Returns\nYou can return most items for a refund or store credit within 14 days of delivery. Return shipping costs may apply, and the item must be in its original condition and packaging to be accepted."
+          }
+        },
+        "a101cde1-2630-4cda-b497-ca3b53361736": {
+          "type": "productPageAccordion",
+          "settings": {
+            "noMargin": false,
+            "heading": "Shipping",
+            "content": "custom",
+            "metafieldNS": "global",
+            "metafieldKey": "",
+            "page": "",
+            "customContent": "Free Shipping on All Orders"
+          }
+        },
+        "c447d5ef-704c-4943-adac-d827ab871189": {
+          "type": "productPageShare",
+          "settings": {
+            "noMargin": false
+          }
+        },
+        "9d9c17b4-0e62-48a5-9d20-1e3a3db4e4f6": {
+          "type": "productPageShopPay",
+          "settings": {
+            "noMargin": false
+          }
+        }
+      },
+      "block_order": [
+        "ppTitle",
+        "ppPrice",
+        "61e680c1-2639-4afd-8b13-014cffc55c4d",
+        "ppSwatch",
+        "ppStock",
+        "ppATC",
+        "1e2ad93a-c5ae-4584-8e97-5c978c648363",
+        "74e54e84-2bfb-4087-bb4f-45c574a0f0c6",
+        "03fa9fdf-96ee-4b54-8245-e433dc807a01",
+        "f3279b01-af70-4142-b9e9-c387459e2ade",
+        "c0a183a1-26a9-41a6-8caa-95ad0a7deda4",
+        "a101cde1-2630-4cda-b497-ca3b53361736",
+        "c447d5ef-704c-4943-adac-d827ab871189",
+        "9d9c17b4-0e62-48a5-9d20-1e3a3db4e4f6"
+      ],
+      "settings": {
+        "view": "default",
+        "layout": "full-width",
+        "galleryStyle": "default",
+        "galleryPosition": "left",
+        "video_loop": true,
+        "video_autoplay": true,
+        "autoZoom": true,
+        "autoChange": true,
+        "galleryImageFit": "cover",
+        "galleryImageGap": 2,
+        "productNavigation": true,
+        "productMainImageSize": "crop",
+        "imageSticky": true,
+        "imageStickyPosition": 100
+      }
+    },
+    "upsell": {
+      "type": "api__upsell--inline",
+      "settings": {}
+    },
+    "5c250f40-3c05-45e5-add5-f03bbedeb9f6": {
+      "type": "section__content",
+      "disabled": true,
+      "settings": {
+        "custom_id": "reco",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": true,
+        "scopedCSS": "",
+        "height": 0,
+        "padding": 0,
+        "lineMargin": 12,
+        "backgroundColor": "rgba(0,0,0,0)",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "rgba(0,0,0,0)",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle",
+        "vertPaddingAccord": 12,
+        "horPaddingAccord": 4
+      }
+    },
+    "recommended": {
+      "type": "product-page__recommended",
+      "settings": {
+        "enabled": true,
+        "personalizedOffers": true,
+        "layout": "max-width",
+        "heading": "",
+        "subheading": "Hand picked for you",
+        "subheadingPosition": "above",
+        "textAlignment": "start",
+        "defaultCollection": ""
+      }
+    },
+    "c8d9792a-d4d8-4b32-a902-6cf70bc42add": {
+      "type": "section__content",
+      "blocks": {
+        "743935fd-0558-43e2-a2d6-43ee0c313eff": {
+          "type": "shopify://apps/ez-amazon-reviews-importer/blocks/block/52f9e533-9d65-445a-a334-f65f7c8edc33",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "743935fd-0558-43e2-a2d6-43ee0c313eff"
+      ],
+      "settings": {
+        "custom_id": "upsell",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": true,
+        "scopedCSS": "",
+        "height": 0,
+        "padding": 0,
+        "lineMargin": 12,
+        "backgroundColor": "rgba(0,0,0,0)",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "rgba(0,0,0,0)",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle",
+        "vertPaddingAccord": 12,
+        "horPaddingAccord": 4
+      }
+    },
+    "section_slider_adaptive_TnkxV4": {
+      "type": "section__slider--adaptive",
+      "blocks": {
+        "image_slide_adaptive_VbUwD3": {
+          "type": "imageSlideAdaptive",
+          "settings": {
+            "horizontalAlignment": "center",
+            "verticalAlignment": "middle",
+            "padding": 16,
+            "contentSpacing": 12,
+            "backgroundColor": "rgba(0,0,0,0)",
+            "backgroundPosition": "middle",
+            "overlayOpacity": 40,
+            "overlayColor": "#000000",
+            "slideURL": "",
+            "heading": "This is your slide's heading",
+            "headingColor": "rgba(0,0,0,0)",
+            "content": "<p>Enjoy the flexibility</p>",
+            "contentColor": "rgba(0,0,0,0)",
+            "button1Text": "Primary button",
+            "button1Link": "",
+            "button1Style": "primary",
+            "button1Type": "default",
+            "button2Text": "Secondary button",
+            "button2Link": "",
+            "button2Style": "secondary",
+            "button2Type": "default"
+          }
+        }
+      },
+      "block_order": [
+        "image_slide_adaptive_VbUwD3"
+      ],
+      "settings": {
+        "custom_id": "",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": false,
+        "height": 0,
+        "contentColor": "rgba(0,0,0,0)",
+        "autoplay": true,
+        "slideSpeed": 3,
+        "animation": "none",
+        "delayAnimation": false
+      }
+    }
+  },
+  "order": [
+    "breadcrumbs",
+    "page",
+    "upsell",
+    "5c250f40-3c05-45e5-add5-f03bbedeb9f6",
+    "recommended",
+    "c8d9792a-d4d8-4b32-a902-6cf70bc42add",
+    "section_slider_adaptive_TnkxV4"
+  ]
+}

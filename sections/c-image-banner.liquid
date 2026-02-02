@@ -1,0 +1,244 @@
+{% style %}
+#{{ section.id }} {
+  padding-top: {{ section.settings.padding_top }}rem;
+  padding-bottom: {{ section.settings.padding_bottom }}rem;
+}
+
+#{{ section.id }} .page-width {
+  position: relative;
+}
+
+#{{ section.id }} .c-ib-link {
+  position: relative;
+  display: flex;
+  min-height: {{ section.settings.min_height }}vh;
+}
+
+#{{ section.id }} img {
+  position: relative;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  object-fit: cover;
+  {% if section.settings.use_fixed_height == true %}
+    height: {{ section.settings.fixed_height }}vh;
+  {% endif %}
+}
+
+#{{ section.id }} .c-ib-image-mobile {
+  display: none;
+}
+
+#{{ section.id }} .c-ib-overlay {
+  position: absolute;
+  top: 0rem;
+  left: 0rem;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  justify-content: {{ section.settings.y_alignment }};
+  align-items: {{ section.settings.x_alignment }};
+  text-align: {{ section.settings.text_alignment }};
+  box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, {{ section.settings.overlay }});
+}
+
+@media (max-width: 767px) {
+  {% if section.settings.image_mobile %}
+    #{{ section.id }} .c-ib-image-mobile {
+      display: block;
+    }
+  
+    #{{ section.id }} .c-ib-image {
+      display: none;
+    }
+  {% endif %}
+}
+{% endstyle %}
+
+
+<section id="{{ section.id }}">
+  <div class="{% if section.settings.full_width == false %}page-width{% endif %}">
+    <{% if section.settings.section_url %}a href="{{ section.settings.section_url }}"{% else %}div{% endif %} class="c-ib-link">
+      {% if section.settings.image %}
+        {% comment %}<img src="{{ section.settings.image | image_url: width: 2500 }}" height="auto" class="c-ib-image">{% endcomment %}
+        {{ section.settings.image | image_url: width: 2500 | image_tag: loading: 'eager', height: 'auto', class: 'c-ib-image' }}
+      {% endif %}
+      {% if section.settings.image_mobile %}
+        {{ section.settings.image_mobile | image_url: width: 1000 | image_tag: loading: 'lazy', height: 'auto', class: 'c-ib-image-mobile' }}
+      {% endif %}
+      <div class="c-ib-overlay">
+        <h2>{{ section.settings.heading }}</h2>
+        <div>{{ section.settings.paragraph }}</div>
+      </div>
+    </{% if section.settings.section_url %}a{% else %}div{% endif %}>
+  </div>
+</section>
+
+
+{% schema %}
+  {
+    "name": "C Image Banner",
+    "settings": [
+      {
+        "type": "text",
+        "id": "heading",
+        "label": "Heading",
+        "default": "My heading"
+      },
+      {
+        "type": "richtext",
+        "id": "paragraph",
+        "label": "Paragraph",
+        "default": "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in eros elementum tristique. Duis cursus, mi quis viverra ornare.</p>"
+      },
+      {
+        "type": "url",
+        "id": "section_url",
+        "label": "Link"
+      },
+      {
+        "type": "image_picker",
+        "id": "image",
+        "label": "Background image"
+      },
+      {
+        "type": "image_picker",
+        "id": "image_mobile",
+        "label": "Background image mobile"
+      },
+      {
+        "type": "checkbox",
+        "id": "full_width",
+        "label": "Full width",
+        "default": false
+      },
+      {
+        "type": "select",
+        "id": "x_alignment",
+        "label": "X Content alignment",
+        "default": "center",
+        "options": [
+          {
+            "value": "flex-start",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "flex-end",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "y_alignment",
+        "label": "Y Content alignment",
+        "default": "center",
+        "options": [
+          {
+            "value": "flex-start",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "flex-end",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "type": "select",
+        "id": "text_alignment",
+        "label": "Text alignment",
+        "default": "center",
+        "options": [
+          {
+            "value": "left",
+            "label": "Left"
+          },
+          {
+            "value": "center",
+            "label": "Center"
+          },
+          {
+            "value": "right",
+            "label": "Right"
+          }
+        ]
+      },
+      {
+        "type": "range",
+        "id": "overlay",
+        "label": "Background Overlay",
+        "min": 0,
+        "max": 1,
+        "step": 0.1,
+        "default": 0,
+        "unit": "%"
+      },
+      {
+        "type": "range",
+        "id": "min_height",
+        "label": "Section min height",
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "default": 10,
+        "unit": "vh"
+      },
+      {
+        "type": "checkbox",
+        "id": "use_fixed_height",
+        "label": "Use fixed height",
+        "default": false
+      },
+      {
+        "type": "range",
+        "id": "fixed_height",
+        "label": "Section fixed height",
+        "min": 10,
+        "max": 100,
+        "step": 5,
+        "default": 80,
+        "unit": "vh"
+      },
+      {
+        "type": "header",
+        "content": "Section Padding"
+      },
+      {
+        "type": "range",
+        "id": "padding_top",
+        "label": "Padding top",
+        "min": 0,
+        "max": 15,
+        "step": 1,
+        "default": 2,
+        "unit": "rem"
+      },
+      {
+        "type": "range",
+        "id": "padding_bottom",
+        "label": "Padding bottom",
+        "min": 0,
+        "max": 15,
+        "step": 1,
+        "default": 2,
+        "unit": "rem"
+      }
+    ],
+    "presets": [
+      {
+        "name": "C Image Banner"
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,163 @@
+<!--
+  LOGO FOR PUBLISHER
+  IMAGE SRC ABSOLUTE URL
+  AUTHOR META
+-->
+
+<style>
+  {% case settings.blogDisplayFor %}
+  {% when 'hide-desktop' %}
+  @media screen and (min-width: 768px){
+    .article__max-width--image{
+      display: none !important;
+    }
+  }
+  {% when 'hide-mobile' %}
+  @media screen and (max-width: 767px){
+    .article__max-width--image{
+      display: none !important;
+    }
+  }
+  {% endcase %}
+  .article__max-width--image{
+    padding: {{ settings.articleVertPadding }}px {{ settings.articleHorPadding }}px;
+  }
+  .article__max-width--image img{
+    height: {{settings.articleHeight}}px;
+  }
+</style>
+
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{article.title|escape}}",
+    "image": "{{article.image.src}}",
+    "publisher": {
+      "@type": "Organization",
+      "name": "{{shop.name|escape}}"
+    },
+    "keywords": "{{article.tags | join: ', ' |escape}}",
+    "url": "{{ shop.secure_url }}{{article.url}}",
+    "datePublished": "{{ article.published_at | date: '%Y-%m-%d' }}",
+    "dateCreated": "{{ article.published_at | date: '%Y-%m-%d' }}",
+    "dateModified": "{{ article.published_at | date: '%Y-%m-%d' }}",
+    "description": "{{article.excerpt | strip_html |escape}}",
+    "articleBody": "{{article.content | strip_html |escape}}",
+    "author": {
+      "@type": "Person",
+      "name": "{{article.author |escape}}"
+    }
+  }
+</script>
+
+{% assign number_of_comments = article.comments_count %}
+{% if comment and comment.created_at %}
+  {% assign number_of_comments = article.comments_count %}
+{% endif %}
+
+<div class="row article__row">
+  <div class="col-12 breadcrumbs--default">
+    {% render 'breadcrumbs' %}
+  </div>
+  <div class="col-12 article__max-width unflex">
+    <h1 class="article__title h-reset">{{ article.title }}</h1>
+    {% capture date %}<time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: '%m/%d/%Y' }}</time>{% endcapture %}
+    <div class="unflex article__meta">{{ article.author }} {% if settings.showArticleDate %}on {{ date }}{% endif %}</div>
+    {% unless article.excerpt == blank %}
+      <div class="article__excerpt">{{ article.excerpt }}</div>
+    {% endunless %}
+  </div>
+  {% unless article.image == null %}
+    <div class="{%- if settings.articleLayout == 'default' -%} layout__{{settings.baseLayout}} {%- else -%} layout__{{settings.articleLayout}} {%- endif -%} col-12">
+      <div class="unflex article__max-width--image">
+        <img
+          loading="lazy"
+          data-src="{{article.image | img_url: '10x'}}"
+          height="{{article.image.height}}"
+          width="{{article.image.width}}"
+          class="article__featured--shadow lazyload"
+        >
+        {% render 'ratio-image',
+          ratioType: 'vw',
+          image: article.image,
+          alt: article.image.alt,
+          class: 'article__featured',
+          mratio: 100,
+          dratio: 100
+        %}
+      </div>
+    </div>
+  {% endunless %}
+  <div class="col-12 unflex article__content">
+    <article class="article__max-width ">
+      {{ article.content }}
+    </article>
+  </div>
+  <div class="col-12 article__max-width article__tags">
+    {% unless article.tags.size == 0 %}
+      <span>{{ 'general.tags.tags' | t }}: </span>
+      {% for tag in article.tags %}
+        <a href="{{blog.url}}/tagged/{{tag|handleize}}" class="article__tags--tag">{{ tag }}</a>
+      {% endfor %}
+    {% endunless %}
+  </div>
+</div>
+
+{% if settings.showArticleArrow %}
+  {% render 'block__article--next__prev' %}
+{% endif %}
+
+{% if blog.comments_enabled? %}
+  <div class="article__max-width">
+    <h2>{{ number_of_comments }} comments</h2>
+    {% paginate article.comments by 5 %}
+      {% for comment in article.comments %}
+        <div>
+          <h4>{{ comment.author }} @ {{ comment.created_at | date: '%a, %b %d, %y' }}</h4>
+          <div>{{ comment.content }}</div>
+        </div>
+      {% endfor %}
+      {% if paginate.pages > 1 %}
+        {{ paginate | default_pagination }}
+      {% endif %}
+    {% endpaginate %}
+  </div>
+
+  <div class="article__max-width ">
+    {% form 'new_comment', article %}
+      {{ form.errors | default_errors }}
+      <div class="article_form--group">
+        <label for="CommentAuthor">Name</label>
+        <input
+          type="text"
+          name="comment[author]"
+          id="CommentAuthor"
+          placeholder="Name"
+          value="{{ form.author }}"
+          autocapitalize="words"
+        >
+      </div>
+
+      <div class="article_form--group">
+        <label for="CommentEmail">Email</label>
+        <input
+          type="email"
+          name="comment[email]"
+          id="CommentEmail"
+          placeholder="Email"
+          value="{{ form.email }}"
+          autocorrect="off"
+          autocapitalize="off"
+        >
+      </div>
+
+      <div class="article_form--group">
+        <label for="CommentBody">Message</label>
+        <textarea name="comment[body]" rows="4" id="CommentBody" placeholder="Message">{{ form.body }}</textarea>
+      </div>
+
+      <input type="submit" value="Submit" class="article_form--submit">
+    {% endform %}
+  </div>
+{% endif %}

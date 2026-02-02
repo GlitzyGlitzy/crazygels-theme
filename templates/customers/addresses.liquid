@@ -1,0 +1,172 @@
+<!-- /templates/customers/addresses.liquid -->
+
+
+{% section 'banner--account' %}
+
+{% comment %} 
+order.attributes
+order.billing_address
+order.cancelled
+order.cancelled_at
+order.cancel_reason
+order.cancel_reason_label
+order.cart_level_discount_applications
+
+order.customer
+order.customer_url
+order.discount_applications
+order.email
+
+order.line_items
+order.line_items_subtotal_price
+order.location
+order.note
+order.order_number
+order.order_status_url
+order.phone
+order.shipping_address
+order.shipping_methods
+order.shipping_price
+order.subtotal_price
+order.tags
+order.tax_lines
+order.tax_price
+order.total_discounts
+order.total_net_amount
+order.total_refunded_amount
+order.transactions
+
+order.financial_status
+order.financial_status_label
+order.fulfillment_status
+order.fulfillment_status_label
+order.name
+order.created_at
+order.total_price
+{% endcomment %}
+
+{% if customer.default_address %}
+  {% assign daddy = true %}
+{% else %}
+  {% assign daddy = false %}
+{% endif %}
+
+<script>
+function editForm(e){
+  let t = e.target;
+  let tempt = t.dataset.toggleText;
+  t.dataset.toggleText = t.innerText;
+  t.innerText = tempt;
+  let p = t.closest('.address__form');
+  let inputs = p.querySelectorAll('input');
+  let state = p.dataset.state;
+  let bool;
+  if(state == "disabled"){
+    p.dataset.state = "enabled";
+    bool = false;
+  } else {
+    p.dataset.state = "disabled";
+    bool = true;
+  }
+  for(let input of inputs){
+    input.disabled = bool;
+  }
+}
+
+function confirmDelete(e){
+  if(!window.confirm('Are you sure you want to delete this address?')){
+    e.preventDefault();
+  }
+}
+</script>
+
+<div class="account__page row">
+  <div class="account__addresses unflex col-12 col-md-6">
+    {% for addy in customer.addresses %}
+    <div data-state="disabled" class="address__form" style="margin-bottom: 24px;">
+      <h2 style="margin-bottom: 12px;" class="h-reset col-12 no-gap">{{'customer_area.account.address' | t}} {{forloop.index}} <span class="address__edit__toggle" data-toggle-text="Cancel" onclick="editForm(event)">Edit address</span></h2>
+      {% form 'customer_address', addy %}
+      {% if form.posted_successfully? %}
+        {{'customer_area.account.update_addy' | t}}
+      {% else %}
+        {{ form.errors | default_errors }}
+      {% endif %}
+      <label>First name</label>
+      <input disabled value="{{addy.first_name}}" name="address[first_name]">
+      <label>Last name</label>
+      <input disabled value="{{addy.last_name}}" name="address[last_name]">
+      <label>Company (optional)</label>
+      <input disabled value="{{addy.company}}" placeholder="Company" name="address[company]">
+      <label>Address 1</label>
+      <input disabled value="{{addy.address1}}" name="address[address1]">
+      <label>Address 2 (optional)</label>
+      <input disabled value="{{addy.address2}}" placeholder="Address 2" name="address[address2]">
+      <label>City</label>
+      <input disabled value="{{addy.city}}" name="address[city]">
+      <label>Country</label>
+      <input disabled value="{{addy.country}}" name="address[country]">
+      <label>Province</label>
+      <input disabled value="{{addy.province}}" placeholder="Province" name="address[province]">
+      <label>ZIP</label>
+      <input disabled value="{{addy.zip}}" placeholder="ZIP" name="address[zip]">
+      <label>Phone</label>
+      <input disabled value="{{addy.phone}}" placeholder="Phone" name="address[phone]">
+      <input disabled type="submit" class="button button--primary button--primary__filled" value="Save changes">
+      {% endform %}
+      <form
+        method="post"
+        action="/account/addresses/{{ addy.id }}"
+      >
+        <input type="hidden" name="_method" value="delete" />
+        <input onclick="confirmDelete(event)" disabled type="submit" class="button button--secondary button--secondary__filled" value="Delete address">
+      </form>
+    </div>
+    {% else %}
+    <h2 class="h-reset">{{'customer_area.account.no_addy' | t}}</h2>
+    {% endfor %}
+  </div>
+  <div class="col-12 col-md-6 no-gap wrap top">
+    <input id="form__toggle" type="checkbox" class="form__toggle col-12">
+    <div class="col-12">
+      <label class="button button--primary button--filled button--primary__filled  form__toggle__label" for="form__toggle"></label>
+    </div>
+    <div class="customer__form col-12 col-md-6 center end-md" style="max-width: 360px;">
+    {% form 'customer_address', customer.new_address %}
+    {% if form.posted_successfully? %}
+      {{'customer_area.account.success_addy' | t}}
+    {% else %}
+      {% assign errors = form.errors | default_errors %}
+    {% endif %}
+      <label>First name</label>
+      <input name="address[first_name]">
+      <label>Last name</label>
+      <input name="address[last_name]">
+      <label>Company (optional)</label>
+      <input name="address[company]">
+      <label>Address 1</label>
+      <input name="address[address1]">
+      <label>Address 2 (optional)</label>
+      <input name="address[address2]">
+      <label>City</label>
+      <input name="address[city]">
+      <label>Country</label>
+      <input name="address[country]">
+      <label>Province</label>
+      <input name="address[province]">
+      <label>ZIP</label>
+      <input name="address[zip]">
+      <label>Phone</label>
+      <input name="address[phone]">
+      <input type="submit" class="button button--primary button--filled button--primary__filled" value="Add an address">
+    {% endform %}
+    </div>
+    {% if errors != blank %}
+    <div style="margin-left: auto;" class="unflex end">
+      You need to correct the following errors: 
+      {{errors}}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+

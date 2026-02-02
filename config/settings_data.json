@@ -1,0 +1,534 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "current": {
+    "demo": false,
+    "textLogo": "CRAZY GELS",
+    "defaultLogo": "shopify://shop_images/crazygels-logo-full-bg.png",
+    "darkLogo": "shopify://shop_images/crazygels-logo-full-bg.png",
+    "transparentLogo": "shopify://shop_images/crazygels-logo-full-bg.png",
+    "mobileLogo": "shopify://shop_images/crazygels-logo-full-bg.png",
+    "favicon": "shopify://shop_images/crazygels-icon-no-bg.png",
+    "storeLocation": "Tacitusstr.90",
+    "storeEmail": "info@crazygels.com",
+    "storePhone": "+4916092527436",
+    "sFacebook": "https://www.facebook.com/crazygels",
+    "sInstagram": "https://www.instagram.com/crazy.gels",
+    "sTwitter": "",
+    "sWhatsapp": "",
+    "sWe": "",
+    "sYoutube": "",
+    "sSnapchat": "",
+    "sViber": "",
+    "sPinterest": "",
+    "sVK": "",
+    "sDA": "",
+    "sTikTok": "https://www.tiktok.com/@cazygels?_t=8i4pyH0dcxM&_r=1",
+    "sTwitch": "",
+    "sLinkedin": "",
+    "baseLayout": "stretchContent",
+    "baseMaxWidth": "1180",
+    "baseBorderRadius": 5,
+    "baseBorderRadiusSmall": 20,
+    "baseSectionMargin": 10,
+    "pagination": "loadmore",
+    "breadcrumbs": true,
+    "baseBackground": "#ffffff",
+    "baseText": "#0d0d0d",
+    "baseTitle": "#0d0d0d",
+    "baseSecondaryBackground": "#FFFFFF",
+    "baseSecondaryText": "#0d0d0d",
+    "baseLink": "#ff00b0",
+    "primaryAccentBackground": "#FFFFFF",
+    "primaryAccentText": "#0d0d0d",
+    "secondaryAccentBackground": "#FFFFFF",
+    "secondaryAccentText": "#0d0d0d",
+    "baseAlert": "#9b076f",
+    "primaryFont": "serif",
+    "secondaryFont": "montserrat_n4",
+    "smallFontSize": 16,
+    "baseFontSize": 20,
+    "mediumFontSize": 40,
+    "headingFontSize": 0,
+    "subHeadingFontSize": 0,
+    "buttonFontSize": "baseFontSize",
+    "buttonPaddingHorizontal": 14,
+    "buttonPaddingVertical": 7,
+    "primaryButtonStyle": "filled",
+    "primaryButtonColorCombo": "primaryCombo",
+    "primaryButtonCustomFill": "#0d0d0d",
+    "primaryButtonCustomContent": "#ffffff",
+    "primaryButtonHover": "custom",
+    "primaryButtonCustomHoverFill": "#0d0d0d",
+    "primaryButtonCustomHoverContent": "#ff00b0",
+    "primaryButtonCustomBorder": false,
+    "primaryButtonBorderRadius": 0,
+    "primaryButtonBorderWidth": 0,
+    "secondaryButtonColorCombo": "customCombo",
+    "secondaryButtonCustomFill": "#0d0d0d",
+    "secondaryButtonCustomContent": "#ff00b0",
+    "secondaryButtonHover": "darken",
+    "secondaryButtonCustomHoverFill": "#ff00b0",
+    "inputFill": "#ff00b0",
+    "inputBorderColor": "#0d0d0d",
+    "inputCustomBorder": false,
+    "inputBorderRadius": 1,
+    "addToCartColor": "secondary",
+    "addToCartType": "default",
+    "addToCartIcon": "shopping-cart",
+    "addToCartFontSize": "base",
+    "buyNowColor": "primary",
+    "buyNowType": "default",
+    "buyNowFontSize": "base",
+    "buyNowTransform": "uppercase",
+    "headerType": "default",
+    "cardDesktop": "3",
+    "cardMobile": "6",
+    "baseCardPadding": 13,
+    "cardImageFit": "contain",
+    "cardImageRatio": "100",
+    "cardImageRatioWidth": "16",
+    "cardStyle": "none",
+    "cardFWButton": false,
+    "cardShowGallery": true,
+    "cardShowSecondary": false,
+    "cardTextAlign": "left",
+    "cardShowBrand": false,
+    "cardShowRating": true,
+    "cardBrandColor": "#391241",
+    "cardBrandWeight": "400",
+    "cardNameColor": "#000",
+    "cardNameWeight": "700",
+    "cardNameLimit": "chars",
+    "cardNameLimitAmount": 23,
+    "cardPriceColor": "#391241",
+    "cardOldPriceColor": "#472854",
+    "cardNewPriceColor": "#0d0d0d",
+    "cardNewPriceWeight": "700",
+    "tagEnabled": true,
+    "tagPosition": "top-right",
+    "saleType": "percent",
+    "tagSaleColor": "#0d0d0d",
+    "tagSoldOut": false,
+    "collectionCardTextAlign": "center",
+    "collectionCardCustomSize": 20,
+    "collectionCardTextFont": "base",
+    "collectionCardOverlayOpacity": 5,
+    "blogCardStyle": "default",
+    "blogCardAuthor": false,
+    "blogCardExcerpt": true,
+    "variantShowImage": true,
+    "defaultSelector": "swatch",
+    "swatchLogic": "amazon",
+    "disabledSwatchStyle": "hide",
+    "imageSwatches": "Color",
+    "cartStyle": "drawer",
+    "quickBuy": true,
+    "dynamicCheckout": true,
+    "cartAction": "minicart",
+    "lazyLoadSvg": false,
+    "nativeLazyLoad": false,
+    "geolocation": false,
+    "multilanguage": false,
+    "shopCurrency": "multicurrency",
+    "enabledCurrencies": "",
+    "currencyFormat": "money_format",
+    "copycat": false,
+    "copycatText": false,
+    "BPDynTitle": "IN STOCK",
+    "cartTimer": false,
+    "countdown": false,
+    "recentlyBought": false,
+    "reviewApp": "alireviews",
+    "freeShippingAmount": "50.00",
+    "optimizedMessenger": false,
+    "gdpr": false,
+    "floatingContact": false,
+    "floatingContactColor": "#FFFFFF",
+    "floatingContactIconColor": "#000",
+    "backTopBtn": true,
+    "backTopBtnMobile": true,
+    "backTopBtnBorder": 3,
+    "bodyHTML": "",
+    "jQuery": true,
+    "checkout_logo_image": "shopify://shop_images/Crazy_Gels_-_Premium_Semi_cured_Gel_Nails.png",
+    "checkout_logo_position": "left",
+    "sections": {
+      "top-info-bar": {
+        "type": "top-info-bar",
+        "settings": {
+          "enabled": true,
+          "enabledMobile": true,
+          "layout": "default",
+          "height": 35,
+          "fontSize": "font__size--base",
+          "colorCombo": "customCombo",
+          "customFillColor": "#0d0d0d",
+          "customContentColor": "#ebeff3"
+        }
+      },
+      "info-badges": {
+        "type": "info-badges",
+        "blocks": {
+          "fd5af8ef-fb9f-490a-b4da-4144a48a519d": {
+            "type": "infoBadge",
+            "settings": {
+              "icon": "shopping-bag",
+              "heading": "This is awesome!",
+              "subheading": "This is even more info about how awesome this is!"
+            }
+          },
+          "8f34a1fd-57f1-476d-b533-de18777ba59d": {
+            "type": "infoBadge",
+            "settings": {
+              "icon": "shopping-cart",
+              "heading": "This is awesome!",
+              "subheading": "This is even more info about how awesome this is!"
+            }
+          },
+          "8f34a1fd-b533-de18777ba59d": {
+            "type": "infoBadge",
+            "settings": {
+              "icon": "shopping-cart",
+              "heading": "This is awesome!",
+              "subheading": "There is no way it can get any more awesome?!"
+            }
+          }
+        },
+        "block_order": [
+          "fd5af8ef-fb9f-490a-b4da-4144a48a519d",
+          "8f34a1fd-57f1-476d-b533-de18777ba59d",
+          "8f34a1fd-b533-de18777ba59d"
+        ],
+        "settings": {
+          "enabled": false,
+          "displayFor": "display--both",
+          "layout": "default",
+          "nomargin": true,
+          "scopedCSS": "",
+          "height": 0,
+          "padding": 0,
+          "lineMargin": 12,
+          "backgroundColor": "rgba(0,0,0,0)",
+          "backgroundPosition": "middle",
+          "backgroundFilter": "none",
+          "backdropIntensity": 50,
+          "parallax": false,
+          "backgroundPattern": false,
+          "overlayOpacity": 0,
+          "overlayColor": "#000000",
+          "contentColor": "rgba(0,0,0,0)",
+          "horizontalAlignment": "end",
+          "verticalAlignment": "middle",
+          "iconPosition": "icon--left"
+        }
+      },
+      "footer": {
+        "type": "footer",
+        "blocks": {
+          "06e04fbf-1646-47c1-849b-5f2b943d143a": {
+            "type": "footerSocial",
+            "settings": {
+              "width": "6",
+              "horizontalAlignment": "center",
+              "verticalAlignment": "top",
+              "heading": "Follow Us"
+            }
+          },
+          "86699e12-4928-49f9-98a0-9df9a290c34a": {
+            "type": "footerPayment",
+            "settings": {
+              "width": "6",
+              "horizontalAlignment": "start",
+              "verticalAlignment": "top",
+              "heading": "Payment Options",
+              "customIcons": true,
+              "icons": "afterpay, american_express, apple_pay, discover, google_pay, maestro, master, paypal, shopify_pay, visa"
+            }
+          },
+          "6eee2141-93a2-4a30-9be0-6a2ed7051ca2": {
+            "type": "footerContact",
+            "settings": {
+              "width": "auto",
+              "horizontalAlignment": "start",
+              "verticalAlignment": "top",
+              "heading": "Contact Us",
+              "phoneText": "+49 16092527436",
+              "emailText": "info@crazygels.com"
+            }
+          }
+        },
+        "block_order": [
+          "06e04fbf-1646-47c1-849b-5f2b943d143a",
+          "86699e12-4928-49f9-98a0-9df9a290c34a",
+          "6eee2141-93a2-4a30-9be0-6a2ed7051ca2"
+        ],
+        "settings": {
+          "layout": "default",
+          "fillColor": "#5d4368",
+          "footerLinearBg": "",
+          "contentColor": "#ffffff",
+          "spacing": 27
+        }
+      },
+      "subfooter": {
+        "type": "subfooter",
+        "blocks": {
+          "text-01": {
+            "type": "footerText",
+            "settings": {
+              "width": "auto",
+              "horizontalAlignment": "start",
+              "verticalAlignment": "middle",
+              "heading": "",
+              "text": "<p>©2023,Crazy Gels</p>"
+            }
+          }
+        },
+        "block_order": [
+          "text-01"
+        ],
+        "settings": {
+          "layout": "default",
+          "fillColor": "#391241",
+          "contentColor": "#ffffff",
+          "spacing": 0
+        }
+      },
+      "header--default": {
+        "type": "header--default",
+        "settings": {
+          "layout": "default",
+          "minHeight": 80,
+          "borderRadius": 0,
+          "shadow": true,
+          "menuLinks": "main-menu",
+          "megamenu": false,
+          "logoWidth": 110,
+          "logoHeight": 135,
+          "sticky": true,
+          "contentMargin": 0,
+          "desktopCart": true,
+          "headerBg": "#fdeef5",
+          "headerLinearBg": "",
+          "linkColor": "#0d0d0d",
+          "accentColor": "#0d0d0d",
+          "hoverStyle": "dotBelow",
+          "tagBgColor": "#000000",
+          "tagTextColor": "#ffffff",
+          "transparent": false,
+          "linkColorT": "#ffffff",
+          "accentColorT": "#efefef",
+          "fontSize": "base",
+          "customFont": false,
+          "fontFamily": "mono",
+          "menu_icon": "bars",
+          "cartIcon": "shopping-cart",
+          "mobileLogoPosition": "center",
+          "mobileCart": true
+        }
+      },
+      "bottom-info-bar": {
+        "type": "bottom-info-bar",
+        "settings": {
+          "enabled": false,
+          "enabledMobile": false,
+          "layout": "default",
+          "height": 45,
+          "fontSize": "font__size--medium",
+          "colorCombo": "primaryCombo",
+          "customFillColor": "rgba(0,0,0,0)",
+          "customContentColor": "rgba(0,0,0,0)"
+        }
+      },
+      "api__upsell": {
+        "type": "api__upsell",
+        "settings": {
+          "defaultCollection": "nails"
+        }
+      },
+      "banner--login": {
+        "type": "banner--login",
+        "settings": {
+          "layout": "default",
+          "height": 300,
+          "horizontalAlignment": "center",
+          "verticalAlignment": "middle",
+          "fontSize": "medium",
+          "contentColor": "rgba(0,0,0,0)",
+          "fillColor": "rgba(0,0,0,0)",
+          "overlayOpacity": 0,
+          "overlayColor": "#000000"
+        }
+      },
+      "header--logo-top": {
+        "type": "header--logo-top",
+        "settings": {
+          "layout": "default",
+          "minHeight": 0,
+          "borderRadius": 0,
+          "shadow": true,
+          "menuLinks": "",
+          "megamenu": true,
+          "linkPosition": "center",
+          "logoWidth": 160,
+          "logoHeight": 0,
+          "desktopLogoPosition": "left",
+          "sticky": true,
+          "contentMargin": 0,
+          "desktopCart": true,
+          "headerBg": "rgba(0,0,0,0)",
+          "headerLinearBg": "",
+          "linkColor": "#000000",
+          "accentColor": "#000000",
+          "hoverStyle": "fill",
+          "tagBgColor": "#000",
+          "tagTextColor": "#FFF",
+          "transparent": false,
+          "linkColorT": "#FFF",
+          "accentColorT": "#EFEFEF",
+          "fontSize": "base",
+          "customFont": false,
+          "fontFamily": "work_sans_n6",
+          "menu_icon": "bars",
+          "cartIcon": "shopping-cart",
+          "mobileLogoPosition": "left",
+          "mobileCart": true
+        }
+      },
+      "header--inline-search": {
+        "type": "header--inline-search",
+        "settings": {
+          "layout": "default",
+          "minHeight": 0,
+          "borderRadius": 0,
+          "shadow": true,
+          "menuLinks": "",
+          "megamenu": true,
+          "linkPosition": "center",
+          "logoWidth": 160,
+          "logoHeight": 0,
+          "desktopLogoPosition": "left",
+          "sticky": true,
+          "contentMargin": 0,
+          "desktopCart": true,
+          "headerBg": "rgba(0,0,0,0)",
+          "headerLinearBg": "",
+          "linkColor": "#000000",
+          "accentColor": "#000000",
+          "hoverStyle": "fill",
+          "tagBgColor": "#000",
+          "tagTextColor": "#FFF",
+          "transparent": false,
+          "linkColorT": "#FFF",
+          "accentColorT": "#EFEFEF",
+          "searchBg": "rgba(0,0,0,0)",
+          "searchText": "rgba(0,0,0,0)",
+          "fontSize": "base",
+          "customFont": false,
+          "fontFamily": "work_sans_n6",
+          "menu_icon": "bars",
+          "cartIcon": "shopping-cart",
+          "mobileLogoPosition": "left",
+          "mobileCart": true
+        }
+      }
+    },
+    "content_for_index": [],
+    "blocks": {
+      "17368511000352060744": {
+        "type": "shopify://apps/goaffpro-affiliate-marketing/blocks/goaffpro-embedded-pixel/2f4d802b-86c2-47e4-8096-ae1aa3efbab2",
+        "disabled": false,
+        "settings": {}
+      },
+      "13768625480086291342": {
+        "type": "shopify://apps/forms/blocks/forms/8744a304-fcb1-4347-b211-bb6b4759a76a",
+        "disabled": false,
+        "settings": {}
+      },
+      "9005256451184024879": {
+        "type": "shopify://apps/uppromote-affiliate/blocks/customer-referral/64c32457-930d-4cb9-9641-e24c0d9cf1f4",
+        "disabled": false,
+        "settings": {}
+      },
+      "1996061711396120121": {
+        "type": "shopify://apps/uppromote-affiliate/blocks/message-bar/64c32457-930d-4cb9-9641-e24c0d9cf1f4",
+        "disabled": false,
+        "settings": {}
+      },
+      "6603664506335945664": {
+        "type": "shopify://apps/transtore-language-translate/blocks/switcher_embed_block/afeffe82-e563-4f78-90f4-f1e3d96286c3",
+        "disabled": false,
+        "settings": {}
+      },
+      "15683396631634586217": {
+        "type": "shopify://apps/inbox/blocks/chat/841fc607-4181-4ad1-842d-e24d7f8bad6b",
+        "disabled": false,
+        "settings": {
+          "button_color": "#ffffff",
+          "secondary_color": "#000000",
+          "ternary_color": "#000000",
+          "button_icon": "chat_bubble",
+          "button_text": "chat_with_us",
+          "button_horizontal_position": "bottom_left",
+          "button_vertical_position": "higher",
+          "greeting_message": "👋 Hi, message us with any questions. We're happy to help!"
+        }
+      },
+      "6143736321357441667": {
+        "type": "shopify://apps/tidio-live-chat-chatbots/blocks/app-embed/1002274d-fb18-4939-98f6-5f05a8deeadc",
+        "disabled": false,
+        "settings": {}
+      },
+      "855628211100114053": {
+        "type": "shopify://apps/klaviyo-email-marketing-sms/blocks/klaviyo-onsite-embed/2632fe16-c075-4321-a88b-50b567f42507",
+        "disabled": false,
+        "settings": {}
+      },
+      "6174324309569838175": {
+        "type": "shopify://apps/smile-io/blocks/smile-shopify-app/2fae4e25-1841-4ea2-bc02-bd548478c4f6",
+        "disabled": false,
+        "settings": {}
+      },
+      "12183063181197878126": {
+        "type": "shopify://apps/tangent-quiz/blocks/tangent-popup/51b4f65b-1bd1-4373-a212-7af0ce5a9774",
+        "disabled": false,
+        "settings": {
+          "form_id": "sample",
+          "height": 400,
+          "width": 500,
+          "offset": 20,
+          "bgcolor": "#ffffff"
+        }
+      },
+      "14327677521557774844": {
+        "type": "shopify://apps/simprosys-google-shopping-feed/blocks/core_settings_block/1f0b859e-9fa6-4007-97e8-4513aff5ff3b",
+        "disabled": false,
+        "settings": {}
+      }
+    }
+  },
+  "platform_customizations": {
+    "custom_css": [
+      "/* Landing Page Colors */.crazygels-skincheck-hero {text-align: center; padding: 6rem 2rem; background: linear-gradient(135deg, #fce4ec, #fff3e0); color: #3a2d2d;}",
+      ".crazygels-skincheck-hero h1 {font-family: \"Poppins\", sans-serif; font-size: 2.5rem; margin-bottom: 1rem;}",
+      ".crazygels-skincheck-hero p {font-size: 1.2rem; margin-bottom: 2rem;}",
+      ".cta-button {display: inline-block; background-color: #f48fb1; color: white; padding: 1rem 2rem; border-radius: 50px; font-weight: bold; text-decoration: none; transition: 0.3s ease;}",
+      ".cta-button:hover {background-color: #ec407a;}",
+      ".crazygels-skincheck-section {padding: 4rem 2rem; background-color: #fffaf9; text-align: center;}",
+      ".crazygels-benefits {background-color: #fff3e0; text-align: center; padding: 4rem 2rem;}",
+      ".crazygels-benefits h2 {font-size: 2rem; margin-bottom: 2rem;}",
+      ".crazygels-benefits ul {list-style: none; padding: 0; font-size: 1.1rem; color: #3a2d2d;}",
+      ".crazygels-benefits li {margin-bottom: 1rem;}",
+      ".crazygels-footer-cta {text-align: center; padding: 5rem 2rem; background: linear-gradient(135deg, #fff3e0, #fce4ec);}",
+      ".crazygels-footer-cta h2 {font-size: 2rem; margin-bottom: 2rem;}"
+    ]
+  }
+}

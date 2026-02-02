@@ -1,0 +1,24 @@
+<!-- /templates/customers/register.liquid -->
+{% section 'banner--register' %}
+<div class="customer__form">
+{% form 'create_customer' %} 
+{{ form.errors | default_errors }}
+
+<label for="first_name">{{'customer_area.account.first_name'|t}}</label>
+<input type="text" value="" name="customer[first_name]" />
+
+<label for="last_name">{{'customer_area.account.last_name'|t}}</label>
+<input type="text" value="" name="customer[last_name]"/>
+
+<label for="email">{{'customer_area.forms.email' | t}}</label>
+<input type="email" value="" name="customer[email]" />
+
+<label for="password">{{'customer_area.forms.password' | t}}</label>
+<input type="password" value="" name="customer[password]" />
+
+{% assign regt = 'customer_area.forms.register' | t %}
+{% render 'submit-button', text: regt, type: 'primary', class: 'button--submit' %}
+<a href="{{routes.account_login_url}}" class="button--notice">{{'customer_area.forms.already_member' | t}}</a>
+
+{% endform %} 
+</div>

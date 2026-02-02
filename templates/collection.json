@@ -1,0 +1,102 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "wrapper": "div.row.row--product-list",
+  "sections": {
+    "banner": {
+      "type": "banner--collection",
+      "settings": {
+        "layout": "default",
+        "height": 500,
+        "horizontalAlignment": "start",
+        "verticalAlignment": "middle",
+        "showTitle": true,
+        "showNumber": false,
+        "fontSize": "medium",
+        "showDescription": true,
+        "truncateReadMore": false,
+        "truncateDesc": 0,
+        "contentColor": "#ffffff",
+        "fillColor": "rgba(0,0,0,0)",
+        "useCollectionImage": true,
+        "defaultBackgroundImage": "shopify://shop_images/Untitled_design_2.png",
+        "overlayOpacity": 0,
+        "overlayColor": "#000000"
+      }
+    },
+    "sort": {
+      "type": "sort",
+      "disabled": true,
+      "settings": {}
+    },
+    "filters": {
+      "type": "product-list__filters",
+      "blocks": {
+        "filter-01": {
+          "type": "filter",
+          "settings": {
+            "hideDisabled": true,
+            "expanded": true,
+            "useSwatch": true,
+            "useSwatchList": "color"
+          }
+        },
+        "62045e94-6323-48b0-a692-d48109aecab3": {
+          "type": "collectionList",
+          "settings": {
+            "expanded": true,
+            "name": "Categories",
+            "customList": "activewear-accessories, coats-vests, leggings-bike-shorts, running, sports-bras, t-shirts-and-tank-tops"
+          }
+        }
+      },
+      "block_order": [
+        "filter-01",
+        "62045e94-6323-48b0-a692-d48109aecab3"
+      ],
+      "disabled": true,
+      "settings": {
+        "filter": true
+      }
+    },
+    "content": {
+      "type": "product-list",
+      "settings": {}
+    },
+    "banner-bottom": {
+      "type": "banner--collection__desc",
+      "settings": {
+        "enabled": false,
+        "layout": "default",
+        "height": 300,
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle",
+        "showTitle": true,
+        "showNumber": false,
+        "fontSize": "medium",
+        "showDescription": true,
+        "truncateReadMore": true,
+        "truncateDesc": 0,
+        "contentColor": "rgba(0,0,0,0)",
+        "fillColor": "rgba(0,0,0,0)",
+        "useCollectionImage": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000"
+      }
+    }
+  },
+  "order": [
+    "banner",
+    "sort",
+    "filters",
+    "content",
+    "banner-bottom"
+  ]
+}

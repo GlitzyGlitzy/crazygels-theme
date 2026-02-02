@@ -1,0 +1,169 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "general": {
+    "404": {
+      "title": "Nicht gefunden",
+      "subtext_html": "Die von Ihnen gesuchte Seite existiert nicht",
+      "backToProducts": "Zurück zu den Produkten",
+      "backHome": "Zurück zuhause"
+    },
+    "newsletter_form": {
+      "confirmation": "Danke fürs Abonnieren!"
+    },
+    "buttons": {
+      "buy_now": "Kaufe jetzt",
+      "add_to_cart": "In den Warenkorb legen",
+      "add_to_cart_selection": "Eine Auswahl treffen",
+      "add_to_cart_loading": "Wird in den Warenkorb gelegt...",
+      "view_cart": "Warenkorb ansehen",
+      "sold_out": "Ausverkauft",
+      "inline_upsell": "Nehmen Sie den Deal an",
+      "continue": "Mit dem Einkaufen fortfahren",
+      "checkout": "Kasse",
+      "update_cart": "Warenkorb aktualisieren",
+      "product_page_next": "Nächstes Produkt",
+      "product_page_previous": "Vorheriges Produkt",
+      "show_more": "Zeig mehr",
+      "submit": "Einreichen"
+    },
+    "tags": {
+      "tags": "Stichworte",
+      "sale": "Verkauf",
+      "free": "frei",
+      "off": "AUS"
+    },
+    "search": {
+      "heading": "Finden Sie alles, was Sie brauchen",
+      "placeholder": "Rote Baumwolle...",
+      "no_matches": "Keine Produkte entsprechen Ihren Kriterien"
+    },
+    "countdown": {
+      "days": "Tage",
+      "hours": "Std.",
+      "minutes": "Protokoll",
+      "seconds": "Sekunden"
+    }
+  },
+  "i18n": {
+    "language": "Sprache",
+    "currency": "Währung"
+  },
+  "cart": {
+    "page": {
+      "title": "Ihr Warenkorb",
+      "currency_notice": "Dieser Shop nutzt die Währungsumrechnung. Ihre Bestellung wird in %curr_code% (%curr_symbol%) bearbeitet, auch wenn in den aktuell angezeigten Preisen etwas anderes angegeben ist.",
+      "additional_notes": "Zusätzliche Bemerkungen",
+      "total": "Gesamt",
+      "grand_total": "Gesamtsumme",
+      "discount": "Ersparnisse",
+      "empty_title": "Ihr Warenkorb ist leer!",
+      "empty_text": "Sie haben keine Artikel in Ihrem Warenkorb!",
+      "empty_suggestion": "Hier sind einige der Artikel, von denen wir glauben, dass sie Ihnen gefallen könnten!",
+      "empty_button": "Schauen Sie sich unser Angebot an",
+      "expires": "Ihr Warenkorb läuft in ab"
+    }
+  },
+  "collection_page": {
+    "sidebar": {
+      "all_products": "Alle Produkte",
+      "back_to_all": "Zurück zu allen Produkten"
+    }
+  },
+  "product_page": {
+    "page": {
+      "product_description": "Produktbeschreibung"
+    },
+    "apps": {
+      "in_stock": "NOCH AUF LAGER",
+      "no_stock": "NICHTS MEHR AUF LAGER",
+      "watching": "Ich schaue mir diesen Artikel an.",
+      "cart": "diesen Artikel in ihrem Warenkorb haben."
+    },
+    "card": {
+      "from": "aus "
+    }
+  },
+  "minicart": {
+    "empty_text": "Ihr Warenkorb ist leer",
+    "empty_button": "Schauen Sie sich unser Angebot an"
+  },
+  "contact": {
+    "page": {
+      "success": "Vielen Dank für Ihre Kontaktaufnahme."
+    },
+    "buttons": {
+      "submit": "Einreichen",
+      "back_to_contact": "Zurück zum Kontaktformular"
+    }
+  },
+  "navigation": {
+    "breadcrumbs": {
+      "home": "Heim",
+      "collections": "Sammlungen",
+      "cart": "Wagen"
+    },
+    "buttons": {
+      "prev": "Vorher",
+      "next": "Nächste",
+      "load_more": "Mehr laden",
+      "sign_in": "Anmeldung",
+      "sign_up": "Registrieren",
+      "log_out": "Ausloggen",
+      "back_to_shop": "Zurück zum Shop"
+    }
+  },
+  "upsell": {
+    "added": "Artikel zum Warenkorb hinzugefügt!",
+    "in_cart": "Sie haben %itemCount% in Ihrem Warenkorb.",
+    "total": "Gesamt ist %total%"
+  },
+  "recently_bought": {
+    "purchased": "%name% gekauft:",
+    "ago": "Vor %time% Minuten.",
+    "someone": "Jemand"
+  },
+  "customer_area": {
+    "account": {
+      "order_num": "Best.-Nr.",
+      "date": "Datum",
+      "payment": "Zahlung",
+      "full": "Erfüllung",
+      "total": "Auftragssumme",
+      "tracking": "Verfolgung",
+      "no_orders": "Sie haben noch keine Bestellungen aufgegeben.",
+      "phone": "Telefon",
+      "address": "Adresse",
+      "default_addy": "Standardadresse",
+      "no_addy": "Keine Adresse gefunden.",
+      "edit_addy": "Adressen bearbeiten",
+      "success_addy": "Adresse erfolgreich hinzugefügt.",
+      "update_addy": "Adresse erfolgreich aktualisiert.",
+      "first_name": "Vorname",
+      "last_name": "Familienname, Nachname"
+    },
+    "forms": {
+      "email": "E-Mail-Adresse",
+      "login": "anmelden",
+      "register": "Ein Konto erstellen",
+      "register_here": "Kein Mitglied? Hier registrieren.",
+      "password": "Passwort",
+      "confirm_password": "Passwort Bestätigung",
+      "forgot_password": "Haben Sie Ihr Passwort vergessen?",
+      "already_member": "Schon ein Mitglied? Hier anmelden",
+      "reset_password": "Passwort zurücksetzen",
+      "activate": "Konto aktivieren",
+      "decline": "Einladung ablehnen",
+      "sign_in_title": "Melden Sie sich bei Ihrem Konto an",
+      "sign_up_title": "Ein Konto erstellen",
+      "newsletter_success": "Danke fürs Abonnieren"
+    }
+  }
+}

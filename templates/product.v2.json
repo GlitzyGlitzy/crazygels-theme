@@ -1,0 +1,299 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "breadcrumbs": {
+      "type": "breadcrumbs",
+      "settings": {}
+    },
+    "page": {
+      "type": "product-page__product",
+      "blocks": {
+        "ppTitle": {
+          "type": "productPageTitle",
+          "settings": {
+            "noMargin": true,
+            "color": "rgba(0,0,0,0)",
+            "fontFamily": "base",
+            "fontSize": "medium"
+          }
+        },
+        "ad44ede7-ae24-4fce-9b88-41dc235e3a58": {
+          "type": "productPageReviewStars",
+          "settings": {
+            "noMargin": false
+          }
+        },
+        "ppPrice": {
+          "type": "productPagePrice",
+          "settings": {
+            "noMargin": false,
+            "color": "rgba(0,0,0,0)",
+            "newPriceColor": "rgba(0,0,0,0)",
+            "oldPriceColor": "rgba(0,0,0,0)",
+            "fontFamily": "base",
+            "fontSize": "medium"
+          }
+        },
+        "08a7f3b2-9e60-4cf3-b507-74016d2f0e19": {
+          "type": "productPageDelivery",
+          "settings": {
+            "noMargin": false,
+            "icon": "none",
+            "iconColor": "rgba(0,0,0,0)",
+            "text": "<p>This is a demo store. You can shop this product in the <a href=\"https://www.artoftea.com/\" target=\"_blank\" title=\"https://www.artoftea.com/\"><em><strong>art of tea Website</strong></em></a></p>",
+            "textColor": "#b14141"
+          }
+        },
+        "ppSwatch": {
+          "type": "productPageSwatch",
+          "settings": {
+            "noMargin": false
+          }
+        },
+        "5ffc2a90-4fcd-4200-9ab9-1bb12c24b8cc": {
+          "type": "productPageDelivery",
+          "settings": {
+            "noMargin": true,
+            "icon": "",
+            "iconColor": "rgba(0,0,0,0)",
+            "text": "<p>Products are usually delivered in 3-7 days.</p>",
+            "textColor": "rgba(0,0,0,0)"
+          }
+        },
+        "aedf355c-65cb-4370-a8e9-04b701d23c9b": {
+          "type": "productPageInCart",
+          "settings": {
+            "noMargin": true,
+            "max": "100",
+            "customMax": "",
+            "interval": 8,
+            "iconColor": "rgba(0,0,0,0)",
+            "textColor": "rgba(0,0,0,0)"
+          }
+        },
+        "23e0c480-3050-4e79-87f4-b261770e7bc8": {
+          "type": "productPageWatching",
+          "settings": {
+            "noMargin": false,
+            "max": "100",
+            "customMax": "",
+            "interval": 8,
+            "iconColor": "rgba(0,0,0,0)",
+            "textColor": "rgba(0,0,0,0)"
+          }
+        },
+        "ppStock": {
+          "type": "productPageStock",
+          "settings": {
+            "noMargin": true,
+            "stockLeft": "10",
+            "reduce": 8
+          }
+        },
+        "ppATC": {
+          "type": "productPageATC",
+          "settings": {
+            "noMargin": true,
+            "stickyATC": "scroll"
+          }
+        },
+        "876c8c8e-a42b-45ba-8a38-7c5aac8b6cc1": {
+          "type": "productPageCountdown",
+          "settings": {
+            "noMargin": false,
+            "style": "compact",
+            "title": "LIMITED TIME OFFER",
+            "text": "The price of this item will revert back to %price% at the end of this countdown."
+          }
+        },
+        "cad7d864-2eeb-4553-b0c5-8de7398a37cc": {
+          "type": "productPageBadge",
+          "settings": {
+            "noMargin": false,
+            "badge": "shopify://shop_images/Frame_2.png"
+          }
+        },
+        "4ac5a03f-b45e-47be-86b4-5ff39a39de78": {
+          "type": "productPageDescription",
+          "settings": {
+            "heading": "Product description",
+            "noMargin": true
+          }
+        },
+        "ab7969fe-c77f-47e2-b527-3a59ce418ff9": {
+          "type": "productPageShare",
+          "settings": {
+            "noMargin": false
+          }
+        },
+        "fa248b2c-9cb7-415d-8ac9-d8a195ecf315": {
+          "type": "productPageCountdown",
+          "settings": {
+            "noMargin": false,
+            "style": "compact",
+            "title": "LIMITED TIME OFFER",
+            "text": "The price of this item will revert back to %price% at the end of this countdown."
+          }
+        }
+      },
+      "block_order": [
+        "ppTitle",
+        "ad44ede7-ae24-4fce-9b88-41dc235e3a58",
+        "ppPrice",
+        "08a7f3b2-9e60-4cf3-b507-74016d2f0e19",
+        "ppSwatch",
+        "5ffc2a90-4fcd-4200-9ab9-1bb12c24b8cc",
+        "aedf355c-65cb-4370-a8e9-04b701d23c9b",
+        "23e0c480-3050-4e79-87f4-b261770e7bc8",
+        "ppStock",
+        "ppATC",
+        "876c8c8e-a42b-45ba-8a38-7c5aac8b6cc1",
+        "cad7d864-2eeb-4553-b0c5-8de7398a37cc",
+        "4ac5a03f-b45e-47be-86b4-5ff39a39de78",
+        "ab7969fe-c77f-47e2-b527-3a59ce418ff9",
+        "fa248b2c-9cb7-415d-8ac9-d8a195ecf315"
+      ],
+      "settings": {
+        "view": "default",
+        "layout": "max-width",
+        "galleryStyle": "default",
+        "galleryPosition": "left",
+        "autoZoom": false,
+        "autoChange": false,
+        "galleryImageFit": "cover",
+        "galleryImageGap": 16,
+        "productNavigation": true
+      }
+    },
+    "1661405208ff625cd8": {
+      "type": "section__content",
+      "blocks": {
+        "e968387b-b0c1-4739-afbb-9617018e858f": {
+          "type": "html",
+          "settings": {
+            "blockWidth": "col-md-3",
+            "vertPadding": 12,
+            "horPadding": 4,
+            "horAlign": "center",
+            "vertAlign": "middle",
+            "html": "<div id=\"upsell\"></div>",
+            "customCSS": ""
+          }
+        }
+      },
+      "block_order": [
+        "e968387b-b0c1-4739-afbb-9617018e858f"
+      ],
+      "settings": {
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": false,
+        "scopedCSS": "",
+        "height": 0,
+        "padding": 0,
+        "lineMargin": 12,
+        "backgroundColor": "rgba(0,0,0,0)",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "rgba(0,0,0,0)",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle"
+      }
+    },
+    "upsell": {
+      "type": "api__upsell--inline",
+      "blocks": {
+        "78b92a47-46fe-43b1-beb0-94354623f7a8": {
+          "type": "priceSpecific",
+          "settings": {
+            "conditionType": "mt",
+            "condition": "10",
+            "upsellProduct1": "art-of-tea-iced-tea-tumbler",
+            "upsellProduct2": "art-of-tea-ceremonial-grade-matcha-tin",
+            "upsellProduct3": "",
+            "heading": "",
+            "subheading": ""
+          }
+        }
+      },
+      "block_order": [
+        "78b92a47-46fe-43b1-beb0-94354623f7a8"
+      ],
+      "settings": {}
+    },
+    "1661405238008ec5c1": {
+      "type": "section__content",
+      "blocks": {
+        "7494193a-e5ce-4637-ad06-50fd9dfb7bf0": {
+          "type": "html",
+          "settings": {
+            "blockWidth": "col-md-3",
+            "vertPadding": 12,
+            "horPadding": 4,
+            "horAlign": "center",
+            "vertAlign": "middle",
+            "html": "<div id=\"reco\"> </div>",
+            "customCSS": ""
+          }
+        }
+      },
+      "block_order": [
+        "7494193a-e5ce-4637-ad06-50fd9dfb7bf0"
+      ],
+      "settings": {
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": false,
+        "scopedCSS": "",
+        "height": 0,
+        "padding": 0,
+        "lineMargin": 12,
+        "backgroundColor": "rgba(0,0,0,0)",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "rgba(0,0,0,0)",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle"
+      }
+    },
+    "recommended": {
+      "type": "product-page__recommended",
+      "settings": {
+        "enabled": true,
+        "personalizedOffers": true,
+        "layout": "max-width",
+        "heading": "Recommended for you",
+        "subheading": "CHERRY PICKED PRODUCTS",
+        "subheadingPosition": "above",
+        "textAlignment": "start",
+        "defaultCollection": ""
+      }
+    }
+  },
+  "order": [
+    "breadcrumbs",
+    "page",
+    "1661405208ff625cd8",
+    "upsell",
+    "1661405238008ec5c1",
+    "recommended"
+  ]
+}

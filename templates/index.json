@@ -1,0 +1,516 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "c_image_banner_NEaFmL": {
+      "type": "c-image-banner",
+      "settings": {
+        "heading": "FLAWLESS NAILS IN MINUTES",
+        "paragraph": "<h1><strong>ENJOY SALON QUALITY NAILS WITHOUT NAIL DAMAGE</strong></h1>",
+        "section_url": "shopify://collections/nails",
+        "image": "shopify://shop_images/hero_image_crazygels-min.jpg",
+        "image_mobile": "shopify://shop_images/hero_image_crazygels-min.jpg",
+        "full_width": false,
+        "x_alignment": "center",
+        "y_alignment": "center",
+        "text_alignment": "center",
+        "overlay": 0,
+        "min_height": 55,
+        "use_fixed_height": true,
+        "fixed_height": 80,
+        "padding_top": 2,
+        "padding_bottom": 2
+      }
+    },
+    "0b1d2300-2d81-4c7c-9c36-26e3f28f493e": {
+      "type": "section__image-text",
+      "blocks": {
+        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-title-1": {
+          "type": "title",
+          "settings": {
+            "fullWidth": false,
+            "content": "FLAWLESS NAILS IN MINUTES!",
+            "textColor": "#0d0d0d",
+            "fontFamily": "title",
+            "fontSize": "medium"
+          }
+        },
+        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-richText-1": {
+          "type": "richText",
+          "settings": {
+            "fullWidth": true,
+            "maxBWidth": 100,
+            "content": "<p>ENJOY SALON QUALITY NAILS WITHOUT NAIL DAMAGE</p>",
+            "detectLists": true,
+            "textColor": "rgba(0,0,0,0)",
+            "fontFamily": "base",
+            "fontSize": "base"
+          }
+        },
+        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-button-1": {
+          "type": "button",
+          "settings": {
+            "fullWidth": true,
+            "text": "UNLOCK OFFERS",
+            "url": "shopify://collections/nails",
+            "icon": "",
+            "iconPosition": "icon--left",
+            "wideButton": false,
+            "buttonStyle": "secondary",
+            "buttonType": "default",
+            "fontSize": "small",
+            "fontFamily": "title",
+            "animation": "heartBeat",
+            "animationDuration": 2500,
+            "animationInfinite": false
+          }
+        }
+      },
+      "block_order": [
+        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-title-1",
+        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-richText-1",
+        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-button-1"
+      ],
+      "settings": {
+        "custom_id": "",
+        "displayFor": "hide-desktop",
+        "layout": "default",
+        "nomargin": true,
+        "scopedCSS": "",
+        "height": 0,
+        "padding": 0,
+        "lineMargin": 0,
+        "backgroundColor": "#e6c5d4",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "rgba(0,0,0,0)",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle",
+        "imagePosition": "right",
+        "imageWidth": "9",
+        "image": "shopify://shop_images/no_background_hero.webp",
+        "image_url": "shopify://collections/all",
+        "imageOverlayOpacity": 0,
+        "imageOverlayColor": "#000000",
+        "vertPaddingAccord": 0,
+        "horPaddingAccord": 0
+      }
+    },
+    "bc7ede14-658b-47dc-9a41-d159b412e2ce": {
+      "type": "section__content-text",
+      "blocks": {
+        "7ea0578d-0827-4aa3-83f3-04a922103730": {
+          "type": "imageText",
+          "settings": {
+            "displayFor": "display--both",
+            "layout": "default",
+            "nomargin": false,
+            "scopedCSS": "",
+            "height": 0,
+            "padding": 0,
+            "lineMargin": 0,
+            "backgroundColor": "#fdeef5",
+            "contentColor": "#0d0d0d",
+            "horizontalAlignment": "center",
+            "verticalAlignment": "middle",
+            "imagePosition": "right",
+            "imageWidth": "6",
+            "image": "shopify://shop_images/hero_image_crazygels-min.jpg",
+            "overlayOpacity": 0,
+            "overlayColor": "#000000",
+            "heading": "FLAWLESS NAILS",
+            "text": "<h3> SALON QUALITY NAILS </h3><h3>NO NAIL DAMAGE</h3>",
+            "buttonText": "UNLOCK OFFERS",
+            "url": "shopify://collections/nails",
+            "wideButton": true,
+            "buttonType": "secondary",
+            "buttonStyle": "default"
+          }
+        }
+      },
+      "block_order": [
+        "7ea0578d-0827-4aa3-83f3-04a922103730"
+      ],
+      "settings": {
+        "custom_id": ""
+      }
+    },
+    "39ffde19-ca3f-4bed-ac9e-5562062dcbed": {
+      "type": "section__cta",
+      "blocks": {
+        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-title-1": {
+          "type": "title",
+          "settings": {
+            "fullWidth": true,
+            "content": "LIMITED TIME OFFER",
+            "textColor": "#ffffff",
+            "fontFamily": "title",
+            "fontSize": "medium"
+          }
+        },
+        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-richText-1": {
+          "type": "richText",
+          "settings": {
+            "fullWidth": true,
+            "maxBWidth": 100,
+            "content": "<h2> 15% OFF </h2>",
+            "detectLists": false,
+            "textColor": "#ffffff",
+            "fontFamily": "title",
+            "fontSize": "small"
+          }
+        },
+        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-button-1": {
+          "type": "button",
+          "settings": {
+            "fullWidth": true,
+            "text": "GET YOURS",
+            "url": "shopify://collections/nails",
+            "icon": "",
+            "iconPosition": "icon--left",
+            "wideButton": false,
+            "buttonStyle": "secondary",
+            "buttonType": "ghost",
+            "fontSize": "base",
+            "fontFamily": "title",
+            "animation": "heartBeat",
+            "animationDuration": 1375,
+            "animationInfinite": true
+          }
+        }
+      },
+      "block_order": [
+        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-title-1",
+        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-richText-1",
+        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-button-1"
+      ],
+      "settings": {
+        "custom_id": "",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": true,
+        "scopedCSS": "",
+        "height": 200,
+        "padding": 0,
+        "lineMargin": 0,
+        "backgroundColor": "#000000",
+        "backgroundImageUrl": "",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "#ffffff",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle",
+        "maxContentWidth": 100,
+        "heading": "",
+        "headingColor": "rgba(0,0,0,0)",
+        "subheading": "",
+        "subheadingColor": "rgba(0,0,0,0)",
+        "subheadingPosition": "above",
+        "headingAlignment": "center"
+      }
+    },
+    "16265528618af17c6c": {
+      "type": "section__cta",
+      "blocks": {
+        "16265528618af17c6c-0": {
+          "type": "title",
+          "settings": {
+            "fullWidth": true,
+            "content": "CRAZY GELS",
+            "textColor": "#391241",
+            "fontFamily": "title",
+            "fontSize": "medium"
+          }
+        },
+        "16265528618af17c6c-1": {
+          "type": "richText",
+          "settings": {
+            "fullWidth": true,
+            "maxBWidth": 50,
+            "content": "<p>-Protect and grow your nails with Crazy Gels </p><p>-Cut down on salon visits and save time</p><p>-Save even more subscribe to our VIP package </p>",
+            "detectLists": true,
+            "textColor": "rgba(0,0,0,0)",
+            "fontFamily": "base",
+            "fontSize": "base"
+          }
+        }
+      },
+      "block_order": [
+        "16265528618af17c6c-0",
+        "16265528618af17c6c-1"
+      ],
+      "settings": {
+        "custom_id": "",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": false,
+        "scopedCSS": "",
+        "height": 200,
+        "padding": 20,
+        "lineMargin": 0,
+        "backgroundColor": "#f8e8ff",
+        "backgroundImageUrl": "",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "#391241",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle",
+        "maxContentWidth": 100,
+        "heading": "",
+        "headingColor": "rgba(0,0,0,0)",
+        "subheading": "",
+        "subheadingColor": "rgba(0,0,0,0)",
+        "subheadingPosition": "above",
+        "headingAlignment": "center"
+      }
+    },
+    "16265529277430f275": {
+      "type": "section__featured-collection",
+      "settings": {
+        "custom_id": "",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": false,
+        "scopedCSS": "",
+        "height": 150,
+        "padding": 5,
+        "backgroundColor": "#cfb4d9",
+        "heading": "We Have IT",
+        "headingColor": "#0d0d0d",
+        "subheading": "Your Favorites",
+        "subheadingColor": "#000000",
+        "subheadingPosition": "below",
+        "headingAlignment": "center",
+        "collection": "all-products",
+        "productCount": 8,
+        "showMore": true,
+        "showMoreText": "MORE",
+        "showMoreAlignment": "center"
+      }
+    },
+    "5825d15c-1ad3-48a6-86d6-f863f3c776eb": {
+      "type": "section__cta",
+      "blocks": {
+        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-0": {
+          "type": "title",
+          "settings": {
+            "fullWidth": true,
+            "content": "Crazy Gels Family",
+            "textColor": "#0d0d0d",
+            "fontFamily": "title",
+            "fontSize": "big"
+          }
+        },
+        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-1": {
+          "type": "richText",
+          "settings": {
+            "fullWidth": true,
+            "maxBWidth": 100,
+            "content": "<p>Join Now and be part of our Fam </p>",
+            "detectLists": true,
+            "textColor": "#0d0d0d",
+            "fontFamily": "title",
+            "fontSize": "base"
+          }
+        },
+        "a5ba7003-740a-4f01-b7f7-ab81d26e712c": {
+          "type": "blockNewsletter",
+          "settings": {
+            "fullWidth": true,
+            "newsletter": "shopify",
+            "inputMaxWidth": 500,
+            "inputText": "#0d0d0d",
+            "inputBackground": "#ffffff",
+            "email": "e-mail",
+            "buttonType": "secondary",
+            "submit": "SUB-UP"
+          }
+        }
+      },
+      "block_order": [
+        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-0",
+        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-1",
+        "a5ba7003-740a-4f01-b7f7-ab81d26e712c"
+      ],
+      "settings": {
+        "custom_id": "",
+        "displayFor": "display--both",
+        "layout": "boxed",
+        "nomargin": false,
+        "scopedCSS": "",
+        "height": 290,
+        "padding": 20,
+        "lineMargin": 12,
+        "backgroundColor": "#cfb4d9",
+        "backgroundImageUrl": "",
+        "backgroundPosition": "middle",
+        "backgroundFilter": "none",
+        "backdropIntensity": 50,
+        "parallax": false,
+        "backgroundPattern": false,
+        "overlayOpacity": 0,
+        "overlayColor": "#000000",
+        "contentColor": "rgba(0,0,0,0)",
+        "horizontalAlignment": "center",
+        "verticalAlignment": "middle",
+        "maxContentWidth": 100,
+        "heading": "",
+        "headingColor": "rgba(0,0,0,0)",
+        "subheading": "",
+        "subheadingColor": "rgba(0,0,0,0)",
+        "subheadingPosition": "above",
+        "headingAlignment": "center"
+      }
+    },
+    "bfae8abf-46a0-4206-af36-49414f5c118a": {
+      "type": "section__featured-collection",
+      "settings": {
+        "custom_id": "{{ section.settings.collection.title }}",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": true,
+        "scopedCSS": "",
+        "height": 390,
+        "padding": 20,
+        "backgroundColor": "rgba(0,0,0,0)",
+        "heading": "Crazy Nails",
+        "headingColor": "#0d0d0d",
+        "subheading": "",
+        "subheadingColor": "rgba(0,0,0,0)",
+        "subheadingPosition": "above",
+        "headingAlignment": "center",
+        "collection": "nails",
+        "productCount": 12,
+        "showMore": true,
+        "showMoreText": "MORE",
+        "showMoreAlignment": "center"
+      }
+    },
+    "section_slider_adaptive_WbkwWh": {
+      "type": "section__slider--adaptive",
+      "blocks": {
+        "image_slide_adaptive_3cTUXP": {
+          "type": "imageSlideAdaptive",
+          "settings": {
+            "horizontalAlignment": "center",
+            "verticalAlignment": "middle",
+            "padding": 16,
+            "contentSpacing": 12,
+            "backgroundColor": "rgba(0,0,0,0)",
+            "backgroundPosition": "middle",
+            "overlayOpacity": 40,
+            "overlayColor": "#000000",
+            "slideURL": "",
+            "heading": "This is your slide's heading",
+            "headingColor": "rgba(0,0,0,0)",
+            "content": "<p>Enjoy the flexibility</p>",
+            "contentColor": "rgba(0,0,0,0)",
+            "button1Text": "Primary button",
+            "button1Link": "",
+            "button1Style": "primary",
+            "button1Type": "default",
+            "button2Text": "Secondary button",
+            "button2Link": "",
+            "button2Style": "secondary",
+            "button2Type": "default"
+          }
+        }
+      },
+      "block_order": [
+        "image_slide_adaptive_3cTUXP"
+      ],
+      "settings": {
+        "custom_id": "",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": true,
+        "height": 0,
+        "contentColor": "rgba(0,0,0,0)",
+        "autoplay": true,
+        "slideSpeed": 3,
+        "animation": "none",
+        "delayAnimation": false
+      }
+    },
+    "section_slider_adaptive_pqeGqf": {
+      "type": "section__slider--adaptive",
+      "blocks": {
+        "image_slide_adaptive_VRxEKz": {
+          "type": "imageSlideAdaptive",
+          "settings": {
+            "horizontalAlignment": "center",
+            "verticalAlignment": "middle",
+            "padding": 16,
+            "contentSpacing": 12,
+            "backgroundColor": "rgba(0,0,0,0)",
+            "backgroundPosition": "middle",
+            "overlayOpacity": 40,
+            "overlayColor": "#000000",
+            "slideURL": "",
+            "heading": "This is your slide's heading",
+            "headingColor": "rgba(0,0,0,0)",
+            "content": "<p>Enjoy the flexibility</p>",
+            "contentColor": "rgba(0,0,0,0)",
+            "button1Text": "Primary button",
+            "button1Link": "",
+            "button1Style": "primary",
+            "button1Type": "default",
+            "button2Text": "Secondary button",
+            "button2Link": "",
+            "button2Style": "secondary",
+            "button2Type": "default"
+          }
+        }
+      },
+      "block_order": [
+        "image_slide_adaptive_VRxEKz"
+      ],
+      "settings": {
+        "custom_id": "",
+        "displayFor": "display--both",
+        "layout": "default",
+        "nomargin": false,
+        "height": 0,
+        "contentColor": "rgba(0,0,0,0)",
+        "autoplay": true,
+        "slideSpeed": 3,
+        "animation": "none",
+        "delayAnimation": false
+      }
+    }
+  },
+  "order": [
+    "c_image_banner_NEaFmL",
+    "0b1d2300-2d81-4c7c-9c36-26e3f28f493e",
+    "bc7ede14-658b-47dc-9a41-d159b412e2ce",
+    "39ffde19-ca3f-4bed-ac9e-5562062dcbed",
+    "16265528618af17c6c",
+    "16265529277430f275",
+    "5825d15c-1ad3-48a6-86d6-f863f3c776eb",
+    "bfae8abf-46a0-4206-af36-49414f5c118a",
+    "section_slider_adaptive_WbkwWh",
+    "section_slider_adaptive_pqeGqf"
+  ]
+}

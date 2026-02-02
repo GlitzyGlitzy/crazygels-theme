@@ -1,0 +1,175 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin language editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "shopify": {
+    "checkout": {
+      "payment": {
+        "store_credit": {
+          "no_fixed_selling_plans": "Vous ne pouvez pas utiliser le crédit en magasin avec les options d'achat différé"
+        }
+      }
+    }
+  },
+  "general": {
+    "404": {
+      "title": "Pas trouvé",
+      "subtext_html": "La page que vous cherchiez n'existe pas",
+      "backToProducts": "Retour aux produits",
+      "backHome": "Retour à la maison"
+    },
+    "newsletter_form": {
+      "confirmation": "Merci de vous être abonné!"
+    },
+    "buttons": {
+      "buy_now": "Acheter maintenant",
+      "add_to_cart": "Ajouter au panier",
+      "add_to_cart_selection": "Choisissez",
+      "add_to_cart_loading": "Ajout au panier...",
+      "view_cart": "Voir le panier",
+      "sold_out": "Épuisé",
+      "inline_upsell": "Acceptez l'affaire",
+      "continue": "Continuer vos achats",
+      "checkout": "Vérifier",
+      "update_cart": "Mise à jour panier",
+      "product_page_next": "Produit suivant",
+      "product_page_previous": "Produit précédent",
+      "show_more": "Montre plus",
+      "submit": "Soumettre"
+    },
+    "tags": {
+      "tags": "Mots clés",
+      "sale": "vente",
+      "free": "gratuit",
+      "off": "DÉSACTIVÉ"
+    },
+    "search": {
+      "heading": "Trouvez tout ce dont vous avez besoin",
+      "placeholder": "Coton rouge...",
+      "no_matches": "Aucun produit ne correspond à vos critères"
+    },
+    "countdown": {
+      "days": "jours",
+      "hours": "heures",
+      "seconds": "secondes"
+    }
+  },
+  "i18n": {
+    "language": "Langue",
+    "currency": "Devise"
+  },
+  "cart": {
+    "page": {
+      "title": "Votre panier",
+      "currency_notice": "Cette boutique utilise la conversion de devises. Votre commande sera traitée en %curr_code% (%curr_symbol%), même si les prix actuellement affichés indiquent le contraire.",
+      "additional_notes": "Notes complémentaires",
+      "grand_total": "total",
+      "discount": "Des économies",
+      "empty_title": "Votre panier est vide!",
+      "empty_text": "Vous n'avez aucun article dans votre panier!",
+      "empty_suggestion": "Voici quelques-uns des articles qui, selon nous, pourraient vous plaire !",
+      "empty_button": "Découvrez notre offre",
+      "expires": "Votre panier expire dans"
+    }
+  },
+  "collection_page": {
+    "sidebar": {
+      "all_products": "Tous les produits",
+      "back_to_all": "Retour à tous les produits"
+    }
+  },
+  "product_page": {
+    "page": {
+      "product_description": "Description du produit"
+    },
+    "apps": {
+      "in_stock": "EN STOCK",
+      "no_stock": "AUCUN GAUCHE EN STOCK",
+      "watching": "je regarde cet article.",
+      "cart": "ont cet article dans leur panier."
+    },
+    "card": {
+      "from": "depuis "
+    }
+  },
+  "minicart": {
+    "empty_text": "Votre panier est vide",
+    "empty_button": "Découvrez notre offre"
+  },
+  "contact": {
+    "page": {
+      "success": "Merci pour votre contact."
+    },
+    "buttons": {
+      "submit": "Soumettre",
+      "back_to_contact": "Retour au formulaire de contact"
+    }
+  },
+  "navigation": {
+    "breadcrumbs": {
+      "home": "Maison",
+      "cart": "Chariot"
+    },
+    "buttons": {
+      "prev": "Précédent",
+      "next": "Suivant",
+      "load_more": "Charger plus",
+      "sign_in": "Se connecter",
+      "sign_up": "Registre",
+      "log_out": "Se déconnecter",
+      "back_to_shop": "Retour à la boutique"
+    }
+  },
+  "upsell": {
+    "added": "Article ajouté au panier !",
+    "in_cart": "Vous avez %itemCount% dans votre panier.",
+    "total": "Le total étant %total%"
+  },
+  "recently_bought": {
+    "purchased": "%name% acheté :",
+    "ago": "Il y a %time% minutes.",
+    "someone": "Quelqu'un"
+  },
+  "customer_area": {
+    "account": {
+      "order_num": "N ° de commande.",
+      "payment": "Paiement",
+      "full": "Accomplissement",
+      "total": "Total de la commande",
+      "tracking": "Suivi",
+      "status": "Statut",
+      "no_orders": "Vous n'avez pas encore passé de commande.",
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "default_addy": "Adresse par défaut",
+      "no_addy": "Aucune adresse trouvée.",
+      "edit_addy": "Modifier les adresses",
+      "success_addy": "Adresse ajoutée avec succès.",
+      "update_addy": "Adresse mise à jour avec succès.",
+      "first_name": "Prénom",
+      "last_name": "Nom de famille"
+    },
+    "forms": {
+      "email": "Adresse e-mail",
+      "login": "Se connecter",
+      "register": "Créer un compte",
+      "register_here": "Pas un membre? Inscrivez-vous ici.",
+      "password": "Mot de passe",
+      "confirm_password": "Confirmation mot de passe",
+      "forgot_password": "Mot de passe oublié?",
+      "already_member": "Déjà membre? Se connecter ici",
+      "reset_password": "réinitialiser le mot de passe",
+      "activate": "Activer le compte",
+      "decline": "Refuser l'invitation",
+      "sign_in_title": "Connectez-vous à votre compte",
+      "sign_up_title": "Créer un compte",
+      "newsletter_success": "Merci de vous être abonné"
+    }
+  }
+}

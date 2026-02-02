@@ -1,0 +1,11 @@
+{% if blog.previous_article != null %}
+  <a class="article__page--nav article__page--prev" href="{{blog.previous_article.url}}">
+    <span>{{ 'general.buttons.article_previous' | t }}</span>
+  </a>
+{% endif %}
+
+{% if blog.next_article != null %}
+  <a class="article__page--nav article__page--next" href="{{blog.next_article.url}}">
+    <span>{{ 'general.buttons.article_next' | t }}</span>
+  </a>
+{% endif %}

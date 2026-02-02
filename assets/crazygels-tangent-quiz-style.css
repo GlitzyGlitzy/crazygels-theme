@@ -1,0 +1,73 @@
+
+/* CrazyGels Tangent AI Skin & Hair Quiz Custom Styling */
+
+/* Global Container */
+.tangent-quiz-container {
+  background: linear-gradient(135deg, #FCE4EC, #FFF3E0) !important;
+  border-radius: 15px;
+  padding: 2rem;
+  font-family: 'Lato', sans-serif !important;
+  color: #3A2D2D !important;
+}
+
+/* Step Cards */
+.tangent-quiz-step {
+  background-color: #ffffff !important;
+  border-radius: 10px !important;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05) !important;
+  padding: 2rem !important;
+  margin-bottom: 1.5rem !important;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: 0.5s ease-in-out;
+}
+
+.tangent-quiz-step.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Headings */
+.tangent-quiz-container h1,
+.tangent-quiz-container h2 {
+  font-family: 'Poppins', sans-serif !important;
+  color: #3A2D2D !important;
+}
+
+.tangent-quiz-container p,
+.tangent-quiz-container span {
+  font-family: 'Lato', sans-serif !important;
+  color: #3A2D2D !important;
+}
+
+/* Buttons */
+.tangent-quiz-container button {
+  background-color: #F48FB1 !important;
+  color: white !important;
+  font-family: 'Poppins', sans-serif !important;
+  border-radius: 50px !important;
+  padding: 0.8rem 2rem !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  border: none !important;
+  transition: 0.3s ease-in-out;
+}
+
+.tangent-quiz-container button:hover {
+  background-color: #EC407A !important;
+  cursor: pointer !important;
+}
+
+/* Progress Bar */
+.tangent-quiz-progress {
+  background-color: #FCE4EC !important;
+  height: 8px !important;
+  border-radius: 4px !important;
+}
+
+.tangent-quiz-progress-bar {
+  background-color: #F48FB1 !important;
+  height: 8px !important;
+  border-radius: 4px !important;
+  transition: width 0.3s ease-in-out !important;
+}
