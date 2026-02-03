@@ -15,7 +15,7 @@
 
 {% capture layoutConfig %}{% render 'common-layout' with section as section %}{% endcapture %}
 
-<div class="inherit footer layout__{{-layoutConfig}}">
+<footer class="inherit footer layout__{{-layoutConfig}}" role="contentinfo">
     <div class="layout__content row">
     {% for block in section.blocks %}
     <div class="col-12 col-md col-md-{{-block.settings.width}} footer__block {{block.settings.horizontalAlignment}} {{block.settings.verticalAlignment-}}">
@@ -23,7 +23,7 @@
     </div>
     {% endfor %}
     </div>
-</div>
+</footer>
 
 {% endif %}
 
