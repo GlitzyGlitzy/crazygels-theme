@@ -102,7 +102,76 @@ export default function CrazyGelsLanding() {
     return () => clearInterval(timer)
   }, [testimonials.length])
 
+  // Structured Data for SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Crazy Gels",
+    "url": "https://crazygels.com",
+    "logo": "https://crazygels.com/logo.png",
+    "description": "Premium semi-cured gel nails, hair extensions, and skincare products. Salon-quality beauty at home.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+49-160-9252-7436",
+      "contactType": "customer service",
+      "email": "info@crazygels.com",
+      "availableLanguage": ["English", "German"]
+    },
+    "sameAs": [
+      "https://instagram.com/crazy.gels",
+      "https://tiktok.com/@crazygels",
+      "https://facebook.com/crazygels"
+    ],
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "50000",
+      "bestRating": "5"
+    }
+  }
+
+  const productListData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Crazy Gels Product Collections",
+    "description": "Shop our premium beauty collections including semi-cured gel nails, hair extensions, and skincare",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Semi-Cured Gel Nails",
+        "url": "https://crazygels.com/collections/nails",
+        "description": "Salon-quality gel nails that last 2+ weeks with zero damage"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Hair Extensions & Care",
+        "url": "https://crazygels.com/collections/hair",
+        "description": "Premium 100% Remy human hair extensions and professional hair care"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Skincare Collection",
+        "url": "https://crazygels.com/collections/skin",
+        "description": "Clean, vegan, and cruelty-free skincare products"
+      }
+    ]
+  }
+
   return (
+    <>
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productListData) }}
+      />
+      
     <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
@@ -469,6 +538,241 @@ export default function CrazyGelsLanding() {
         </div>
       </section>
 
+      {/* Product Categories Section - SEO Optimized */}
+      <section id="shop" className="py-24 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1 mb-4 text-xs font-bold uppercase tracking-widest text-[#7c3aed] bg-[#7c3aed]/10 rounded-full">
+              Shop By Category
+            </span>
+            <h2 className="text-4xl md:text-6xl font-black text-balance">
+              EXPLORE OUR <span className="bg-gradient-to-r from-[#ff00b0] via-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">COLLECTIONS</span>
+            </h2>
+            <p className="mt-4 text-white/60 max-w-2xl mx-auto text-pretty">
+              From stunning semi-cured gel nails to luxurious hair extensions and premium skincare - discover everything you need for your complete beauty routine.
+            </p>
+          </div>
+
+          {/* Category Cards */}
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {/* Nails Category */}
+            <article className="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#ff00b0]/20 to-[#ff00b0]/5 border border-white/10 hover:border-[#ff00b0]/50 transition-all duration-500">
+              <div className="aspect-[4/5] relative">
+                <Image
+                  src="/crazygels-lifestyle.jpg"
+                  alt="Semi-Cured Gel Nails Collection - Premium press-on gel nail strips"
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 bg-[#ff00b0] text-black text-xs font-bold uppercase rounded-full">
+                    Bestseller
+                  </span>
+                </div>
+
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                  <span className="text-[#ff00b0] text-sm font-bold uppercase tracking-wider">Premium Collection</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-white mt-2 mb-3">
+                    Semi-Cured Gel Nails
+                  </h3>
+                  <p className="text-white/70 text-sm leading-relaxed mb-4 line-clamp-3">
+                    Salon-quality gel nails you can apply at home in minutes. Our semi-cured gel nail strips last up to 2 weeks with zero damage to your natural nails. Choose from 100+ stunning designs including French tips, nail art, glitter, and solid colors.
+                  </p>
+                  
+                  {/* Features */}
+                  <ul className="flex flex-wrap gap-2 mb-6">
+                    {["2 Week Wear", "No Damage", "Easy Apply", "100+ Designs"].map((feature) => (
+                      <li key={feature} className="px-2 py-1 bg-white/10 rounded-full text-white/80 text-xs">
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    href="/collections/nails"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#ff00b0] text-black font-bold rounded-full hover:bg-white transition-colors group/btn"
+                  >
+                    Shop Nails
+                    <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            </article>
+
+            {/* Hair Category */}
+            <article className="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#7c3aed]/20 to-[#7c3aed]/5 border border-white/10 hover:border-[#7c3aed]/50 transition-all duration-500">
+              <div className="aspect-[4/5] relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#7c3aed]/30 to-[#1a1a1a]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-40 h-40 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#ff00b0] flex items-center justify-center text-7xl opacity-50 group-hover:scale-110 transition-transform duration-500">
+                    <svg className="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 bg-[#7c3aed] text-white text-xs font-bold uppercase rounded-full">
+                    New Arrivals
+                  </span>
+                </div>
+
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                  <span className="text-[#7c3aed] text-sm font-bold uppercase tracking-wider">Luxurious Quality</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-white mt-2 mb-3">
+                    Hair Extensions & Care
+                  </h3>
+                  <p className="text-white/70 text-sm leading-relaxed mb-4 line-clamp-3">
+                    Transform your look with our premium hair extensions and professional-grade hair care products. From clip-in extensions to nourishing treatments, achieve salon-worthy hair at home.
+                  </p>
+                  
+                  {/* Features */}
+                  <ul className="flex flex-wrap gap-2 mb-6">
+                    {["100% Remy Hair", "Easy Clip-In", "Heat Safe", "Natural Look"].map((feature) => (
+                      <li key={feature} className="px-2 py-1 bg-white/10 rounded-full text-white/80 text-xs">
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    href="/collections/hair"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#7c3aed] text-white font-bold rounded-full hover:bg-white hover:text-[#7c3aed] transition-colors group/btn"
+                  >
+                    Shop Hair
+                    <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            </article>
+
+            {/* Skin Category */}
+            <article className="group relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#06b6d4]/20 to-[#06b6d4]/5 border border-white/10 hover:border-[#06b6d4]/50 transition-all duration-500">
+              <div className="aspect-[4/5] relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#06b6d4]/30 to-[#1a1a1a]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-40 h-40 rounded-full bg-gradient-to-br from-[#06b6d4] to-[#7c3aed] flex items-center justify-center text-7xl opacity-50 group-hover:scale-110 transition-transform duration-500">
+                    <svg className="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  </div>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                
+                {/* Category Badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 bg-[#06b6d4] text-black text-xs font-bold uppercase rounded-full">
+                    Self Care
+                  </span>
+                </div>
+
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                  <span className="text-[#06b6d4] text-sm font-bold uppercase tracking-wider">Glow Essentials</span>
+                  <h3 className="text-2xl md:text-3xl font-black text-white mt-2 mb-3">
+                    Skincare Collection
+                  </h3>
+                  <p className="text-white/70 text-sm leading-relaxed mb-4 line-clamp-3">
+                    Reveal your natural glow with our curated skincare collection. From hydrating face serums to nourishing body care and luscious lip treatments - pamper your skin with premium ingredients.
+                  </p>
+                  
+                  {/* Features */}
+                  <ul className="flex flex-wrap gap-2 mb-6">
+                    {["Vegan", "Cruelty-Free", "Clean Beauty", "Derma Tested"].map((feature) => (
+                      <li key={feature} className="px-2 py-1 bg-white/10 rounded-full text-white/80 text-xs">
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link
+                    href="/collections/skin"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-[#06b6d4] text-black font-bold rounded-full hover:bg-white transition-colors group/btn"
+                  >
+                    Shop Skincare
+                    <ChevronRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          {/* Subcategory Quick Links */}
+          <div className="mt-16 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {[
+              { label: "French Tips", href: "/collections/french-tips", color: "#ff00b0" },
+              { label: "Nail Art", href: "/collections/nail-art", color: "#ff00b0" },
+              { label: "Hair Extensions", href: "/collections/hair-extensions", color: "#7c3aed" },
+              { label: "Face Serums", href: "/collections/face-care", color: "#06b6d4" },
+              { label: "Bundles", href: "/collections/bundles", color: "#feca57" },
+              { label: "Sale", href: "/collections/sale", color: "#ff6b6b" },
+            ].map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="group flex items-center justify-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 transition-all text-center"
+              >
+                <span 
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: link.color }}
+                />
+                <span className="text-white/80 text-sm font-medium group-hover:text-white transition-colors">
+                  {link.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SEO Content Section */}
+      <section className="py-20 bg-gradient-to-b from-[#0a0a0a] to-[#0f0a12]">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="prose prose-invert prose-lg max-w-none">
+            <h2 className="text-3xl md:text-4xl font-black text-white mb-6 text-center">
+              Why Choose Crazy Gels for Your Beauty Routine?
+            </h2>
+            
+            <div className="grid md:grid-cols-2 gap-8 mt-12">
+              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <h3 className="text-xl font-bold text-[#ff00b0] mb-3">Premium Semi-Cured Gel Nails</h3>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  Our semi-cured gel nail strips are made with real gel formula that cures under UV/LED light for a chip-free, salon-quality manicure that lasts up to 2 weeks. Unlike traditional press-on nails, our gel strips flex and move naturally with your nails, providing a seamless look and feel.
+                </p>
+              </div>
+              
+              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <h3 className="text-xl font-bold text-[#7c3aed] mb-3">Luxurious Hair Extensions</h3>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  Transform your hair in seconds with our 100% Remy human hair extensions. From voluminous clip-ins to seamless tape-ins, our extensions blend naturally with your hair for added length, volume, and versatility. Heat-safe up to 180C for styling freedom.
+                </p>
+              </div>
+              
+              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <h3 className="text-xl font-bold text-[#06b6d4] mb-3">Clean Skincare Products</h3>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  Our skincare collection features clean, vegan, and cruelty-free formulas that deliver real results. From hydrating serums to gentle cleansers, each product is dermatologist-tested and free from harsh chemicals, parabens, and sulfates.
+                </p>
+              </div>
+              
+              <div className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <h3 className="text-xl font-bold text-[#feca57] mb-3">Trusted by 50,000+ Customers</h3>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  Join our community of beauty lovers who have discovered the Crazy Gels difference. With a 4.9-star rating and thousands of 5-star reviews, we're proud to be the go-to destination for DIY beauty that delivers professional results.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Trust Badges Section */}
       <section className="py-16 bg-[#0f0a12] border-y border-white/10">
         <div className="max-w-6xl mx-auto px-6">
@@ -831,5 +1135,6 @@ export default function CrazyGelsLanding() {
         </div>
       </footer>
     </main>
+    </>
   )
 }
