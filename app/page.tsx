@@ -649,14 +649,185 @@ export default function CrazyGelsLanding() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 bg-[#050505] border-t border-white/10">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <div className="text-2xl font-black bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] bg-clip-text text-transparent mb-4">
-            CRAZY GELS
+      <footer className="bg-[#050505]">
+        {/* Newsletter Section */}
+        <div className="border-b border-white/10">
+          <div className="max-w-6xl mx-auto px-6 py-16">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              <div className="text-center lg:text-left">
+                <h3 className="text-2xl md:text-3xl font-black text-white mb-2">
+                  JOIN THE <span className="text-[#ff00b0]">CRAZY</span> CREW
+                </h3>
+                <p className="text-white/60">Get exclusive deals, nail tips & early access to new designs</p>
+              </div>
+              <form className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="px-6 py-4 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-white/40 focus:outline-none focus:border-[#ff00b0] transition-colors w-full sm:w-80"
+                />
+                <button
+                  type="submit"
+                  className="px-8 py-4 bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] text-white font-bold rounded-full hover:opacity-90 transition-opacity"
+                >
+                  SUBSCRIBE
+                </button>
+              </form>
+            </div>
           </div>
-          <p className="text-white/40 text-sm">
-            © 2026 Crazy Gels. All rights reserved. Made with love for nail lovers everywhere.
-          </p>
+        </div>
+
+        {/* Main Footer Content */}
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+            {/* Brand Column */}
+            <div className="lg:col-span-1">
+              <Link href="/" className="inline-block mb-6">
+                <span className="text-3xl font-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] bg-clip-text text-transparent">
+                  CRAZY GELS
+                </span>
+              </Link>
+              <p className="text-white/60 text-sm leading-relaxed mb-6">
+                Premium semi-cured gel nails for the modern woman. Salon-quality results at home, with zero damage.
+              </p>
+              {/* Social Links */}
+              <div className="flex gap-3">
+                {[
+                  { name: "Instagram", href: "https://instagram.com/crazy.gels", icon: <Instagram className="w-5 h-5" /> },
+                  { name: "TikTok", href: "https://tiktok.com/@crazygels", icon: <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-5.2 1.74 2.89 2.89 0 012.31-4.64 2.93 2.93 0 01.88.13V9.4a6.84 6.84 0 00-1-.05A6.33 6.33 0 005 20.1a6.34 6.34 0 0010.86-4.43v-7a8.16 8.16 0 004.77 1.52v-3.4a4.85 4.85 0 01-1-.1z"/></svg> },
+                  { name: "Facebook", href: "https://facebook.com/crazygels", icon: <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> },
+                  { name: "Pinterest", href: "https://pinterest.com/crazygels", icon: <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z"/></svg> }
+                ].map((social) => (
+                  <Link
+                    key={social.name}
+                    href={social.href}
+                    target="_blank"
+                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/60 hover:text-[#ff00b0] hover:border-[#ff00b0]/50 hover:bg-[#ff00b0]/10 transition-all"
+                    aria-label={social.name}
+                  >
+                    {social.icon}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Shop Column */}
+            <div>
+              <h4 className="text-white font-bold uppercase tracking-wider mb-6">Shop</h4>
+              <ul className="space-y-3">
+                {[
+                  { label: "Nails", href: "/collections/nails" },
+                  { label: "Hair", href: "/collections/hair" },
+                  { label: "Skin", href: "/collections/skin" },
+                  { label: "Bundles", href: "/collections/bundles" },
+                  { label: "Sale", href: "/collections/sale" },
+                  { label: "New Arrivals", href: "/collections/new" }
+                ].map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-white/60 hover:text-[#ff00b0] transition-colors text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Help Column */}
+            <div>
+              <h4 className="text-white font-bold uppercase tracking-wider mb-6">Help</h4>
+              <ul className="space-y-3">
+                {[
+                  { label: "FAQ", href: "/pages/faq" },
+                  { label: "Shipping & Returns", href: "/pages/shipping-returns" },
+                  { label: "Track Order", href: "/pages/track-order" },
+                  { label: "How To Apply", href: "/pages/how-to-apply" },
+                  { label: "Contact Us", href: "/pages/contact" },
+                  { label: "Size Guide", href: "/pages/size-guide" }
+                ].map((link) => (
+                  <li key={link.label}>
+                    <Link href={link.href} className="text-white/60 hover:text-[#ff00b0] transition-colors text-sm">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact Column */}
+            <div>
+              <h4 className="text-white font-bold uppercase tracking-wider mb-6">Contact Us</h4>
+              <ul className="space-y-4">
+                <li>
+                  <a href="mailto:info@crazygels.com" className="flex items-center gap-3 text-white/60 hover:text-[#ff00b0] transition-colors text-sm group">
+                    <span className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#ff00b0]/50 group-hover:bg-[#ff00b0]/10 transition-all">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    </span>
+                    info@crazygels.com
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+4916092527436" className="flex items-center gap-3 text-white/60 hover:text-[#ff00b0] transition-colors text-sm group">
+                    <span className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:border-[#ff00b0]/50 group-hover:bg-[#ff00b0]/10 transition-all">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                    </span>
+                    +49 160 9252 7436
+                  </a>
+                </li>
+              </ul>
+              
+              {/* Business Hours */}
+              <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/10">
+                <p className="text-white/40 text-xs uppercase tracking-wider mb-2">Support Hours</p>
+                <p className="text-white/70 text-sm">Mon - Fri: 9am - 6pm CET</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Methods */}
+        <div className="border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-6 py-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <p className="text-white/40 text-sm">Secure payments with</p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                {["Visa", "Mastercard", "Amex", "PayPal", "Apple Pay", "Google Pay", "Shop Pay", "Klarna", "Afterpay"].map((method) => (
+                  <div
+                    key={method}
+                    className="px-3 py-2 bg-white/5 rounded-lg border border-white/10 text-white/60 text-xs font-medium"
+                  >
+                    {method}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="border-t border-white/10">
+          <div className="max-w-6xl mx-auto px-6 py-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+              <p className="text-white/40 text-xs">
+                © 2026 Crazy Gels. All rights reserved.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-4 md:gap-6">
+                {[
+                  { label: "Privacy Policy", href: "/pages/privacy" },
+                  { label: "Terms of Service", href: "/pages/terms" },
+                  { label: "Refund Policy", href: "/pages/refunds" },
+                  { label: "Imprint", href: "/pages/imprint" }
+                ].map((link) => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    className="text-white/40 hover:text-white/70 text-xs transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </footer>
     </main>
