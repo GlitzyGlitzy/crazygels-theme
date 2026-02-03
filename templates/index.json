@@ -1,289 +1,100 @@
-/*
- * ------------------------------------------------------------
- * IMPORTANT: The contents of this file are auto-generated.
- *
- * This file may be updated by the Shopify admin theme editor
- * or related systems. Please exercise caution as any changes
- * made to this file may be overwritten.
- * ------------------------------------------------------------
- */
 {
   "sections": {
-    "c_image_banner_NEaFmL": {
-      "type": "c-image-banner",
-      "settings": {
-        "heading": "FLAWLESS NAILS IN MINUTES",
-        "paragraph": "<h1><strong>ENJOY SALON QUALITY NAILS WITHOUT NAIL DAMAGE</strong></h1>",
-        "section_url": "shopify://collections/nails",
-        "image": "shopify://shop_images/hero_image_crazygels-min.jpg",
-        "image_mobile": "shopify://shop_images/hero_image_crazygels-min.jpg",
-        "full_width": false,
-        "x_alignment": "center",
-        "y_alignment": "center",
-        "text_alignment": "center",
-        "overlay": 0,
-        "min_height": 55,
-        "use_fixed_height": true,
-        "fixed_height": 80,
-        "padding_top": 2,
-        "padding_bottom": 2
-      }
-    },
-    "0b1d2300-2d81-4c7c-9c36-26e3f28f493e": {
-      "type": "section__image-text",
+    "crazygels_landing_main": {
+      "type": "crazygels-landing",
       "blocks": {
-        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-title-1": {
-          "type": "title",
+        "stat_1": {
+          "type": "stat",
           "settings": {
-            "fullWidth": false,
-            "content": "FLAWLESS NAILS IN MINUTES!",
-            "textColor": "#0d0d0d",
-            "fontFamily": "title",
-            "fontSize": "medium"
+            "stat_number": "50K+",
+            "stat_label": "Happy Customers"
           }
         },
-        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-richText-1": {
-          "type": "richText",
+        "stat_2": {
+          "type": "stat",
           "settings": {
-            "fullWidth": true,
-            "maxBWidth": 100,
-            "content": "<p>ENJOY SALON QUALITY NAILS WITHOUT NAIL DAMAGE</p>",
-            "detectLists": true,
-            "textColor": "rgba(0,0,0,0)",
-            "fontFamily": "base",
-            "fontSize": "base"
+            "stat_number": "100+",
+            "stat_label": "Unique Designs"
           }
         },
-        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-button-1": {
-          "type": "button",
+        "stat_3": {
+          "type": "stat",
           "settings": {
-            "fullWidth": true,
-            "text": "UNLOCK OFFERS",
-            "url": "shopify://collections/nails",
-            "icon": "",
-            "iconPosition": "icon--left",
-            "wideButton": false,
-            "buttonStyle": "secondary",
-            "buttonType": "default",
-            "fontSize": "small",
-            "fontFamily": "title",
-            "animation": "heartBeat",
-            "animationDuration": 2500,
-            "animationInfinite": false
+            "stat_number": "2 Weeks",
+            "stat_label": "Long Lasting"
+          }
+        },
+        "stat_4": {
+          "type": "stat",
+          "settings": {
+            "stat_number": "4.9/5",
+            "stat_label": "Customer Rating"
+          }
+        },
+        "feature_1": {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "clock",
+            "feature_title": "Quick Application",
+            "feature_text": "Apply your perfect nails in under 10 minutes. No salon appointment needed."
+          }
+        },
+        "feature_2": {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "shield",
+            "feature_title": "Zero Damage",
+            "feature_text": "Our gentle formula protects your natural nails while delivering stunning results."
+          }
+        },
+        "feature_3": {
+          "type": "feature",
+          "settings": {
+            "feature_icon": "wallet",
+            "feature_title": "Save Money",
+            "feature_text": "Get salon-quality nails at a fraction of the cost. Skip the expensive appointments."
           }
         }
       },
       "block_order": [
-        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-title-1",
-        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-richText-1",
-        "template--18107171209482__0b1d2300-2d81-4c7c-9c36-26e3f28f493e-button-1"
+        "stat_1",
+        "stat_2",
+        "stat_3",
+        "stat_4",
+        "feature_1",
+        "feature_2",
+        "feature_3"
       ],
       "settings": {
-        "custom_id": "",
-        "displayFor": "hide-desktop",
-        "layout": "default",
-        "nomargin": true,
-        "scopedCSS": "",
-        "height": 0,
-        "padding": 0,
-        "lineMargin": 0,
-        "backgroundColor": "#e6c5d4",
-        "backgroundPosition": "middle",
-        "backgroundFilter": "none",
-        "backdropIntensity": 50,
-        "parallax": false,
-        "backgroundPattern": false,
-        "overlayOpacity": 0,
-        "overlayColor": "#000000",
-        "contentColor": "rgba(0,0,0,0)",
-        "horizontalAlignment": "center",
-        "verticalAlignment": "middle",
-        "imagePosition": "right",
-        "imageWidth": "9",
-        "image": "shopify://shop_images/no_background_hero.webp",
-        "image_url": "shopify://collections/all",
-        "imageOverlayOpacity": 0,
-        "imageOverlayColor": "#000000",
-        "vertPaddingAccord": 0,
-        "horPaddingAccord": 0
-      }
-    },
-    "bc7ede14-658b-47dc-9a41-d159b412e2ce": {
-      "type": "section__content-text",
-      "blocks": {
-        "7ea0578d-0827-4aa3-83f3-04a922103730": {
-          "type": "imageText",
-          "settings": {
-            "displayFor": "display--both",
-            "layout": "default",
-            "nomargin": false,
-            "scopedCSS": "",
-            "height": 0,
-            "padding": 0,
-            "lineMargin": 0,
-            "backgroundColor": "#fdeef5",
-            "contentColor": "#0d0d0d",
-            "horizontalAlignment": "center",
-            "verticalAlignment": "middle",
-            "imagePosition": "right",
-            "imageWidth": "6",
-            "image": "shopify://shop_images/hero_image_crazygels-min.jpg",
-            "overlayOpacity": 0,
-            "overlayColor": "#000000",
-            "heading": "FLAWLESS NAILS",
-            "text": "<h3> SALON QUALITY NAILS </h3><h3>NO NAIL DAMAGE</h3>",
-            "buttonText": "UNLOCK OFFERS",
-            "url": "shopify://collections/nails",
-            "wideButton": true,
-            "buttonType": "secondary",
-            "buttonStyle": "default"
-          }
-        }
-      },
-      "block_order": [
-        "7ea0578d-0827-4aa3-83f3-04a922103730"
-      ],
-      "settings": {
-        "custom_id": ""
-      }
-    },
-    "39ffde19-ca3f-4bed-ac9e-5562062dcbed": {
-      "type": "section__cta",
-      "blocks": {
-        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-title-1": {
-          "type": "title",
-          "settings": {
-            "fullWidth": true,
-            "content": "LIMITED TIME OFFER",
-            "textColor": "#ffffff",
-            "fontFamily": "title",
-            "fontSize": "medium"
-          }
-        },
-        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-richText-1": {
-          "type": "richText",
-          "settings": {
-            "fullWidth": true,
-            "maxBWidth": 100,
-            "content": "<h2> 15% OFF </h2>",
-            "detectLists": false,
-            "textColor": "#ffffff",
-            "fontFamily": "title",
-            "fontSize": "small"
-          }
-        },
-        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-button-1": {
-          "type": "button",
-          "settings": {
-            "fullWidth": true,
-            "text": "GET YOURS",
-            "url": "shopify://collections/nails",
-            "icon": "",
-            "iconPosition": "icon--left",
-            "wideButton": false,
-            "buttonStyle": "secondary",
-            "buttonType": "ghost",
-            "fontSize": "base",
-            "fontFamily": "title",
-            "animation": "heartBeat",
-            "animationDuration": 1375,
-            "animationInfinite": true
-          }
-        }
-      },
-      "block_order": [
-        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-title-1",
-        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-richText-1",
-        "template--18107171209482__39ffde19-ca3f-4bed-ac9e-5562062dcbed-button-1"
-      ],
-      "settings": {
-        "custom_id": "",
-        "displayFor": "display--both",
-        "layout": "default",
-        "nomargin": true,
-        "scopedCSS": "",
-        "height": 200,
-        "padding": 0,
-        "lineMargin": 0,
-        "backgroundColor": "#000000",
-        "backgroundImageUrl": "",
-        "backgroundPosition": "middle",
-        "backgroundFilter": "none",
-        "backdropIntensity": 50,
-        "parallax": false,
-        "backgroundPattern": false,
-        "overlayOpacity": 0,
-        "overlayColor": "#000000",
-        "contentColor": "#ffffff",
-        "horizontalAlignment": "center",
-        "verticalAlignment": "middle",
-        "maxContentWidth": 100,
-        "heading": "",
-        "headingColor": "rgba(0,0,0,0)",
-        "subheading": "",
-        "subheadingColor": "rgba(0,0,0,0)",
-        "subheadingPosition": "above",
-        "headingAlignment": "center"
-      }
-    },
-    "16265528618af17c6c": {
-      "type": "section__cta",
-      "blocks": {
-        "16265528618af17c6c-0": {
-          "type": "title",
-          "settings": {
-            "fullWidth": true,
-            "content": "CRAZY GELS",
-            "textColor": "#391241",
-            "fontFamily": "title",
-            "fontSize": "medium"
-          }
-        },
-        "16265528618af17c6c-1": {
-          "type": "richText",
-          "settings": {
-            "fullWidth": true,
-            "maxBWidth": 50,
-            "content": "<p>-Protect and grow your nails with Crazy Gels </p><p>-Cut down on salon visits and save time</p><p>-Save even more subscribe to our VIP package </p>",
-            "detectLists": true,
-            "textColor": "rgba(0,0,0,0)",
-            "fontFamily": "base",
-            "fontSize": "base"
-          }
-        }
-      },
-      "block_order": [
-        "16265528618af17c6c-0",
-        "16265528618af17c6c-1"
-      ],
-      "settings": {
-        "custom_id": "",
-        "displayFor": "display--both",
-        "layout": "default",
-        "nomargin": false,
-        "scopedCSS": "",
-        "height": 200,
-        "padding": 20,
-        "lineMargin": 0,
-        "backgroundColor": "#f8e8ff",
-        "backgroundImageUrl": "",
-        "backgroundPosition": "middle",
-        "backgroundFilter": "none",
-        "backdropIntensity": 50,
-        "parallax": false,
-        "backgroundPattern": false,
-        "overlayOpacity": 0,
-        "overlayColor": "#000000",
-        "contentColor": "#391241",
-        "horizontalAlignment": "center",
-        "verticalAlignment": "middle",
-        "maxContentWidth": 100,
-        "heading": "",
-        "headingColor": "rgba(0,0,0,0)",
-        "subheading": "",
-        "subheadingColor": "rgba(0,0,0,0)",
-        "subheadingPosition": "above",
-        "headingAlignment": "center"
+        "badge_text": "Premium Semi-Cured Gel Nails",
+        "hero_title": "Flawless nails in <em>minutes</em>",
+        "hero_subtitle": "Enjoy salon-quality nails without the damage. Transform your look at home with our premium semi-cured gel nail strips.",
+        "primary_cta_text": "Shop Now",
+        "primary_cta_link": "shopify://collections/nails",
+        "secondary_cta_text": "Learn More",
+        "secondary_cta_link": "shopify://pages/about-us",
+        "features_label": "Why Choose Us",
+        "features_title": "The smarter way to beautiful nails",
+        "cta_title": "Limited Time: 15% Off Your First Order",
+        "cta_text": "Join thousands of women who've discovered the secret to perfect nails. Use code WELCOME15 at checkout.",
+        "cta_button_text": "Claim Offer",
+        "cta_link": "shopify://collections/nails",
+        "image_section_label": "Our Story",
+        "image_section_title": "Beauty without compromise",
+        "image_section_text": "We believe everyone deserves stunning nails without the hassle of salon visits or the damage of traditional acrylics.",
+        "list_item_1": "No damage to natural nails",
+        "list_item_2": "Lasts up to 2 weeks",
+        "list_item_3": "Easy DIY application",
+        "list_item_4": "Salon-quality results",
+        "image_section_button": "Discover More",
+        "image_section_link": "shopify://pages/about-us",
+        "testimonial_quote": "I've tried every nail brand out there, but Crazy Gels is the only one that looks salon-perfect and doesn't damage my natural nails. Absolutely obsessed!",
+        "testimonial_author": "Sarah M.",
+        "testimonial_role": "Verified Customer",
+        "newsletter_title": "Join the Crazy Gels Family",
+        "newsletter_text": "Subscribe for exclusive offers, nail tips, and early access to new designs.",
+        "newsletter_placeholder": "Enter your email",
+        "newsletter_button": "Subscribe"
       }
     },
     "16265529277430f275": {
@@ -295,222 +106,49 @@
         "nomargin": false,
         "scopedCSS": "",
         "height": 150,
-        "padding": 5,
-        "backgroundColor": "#cfb4d9",
-        "heading": "We Have IT",
+        "padding": 35,
+        "backgroundColor": "#ffffff",
+        "heading": "Shop Our Collection",
         "headingColor": "#0d0d0d",
         "subheading": "Your Favorites",
-        "subheadingColor": "#000000",
-        "subheadingPosition": "below",
+        "subheadingColor": "#ff00b0",
+        "subheadingPosition": "above",
         "headingAlignment": "center",
         "collection": "all-products",
         "productCount": 8,
         "showMore": true,
-        "showMoreText": "MORE",
+        "showMoreText": "View All",
         "showMoreAlignment": "center"
-      }
-    },
-    "5825d15c-1ad3-48a6-86d6-f863f3c776eb": {
-      "type": "section__cta",
-      "blocks": {
-        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-0": {
-          "type": "title",
-          "settings": {
-            "fullWidth": true,
-            "content": "Crazy Gels Family",
-            "textColor": "#0d0d0d",
-            "fontFamily": "title",
-            "fontSize": "big"
-          }
-        },
-        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-1": {
-          "type": "richText",
-          "settings": {
-            "fullWidth": true,
-            "maxBWidth": 100,
-            "content": "<p>Join Now and be part of our Fam </p>",
-            "detectLists": true,
-            "textColor": "#0d0d0d",
-            "fontFamily": "title",
-            "fontSize": "base"
-          }
-        },
-        "a5ba7003-740a-4f01-b7f7-ab81d26e712c": {
-          "type": "blockNewsletter",
-          "settings": {
-            "fullWidth": true,
-            "newsletter": "shopify",
-            "inputMaxWidth": 500,
-            "inputText": "#0d0d0d",
-            "inputBackground": "#ffffff",
-            "email": "e-mail",
-            "buttonType": "secondary",
-            "submit": "SUB-UP"
-          }
-        }
-      },
-      "block_order": [
-        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-0",
-        "template--18860173033747__5825d15c-1ad3-48a6-86d6-f863f3c776eb-168307626454f18187-1",
-        "a5ba7003-740a-4f01-b7f7-ab81d26e712c"
-      ],
-      "settings": {
-        "custom_id": "",
-        "displayFor": "display--both",
-        "layout": "boxed",
-        "nomargin": false,
-        "scopedCSS": "",
-        "height": 290,
-        "padding": 20,
-        "lineMargin": 12,
-        "backgroundColor": "#cfb4d9",
-        "backgroundImageUrl": "",
-        "backgroundPosition": "middle",
-        "backgroundFilter": "none",
-        "backdropIntensity": 50,
-        "parallax": false,
-        "backgroundPattern": false,
-        "overlayOpacity": 0,
-        "overlayColor": "#000000",
-        "contentColor": "rgba(0,0,0,0)",
-        "horizontalAlignment": "center",
-        "verticalAlignment": "middle",
-        "maxContentWidth": 100,
-        "heading": "",
-        "headingColor": "rgba(0,0,0,0)",
-        "subheading": "",
-        "subheadingColor": "rgba(0,0,0,0)",
-        "subheadingPosition": "above",
-        "headingAlignment": "center"
       }
     },
     "bfae8abf-46a0-4206-af36-49414f5c118a": {
       "type": "section__featured-collection",
       "settings": {
-        "custom_id": "{{ section.settings.collection.title }}",
+        "custom_id": "",
         "displayFor": "display--both",
         "layout": "default",
-        "nomargin": true,
+        "nomargin": false,
         "scopedCSS": "",
         "height": 390,
-        "padding": 20,
-        "backgroundColor": "rgba(0,0,0,0)",
+        "padding": 35,
+        "backgroundColor": "#fdeef5",
         "heading": "Crazy Nails",
         "headingColor": "#0d0d0d",
-        "subheading": "",
-        "subheadingColor": "rgba(0,0,0,0)",
+        "subheading": "Best Sellers",
+        "subheadingColor": "#ff00b0",
         "subheadingPosition": "above",
         "headingAlignment": "center",
         "collection": "nails",
         "productCount": 12,
         "showMore": true,
-        "showMoreText": "MORE",
+        "showMoreText": "Shop All Nails",
         "showMoreAlignment": "center"
-      }
-    },
-    "section_slider_adaptive_WbkwWh": {
-      "type": "section__slider--adaptive",
-      "blocks": {
-        "image_slide_adaptive_3cTUXP": {
-          "type": "imageSlideAdaptive",
-          "settings": {
-            "horizontalAlignment": "center",
-            "verticalAlignment": "middle",
-            "padding": 16,
-            "contentSpacing": 12,
-            "backgroundColor": "rgba(0,0,0,0)",
-            "backgroundPosition": "middle",
-            "overlayOpacity": 40,
-            "overlayColor": "#000000",
-            "slideURL": "",
-            "heading": "This is your slide's heading",
-            "headingColor": "rgba(0,0,0,0)",
-            "content": "<p>Enjoy the flexibility</p>",
-            "contentColor": "rgba(0,0,0,0)",
-            "button1Text": "Primary button",
-            "button1Link": "",
-            "button1Style": "primary",
-            "button1Type": "default",
-            "button2Text": "Secondary button",
-            "button2Link": "",
-            "button2Style": "secondary",
-            "button2Type": "default"
-          }
-        }
-      },
-      "block_order": [
-        "image_slide_adaptive_3cTUXP"
-      ],
-      "settings": {
-        "custom_id": "",
-        "displayFor": "display--both",
-        "layout": "default",
-        "nomargin": true,
-        "height": 0,
-        "contentColor": "rgba(0,0,0,0)",
-        "autoplay": true,
-        "slideSpeed": 3,
-        "animation": "none",
-        "delayAnimation": false
-      }
-    },
-    "section_slider_adaptive_pqeGqf": {
-      "type": "section__slider--adaptive",
-      "blocks": {
-        "image_slide_adaptive_VRxEKz": {
-          "type": "imageSlideAdaptive",
-          "settings": {
-            "horizontalAlignment": "center",
-            "verticalAlignment": "middle",
-            "padding": 16,
-            "contentSpacing": 12,
-            "backgroundColor": "rgba(0,0,0,0)",
-            "backgroundPosition": "middle",
-            "overlayOpacity": 40,
-            "overlayColor": "#000000",
-            "slideURL": "",
-            "heading": "This is your slide's heading",
-            "headingColor": "rgba(0,0,0,0)",
-            "content": "<p>Enjoy the flexibility</p>",
-            "contentColor": "rgba(0,0,0,0)",
-            "button1Text": "Primary button",
-            "button1Link": "",
-            "button1Style": "primary",
-            "button1Type": "default",
-            "button2Text": "Secondary button",
-            "button2Link": "",
-            "button2Style": "secondary",
-            "button2Type": "default"
-          }
-        }
-      },
-      "block_order": [
-        "image_slide_adaptive_VRxEKz"
-      ],
-      "settings": {
-        "custom_id": "",
-        "displayFor": "display--both",
-        "layout": "default",
-        "nomargin": false,
-        "height": 0,
-        "contentColor": "rgba(0,0,0,0)",
-        "autoplay": true,
-        "slideSpeed": 3,
-        "animation": "none",
-        "delayAnimation": false
       }
     }
   },
   "order": [
-    "c_image_banner_NEaFmL",
-    "0b1d2300-2d81-4c7c-9c36-26e3f28f493e",
-    "bc7ede14-658b-47dc-9a41-d159b412e2ce",
-    "39ffde19-ca3f-4bed-ac9e-5562062dcbed",
-    "16265528618af17c6c",
+    "crazygels_landing_main",
     "16265529277430f275",
-    "5825d15c-1ad3-48a6-86d6-f863f3c776eb",
-    "bfae8abf-46a0-4206-af36-49414f5c118a",
-    "section_slider_adaptive_WbkwWh",
-    "section_slider_adaptive_pqeGqf"
+    "bfae8abf-46a0-4206-af36-49414f5c118a"
   ]
 }

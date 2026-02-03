@@ -848,4 +848,4 @@ window.BEAEPAGEJS = () => { let BeaeUseHooks = {};
       }  catch (ex) {
         console.error('BEAE JS ERROR ID beae-x4gqkt5v: ', ex)
       };
-    }; if (window.BEAEBASE) {window.BEAEPAGEJS()} 
+    }; if (window.BEAEBASE) {window.BEAEPAGEJS()}
