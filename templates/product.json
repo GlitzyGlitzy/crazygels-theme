@@ -11,19 +11,19 @@
           "type": "productPageTitle",
           "settings": {
             "noMargin": false,
-            "color": "rgba(0,0,0,0)",
+            "color": "#ffffff",
             "fontFamily": "title",
-            "fontSize": "medium"
+            "fontSize": "big"
           }
         },
         "ppPrice": {
           "type": "productPagePrice",
           "settings": {
             "noMargin": true,
-            "color": "#391241",
-            "newPriceColor": "rgba(0,0,0,0)",
-            "oldPriceColor": "rgba(0,0,0,0)",
-            "fontFamily": "base",
+            "color": "#ffffff",
+            "newPriceColor": "#ff00b0",
+            "oldPriceColor": "rgba(255,255,255,0.5)",
+            "fontFamily": "title",
             "fontSize": "medium"
           }
         },
