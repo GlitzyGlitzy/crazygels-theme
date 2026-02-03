@@ -1,22 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star, Check, ChevronLeft, ChevronRight, Sparkles, Heart, Shield, Truck, RefreshCw, Instagram, Menu, X, ShoppingBag, Search, User, ChevronDown, Minus, Plus, Share2 } from "lucide-react"
+import { Star, ChevronLeft, ChevronRight, Sparkles, Heart, Shield, Truck, RefreshCw, Instagram, Menu, X, ShoppingBag, Search, User, ChevronDown, Play, ArrowRight } from "lucide-react"
 
-// This is a PREVIEW of how your Shopify product page will look with the new styling
-// The actual styling is in /assets/crazygels-modern-product.css for your Shopify theme
+// Colors: #0a0a0a (dark bg), #ff00b0 (pink), #7c3aed (purple), #06b6d4 (cyan), #feca57 (gold)
 
-export default function ShopifyProductPagePreview() {
-  const [selectedSize, setSelectedSize] = useState("M")
-  const [selectedStyle, setSelectedStyle] = useState("French Kiss")
-  const [quantity, setQuantity] = useState(1)
-  const [activeImage, setActiveImage] = useState(0)
+export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState("description")
-  const [isWishlisted, setIsWishlisted] = useState(false)
+  const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const [beforeAfterPosition, setBeforeAfterPosition] = useState(50)
 
   const menuItems = [
     {
@@ -52,152 +47,197 @@ export default function ShopifyProductPagePreview() {
       ]
     },
     { label: "Bundles", href: "/collections/bundles" },
-    { label: "Sale", href: "/collections/sale", highlight: true }
+    { label: "Sale", href: "/collections/sale" }
   ]
 
-  const product = {
-    title: "French Kiss Gel Nail Set",
-    price: 24.99,
-    comparePrice: 34.99,
-    rating: 4.9,
-    reviewCount: 2847,
-    description: "Our bestselling French Kiss gel nail set features a timeless French tip design with a modern twist. Made with real gel formula that cures under UV/LED light for a salon-quality manicure that lasts up to 2 weeks.",
-    features: [
-      "Lasts up to 2 weeks",
-      "Zero damage to natural nails",
-      "Easy 10-minute application",
-      "Includes nail file & prep pad",
-      "16 nail strips per set"
-    ],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    styles: [
-      { name: "French Kiss", color: "#ffeef5" },
-      { name: "Blush Pink", color: "#ffb6c1" },
-      { name: "Classic Red", color: "#dc143c" },
-      { name: "Midnight Black", color: "#1a1a1a" }
-    ],
-    images: [
-      "/crazygels-lifestyle.jpg",
-      "/crazygels-lifestyle.jpg",
-      "/crazygels-lifestyle.jpg",
-      "/crazygels-lifestyle.jpg"
-    ]
-  }
+  const categories = [
+    {
+      title: "NAILS",
+      subtitle: "Semi-Cured Gel Nail Sets",
+      description: "Salon-quality gel nails you can apply at home in minutes. 20+ designs, 14-day wear.",
+      image: "/placeholder.svg?height=600&width=500&text=Nail+Collection",
+      href: "/collections/nails",
+      color: "#ff00b0",
+      features: ["14-Day Wear", "UV Cured", "Easy Apply"]
+    },
+    {
+      title: "HAIR",
+      subtitle: "Premium Hair Extensions",
+      description: "Clip-in, tape-in, and ponytail extensions in 30+ shades. 100% Remy human hair.",
+      image: "/placeholder.svg?height=600&width=500&text=Hair+Collection",
+      href: "/collections/hair",
+      color: "#7c3aed",
+      features: ["100% Remy", "30+ Shades", "Heat Safe"]
+    },
+    {
+      title: "SKIN",
+      subtitle: "Glow-Up Skincare",
+      description: "Clean, effective skincare for your best glow. Serums, masks, and more.",
+      image: "/placeholder.svg?height=600&width=500&text=Skin+Collection",
+      href: "/collections/skin",
+      color: "#06b6d4",
+      features: ["Cruelty Free", "Vegan", "Clean Beauty"]
+    }
+  ]
 
-  const discount = Math.round((1 - product.price / product.comparePrice) * 100)
+  const testimonials = [
+    {
+      name: "Sarah M.",
+      location: "Los Angeles, CA",
+      rating: 5,
+      text: "I've tried so many gel nail brands and Crazy Gels is hands down the best! They last 2+ weeks and the application is foolproof. Obsessed!",
+      product: "French Kiss Gel Set",
+      image: "/placeholder.svg?height=80&width=80&text=S"
+    },
+    {
+      name: "Jessica T.",
+      location: "Miami, FL",
+      rating: 5,
+      text: "The hair extensions are incredible quality. They blend perfectly with my natural hair and I get compliments everywhere I go!",
+      product: "Clip-In Extensions",
+      image: "/placeholder.svg?height=80&width=80&text=J"
+    },
+    {
+      name: "Emily R.",
+      location: "New York, NY",
+      rating: 5,
+      text: "Finally found skincare that actually works for my sensitive skin. The glow serum is my holy grail product now!",
+      product: "Glow Serum",
+      image: "/placeholder.svg?height=80&width=80&text=E"
+    }
+  ]
 
-  useEffect(() => {
-    console.log("[v0] Page mounted successfully")
-  }, [])
+  const instagramPosts = [
+    { image: "/placeholder.svg?height=300&width=300&text=IG1", likes: "2.4k" },
+    { image: "/placeholder.svg?height=300&width=300&text=IG2", likes: "1.8k" },
+    { image: "/placeholder.svg?height=300&width=300&text=IG3", likes: "3.1k" },
+    { image: "/placeholder.svg?height=300&width=300&text=IG4", likes: "2.7k" },
+    { image: "/placeholder.svg?height=300&width=300&text=IG5", likes: "1.5k" },
+    { image: "/placeholder.svg?height=300&width=300&text=IG6", likes: "2.2k" }
+  ]
+
+  const featuredProducts = [
+    { name: "French Kiss Gel Set", price: 14.99, comparePrice: 24.99, image: "/placeholder.svg?height=400&width=400&text=Product1", badge: "Bestseller" },
+    { name: "Midnight Glam Set", price: 16.99, comparePrice: 26.99, image: "/placeholder.svg?height=400&width=400&text=Product2", badge: "New" },
+    { name: "Rose Gold Dreams", price: 15.99, comparePrice: 25.99, image: "/placeholder.svg?height=400&width=400&text=Product3", badge: null },
+    { name: "Ocean Vibes Set", price: 14.99, comparePrice: 24.99, image: "/placeholder.svg?height=400&width=400&text=Product4", badge: "Sale" }
+  ]
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50">
-        {/* Top Bar */}
-        <div className="bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] py-2 px-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3 h-3 mr-2" aria-hidden="true" />
-            <span>Free Shipping on Orders Over $50</span>
-            <Sparkles className="w-3 h-3 ml-2" aria-hidden="true" />
-          </div>
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Announcement Bar */}
+      <div className="bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] py-2 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider">
+          <Sparkles className="w-3 h-3 mr-2" aria-hidden="true" />
+          <span>Free Shipping on Orders Over $50 | Use Code CRAZY20 for 20% Off</span>
+          <Sparkles className="w-3 h-3 ml-2" aria-hidden="true" />
         </div>
+      </div>
 
-        {/* Main Header */}
-        <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10">
-          <div className="max-w-7xl mx-auto px-4 md:px-6">
-            <div className="flex items-center justify-between h-16 md:h-20">
-              {/* Mobile Menu Button */}
-              <button 
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-white hover:text-[#ff00b0] transition-colors"
-                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                aria-expanded={mobileMenuOpen}
-              >
-                {mobileMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-white hover:text-[#ff00b0] transition-colors"
+              aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
+            </button>
+
+            {/* Logo */}
+            <Link href="/" className="flex-shrink-0">
+              <span className="text-2xl md:text-3xl font-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] bg-clip-text text-transparent">
+                CRAZY GELS
+              </span>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
+              {menuItems.map((item) => (
+                <div 
+                  key={item.label}
+                  className="relative"
+                  onMouseEnter={() => item.submenu && setActiveDropdown(item.label)}
+                  onMouseLeave={() => setActiveDropdown(null)}
+                >
+                  <Link
+                    href={item.href}
+                    className={`flex items-center gap-1 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-colors ${
+                      item.label === "Sale" ? "text-[#feca57]" : "text-white/90 hover:text-[#ff00b0]"
+                    }`}
+                  >
+                    {item.label}
+                    {item.submenu && <ChevronDown className="w-3 h-3" aria-hidden="true" />}
+                  </Link>
+
+                  {item.submenu && activeDropdown === item.label && (
+                    <div className="absolute top-full left-0 w-56 bg-[#111111] border border-white/10 rounded-xl shadow-2xl py-2 mt-1">
+                      {item.submenu.map((subitem) => (
+                        <Link
+                          key={subitem.label}
+                          href={subitem.href}
+                          className="block px-4 py-2 text-sm text-white/80 hover:text-[#ff00b0] hover:bg-white/5 transition-colors"
+                        >
+                          {subitem.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </nav>
+
+            {/* Right Icons */}
+            <div className="flex items-center gap-2 md:gap-4">
+              <button className="hidden md:flex p-2 text-white/80 hover:text-white transition-colors" aria-label="Search products">
+                <Search className="w-5 h-5" aria-hidden="true" />
               </button>
-
-              {/* Logo */}
-              <Link href="/" className="flex-shrink-0">
-                <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] bg-clip-text text-transparent">
-                  CRAZY GELS
+              <Link href="/account" className="hidden md:flex p-2 text-white/80 hover:text-white transition-colors" aria-label="My account">
+                <User className="w-5 h-5" aria-hidden="true" />
+              </Link>
+              <Link href="/cart" className="relative p-2 text-white/80 hover:text-white transition-colors" aria-label="Shopping cart with 0 items">
+                <ShoppingBag className="w-5 h-5" aria-hidden="true" />
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff00b0] rounded-full text-[10px] font-bold flex items-center justify-center text-white" aria-hidden="true">
+                  0
                 </span>
               </Link>
-
-              {/* Desktop Navigation */}
-              <nav className="hidden md:flex items-center gap-1">
-                {menuItems.map((item) => (
-                  <div 
-                    key={item.label}
-                    className="relative"
-                    onMouseEnter={() => item.submenu && setActiveDropdown(item.label)}
-                    onMouseLeave={() => setActiveDropdown(null)}
-                  >
-                    <Link
-                      href={item.href}
-                      className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold uppercase tracking-wider transition-colors ${
-                        item.highlight 
-                          ? "text-[#ff00b0] hover:text-[#ff6b6b]" 
-                          : "text-white/80 hover:text-white"
-                      }`}
-                    >
-                      {item.label}
-                      {item.submenu && <ChevronDown className="w-4 h-4" />}
-                    </Link>
-
-                    {item.submenu && activeDropdown === item.label && (
-                      <div className="absolute top-full left-0 pt-2 w-56">
-                        <div className="bg-[#1a1a1a] backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
-                          {item.submenu.map((subitem) => (
-                            <Link
-                              key={subitem.label}
-                              href={subitem.href}
-                              className="block px-5 py-3 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                            >
-                              {subitem.label}
-                            </Link>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </nav>
-
-              {/* Right Icons */}
-              <div className="flex items-center gap-2 md:gap-4">
-                <button className="hidden md:flex p-2 text-white/80 hover:text-white transition-colors" aria-label="Search products">
-                  <Search className="w-5 h-5" aria-hidden="true" />
-                </button>
-                <Link href="/account" className="hidden md:flex p-2 text-white/80 hover:text-white transition-colors" aria-label="My account">
-                  <User className="w-5 h-5" aria-hidden="true" />
-                </Link>
-                <Link href="/cart" className="relative p-2 text-white/80 hover:text-white transition-colors" aria-label="Shopping cart with 0 items">
-                  <ShoppingBag className="w-5 h-5" aria-hidden="true" />
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff00b0] rounded-full text-[10px] font-bold flex items-center justify-center text-white" aria-hidden="true">
-                    0
-                  </span>
-                </Link>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden bg-[#0a0a0a]/98 backdrop-blur-xl border-b border-white/10">
-            <nav className="max-w-7xl mx-auto px-4 py-4">
+          <div className="md:hidden bg-[#0a0a0a] border-t border-white/10">
+            <nav className="px-4 py-4 space-y-2" aria-label="Mobile navigation">
               {menuItems.map((item) => (
-                <div key={item.label} className="border-b border-white/5 last:border-0">
+                <div key={item.label}>
                   <Link
                     href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`block py-4 text-lg font-semibold uppercase tracking-wider ${
-                      item.highlight ? "text-[#ff00b0]" : "text-white"
+                    className={`block py-3 text-lg font-bold ${
+                      item.label === "Sale" ? "text-[#feca57]" : "text-white"
                     }`}
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.label}
                   </Link>
+                  {item.submenu && (
+                    <div className="pl-4 space-y-2">
+                      {item.submenu.map((subitem) => (
+                        <Link
+                          key={subitem.label}
+                          href={subitem.href}
+                          className="block py-2 text-white/70 text-sm"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {subitem.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))}
             </nav>
@@ -205,406 +245,423 @@ export default function ShopifyProductPagePreview() {
         )}
       </header>
 
-      {/* Spacer for fixed header */}
-      <div className="h-[104px] md:h-[120px]" />
+      <main>
+        {/* Hero Section */}
+        <section className="relative min-h-[90vh] flex items-center overflow-hidden">
+          {/* Background Gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/20 via-[#0a0a0a] to-[#7c3aed]/20" />
+          
+          {/* Animated Background Elements */}
+          <div className="absolute top-20 left-10 w-72 h-72 bg-[#ff00b0]/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#7c3aed]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
 
-      {/* Breadcrumbs */}
-      <nav className="max-w-7xl mx-auto px-4 md:px-6 py-4" aria-label="Breadcrumb">
-        <ol className="flex items-center gap-2 text-sm text-white/70">
-          <li><Link href="/" className="hover:text-white transition-colors hover:underline">Home</Link></li>
-          <li aria-hidden="true">/</li>
-          <li><Link href="/collections/nails" className="hover:text-white transition-colors hover:underline">Nails</Link></li>
-          <li aria-hidden="true">/</li>
-          <li className="text-white font-medium" aria-current="page">{product.title}</li>
-        </ol>
-      </nav>
-
-      {/* Product Section */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
-          {/* Product Gallery */}
-          <div className="space-y-4">
-            {/* Main Image */}
-            <div className="relative aspect-square rounded-3xl overflow-hidden bg-[#111] border border-white/10">
-              {/* Sale Badge */}
-              <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-                <span className="px-3 py-1.5 bg-[#ff00b0] text-black text-xs font-bold uppercase rounded-full">
-                  {discount}% OFF
-                </span>
-                <span className="px-3 py-1.5 bg-white/10 backdrop-blur-md text-white text-xs font-bold uppercase rounded-full border border-white/20">
-                  Bestseller
-                </span>
-              </div>
-
-              <Image
-                src={product.images[activeImage]}
-                alt={product.title}
-                fill
-                className="object-cover"
-                priority
-              />
-
-              {/* Navigation Arrows */}
-              <button 
-                onClick={() => setActiveImage(prev => prev === 0 ? product.images.length - 1 : prev - 1)}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors border border-white/20"
-                aria-label="Previous image"
-              >
-                <ChevronLeft className="w-6 h-6" aria-hidden="true" />
-              </button>
-              <button 
-                onClick={() => setActiveImage(prev => prev === product.images.length - 1 ? 0 : prev + 1)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/50 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-black/70 transition-colors border border-white/20"
-                aria-label="Next image"
-              >
-                <ChevronRight className="w-6 h-6" aria-hidden="true" />
-              </button>
-            </div>
-
-            {/* Thumbnails */}
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {product.images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveImage(i)}
-                  className={`relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${
-                    activeImage === i 
-                      ? "border-[#ff00b0] opacity-100" 
-                      : "border-white/10 opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <Image src={img} alt={`${product.title} ${i + 1}`} fill className="object-cover" />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div className="bg-[#111] rounded-3xl p-6 md:p-8 border border-white/10">
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="px-3 py-1 bg-[#ff00b0]/10 text-[#ff00b0] text-xs font-bold uppercase rounded-full border border-[#ff00b0]/30">
-                Bestseller
-              </span>
-              <span className="px-3 py-1 bg-white/5 text-white/70 text-xs font-medium rounded-full border border-white/10">
-                Semi-Cured Gel
-              </span>
-            </div>
-
-            {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-black text-white mb-3 tracking-tight">
-              {product.title}
-            </h1>
-
-            {/* Rating */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star 
-                    key={i} 
-                    className={`w-5 h-5 ${i < Math.floor(product.rating) ? "text-[#feca57] fill-[#feca57]" : "text-white/20"}`} 
-                  />
-                ))}
-              </div>
-              <span className="text-white font-bold">{product.rating}</span>
-              <span className="text-white/50">({product.reviewCount.toLocaleString()} reviews)</span>
-            </div>
-
-            {/* Price */}
-            <div className="flex flex-wrap items-baseline gap-3 mb-8">
-              <span className="text-4xl font-black text-[#ff00b0]">${product.price}</span>
-              <span className="text-xl text-white/60 line-through">${product.comparePrice}</span>
-              <span className="px-2 py-1 bg-[#ff00b0]/20 text-[#ff6bd7] text-sm font-bold rounded">
-                Save ${(product.comparePrice - product.price).toFixed(2)}
-              </span>
-            </div>
-
-            {/* Style Selector */}
-            <div className="mb-6">
-              <label className="block text-sm font-bold text-white uppercase tracking-wider mb-3">
-                Style: <span className="text-[#ff00b0]">{selectedStyle}</span>
-              </label>
-              <div className="flex flex-wrap gap-3">
-                {product.styles.map((style) => (
-                  <button
-                    key={style.name}
-                    onClick={() => setSelectedStyle(style.name)}
-                    className={`group relative w-12 h-12 rounded-full border-2 transition-all ${
-                      selectedStyle === style.name 
-                        ? "border-[#ff00b0] scale-110" 
-                        : "border-white/20 hover:border-white/40"
-                    }`}
-                    title={style.name}
-                  >
-                    <span 
-                      className="absolute inset-1 rounded-full"
-                      style={{ backgroundColor: style.color }}
-                    />
-                    {selectedStyle === style.name && (
-                      <span className="absolute inset-0 flex items-center justify-center">
-                        <Check className="w-5 h-5 text-[#ff00b0] drop-shadow-lg" />
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Size Selector */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-sm font-bold text-white uppercase tracking-wider">
-                  Size: <span className="text-[#ff00b0]">{selectedSize}</span>
-                </label>
-                <button className="text-sm text-[#ff00b0] hover:underline">Size Guide</button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-14 h-14 rounded-xl font-bold text-sm transition-all ${
-                      selectedSize === size
-                        ? "bg-[#ff00b0] text-black"
-                        : "bg-white/5 text-white border border-white/10 hover:border-[#ff00b0]/50"
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Quantity */}
-            <div className="mb-6">
-              <label className="block text-sm font-bold text-white uppercase tracking-wider mb-3">
-                Quantity
-              </label>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center bg-white/5 rounded-xl border border-white/10">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-12 h-12 flex items-center justify-center text-white/70 hover:text-white transition-colors"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="w-12 text-center font-bold">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-12 h-12 flex items-center justify-center text-white/70 hover:text-white transition-colors"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+          <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Hero Content */}
+              <div className="text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-6">
+                  <Sparkles className="w-4 h-4 text-[#feca57]" aria-hidden="true" />
+                  <span className="text-sm font-medium text-white/90">New Collection Just Dropped</span>
                 </div>
-              </div>
-            </div>
-
-            {/* Add to Cart */}
-            <div className="flex gap-3 mb-6">
-              <button className="flex-1 py-4 px-8 bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] text-white font-bold text-lg rounded-full hover:opacity-90 transition-all hover:scale-[1.02] shadow-lg shadow-[#ff00b0]/25">
-                Add to Cart - ${(product.price * quantity).toFixed(2)}
-              </button>
-              <button 
-                onClick={() => setIsWishlisted(!isWishlisted)}
-                className={`w-14 h-14 rounded-full border flex items-center justify-center transition-all ${
-                  isWishlisted 
-                    ? "bg-[#ff00b0]/20 border-[#ff00b0] text-[#ff00b0]" 
-                    : "bg-white/5 border-white/10 text-white/70 hover:text-white hover:border-white/30"
-                }`}
-              >
-                <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
-              </button>
-            </div>
-
-            {/* Buy Now */}
-            <button className="w-full py-4 px-8 bg-white text-black font-bold text-lg rounded-full hover:bg-white/90 transition-colors mb-8">
-              Buy Now
-            </button>
-
-            {/* Trust Badges */}
-            <div className="grid grid-cols-2 gap-3 mb-8" role="list" aria-label="Product guarantees">
-              {[
-                { icon: Truck, text: "Free Shipping $50+" },
-                { icon: RefreshCw, text: "14-Day Returns" },
-                { icon: Shield, text: "Secure Checkout" },
-                { icon: Sparkles, text: "1-5 Day Delivery" }
-              ].map((badge, i) => (
-                <div key={i} className="flex items-center gap-2 px-3 py-3 bg-white/5 rounded-xl border border-white/10" role="listitem">
-                  <badge.icon className="w-4 h-4 text-[#ff00b0] flex-shrink-0" aria-hidden="true" />
-                  <span className="text-xs text-white/80 font-medium">{badge.text}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Share */}
-            <div className="flex items-center gap-3 pt-6 border-t border-white/10">
-              <span className="text-sm text-white/70">Share:</span>
-              <div className="flex gap-2">
-                {["Facebook", "Twitter", "Pinterest", "Copy link"].map((social) => (
-                  <button
-                    key={social}
-                    className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:border-white/30 transition-colors"
-                    aria-label={`Share on ${social}`}
+                
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6">
+                  <span className="text-white">SALON</span>
+                  <br />
+                  <span className="bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] bg-clip-text text-transparent">QUALITY</span>
+                  <br />
+                  <span className="text-white">AT HOME</span>
+                </h1>
+                
+                <p className="text-lg md:text-xl text-white/80 mb-8 max-w-lg mx-auto lg:mx-0">
+                  Premium semi-cured gel nails, luxury hair extensions, and glow-up skincare. Look expensive without the salon price tag.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  <Link
+                    href="/collections/nails"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] text-white font-bold text-lg rounded-full hover:opacity-90 transition-opacity"
                   >
-                    <Share2 className="w-4 h-4" aria-hidden="true" />
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+                    Shop Nails
+                    <ArrowRight className="w-5 h-5" aria-hidden="true" />
+                  </Link>
+                  <Link
+                    href="/pages/how-it-works"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/20 text-white font-bold text-lg rounded-full hover:bg-white/10 transition-colors"
+                  >
+                    <Play className="w-5 h-5" aria-hidden="true" />
+                    How It Works
+                  </Link>
+                </div>
 
-      {/* Product Details Tabs */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
-        <div className="bg-[#111] rounded-3xl border border-white/10 overflow-hidden">
-          {/* Tab Headers */}
-          <div className="flex border-b border-white/10" role="tablist" aria-label="Product information tabs">
-            {["description", "how-to-apply", "reviews"].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                role="tab"
-                aria-selected={activeTab === tab}
-                aria-controls={`${tab}-panel`}
-                className={`flex-1 py-4 px-4 md:px-6 text-xs md:text-sm font-bold uppercase tracking-wider transition-colors ${
-                  activeTab === tab
-                    ? "bg-white/5 text-[#ff00b0] border-b-2 border-[#ff00b0]"
-                    : "text-white/70 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                {tab.replace("-", " ")}
-              </button>
-            ))}
-          </div>
-
-          {/* Tab Content */}
-          <div className="p-6 md:p-8">
-            {activeTab === "description" && (
-              <div className="space-y-6" role="tabpanel" id="description-panel" aria-labelledby="description">
-                <p className="text-white/80 leading-relaxed">{product.description}</p>
-                <ul className="grid md:grid-cols-2 gap-4">
-                  {product.features.map((feature, i) => (
-                    <li key={i} className="flex items-center gap-3">
-                      <div className="w-6 h-6 rounded-full bg-[#ff00b0]/20 flex items-center justify-center flex-shrink-0">
-                        <Check className="w-4 h-4 text-[#ff00b0]" aria-hidden="true" />
-                      </div>
-                      <span className="text-white/90">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {activeTab === "how-to-apply" && (
-              <div className="space-y-8" role="tabpanel" id="how-to-apply-panel" aria-labelledby="how-to-apply">
-                <ol className="space-y-6">
-                  {[
-                    { step: 1, title: "Prep Your Nails", desc: "Clean and file your nails. Push back cuticles and buff the nail surface." },
-                    { step: 2, title: "Apply the Strips", desc: "Select the right size, peel off the backing, and apply from cuticle to tip." },
-                    { step: 3, title: "Cure & Finish", desc: "File off excess and cure under UV/LED lamp for 60 seconds. Done!" }
-                  ].map((item) => (
-                    <li key={item.step} className="flex gap-4">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff00b0] to-[#7c3aed] flex items-center justify-center text-white font-bold flex-shrink-0" aria-hidden="true">
-                        {item.step}
-                      </div>
-                      <div>
-                        <h4 className="text-white font-bold mb-1">{item.title}</h4>
-                        <p className="text-white/80">{item.desc}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-
-            {activeTab === "reviews" && (
-              <div className="space-y-6" role="tabpanel" id="reviews-panel" aria-labelledby="reviews">
-                <div className="flex items-center gap-6 pb-6 border-b border-white/10">
-                  <div className="text-center">
-                    <div className="text-5xl font-black text-white">{product.rating}</div>
-                    <div className="flex items-center gap-1 mt-2" aria-label={`${product.rating} out of 5 stars`}>
+                {/* Trust Badges */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mt-10">
+                  <div className="flex items-center gap-2">
+                    <div className="flex -space-x-1">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} className="w-4 h-4 text-[#feca57] fill-[#feca57]" aria-hidden="true" />
                       ))}
                     </div>
-                    <div className="text-white/70 text-sm mt-1">{product.reviewCount} reviews</div>
+                    <span className="text-sm text-white/80">4.9/5 (2,500+ reviews)</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-white/80">
+                    <Truck className="w-4 h-4 text-[#06b6d4]" aria-hidden="true" />
+                    <span>Free Shipping $50+</span>
                   </div>
                 </div>
+              </div>
 
-                {/* Sample Reviews */}
-                <div role="list" aria-label="Customer reviews">
-                  {[
-                    { name: "Sarah M.", rating: 5, date: "2 days ago", text: "Absolutely love these! So easy to apply and they look amazing.", verified: true },
-                    { name: "Jessica T.", rating: 5, date: "1 week ago", text: "Best gel nails I've ever tried. Will definitely buy again!", verified: true }
-                  ].map((review, i) => (
-                    <article key={i} className="pb-6 border-b border-white/10 last:border-0" role="listitem">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#ff00b0] to-[#7c3aed] flex items-center justify-center text-white font-bold" aria-hidden="true">
-                            {review.name[0]}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-white font-bold">{review.name}</span>
-                              {review.verified && (
-                                <span className="px-2 py-0.5 bg-[#06b6d4]/20 text-[#22d3ee] text-xs font-bold rounded">Verified</span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <div className="flex" aria-label={`${review.rating} out of 5 stars`}>
-                                {[...Array(review.rating)].map((_, j) => (
-                                  <Star key={j} className="w-3 h-3 text-[#feca57] fill-[#feca57]" aria-hidden="true" />
-                                ))}
-                              </div>
-                              <span className="text-white/60 text-xs">{review.date}</span>
-                            </div>
-                          </div>
-                        </div>
+              {/* Hero Image */}
+              <div className="relative">
+                <div className="relative aspect-square max-w-lg mx-auto">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/30 to-[#7c3aed]/30 rounded-3xl blur-2xl" />
+                  <Image
+                    src="/placeholder.svg?height=600&width=600&text=Hero+Image"
+                    alt="Crazy Gels nail collection showcase"
+                    fill
+                    className="object-cover rounded-3xl relative z-10"
+                    priority
+                  />
+                  {/* Floating Badge */}
+                  <div className="absolute -bottom-4 -left-4 z-20 bg-[#111111] border border-white/10 rounded-2xl p-4 shadow-2xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff00b0] to-[#7c3aed] flex items-center justify-center">
+                        <span className="text-white font-black text-lg">14</span>
                       </div>
-                      <p className="text-white/80">{review.text}</p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Related Products */}
-      <section className="max-w-7xl mx-auto px-4 md:px-6 py-12">
-        <h2 className="text-2xl md:text-3xl font-black text-white mb-8">
-          You May Also <span className="text-[#ff00b0]">Love</span>
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="group relative bg-[#111] rounded-2xl overflow-hidden border border-white/10 hover:border-[#ff00b0]/50 transition-all">
-              <div className="aspect-square relative overflow-hidden">
-                <Image
-                  src="/crazygels-lifestyle.jpg"
-                  alt={`Related product ${i}`}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <button className="absolute top-3 right-3 w-8 h-8 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white/70 hover:text-[#ff00b0] transition-colors opacity-0 group-hover:opacity-100">
-                  <Heart className="w-4 h-4" />
-                </button>
-              </div>
-              <div className="p-4">
-                <h3 className="text-white font-bold text-sm mb-1 truncate">Gel Nail Set #{i}</h3>
-                <div className="flex items-center gap-2">
-                  <span className="text-[#ff00b0] font-bold">$19.99</span>
-                  <span className="text-white/40 text-sm line-through">$29.99</span>
+                      <div>
+                        <p className="text-white font-bold">Day Wear</p>
+                        <p className="text-white/60 text-sm">Guaranteed</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
+        </section>
+
+        {/* Category Cards */}
+        <section className="py-16 md:py-24 px-4 md:px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">SHOP BY CATEGORY</h2>
+              <p className="text-white/70 text-lg max-w-2xl mx-auto">Everything you need for your ultimate glow-up</p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              {categories.map((category) => (
+                <Link
+                  key={category.title}
+                  href={category.href}
+                  className="group relative overflow-hidden rounded-3xl bg-[#111111] border border-white/10 hover:border-white/20 transition-all duration-300"
+                >
+                  {/* Image */}
+                  <div className="aspect-[4/5] relative overflow-hidden">
+                    <Image
+                      src={category.image}
+                      alt={category.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <p className="text-sm text-white/60 mb-1">{category.subtitle}</p>
+                    <h3 className="text-2xl font-black text-white mb-2" style={{ color: category.color }}>
+                      {category.title}
+                    </h3>
+                    <p className="text-white/70 text-sm mb-4">{category.description}</p>
+                    
+                    {/* Feature Tags */}
+                    <div className="flex flex-wrap gap-2">
+                      {category.features.map((feature) => (
+                        <span
+                          key={feature}
+                          className="px-3 py-1 text-xs font-bold rounded-full bg-white/10 text-white/90"
+                        >
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Before/After Section */}
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#050505]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">SEE THE DIFFERENCE</h2>
+              <p className="text-white/70 text-lg">Drag the slider to see the transformation</p>
+            </div>
+
+            {/* Before/After Slider */}
+            <div className="relative max-w-3xl mx-auto aspect-[4/3] rounded-3xl overflow-hidden">
+              {/* Before Image */}
+              <div className="absolute inset-0">
+                <Image
+                  src="/placeholder.svg?height=600&width=800&text=Before"
+                  alt="Before applying Crazy Gels"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              {/* After Image (clipped) */}
+              <div 
+                className="absolute inset-0 overflow-hidden"
+                style={{ clipPath: `inset(0 ${100 - beforeAfterPosition}% 0 0)` }}
+              >
+                <Image
+                  src="/placeholder.svg?height=600&width=800&text=After"
+                  alt="After applying Crazy Gels"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+
+              {/* Slider Control */}
+              <div 
+                className="absolute inset-y-0 w-1 bg-white cursor-ew-resize"
+                style={{ left: `${beforeAfterPosition}%` }}
+              >
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                  <ChevronLeft className="w-4 h-4 text-[#0a0a0a]" aria-hidden="true" />
+                  <ChevronRight className="w-4 h-4 text-[#0a0a0a]" aria-hidden="true" />
+                </div>
+              </div>
+
+              {/* Slider Input */}
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={beforeAfterPosition}
+                onChange={(e) => setBeforeAfterPosition(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
+                aria-label="Before and after comparison slider"
+              />
+
+              {/* Labels */}
+              <div className="absolute bottom-4 left-4 px-3 py-1 bg-black/50 backdrop-blur-sm rounded-full text-sm font-bold text-white">
+                BEFORE
+              </div>
+              <div className="absolute bottom-4 right-4 px-3 py-1 bg-[#ff00b0]/80 backdrop-blur-sm rounded-full text-sm font-bold text-white">
+                AFTER
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Featured Products */}
+        <section className="py-16 md:py-24 px-4 md:px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center justify-between mb-12">
+              <div>
+                <h2 className="text-3xl md:text-4xl font-black text-white mb-2">BESTSELLERS</h2>
+                <p className="text-white/70">Our most-loved products</p>
+              </div>
+              <Link 
+                href="/collections/bestsellers"
+                className="hidden md:inline-flex items-center gap-2 text-[#ff00b0] font-bold hover:underline"
+              >
+                View All <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {featuredProducts.map((product, i) => (
+                <Link
+                  key={i}
+                  href={`/products/${product.name.toLowerCase().replace(/ /g, "-")}`}
+                  className="group"
+                >
+                  <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#111111] border border-white/10 mb-4">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    {product.badge && (
+                      <div className={`absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full ${
+                        product.badge === "Sale" ? "bg-[#feca57] text-black" :
+                        product.badge === "New" ? "bg-[#06b6d4] text-white" :
+                        "bg-[#ff00b0] text-white"
+                      }`}>
+                        {product.badge}
+                      </div>
+                    )}
+                    <button 
+                      className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-[#ff00b0] hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100"
+                      aria-label={`Add ${product.name} to wishlist`}
+                    >
+                      <Heart className="w-5 h-5" aria-hidden="true" />
+                    </button>
+                  </div>
+                  <h3 className="text-white font-bold mb-1 group-hover:text-[#ff00b0] transition-colors">{product.name}</h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[#ff00b0] font-bold">${product.price}</span>
+                    <span className="text-white/50 line-through text-sm">${product.comparePrice}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-8 text-center md:hidden">
+              <Link 
+                href="/collections/bestsellers"
+                className="inline-flex items-center gap-2 text-[#ff00b0] font-bold"
+              >
+                View All Bestsellers <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#050505]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">WHAT THEY&apos;RE SAYING</h2>
+              <div className="flex items-center justify-center gap-2">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 text-[#feca57] fill-[#feca57]" aria-hidden="true" />
+                  ))}
+                </div>
+                <span className="text-white/80">4.9 average from 2,500+ reviews</span>
+              </div>
+            </div>
+
+            {/* Testimonial Carousel */}
+            <div className="relative">
+              <div className="overflow-hidden">
+                <div 
+                  className="flex transition-transform duration-500"
+                  style={{ transform: `translateX(-${currentTestimonial * 100}%)` }}
+                >
+                  {testimonials.map((testimonial, i) => (
+                    <div key={i} className="w-full flex-shrink-0 px-4">
+                      <div className="max-w-2xl mx-auto text-center">
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#ff00b0] to-[#7c3aed] mx-auto mb-6 overflow-hidden">
+                          <Image
+                            src={testimonial.image}
+                            alt={testimonial.name}
+                            width={80}
+                            height={80}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex justify-center mb-4">
+                          {[...Array(testimonial.rating)].map((_, j) => (
+                            <Star key={j} className="w-5 h-5 text-[#feca57] fill-[#feca57]" aria-hidden="true" />
+                          ))}
+                        </div>
+                        <blockquote className="text-xl md:text-2xl text-white/90 mb-6 leading-relaxed">
+                          &ldquo;{testimonial.text}&rdquo;
+                        </blockquote>
+                        <p className="text-white font-bold">{testimonial.name}</p>
+                        <p className="text-white/60 text-sm">{testimonial.location}</p>
+                        <p className="text-[#ff00b0] text-sm mt-1">Purchased: {testimonial.product}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Dots */}
+              <div className="flex justify-center gap-2 mt-8">
+                {testimonials.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentTestimonial(i)}
+                    className={`w-3 h-3 rounded-full transition-colors ${
+                      currentTestimonial === i ? "bg-[#ff00b0]" : "bg-white/20"
+                    }`}
+                    aria-label={`Go to testimonial ${i + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Instagram Feed */}
+        <section className="py-16 md:py-24 px-4 md:px-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
+                <Instagram className="inline-block w-8 h-8 mr-2" aria-hidden="true" />
+                @CRAZYGELS
+              </h2>
+              <p className="text-white/70">Tag us in your looks for a chance to be featured</p>
+            </div>
+
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
+              {instagramPosts.map((post, i) => (
+                <a
+                  key={i}
+                  href="https://instagram.com/crazygels"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative aspect-square rounded-xl overflow-hidden"
+                >
+                  <Image
+                    src={post.image}
+                    alt={`Instagram post ${i + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-[#ff00b0]/0 group-hover:bg-[#ff00b0]/50 transition-colors flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-white font-bold">
+                      <Heart className="w-4 h-4 fill-white" aria-hidden="true" />
+                      {post.likes}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Why Choose Us */}
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#050505]">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">WHY CRAZY GELS?</h2>
+              <p className="text-white/70 text-lg max-w-2xl mx-auto">We&apos;re on a mission to make salon-quality beauty accessible to everyone</p>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-6">
+              {[
+                { icon: Shield, title: "Premium Quality", desc: "Only the highest quality materials and formulas", color: "#ff00b0" },
+                { icon: Truck, title: "Fast Shipping", desc: "Free shipping on orders over $50. 1-5 day delivery", color: "#7c3aed" },
+                { icon: RefreshCw, title: "Easy Returns", desc: "14-day hassle-free returns. No questions asked", color: "#06b6d4" },
+                { icon: Heart, title: "Cruelty Free", desc: "All products are vegan and never tested on animals", color: "#feca57" }
+              ].map((item, i) => (
+                <div key={i} className="text-center p-6">
+                  <div 
+                    className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
+                    style={{ backgroundColor: `${item.color}20` }}
+                  >
+                    <item.icon className="w-8 h-8" style={{ color: item.color }} aria-hidden="true" />
+                  </div>
+                  <h3 className="text-white font-bold mb-2">{item.title}</h3>
+                  <p className="text-white/70 text-sm">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </main>
 
       {/* Footer */}
-      <footer className="bg-[#050505] mt-16" role="contentinfo">
+      <footer className="bg-[#050505] border-t border-white/10" role="contentinfo">
         {/* Newsletter */}
         <div className="border-b border-white/10">
           <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
@@ -637,7 +694,7 @@ export default function ShopifyProductPagePreview() {
 
         {/* Footer Links */}
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="inline-block">
                 <span className="text-2xl md:text-3xl font-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] bg-clip-text text-transparent">
@@ -699,16 +756,6 @@ export default function ShopifyProductPagePreview() {
           </div>
         </div>
       </footer>
-
-      {/* Mobile Sticky ATC */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-white/10 p-4 pb-safe md:hidden z-40">
-        <button className="w-full py-4 bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] text-white font-bold text-lg rounded-full focus:outline-none focus:ring-2 focus:ring-[#ff00b0]/50">
-          Add to Cart - ${(product.price * quantity).toFixed(2)}
-        </button>
-      </div>
-
-      {/* Spacer for mobile sticky ATC */}
-      <div className="h-20 md:hidden" aria-hidden="true" />
-    </main>
+    </div>
   )
 }
