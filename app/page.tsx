@@ -3,11 +3,57 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Play, Star, Check, ChevronLeft, ChevronRight, Sparkles, Clock, Heart, Shield, Truck, CreditCard, RefreshCw, Instagram } from "lucide-react"
+import { Play, Star, Check, ChevronLeft, ChevronRight, Sparkles, Clock, Heart, Shield, Truck, CreditCard, RefreshCw, Instagram, Menu, X, ShoppingBag, Search, User, ChevronDown } from "lucide-react"
 
 export default function CrazyGelsLanding() {
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
   const [beforeAfterPosition, setBeforeAfterPosition] = useState(50)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+
+  const menuItems = [
+    {
+      label: "Nails",
+      href: "/collections/nails",
+      submenu: [
+        { label: "All Nail Sets", href: "/collections/nails" },
+        { label: "French Tips", href: "/collections/french-tips" },
+        { label: "Solid Colors", href: "/collections/solid-colors" },
+        { label: "Glitter & Sparkle", href: "/collections/glitter" },
+        { label: "Nail Art", href: "/collections/nail-art" },
+        { label: "New Arrivals", href: "/collections/new-nails" }
+      ]
+    },
+    {
+      label: "Hair",
+      href: "/collections/hair",
+      submenu: [
+        { label: "All Hair Products", href: "/collections/hair" },
+        { label: "Hair Extensions", href: "/collections/hair-extensions" },
+        { label: "Hair Care", href: "/collections/hair-care" },
+        { label: "Styling Tools", href: "/collections/styling-tools" }
+      ]
+    },
+    {
+      label: "Skin",
+      href: "/collections/skin",
+      submenu: [
+        { label: "All Skin Products", href: "/collections/skin" },
+        { label: "Face Care", href: "/collections/face-care" },
+        { label: "Body Care", href: "/collections/body-care" },
+        { label: "Lip Care", href: "/collections/lip-care" }
+      ]
+    },
+    {
+      label: "Bundles",
+      href: "/collections/bundles"
+    },
+    {
+      label: "Sale",
+      href: "/collections/sale",
+      highlight: true
+    }
+  ]
 
   const testimonials = [
     {
@@ -58,6 +104,150 @@ export default function CrazyGelsLanding() {
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+        {/* Top Bar */}
+        <div className="bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] py-2 px-4">
+          <div className="max-w-7xl mx-auto flex items-center justify-center text-black text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-3 h-3 mr-2" />
+            Free Shipping on Orders Over $50
+            <Sparkles className="w-3 h-3 ml-2" />
+          </div>
+        </div>
+
+        {/* Main Header */}
+        <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/10">
+          <div className="max-w-7xl mx-auto px-4 md:px-6">
+            <div className="flex items-center justify-between h-16 md:h-20">
+              {/* Mobile Menu Button */}
+              <button 
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 text-white hover:text-[#ff00b0] transition-colors"
+              >
+                {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+
+              {/* Logo */}
+              <Link href="/" className="flex-shrink-0">
+                <span className="text-xl md:text-2xl font-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] bg-clip-text text-transparent">
+                  CRAZY GELS
+                </span>
+              </Link>
+
+              {/* Desktop Navigation */}
+              <nav className="hidden md:flex items-center gap-1">
+                {menuItems.map((item) => (
+                  <div 
+                    key={item.label}
+                    className="relative"
+                    onMouseEnter={() => item.submenu && setActiveDropdown(item.label)}
+                    onMouseLeave={() => setActiveDropdown(null)}
+                  >
+                    <Link
+                      href={item.href}
+                      className={`flex items-center gap-1 px-4 py-2 text-sm font-semibold uppercase tracking-wider transition-colors ${
+                        item.highlight 
+                          ? "text-[#ff00b0] hover:text-[#ff6b6b]" 
+                          : "text-white/80 hover:text-white"
+                      }`}
+                    >
+                      {item.label}
+                      {item.submenu && <ChevronDown className="w-4 h-4" />}
+                    </Link>
+
+                    {/* Dropdown */}
+                    {item.submenu && activeDropdown === item.label && (
+                      <div className="absolute top-full left-0 pt-2 w-56">
+                        <div className="bg-[#1a1a1a] backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+                          {item.submenu.map((subitem) => (
+                            <Link
+                              key={subitem.label}
+                              href={subitem.href}
+                              className="block px-5 py-3 text-sm text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                            >
+                              {subitem.label}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </nav>
+
+              {/* Right Icons */}
+              <div className="flex items-center gap-2 md:gap-4">
+                <button className="hidden md:flex p-2 text-white/70 hover:text-white transition-colors">
+                  <Search className="w-5 h-5" />
+                </button>
+                <Link href="/account" className="hidden md:flex p-2 text-white/70 hover:text-white transition-colors">
+                  <User className="w-5 h-5" />
+                </Link>
+                <Link 
+                  href="/cart" 
+                  className="relative p-2 text-white/70 hover:text-white transition-colors"
+                >
+                  <ShoppingBag className="w-5 h-5" />
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff00b0] rounded-full text-[10px] font-bold flex items-center justify-center text-black">
+                    0
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-[#0a0a0a]/98 backdrop-blur-xl border-b border-white/10">
+            <nav className="max-w-7xl mx-auto px-4 py-4">
+              {menuItems.map((item) => (
+                <div key={item.label} className="border-b border-white/5 last:border-0">
+                  <Link
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`block py-4 text-lg font-semibold uppercase tracking-wider ${
+                      item.highlight ? "text-[#ff00b0]" : "text-white"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                  {item.submenu && (
+                    <div className="pb-4 pl-4 space-y-2">
+                      {item.submenu.map((subitem) => (
+                        <Link
+                          key={subitem.label}
+                          href={subitem.href}
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="block py-2 text-sm text-white/60 hover:text-white"
+                        >
+                          {subitem.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+              
+              {/* Mobile Search & Account */}
+              <div className="flex items-center gap-4 pt-4 mt-4 border-t border-white/10">
+                <button className="flex items-center gap-2 text-white/70 hover:text-white">
+                  <Search className="w-5 h-5" />
+                  <span className="text-sm">Search</span>
+                </button>
+                <Link href="/account" className="flex items-center gap-2 text-white/70 hover:text-white">
+                  <User className="w-5 h-5" />
+                  <span className="text-sm">Account</span>
+                </Link>
+              </div>
+            </nav>
+          </div>
+        )}
+      </header>
+
+      {/* Spacer for fixed header */}
+      <div className="h-[104px] md:h-[120px]" />
+
       {/* Video Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Video Background Placeholder */}
