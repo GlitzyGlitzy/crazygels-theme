@@ -6,15 +6,42 @@
   --cg-bg-card: #111111;
   --cg-bg-elevated: #1a1a1a;
   --cg-pink: #ff00b0;
+  --cg-pink-light: #ff6bd7;
   --cg-purple: #7c3aed;
   --cg-cyan: #06b6d4;
+  --cg-cyan-light: #22d3ee;
+  --cg-gold: #feca57;
   --cg-text: #ffffff;
-  --cg-text-muted: rgba(255, 255, 255, 0.6);
+  --cg-text-secondary: rgba(255, 255, 255, 0.9);
+  --cg-text-muted: rgba(255, 255, 255, 0.8);
+  --cg-text-subtle: rgba(255, 255, 255, 0.7);
   --cg-border: rgba(255, 255, 255, 0.1);
   --cg-gradient: linear-gradient(135deg, #ff00b0 0%, #7c3aed 100%);
   --cg-radius: 16px;
   --cg-radius-sm: 8px;
   --cg-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Accessibility - Focus States */
+*:focus-visible {
+  outline: 2px solid var(--cg-pink);
+  outline-offset: 2px;
+}
+
+/* Skip Link for Screen Readers */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--cg-pink);
+  color: white;
+  padding: 8px 16px;
+  z-index: 100;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
 }
 
 /* Base Product Page Styles */
