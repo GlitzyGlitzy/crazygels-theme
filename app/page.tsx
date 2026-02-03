@@ -1,253 +1,473 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Clock, Shield, Wallet, Star, Check, Quote } from "lucide-react"
+import { Play, Star, Check, ChevronLeft, ChevronRight, Sparkles, Clock, Heart, Shield, Truck, CreditCard, RefreshCw, Instagram } from "lucide-react"
 
 export default function CrazyGelsLanding() {
+  const [currentTestimonial, setCurrentTestimonial] = useState(0)
+  const [beforeAfterPosition, setBeforeAfterPosition] = useState(50)
+
+  const testimonials = [
+    {
+      name: "Sarah M.",
+      location: "Los Angeles, CA",
+      text: "I've tried every nail brand out there, but Crazy Gels is the only one that looks salon-perfect and doesn't damage my natural nails. Absolutely obsessed!",
+      rating: 5,
+      image: "S"
+    },
+    {
+      name: "Jessica T.",
+      location: "New York, NY", 
+      text: "These nails last SO long! I get compliments everywhere I go. The application is super easy - took me 10 minutes on my first try!",
+      rating: 5,
+      image: "J"
+    },
+    {
+      name: "Emma R.",
+      location: "Miami, FL",
+      text: "Finally found my holy grail nail product! No more expensive salon visits. The designs are gorgeous and they ship so fast!",
+      rating: 5,
+      image: "E"
+    },
+    {
+      name: "Olivia K.",
+      location: "Chicago, IL",
+      text: "My nails have never looked this good! I'm a nurse and these stay put through all my shifts. Game changer!",
+      rating: 5,
+      image: "O"
+    }
+  ]
+
+  const instagramPosts = [
+    { id: 1, likes: "2.4K" },
+    { id: 2, likes: "1.8K" },
+    { id: 3, likes: "3.2K" },
+    { id: 4, likes: "2.1K" },
+    { id: 5, likes: "1.5K" },
+    { id: 6, likes: "2.9K" }
+  ]
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [testimonials.length])
+
   return (
-    <main className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#fdeef5] via-[#f8e8ff] to-[#cfb4d9]">
-        {/* Decorative Elements */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-[#ff00b0]/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-32 right-20 w-48 h-48 bg-[#cfb4d9]/40 rounded-full blur-3xl animate-float-delayed" />
-        <div className="absolute top-1/3 right-10 w-24 h-24 bg-[#ff00b0]/10 rounded-full blur-2xl" />
+    <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
+      {/* Video Hero Section */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Video Background Placeholder */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#1a0a1f] via-[#0a0a0a] to-[#0f0a12]">
+          <div className="absolute inset-0 bg-[url('/crazygels-lifestyle.jpg')] bg-cover bg-center opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+        </div>
         
-        <div className="relative z-10 max-w-4xl mx-auto px-6 py-20 text-center animate-fade-in-up">
-          <span className="inline-block px-5 py-2 mb-6 text-sm font-medium tracking-wider uppercase bg-white/80 backdrop-blur-sm text-[#391241] rounded-full border border-[#cfb4d9]">
-            Premium Semi-Cured Gel Nails
-          </span>
+        {/* Animated Gradient Orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#ff00b0]/30 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#7c3aed]/30 rounded-full blur-[100px] animate-pulse delay-1000" />
+        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-[#06b6d4]/20 rounded-full blur-[80px] animate-pulse delay-500" />
+
+        {/* Hero Content */}
+        <div className="relative z-10 max-w-5xl mx-auto px-6 py-20 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-white/10 backdrop-blur-md rounded-full border border-white/20 animate-bounce-slow">
+            <Sparkles className="w-4 h-4 text-[#ff00b0]" />
+            <span className="text-sm font-medium">NEW COLLECTION JUST DROPPED</span>
+          </div>
           
-          <h1 className="text-5xl md:text-7xl font-bold text-[#391241] mb-6 leading-tight tracking-tight">
-            Flawless nails in <em className="font-serif not-italic text-[#ff00b0]">minutes</em>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black mb-6 leading-[0.9] tracking-tight">
+            <span className="block text-white">NAILS THAT</span>
+            <span className="block bg-gradient-to-r from-[#ff00b0] via-[#ff6b6b] to-[#feca57] bg-clip-text text-transparent">SLAY ALL DAY</span>
           </h1>
           
-          <p className="text-lg md:text-xl text-[#391241]/70 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Enjoy salon-quality nails without the damage. Transform your look at home with our premium semi-cured gel nail strips.
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Salon-quality gel nails in minutes. No damage. No appointment. Just pure nail magic.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
               href="#shop"
-              className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white bg-[#ff00b0] rounded-full hover:bg-[#391241] transition-all duration-300 hover:scale-105 shadow-lg shadow-[#ff00b0]/30"
+              className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] rounded-full overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(255,0,176,0.5)]"
             >
-              Shop Now
+              <span className="relative z-10">SHOP NOW</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#ff6b6b] to-[#ff00b0] opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
-            <Link
-              href="#features"
-              className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-[#391241] bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-all duration-300 border border-[#cfb4d9]"
-            >
-              Learn More
-            </Link>
+            <button className="inline-flex items-center gap-3 px-6 py-4 text-white/80 hover:text-white transition-colors group">
+              <span className="flex items-center justify-center w-12 h-12 bg-white/10 backdrop-blur-md rounded-full border border-white/20 group-hover:bg-white/20 group-hover:scale-110 transition-all">
+                <Play className="w-5 h-5 ml-0.5" fill="currentColor" />
+              </span>
+              <span className="font-medium">Watch Video</span>
+            </button>
           </div>
-        </div>
-      </section>
 
-      {/* Stats Section */}
-      <section className="bg-[#391241] py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {/* Floating Stats */}
+          <div className="mt-16 flex flex-wrap justify-center gap-8 md:gap-16">
             {[
-              { number: "50K+", label: "Happy Customers" },
-              { number: "100+", label: "Unique Designs" },
-              { number: "2 Weeks", label: "Long Lasting" },
-              { number: "4.9/5", label: "Customer Rating" },
-            ].map((stat, index) => (
-              <div key={index} className="group">
-                <div className="text-3xl md:text-4xl font-bold text-[#ff00b0] mb-2 group-hover:scale-110 transition-transform">
-                  {stat.number}
+              { value: "50K+", label: "Happy Babes" },
+              { value: "100+", label: "Designs" },
+              { value: "4.9", label: "Rating", icon: Star }
+            ].map((stat, i) => (
+              <div key={i} className="text-center group">
+                <div className="flex items-center justify-center gap-1 text-3xl md:text-4xl font-black text-white group-hover:text-[#ff00b0] transition-colors">
+                  {stat.value}
+                  {stat.icon && <stat.icon className="w-6 h-6 fill-[#feca57] text-[#feca57]" />}
                 </div>
-                <div className="text-white/80 text-sm uppercase tracking-wider">
-                  {stat.label}
-                </div>
+                <div className="text-white/50 text-sm uppercase tracking-wider mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
+          <span className="text-white/50 text-xs uppercase tracking-widest">Scroll</span>
+          <div className="w-px h-8 bg-gradient-to-b from-white/50 to-transparent" />
+        </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-24 bg-white">
+      {/* Marquee Banner */}
+      <section className="py-4 bg-gradient-to-r from-[#ff00b0] via-[#ff6b6b] to-[#ff00b0] overflow-hidden">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[...Array(10)].map((_, i) => (
+            <span key={i} className="mx-8 text-black font-bold text-sm uppercase tracking-wider flex items-center gap-2">
+              <Sparkles className="w-4 h-4" /> FREE SHIPPING OVER $50 
+              <span className="mx-4">|</span>
+              <Heart className="w-4 h-4" /> 2 WEEK WEAR
+              <span className="mx-4">|</span>
+              <Shield className="w-4 h-4" /> NO DAMAGE FORMULA
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* Before/After Section */}
+      <section className="py-24 bg-[#0a0a0a]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <span className="text-[#ff00b0] text-sm font-semibold uppercase tracking-wider">
-              Why Choose Us
+            <span className="inline-block px-4 py-1 mb-4 text-xs font-bold uppercase tracking-widest text-[#ff00b0] bg-[#ff00b0]/10 rounded-full">
+              The Transformation
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-[#391241] mt-3">
-              The smarter way to beautiful nails
+            <h2 className="text-4xl md:text-6xl font-black">
+              BEFORE <span className="text-[#ff00b0]">&</span> AFTER
+            </h2>
+            <p className="mt-4 text-white/60 max-w-xl mx-auto">
+              Slide to see the magic happen. Real results from real customers.
+            </p>
+          </div>
+
+          {/* Before/After Slider */}
+          <div className="relative max-w-2xl mx-auto aspect-square rounded-3xl overflow-hidden border-2 border-white/10 group">
+            {/* Before Image */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a]">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-32 h-32 mx-auto mb-4 rounded-full bg-[#3a3a3a] flex items-center justify-center">
+                    <span className="text-4xl">💅</span>
+                  </div>
+                  <span className="text-white/40 text-sm uppercase tracking-wider">Before</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* After Image (with clip) */}
+            <div 
+              className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/20 to-[#7c3aed]/20"
+              style={{ clipPath: `inset(0 ${100 - beforeAfterPosition}% 0 0)` }}
+            >
+              <Image
+                src="/crazygels-lifestyle.jpg"
+                alt="After transformation"
+                fill
+                className="object-cover"
+              />
+              <div className="absolute bottom-6 left-6 px-4 py-2 bg-black/50 backdrop-blur-md rounded-full">
+                <span className="text-sm font-bold text-[#ff00b0]">AFTER</span>
+              </div>
+            </div>
+
+            {/* Slider Handle */}
+            <div 
+              className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize"
+              style={{ left: `${beforeAfterPosition}%` }}
+            >
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                <ChevronLeft className="w-4 h-4 text-black" />
+                <ChevronRight className="w-4 h-4 text-black" />
+              </div>
+            </div>
+
+            {/* Slider Input */}
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={beforeAfterPosition}
+              onChange={(e) => setBeforeAfterPosition(Number(e.target.value))}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-24 bg-gradient-to-b from-[#0a0a0a] to-[#0f0a12]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1 mb-4 text-xs font-bold uppercase tracking-widest text-[#06b6d4] bg-[#06b6d4]/10 rounded-full">
+              Easy As 1-2-3
+            </span>
+            <h2 className="text-4xl md:text-6xl font-black">
+              HOW IT <span className="bg-gradient-to-r from-[#06b6d4] to-[#7c3aed] bg-clip-text text-transparent">WORKS</span>
             </h2>
           </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
+
+          <div className="grid md:grid-cols-3 gap-8 md:gap-4">
             {[
               {
-                icon: Clock,
-                title: "Quick Application",
-                description: "Apply your perfect nails in under 10 minutes. No salon appointment needed.",
+                step: "01",
+                title: "PREP",
+                description: "Clean your nails and push back cuticles. Use the included prep pad for best results.",
+                color: "#ff00b0",
+                icon: "✨"
               },
               {
-                icon: Shield,
-                title: "Zero Damage",
-                description: "Our gentle formula protects your natural nails while delivering stunning results.",
+                step: "02", 
+                title: "APPLY",
+                description: "Peel, stick, and press firmly. Trim excess with the included file. Takes just 10 minutes!",
+                color: "#7c3aed",
+                icon: "💅"
               },
               {
-                icon: Wallet,
-                title: "Save Money",
-                description: "Get salon-quality nails at a fraction of the cost. Skip the expensive appointments.",
-              },
-            ].map((feature, index) => (
-              <div
-                key={index}
-                className="group p-8 bg-[#fdeef5] rounded-2xl text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300"
-              >
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-6 group-hover:bg-[#ff00b0] transition-colors">
-                  <feature.icon className="w-7 h-7 text-[#ff00b0] group-hover:text-white transition-colors" />
+                step: "03",
+                title: "CURE",
+                description: "Use any UV/LED lamp or our mini lamp. 60 seconds and you're done. Enjoy for 2+ weeks!",
+                color: "#06b6d4",
+                icon: "⚡"
+              }
+            ].map((item, index) => (
+              <div key={index} className="relative group">
+                {/* Connection Line */}
+                {index < 2 && (
+                  <div className="hidden md:block absolute top-1/4 right-0 w-full h-px bg-gradient-to-r from-white/20 to-transparent translate-x-1/2 z-0" />
+                )}
+                
+                <div className="relative z-10 p-8 bg-white/5 backdrop-blur-sm rounded-3xl border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-500 group-hover:-translate-y-2">
+                  {/* Step Number */}
+                  <div 
+                    className="absolute -top-4 -left-4 w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black"
+                    style={{ backgroundColor: item.color }}
+                  >
+                    {item.step}
+                  </div>
+                  
+                  {/* Icon */}
+                  <div className="text-6xl mb-6 mt-4">{item.icon}</div>
+                  
+                  <h3 className="text-2xl font-black mb-3" style={{ color: item.color }}>
+                    {item.title}
+                  </h3>
+                  <p className="text-white/60 leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-[#391241] mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-[#391241]/70 leading-relaxed">
-                  {feature.description}
-                </p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Banner */}
-      <section className="relative py-20 overflow-hidden bg-gradient-to-r from-[#391241] to-[#5a1d6b]">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-[#ff00b0]/20 rounded-full -translate-x-1/2 -translate-y-1/2" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#cfb4d9]/10 rounded-full translate-x-1/3 translate-y-1/3" />
+      {/* Trust Badges Section */}
+      <section className="py-16 bg-[#0f0a12] border-y border-white/10">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {[
+              { icon: Truck, title: "Free Shipping", subtitle: "Orders over $50" },
+              { icon: RefreshCw, title: "Easy Returns", subtitle: "30-day guarantee" },
+              { icon: Shield, title: "Secure Payment", subtitle: "SSL encrypted" },
+              { icon: CreditCard, title: "Buy Now, Pay Later", subtitle: "Afterpay & Klarna" }
+            ].map((badge, index) => (
+              <div key={index} className="flex flex-col items-center text-center group">
+                <div className="w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center group-hover:from-[#ff00b0]/20 group-hover:to-[#7c3aed]/20 transition-all duration-300">
+                  <badge.icon className="w-7 h-7 text-white/80 group-hover:text-[#ff00b0] transition-colors" />
+                </div>
+                <h4 className="font-bold text-white">{badge.title}</h4>
+                <p className="text-sm text-white/50">{badge.subtitle}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Carousel */}
+      <section className="py-24 bg-[#0a0a0a]">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <span className="inline-block px-4 py-1 mb-4 text-xs font-bold uppercase tracking-widest text-[#feca57] bg-[#feca57]/10 rounded-full">
+              The Reviews Are In
+            </span>
+            <h2 className="text-4xl md:text-6xl font-black">
+              LOVED BY <span className="text-[#feca57]">50K+</span> BABES
+            </h2>
+          </div>
+
+          {/* Testimonial Carousel */}
+          <div className="relative max-w-3xl mx-auto">
+            <div className="overflow-hidden">
+              <div 
+                className="flex transition-transform duration-500 ease-out"
+                style={{ transform: `translateX(-${currentTestimonial * 100}%)` }}
+              >
+                {testimonials.map((testimonial, index) => (
+                  <div key={index} className="w-full flex-shrink-0 px-4">
+                    <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/10">
+                      {/* Stars */}
+                      <div className="flex gap-1 mb-6">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="w-5 h-5 fill-[#feca57] text-[#feca57]" />
+                        ))}
+                      </div>
+                      
+                      <blockquote className="text-xl md:text-2xl text-white font-medium leading-relaxed mb-8">
+                        "{testimonial.text}"
+                      </blockquote>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#ff00b0] to-[#7c3aed] flex items-center justify-center text-xl font-bold">
+                          {testimonial.image}
+                        </div>
+                        <div>
+                          <div className="font-bold text-white">{testimonial.name}</div>
+                          <div className="text-white/50 text-sm">{testimonial.location}</div>
+                        </div>
+                        <div className="ml-auto">
+                          <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-500/20 text-green-400 text-xs font-medium rounded-full">
+                            <Check className="w-3 h-3" /> Verified
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Navigation Dots */}
+            <div className="flex justify-center gap-2 mt-8">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentTestimonial(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    currentTestimonial === index 
+                      ? "bg-[#ff00b0] w-8" 
+                      : "bg-white/20 hover:bg-white/40"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Arrows */}
+            <button 
+              onClick={() => setCurrentTestimonial((prev) => (prev - 1 + testimonials.length) % testimonials.length)}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <button 
+              onClick={() => setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Instagram Feed Section */}
+      <section className="py-24 bg-gradient-to-b from-[#0a0a0a] to-[#0f0a12]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <span className="inline-flex items-center gap-2 px-4 py-1 mb-4 text-xs font-bold uppercase tracking-widest text-[#ff00b0] bg-[#ff00b0]/10 rounded-full">
+              <Instagram className="w-4 h-4" /> @crazy.gels
+            </span>
+            <h2 className="text-4xl md:text-6xl font-black">
+              JOIN THE <span className="bg-gradient-to-r from-[#ff00b0] via-[#7c3aed] to-[#06b6d4] bg-clip-text text-transparent">COMMUNITY</span>
+            </h2>
+            <p className="mt-4 text-white/60">Tag us in your nail pics for a chance to be featured!</p>
+          </div>
+
+          {/* Instagram Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {instagramPosts.map((post, index) => (
+              <Link 
+                key={post.id} 
+                href="https://instagram.com/crazy.gels"
+                target="_blank"
+                className="group relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-[#ff00b0]/20 to-[#7c3aed]/20"
+              >
+                <Image
+                  src="/crazygels-lifestyle.jpg"
+                  alt={`Instagram post ${index + 1}`}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="flex items-center gap-2 text-white">
+                    <Heart className="w-5 h-5 fill-white" />
+                    <span className="font-bold">{post.likes}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              href="https://instagram.com/crazy.gels"
+              target="_blank"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 hover:bg-white/20 transition-colors"
+            >
+              <Instagram className="w-5 h-5" />
+              <span className="font-medium">Follow @crazy.gels</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#ff00b0] via-[#7c3aed] to-[#06b6d4]" />
+        <div className="absolute inset-0 bg-[url('/crazygels-lifestyle.jpg')] bg-cover bg-center mix-blend-overlay opacity-30" />
         
-        <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Limited Time: 15% Off Your First Order
+        <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight">
+            READY TO SLAY?
           </h2>
-          <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
-            Join thousands of women who've discovered the secret to perfect nails. Use code WELCOME15 at checkout.
+          <p className="text-xl text-white/80 mb-10 max-w-xl mx-auto">
+            Get 15% off your first order with code <span className="font-bold text-white">SLAY15</span>
           </p>
           <Link
             href="#shop"
-            className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-[#391241] bg-white rounded-full hover:bg-[#ff00b0] hover:text-white transition-all duration-300 hover:scale-105"
+            className="inline-flex items-center justify-center px-10 py-5 text-lg font-black text-[#ff00b0] bg-white rounded-full hover:scale-105 transition-transform shadow-2xl"
           >
-            Claim Offer
+            SHOP NOW
           </Link>
         </div>
       </section>
 
-      {/* Image + Text Section */}
-      <section className="py-24 bg-[#fdeef5]">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="relative">
-              <div className="aspect-square rounded-3xl bg-gradient-to-br from-[#cfb4d9] to-[#fdeef5] overflow-hidden shadow-2xl">
-                <Image
-                  src="/crazygels-lifestyle.jpg"
-                  alt="Beautiful gel nails"
-                  width={500}
-                  height={500}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-[#ff00b0]/20 rounded-full blur-2xl" />
-            </div>
-            
-            <div className="space-y-6">
-              <span className="text-[#ff00b0] text-sm font-semibold uppercase tracking-wider">
-                Our Story
-              </span>
-              <h2 className="text-4xl font-bold text-[#391241]">
-                Beauty without compromise
-              </h2>
-              <p className="text-[#391241]/70 text-lg leading-relaxed">
-                We believe everyone deserves stunning nails without the hassle of salon visits or the damage of traditional acrylics.
-              </p>
-              
-              <ul className="space-y-4">
-                {[
-                  "No damage to natural nails",
-                  "Lasts up to 2 weeks",
-                  "Easy DIY application",
-                  "Salon-quality results",
-                ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 bg-[#ff00b0] rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" />
-                    </span>
-                    <span className="text-[#391241]">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              
-              <Link
-                href="#"
-                className="inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-[#ff00b0] border-2 border-[#ff00b0] rounded-full hover:bg-[#ff00b0] hover:text-white transition-all duration-300 mt-4"
-              >
-                Discover More
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonial Section */}
-      <section className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <Quote className="w-16 h-16 text-[#cfb4d9] mx-auto mb-8" />
-          <blockquote className="text-2xl md:text-3xl text-[#391241] font-medium leading-relaxed mb-8">
-            "I've tried every nail brand out there, but Crazy Gels is the only one that looks salon-perfect and doesn't damage my natural nails. Absolutely obsessed!"
-          </blockquote>
-          <div className="flex items-center justify-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-[#ff00b0] to-[#cfb4d9] rounded-full flex items-center justify-center text-white font-bold text-lg">
-              S
-            </div>
-            <div className="text-left">
-              <div className="font-semibold text-[#391241]">Sarah M.</div>
-              <div className="text-[#391241]/60 text-sm flex items-center gap-1">
-                Verified Customer
-                <span className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-3 h-3 fill-[#ff00b0] text-[#ff00b0]" />
-                  ))}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter Section */}
-      <section className="py-24 bg-[#391241]">
-        <div className="max-w-2xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Join the Crazy Gels Family
-          </h2>
-          <p className="text-white/70 text-lg mb-8">
-            Subscribe for exclusive offers, nail tips, and early access to new designs.
-          </p>
-          <form className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-white/50 focus:outline-none focus:border-[#ff00b0] transition-colors"
-            />
-            <button
-              type="submit"
-              className="px-8 py-4 bg-[#ff00b0] text-white font-semibold rounded-full hover:bg-[#cfb4d9] hover:text-[#391241] transition-all duration-300"
-            >
-              Subscribe
-            </button>
-          </form>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="py-8 bg-[#2a0d30] text-center">
-        <p className="text-white/50 text-sm">
-          © 2026 Crazy Gels. All rights reserved.
-        </p>
+      <footer className="py-12 bg-[#050505] border-t border-white/10">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <div className="text-2xl font-black bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] bg-clip-text text-transparent mb-4">
+            CRAZY GELS
+          </div>
+          <p className="text-white/40 text-sm">
+            © 2026 Crazy Gels. All rights reserved. Made with love for nail lovers everywhere.
+          </p>
+        </div>
       </footer>
     </main>
   )
