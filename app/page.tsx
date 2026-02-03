@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Star, Check, ChevronLeft, ChevronRight, Sparkles, Heart, Shield, Truck, RefreshCw, Instagram, Menu, X, ShoppingBag, Search, User, ChevronDown, Minus, Plus, Share2 } from "lucide-react"
@@ -85,6 +85,10 @@ export default function ShopifyProductPagePreview() {
   }
 
   const discount = Math.round((1 - product.price / product.comparePrice) * 100)
+
+  useEffect(() => {
+    console.log("[v0] Page mounted successfully")
+  }, [])
 
   return (
     <main className="min-h-screen bg-[#0a0a0a] text-white overflow-x-hidden">
