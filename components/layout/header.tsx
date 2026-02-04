@@ -55,13 +55,13 @@ export function Header() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 
   return (
-    <header className="sticky top-0 z-50 bg-[#0a0a0a]/95 backdrop-blur-xl border-b border-white/10">
+    <header className="sticky top-0 z-50 bg-[#FAF7F2]/98 backdrop-blur-xl border-b border-[#D4AF37]/20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Mobile Menu Button */}
           <button 
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-white hover:text-[#ff00b0] transition-colors"
+            className="md:hidden p-2 text-[#2C2C2C] hover:text-[#D4AF37] transition-colors"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileMenuOpen}
           >
@@ -70,8 +70,8 @@ export function Header() {
 
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <span className="text-2xl md:text-3xl font-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] bg-clip-text text-transparent">
-              CRAZY GELS
+            <span className="text-2xl md:text-3xl font-light tracking-[0.2em] text-[#2C2C2C]">
+              CRAZY <span className="font-medium text-[#D4AF37]">GELS</span>
             </span>
           </Link>
 
@@ -86,8 +86,8 @@ export function Header() {
               >
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-1 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-colors ${
-                    item.label === "Sale" ? "text-[#feca57]" : "text-white/90 hover:text-[#ff00b0]"
+                  className={`flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-widest transition-colors ${
+                    item.label === "Sale" ? "text-[#B8860B]" : "text-[#2C2C2C] hover:text-[#D4AF37]"
                   }`}
                 >
                   {item.label}
@@ -95,12 +95,12 @@ export function Header() {
                 </Link>
 
                 {item.submenu && activeDropdown === item.label && (
-                  <div className="absolute top-full left-0 w-56 bg-[#111111] border border-white/10 rounded-xl shadow-2xl py-2 mt-1">
+                  <div className="absolute top-full left-0 w-56 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl shadow-2xl py-2 mt-1">
                     {item.submenu.map((subitem) => (
                       <Link
                         key={subitem.label}
                         href={subitem.href}
-                        className="block px-4 py-2 text-sm text-white/80 hover:text-[#ff00b0] hover:bg-white/5 transition-colors"
+                        className="block px-4 py-2 text-sm text-[#2C2C2C]/80 hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 transition-colors"
                       >
                         {subitem.label}
                       </Link>
@@ -113,15 +113,15 @@ export function Header() {
 
           {/* Right Icons */}
           <div className="flex items-center gap-2 md:gap-4">
-            <button className="hidden md:flex p-2 text-white/80 hover:text-white transition-colors" aria-label="Search products">
+            <button className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors" aria-label="Search products">
               <Search className="w-5 h-5" aria-hidden="true" />
             </button>
-            <Link href="/account" className="hidden md:flex p-2 text-white/80 hover:text-white transition-colors" aria-label="My account">
+            <Link href="/account" className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors" aria-label="My account">
               <User className="w-5 h-5" aria-hidden="true" />
             </Link>
-            <Link href="/cart" className="relative p-2 text-white/80 hover:text-white transition-colors" aria-label="Shopping cart">
+            <Link href="/cart" className="relative p-2 text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors" aria-label="Shopping cart">
               <ShoppingBag className="w-5 h-5" aria-hidden="true" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#ff00b0] rounded-full text-[10px] font-bold flex items-center justify-center text-white" aria-hidden="true">
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#D4AF37] rounded-full text-[10px] font-bold flex items-center justify-center text-white" aria-hidden="true">
                 0
               </span>
             </Link>
@@ -131,14 +131,14 @@ export function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#0a0a0a] border-t border-white/10">
+        <div className="md:hidden bg-[#FFFEF9] border-t border-[#D4AF37]/20">
           <nav className="px-4 py-4 space-y-2" aria-label="Mobile navigation">
             {menuItems.map((item) => (
               <div key={item.label}>
                 <Link
                   href={item.href}
-                  className={`block py-3 text-lg font-bold ${
-                    item.label === "Sale" ? "text-[#feca57]" : "text-white"
+                  className={`block py-3 text-lg font-medium tracking-wide ${
+                    item.label === "Sale" ? "text-[#B8860B]" : "text-[#2C2C2C]"
                   }`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -150,7 +150,7 @@ export function Header() {
                       <Link
                         key={subitem.label}
                         href={subitem.href}
-                        className="block py-2 text-white/70 text-sm"
+                        className="block py-2 text-[#2C2C2C]/60 text-sm"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         {subitem.label}

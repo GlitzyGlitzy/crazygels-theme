@@ -26,52 +26,52 @@ function ProductCard({ product }: { product: Product }) {
       href={`/products/${product.handle}`}
       className="group flex-shrink-0 w-[220px] md:w-[280px]"
     >
-      <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#111111] border border-white/10 mb-3">
+      <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FAF7F2] border border-[#D4AF37]/10 mb-3 shadow-sm">
         {product.featuredImage ? (
           <Image
             src={product.featuredImage.url}
             alt={product.featuredImage.altText || product.title}
             fill
             sizes="280px"
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="flex h-full items-center justify-center text-white/40">
+          <div className="flex h-full items-center justify-center text-[#C9A9A6]">
             <ShoppingBag className="w-10 h-10" />
           </div>
         )}
         {(hasDiscount || isNew || isBestseller) && (
-          <div className={`absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full ${
-            hasDiscount ? "bg-[#feca57] text-black" :
-            isNew ? "bg-[#06b6d4] text-white" :
-            "bg-[#ff00b0] text-white"
+          <div className={`absolute top-3 left-3 px-3 py-1 text-xs font-medium tracking-wide rounded-full ${
+            hasDiscount ? "bg-[#B8860B] text-white" :
+            isNew ? "bg-[#8B7355] text-white" :
+            "bg-[#D4AF37] text-white"
           }`}>
             {hasDiscount ? "Sale" : isNew ? "New" : "Bestseller"}
           </div>
         )}
         {!product.availableForSale && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-            <span className="px-4 py-2 bg-white/10 rounded-full text-sm font-bold text-white">
+          <div className="absolute inset-0 flex items-center justify-center bg-[#FAF7F2]/80">
+            <span className="px-4 py-2 bg-[#2C2C2C]/10 rounded-full text-sm font-medium text-[#2C2C2C]">
               Sold Out
             </span>
           </div>
         )}
         <button 
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-[#ff00b0] hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-[#C9A9A6] hover:text-[#D4AF37] hover:bg-white transition-all opacity-0 group-hover:opacity-100 shadow-sm"
           aria-label={`Add ${product.title} to wishlist`}
         >
           <Heart className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
-      <h3 className="text-white font-bold text-sm mb-1 group-hover:text-[#ff00b0] transition-colors line-clamp-2">
+      <h3 className="text-[#2C2C2C] font-medium text-sm mb-1 group-hover:text-[#D4AF37] transition-colors line-clamp-2">
         {product.title}
       </h3>
       <div className="flex items-center gap-2">
-        <span className="text-[#ff00b0] font-bold text-sm">
+        <span className="text-[#B8860B] font-semibold text-sm">
           {formatPrice(price.amount, price.currencyCode)}
         </span>
         {hasDiscount && (
-          <span className="text-white/50 line-through text-xs">
+          <span className="text-[#9B9B9B] line-through text-xs">
             {formatPrice(compareAtPrice.amount, compareAtPrice.currencyCode)}
           </span>
         )}
@@ -93,27 +93,25 @@ function CategorySection({
   if (products.length === 0) return null
 
   return (
-    <section className="py-12 md:py-16">
+    <section className="py-12 md:py-16 border-b border-[#D4AF37]/10 last:border-b-0">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 
-              className="text-2xl md:text-3xl font-black mb-1"
-              style={{ color: colorAccent }}
+              className="text-xl md:text-2xl font-light tracking-[0.15em] text-[#2C2C2C] mb-1"
             >
               {collection.title.toUpperCase()}
             </h2>
             {collection.description && (
-              <p className="text-white/60 text-sm md:text-base line-clamp-1">
+              <p className="text-[#9B9B9B] text-sm md:text-base line-clamp-1">
                 {collection.description}
               </p>
             )}
           </div>
           <Link 
             href={`/collections/${collection.handle}`}
-            className="hidden md:inline-flex items-center gap-2 font-bold hover:underline transition-colors"
-            style={{ color: colorAccent }}
+            className="hidden md:inline-flex items-center gap-2 font-medium text-[#D4AF37] hover:text-[#B8860B] transition-colors text-sm tracking-wide"
           >
             View All <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
@@ -134,8 +132,7 @@ function CategorySection({
         <div className="mt-4 text-center md:hidden">
           <Link 
             href={`/collections/${collection.handle}`}
-            className="inline-flex items-center gap-2 font-bold"
-            style={{ color: colorAccent }}
+            className="inline-flex items-center gap-2 font-medium text-[#D4AF37] text-sm tracking-wide"
           >
             View All {collection.title} <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
@@ -148,20 +145,20 @@ function CategorySection({
 // Loading skeleton for category section
 export function CategorySectionSkeleton() {
   return (
-    <section className="py-12 md:py-16">
+    <section className="py-12 md:py-16 border-b border-[#D4AF37]/10">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <div className="h-8 w-32 bg-[#111111] rounded animate-pulse mb-2" />
-            <div className="h-4 w-48 bg-[#111111] rounded animate-pulse" />
+            <div className="h-7 w-32 bg-[#E8C4C4]/30 rounded animate-pulse mb-2" />
+            <div className="h-4 w-48 bg-[#E8C4C4]/20 rounded animate-pulse" />
           </div>
         </div>
         <div className="flex gap-4 overflow-hidden">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="flex-shrink-0 w-[220px] md:w-[280px]">
-              <div className="aspect-square bg-[#111111] rounded-2xl animate-pulse mb-3" />
-              <div className="h-4 w-3/4 bg-[#111111] rounded animate-pulse mb-2" />
-              <div className="h-4 w-1/2 bg-[#111111] rounded animate-pulse" />
+              <div className="aspect-square bg-[#E8C4C4]/20 rounded-xl animate-pulse mb-3" />
+              <div className="h-4 w-3/4 bg-[#E8C4C4]/20 rounded animate-pulse mb-2" />
+              <div className="h-4 w-1/2 bg-[#E8C4C4]/20 rounded animate-pulse" />
             </div>
           ))}
         </div>
@@ -170,16 +167,16 @@ export function CategorySectionSkeleton() {
   )
 }
 
-// Main category colors mapping
+// Luxury category colors - soft, elegant tones
 const categoryColors: Record<string, string> = {
-  nails: "#ff00b0",
-  nail: "#ff00b0",
-  hair: "#7c3aed",
-  skin: "#06b6d4",
-  skincare: "#06b6d4",
-  bundles: "#feca57",
-  sale: "#ff6b6b",
-  default: "#ff00b0"
+  nails: "#D4AF37",      // Champagne gold
+  nail: "#D4AF37",
+  hair: "#8B7355",       // Warm taupe
+  skin: "#C9A9A6",       // Dusty rose
+  skincare: "#C9A9A6",
+  bundles: "#B8860B",    // Deep gold
+  sale: "#C9A9A6",       // Muted rose
+  default: "#D4AF37"
 }
 
 function getCategoryColor(handle: string): string {
@@ -237,12 +234,13 @@ export async function CategoryProducts() {
         })
         return { 
           collection, 
-          products: products.slice(0, 12), // Limit to 12 products per category
+          products: products.slice(0, 12), // Limit to 12 products per category for display
+          totalCount: products.length,
           color: getCategoryColor(collection.handle)
         }
       } catch (error) {
         console.error(`[v0] Error fetching products for ${collection.handle}:`, error)
-        return { collection, products: [], color: getCategoryColor(collection.handle) }
+        return { collection, products: [], totalCount: 0, color: getCategoryColor(collection.handle) }
       }
     })
   )
@@ -251,7 +249,7 @@ export async function CategoryProducts() {
   const validCollections = collectionsWithProducts.filter(c => c.products.length > 0)
 
   return (
-    <div className="bg-[#0a0a0a]">
+    <div className="bg-[#FFFEF9]">
       {validCollections.map(({ collection, products, color }) => (
         <CategorySection
           key={collection.id}

@@ -1,15 +1,15 @@
 import { getCollections, isShopifyConfigured } from "@/lib/shopify"
 import { HeaderClient, MenuItem } from "./header-client"
 
-// Map collection handles to their color accents
+// Map collection handles to their color accents - luxury palette
 const categoryColors: Record<string, string> = {
-  nails: "#ff00b0",
-  nail: "#ff00b0",
-  hair: "#7c3aed",
-  skin: "#06b6d4",
-  skincare: "#06b6d4",
-  bundles: "#feca57",
-  sale: "#ff6b6b",
+  nails: "#D4AF37",
+  nail: "#D4AF37",
+  hair: "#8B7355",
+  skin: "#C9A9A6",
+  skincare: "#C9A9A6",
+  bundles: "#B8860B",
+  sale: "#B8860B",
 }
 
 function getCategoryColor(handle: string): string | undefined {

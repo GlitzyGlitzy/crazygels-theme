@@ -53,7 +53,7 @@ function CartLineItem({
       <div className="flex-1 min-w-0">
         <Link 
           href={`/products/${product.handle}`}
-          className="text-white font-medium hover:text-[#ff00b0] transition-colors line-clamp-2"
+          className="text-[#2C2C2C] font-medium hover:text-[#D4AF37] transition-colors line-clamp-2"
         >
           {product.title}
         </Link>
@@ -73,7 +73,7 @@ function CartLineItem({
         )}
 
         {/* Price */}
-        <p className="mt-2 text-[#ff00b0] font-semibold">
+        <p className="mt-2 text-[#B8860B] font-semibold">
           {formatPrice(item.cost.totalAmount.amount, item.cost.totalAmount.currencyCode)}
         </p>
       </div>

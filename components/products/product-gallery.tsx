@@ -87,7 +87,7 @@ export function ProductGallery({ product }: { product: Product }) {
 
         {/* Sale Badge */}
         {product.variants.edges[0]?.node.compareAtPrice && (
-          <div className="absolute left-4 top-4 rounded-full bg-[#ff00b0] px-3 py-1 text-xs font-semibold text-white">
+          <div className="absolute left-4 top-4 rounded-full bg-[#B8860B] px-3 py-1.5 text-xs font-medium tracking-wide text-white">
             SALE
           </div>
         )}
@@ -103,7 +103,7 @@ export function ProductGallery({ product }: { product: Product }) {
               className={cn(
                 'relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all',
                 selectedIndex === index
-                  ? 'border-[#ff00b0] ring-2 ring-[#ff00b0]/20'
+                  ? 'border-[#D4AF37] ring-2 ring-[#D4AF37]/20'
                   : 'border-transparent hover:border-border'
               )}
               aria-label={`View image ${index + 1}`}

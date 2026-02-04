@@ -124,7 +124,22 @@
   }
 }
 
-/* CrazyGels Bold & Vibrant Theme */
+/* CrazyGels Luxury Elegant Theme */
+/* Target: Beauty-conscious women 30s-60s, luxury aspirational */
+/* Palette: Soft neutrals - creams, golds, muted pastels */
+
+:root {
+  /* Luxury Color Palette */
+  --luxury-cream: #FAF7F2;
+  --luxury-champagne: #D4AF37;
+  --luxury-gold: #B8860B;
+  --luxury-blush: #E8C4C4;
+  --luxury-rose: #C9A9A6;
+  --luxury-taupe: #8B7355;
+  --luxury-charcoal: #2C2C2C;
+  --luxury-warm-white: #FFFEF9;
+  --luxury-soft-gray: #9B9B9B;
+}
 
 /* Marquee Animation */
 @keyframes marquee {
@@ -212,24 +227,24 @@ html {
 
 /* Selection color */
 ::selection {
-  background-color: #ff00b0;
-  color: white;
+  background-color: var(--luxury-champagne);
+  color: var(--luxury-charcoal);
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--luxury-cream);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #ff00b0, #7c3aed);
-  border-radius: 4px;
+  background: linear-gradient(to bottom, var(--luxury-champagne), var(--luxury-rose));
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #ff6b6b, #ff00b0);
+  background: linear-gradient(to bottom, var(--luxury-gold), var(--luxury-champagne));
 }

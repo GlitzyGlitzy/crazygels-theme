@@ -34,23 +34,23 @@ export function CartSummary({ cart }: { cart: Cart }) {
   };
 
   return (
-    <div className="bg-[#111111] border border-white/10 rounded-2xl overflow-hidden sticky top-24">
+    <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl overflow-hidden sticky top-24">
       {/* Header */}
-      <div className="p-6 border-b border-white/10">
-        <h2 className="text-lg font-semibold text-white">Order Summary</h2>
+      <div className="p-6 border-b border-[#D4AF37]/10">
+        <h2 className="text-lg font-semibold text-[#2C2C2C]">Order Summary</h2>
       </div>
 
       {/* Summary Details */}
       <div className="p-6 space-y-4">
         {/* Free Shipping Progress */}
         {shipping > 0 && (
-          <div className="bg-[#ff00b0]/10 rounded-lg p-4 mb-4">
-            <p className="text-sm text-white mb-2">
-              Add <span className="text-[#ff00b0] font-semibold">{formatPrice(amountToFreeShipping.toString(), currencyCode)}</span> more for free shipping!
+          <div className="bg-[#D4AF37]/10 rounded-lg p-4 mb-4">
+            <p className="text-sm text-[#2C2C2C] mb-2">
+              Add <span className="text-[#B8860B] font-semibold">{formatPrice(amountToFreeShipping.toString(), currencyCode)}</span> more for free shipping!
             </p>
-            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-[#2C2C2C]/10 rounded-full h-2 overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] rounded-full transition-all"
                 style={{ width: `${Math.min((subtotal / shippingThreshold) * 100, 100)}%` }}
               />
             </div>
@@ -59,7 +59,7 @@ export function CartSummary({ cart }: { cart: Cart }) {
 
         {/* Promo Code */}
         <div className="space-y-2">
-          <label className="text-sm text-white/60 flex items-center gap-2">
+          <label className="text-sm text-[#2C2C2C]/60 flex items-center gap-2">
             <Tag className="w-4 h-4" />
             Promo Code
           </label>
@@ -69,13 +69,13 @@ export function CartSummary({ cart }: { cart: Cart }) {
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
               placeholder="Enter code"
-              className="flex-1 bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder:text-white/30 focus:outline-none focus:border-[#ff00b0]/50"
+              className="flex-1 bg-[#FAF7F2] border border-[#D4AF37]/20 rounded-lg px-4 py-2 text-[#2C2C2C] placeholder:text-[#2C2C2C]/30 focus:outline-none focus:border-[#D4AF37]/50"
             />
             <Button
               onClick={handleApplyPromo}
               disabled={isApplyingPromo || !promoCode.trim()}
               variant="outline"
-              className="border-white/20 text-white hover:bg-white/10"
+              className="border-[#D4AF37]/30 text-[#2C2C2C] hover:bg-[#D4AF37]/10"
             >
               Apply
             </Button>
@@ -83,19 +83,19 @@ export function CartSummary({ cart }: { cart: Cart }) {
         </div>
 
         {/* Price Breakdown */}
-        <div className="space-y-3 pt-4 border-t border-white/10">
-          <div className="flex justify-between text-white/70">
+        <div className="space-y-3 pt-4 border-t border-[#D4AF37]/10">
+          <div className="flex justify-between text-[#2C2C2C]/70">
             <span>Subtotal ({cart.totalQuantity} items)</span>
             <span>{formatPrice(subtotal.toString(), currencyCode)}</span>
           </div>
-          <div className="flex justify-between text-white/70">
+          <div className="flex justify-between text-[#2C2C2C]/70">
             <span>Shipping</span>
-            <span className={shipping === 0 ? 'text-green-400' : ''}>
+            <span className={shipping === 0 ? 'text-green-600' : ''}>
               {shipping === 0 ? 'FREE' : formatPrice(shipping.toString(), currencyCode)}
             </span>
           </div>
           {tax > 0 && (
-            <div className="flex justify-between text-white/70">
+            <div className="flex justify-between text-[#2C2C2C]/70">
               <span>Tax</span>
               <span>{formatPrice(tax.toString(), currencyCode)}</span>
             </div>
@@ -103,9 +103,9 @@ export function CartSummary({ cart }: { cart: Cart }) {
         </div>
 
         {/* Total */}
-        <div className="flex justify-between items-center pt-4 border-t border-white/10">
-          <span className="text-lg font-semibold text-white">Total</span>
-          <span className="text-2xl font-bold text-white">
+        <div className="flex justify-between items-center pt-4 border-t border-[#D4AF37]/10">
+          <span className="text-lg font-semibold text-[#2C2C2C]">Total</span>
+          <span className="text-2xl font-bold text-[#2C2C2C]">
             {formatPrice((total + shipping).toString(), currencyCode)}
           </span>
         </div>
@@ -113,7 +113,7 @@ export function CartSummary({ cart }: { cart: Cart }) {
         {/* Checkout Button */}
         <a
           href={cart.checkoutUrl}
-          className="w-full mt-4 bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] hover:opacity-90 text-white font-semibold py-4 px-6 rounded-full transition-all flex items-center justify-center gap-2 group"
+          className="w-full mt-4 bg-[#D4AF37] hover:bg-[#B8860B] text-white font-medium py-4 px-6 rounded-full transition-all flex items-center justify-center gap-2 group"
         >
           <CreditCard className="w-5 h-5" />
           Proceed to Checkout
@@ -122,8 +122,8 @@ export function CartSummary({ cart }: { cart: Cart }) {
 
         {/* Payment Methods */}
         <div className="flex items-center justify-center gap-2 pt-4">
-          <Shield className="w-4 h-4 text-white/40" />
-          <span className="text-xs text-white/40">Secure checkout powered by Shopify</span>
+          <Shield className="w-4 h-4 text-[#2C2C2C]/40" />
+          <span className="text-xs text-[#2C2C2C]/40">Secure checkout powered by Shopify</span>
         </div>
 
         {/* Payment Icons */}
@@ -131,9 +131,9 @@ export function CartSummary({ cart }: { cart: Cart }) {
           {['Visa', 'Mastercard', 'Amex', 'PayPal', 'Apple Pay'].map((method) => (
             <div
               key={method}
-              className="w-10 h-6 bg-white/10 rounded flex items-center justify-center"
+              className="w-10 h-6 bg-[#2C2C2C]/10 rounded flex items-center justify-center"
             >
-              <span className="text-[8px] text-white/50 font-medium">{method}</span>
+              <span className="text-[8px] text-[#2C2C2C]/50 font-medium">{method}</span>
             </div>
           ))}
         </div>
