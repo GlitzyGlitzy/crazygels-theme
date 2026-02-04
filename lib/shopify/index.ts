@@ -154,7 +154,11 @@ const reshapeImages = (images: Connection<Image>, productTitle: string): Image[]
 };
 
 const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean = true): Product | undefined => {
-  if (!product || (filterHiddenProducts && product.tags.includes('nextjs-frontend-hidden'))) {
+  if (!product) return undefined;
+  
+  // Safely check tags - might be undefined or not an array
+  const tags = product.tags || [];
+  if (filterHiddenProducts && Array.isArray(tags) && tags.includes('nextjs-frontend-hidden')) {
     return undefined;
   }
 
