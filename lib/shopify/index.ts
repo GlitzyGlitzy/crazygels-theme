@@ -10,18 +10,21 @@ import {
   ShopifyProduct,
 } from './types';
 
-const domain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || '';
-const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
+// Get env vars - check they exist and aren't 'undefined' string
+const rawDomain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
+const rawToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
-// Check if Shopify is configured - must have both domain and token with actual values
+// Validate that values are real (not undefined, not empty, not 'undefined' string)
+const domain = rawDomain && rawDomain !== 'undefined' && rawDomain.length > 0 ? rawDomain : '';
+const storefrontAccessToken = rawToken && rawToken !== 'undefined' && rawToken.length > 0 ? rawToken : '';
+
+// Check if Shopify is configured - must have both domain and token with actual valid values
 export const isShopifyConfigured = Boolean(
-  domain && 
-  domain.length > 0 && 
-  storefrontAccessToken && 
-  storefrontAccessToken.length > 0
+  domain.includes('.myshopify.com') && 
+  storefrontAccessToken.length > 10
 );
 
-const endpoint = domain ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
+const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
