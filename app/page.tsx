@@ -21,18 +21,18 @@ async function FeaturedProducts() {
   if (!isShopifyConfigured) {
     return (
       <div className="text-center py-12 px-4">
-        <div className="max-w-md mx-auto bg-[#111111] border border-white/10 rounded-2xl p-8">
-          <div className="w-16 h-16 rounded-full bg-[#ff00b0]/20 flex items-center justify-center mx-auto mb-4">
-            <ShoppingBag className="w-8 h-8 text-[#ff00b0]" />
+        <div className="max-w-md mx-auto bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl p-8 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-[#D4AF37]/10 flex items-center justify-center mx-auto mb-4">
+            <ShoppingBag className="w-8 h-8 text-[#D4AF37]" />
           </div>
-          <h3 className="text-white font-bold text-lg mb-2">Connect Your Shopify Store</h3>
-          <p className="text-white/60 text-sm mb-4">
+          <h3 className="text-[#2C2C2C] font-medium text-lg mb-2">Connect Your Shopify Store</h3>
+          <p className="text-[#9B9B9B] text-sm mb-4">
             Add your Shopify credentials to display real products.
           </p>
-          <div className="text-left bg-black/50 rounded-lg p-4 text-xs font-mono">
-            <p className="text-white/40 mb-1">Required environment variables:</p>
-            <p className="text-[#06b6d4]">SHOPIFY_STORE_DOMAIN</p>
-            <p className="text-[#06b6d4]">SHOPIFY_STOREFRONT_ACCESS_TOKEN</p>
+          <div className="text-left bg-[#FAF7F2] rounded-lg p-4 text-xs font-mono">
+            <p className="text-[#9B9B9B] mb-1">Required environment variables:</p>
+            <p className="text-[#D4AF37]">SHOPIFY_STORE_DOMAIN</p>
+            <p className="text-[#D4AF37]">SHOPIFY_STOREFRONT_ACCESS_TOKEN</p>
           </div>
         </div>
       </div>
@@ -52,7 +52,7 @@ async function FeaturedProducts() {
 
   if (products.length === 0) {
     return (
-      <div className="text-center py-12 text-white/60">
+      <div className="text-center py-12 text-[#9B9B9B]">
         <p>No products found in your Shopify store.</p>
         <p className="text-sm mt-2">Add some products to your store to see them here.</p>
       </div>
@@ -75,52 +75,52 @@ async function FeaturedProducts() {
             href={`/products/${product.handle}`}
             className="group"
           >
-            <div className="relative aspect-square rounded-2xl overflow-hidden bg-[#111111] border border-white/10 mb-4">
+            <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FFFEF9] border border-[#D4AF37]/10 mb-4 shadow-sm">
               {product.featuredImage ? (
                 <Image
                   src={product.featuredImage.url}
                   alt={product.featuredImage.altText || product.title}
                   fill
                   sizes="(min-width: 1024px) 25vw, 50vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
               ) : (
-                <div className="flex h-full items-center justify-center text-white/40">
+                <div className="flex h-full items-center justify-center text-[#C9A9A6]">
                   <ShoppingBag className="w-12 h-12" />
                 </div>
               )}
               {(hasDiscount || isNew || isBestseller) && (
-                <div className={`absolute top-3 left-3 px-3 py-1 text-xs font-bold rounded-full ${
-                  hasDiscount ? "bg-[#feca57] text-black" :
-                  isNew ? "bg-[#06b6d4] text-white" :
-                  "bg-[#ff00b0] text-white"
+                <div className={`absolute top-3 left-3 px-3 py-1 text-xs font-medium tracking-wide rounded-full ${
+                  hasDiscount ? "bg-[#B8860B] text-white" :
+                  isNew ? "bg-[#8B7355] text-white" :
+                  "bg-[#D4AF37] text-white"
                 }`}>
                   {hasDiscount ? "Sale" : isNew ? "New" : "Bestseller"}
                 </div>
               )}
               {!product.availableForSale && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/60">
-                  <span className="px-4 py-2 bg-white/10 rounded-full text-sm font-bold text-white">
+                <div className="absolute inset-0 flex items-center justify-center bg-[#FAF7F2]/80">
+                  <span className="px-4 py-2 bg-[#2C2C2C]/10 rounded-full text-sm font-medium text-[#2C2C2C]">
                     Sold Out
                   </span>
                 </div>
               )}
               <button 
-                className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white/70 hover:text-[#ff00b0] hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100"
+                className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-[#C9A9A6] hover:text-[#D4AF37] hover:bg-white transition-all opacity-0 group-hover:opacity-100 shadow-sm"
                 aria-label={`Add ${product.title} to wishlist`}
               >
                 <Heart className="w-5 h-5" aria-hidden="true" />
               </button>
             </div>
-            <h3 className="text-white font-bold mb-1 group-hover:text-[#ff00b0] transition-colors line-clamp-2">
+            <h3 className="text-[#2C2C2C] font-medium mb-1 group-hover:text-[#D4AF37] transition-colors line-clamp-2">
               {product.title}
             </h3>
             <div className="flex items-center gap-2">
-              <span className="text-[#ff00b0] font-bold">
+              <span className="text-[#B8860B] font-semibold">
                 {formatPrice(price.amount, price.currencyCode)}
               </span>
               {hasDiscount && (
-                <span className="text-white/50 line-through text-sm">
+                <span className="text-[#9B9B9B] line-through text-sm">
                   {formatPrice(compareAtPrice.amount, compareAtPrice.currencyCode)}
                 </span>
               )}
@@ -153,7 +153,7 @@ async function ShopifyCollections() {
       subtitle: "Semi-Cured Gel Nail Sets",
       description: "Salon-quality gel nails you can apply at home in minutes. 20+ designs, 14-day wear.",
       href: "/collections/nails",
-      color: "#ff00b0",
+      color: "#D4AF37",
       features: ["14-Day Wear", "UV Cured", "Easy Apply"]
     },
     {
@@ -161,15 +161,15 @@ async function ShopifyCollections() {
       subtitle: "Premium Hair Extensions",
       description: "Clip-in, tape-in, and ponytail extensions in 30+ shades. 100% Remy human hair.",
       href: "/collections/hair",
-      color: "#7c3aed",
+      color: "#8B7355",
       features: ["100% Remy", "30+ Shades", "Heat Safe"]
     },
     {
       title: "SKIN",
-      subtitle: "Glow-Up Skincare",
+      subtitle: "Refined Skincare",
       description: "Clean, effective skincare for your best glow. Serums, masks, and more.",
       href: "/collections/skin",
-      color: "#06b6d4",
+      color: "#C9A9A6",
       features: ["Cruelty Free", "Vegan", "Clean Beauty"]
     }
   ]
@@ -182,7 +182,7 @@ async function ShopifyCollections() {
         description: col.description || defaultCategories[i]?.description || "",
         image: col.image?.url,
         href: `/collections/${col.handle}`,
-        color: defaultCategories[i]?.color || "#ff00b0",
+        color: defaultCategories[i]?.color || "#D4AF37",
         features: defaultCategories[i]?.features || []
       }))
     : defaultCategories
@@ -193,7 +193,7 @@ async function ShopifyCollections() {
         <Link
           key={category.title}
           href={category.href}
-          className="group relative overflow-hidden rounded-3xl bg-[#111111] border border-white/10 hover:border-white/20 transition-all duration-300"
+          className="group relative overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#D4AF37]/10 hover:border-[#D4AF37]/30 transition-all duration-300 shadow-sm"
         >
           <div className="aspect-[4/5] relative overflow-hidden">
             {category.image ? (
@@ -205,13 +205,13 @@ async function ShopifyCollections() {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/20 via-[#7c3aed]/20 to-[#06b6d4]/20" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#E8C4C4]/30 via-[#D4AF37]/20 to-[#FAF7F2]" />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/80 via-transparent to-transparent" />
           </div>
           <div className="absolute bottom-0 left-0 right-0 p-6">
-            <p className="text-sm text-white/60 mb-1">{category.subtitle}</p>
-            <h3 className="text-2xl font-black text-white mb-2" style={{ color: category.color }}>
+            <p className="text-sm text-white/70 mb-1 tracking-wide">{category.subtitle}</p>
+            <h3 className="text-xl font-light tracking-[0.1em] text-white mb-2">
               {category.title}
             </h3>
             <p className="text-white/70 text-sm mb-4 line-clamp-2">{category.description}</p>
@@ -220,7 +220,7 @@ async function ShopifyCollections() {
                 {category.features.map((feature) => (
                   <span
                     key={feature}
-                    className="px-3 py-1 text-xs font-bold rounded-full bg-white/10 text-white/90"
+                    className="px-3 py-1 text-xs font-medium tracking-wide rounded-full bg-white/10 text-white/90"
                   >
                     {feature}
                   </span>
@@ -269,13 +269,13 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-[#FAF7F2] text-[#2C2C2C]">
       {/* Announcement Bar */}
-      <div className="bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] py-2 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-center text-white text-xs font-bold uppercase tracking-wider">
-          <Sparkles className="w-3 h-3 mr-2" aria-hidden="true" />
-          <span>Free Shipping on Orders Over $50 | Use Code CRAZY20 for 20% Off</span>
-          <Sparkles className="w-3 h-3 ml-2" aria-hidden="true" />
+      <div className="bg-[#2C2C2C] py-2.5 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-center text-[#FAF7F2] text-xs font-medium uppercase tracking-[0.2em]">
+          <Sparkles className="w-3 h-3 mr-2 text-[#D4AF37]" aria-hidden="true" />
+          <span>Complimentary Shipping on Orders Over $50</span>
+          <Sparkles className="w-3 h-3 ml-2 text-[#D4AF37]" aria-hidden="true" />
         </div>
       </div>
 
@@ -284,42 +284,41 @@ export default function HomePage() {
 
       <main>
         {/* Hero Section */}
-        <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/20 via-[#0a0a0a] to-[#7c3aed]/20" />
-          <div className="absolute top-20 left-10 w-72 h-72 bg-[#ff00b0]/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#7c3aed]/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+        <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-b from-[#FAF7F2] to-[#FFFEF9]">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-[#E8C4C4]/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl" />
 
           <div className="relative max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-6">
-                  <Sparkles className="w-4 h-4 text-[#feca57]" aria-hidden="true" />
-                  <span className="text-sm font-medium text-white/90">New Collection Just Dropped</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full mb-6">
+                  <Sparkles className="w-4 h-4 text-[#D4AF37]" aria-hidden="true" />
+                  <span className="text-sm font-medium text-[#2C2C2C]/80 tracking-wide">New Collection Just Arrived</span>
                 </div>
                 
-                <h1 className="text-4xl md:text-6xl lg:text-7xl font-black leading-tight mb-6">
-                  <span className="text-white">SALON</span>
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-light leading-tight mb-6 tracking-tight">
+                  <span className="text-[#2C2C2C]">Timeless</span>
                   <br />
-                  <span className="bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] bg-clip-text text-transparent">QUALITY</span>
+                  <span className="text-[#D4AF37] font-medium">Elegance</span>
                   <br />
-                  <span className="text-white">AT HOME</span>
+                  <span className="text-[#2C2C2C]">At Home</span>
                 </h1>
                 
-                <p className="text-lg md:text-xl text-white/80 mb-8 max-w-lg mx-auto lg:mx-0">
-                  Premium semi-cured gel nails, luxury hair extensions, and glow-up skincare. Look expensive without the salon price tag.
+                <p className="text-lg md:text-xl text-[#2C2C2C]/70 mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                  Premium semi-cured gel nails, luxury hair extensions, and refined skincare. Effortless beauty for the discerning woman.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                   <Link
                     href="/collections/nails"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] text-white font-bold text-lg rounded-full hover:opacity-90 transition-opacity"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#2C2C2C] text-[#FAF7F2] font-medium tracking-wide rounded-full hover:bg-[#D4AF37] transition-colors"
                   >
-                    Shop Nails
+                    Explore Collection
                     <ArrowRight className="w-5 h-5" aria-hidden="true" />
                   </Link>
                   <Link
                     href="/pages/how-it-works"
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/20 text-white font-bold text-lg rounded-full hover:bg-white/10 transition-colors"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-transparent border border-[#2C2C2C]/20 text-[#2C2C2C] font-medium tracking-wide rounded-full hover:border-[#D4AF37] hover:text-[#D4AF37] transition-colors"
                   >
                     <Play className="w-5 h-5" aria-hidden="true" />
                     How It Works
@@ -330,35 +329,35 @@ export default function HomePage() {
                   <div className="flex items-center gap-2">
                     <div className="flex -space-x-1">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-[#feca57] fill-[#feca57]" aria-hidden="true" />
+                        <Star key={i} className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" aria-hidden="true" />
                       ))}
                     </div>
-                    <span className="text-sm text-white/80">4.9/5 (2,500+ reviews)</span>
+                    <span className="text-sm text-[#2C2C2C]/70">4.9/5 (2,500+ reviews)</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-white/80">
-                    <Truck className="w-4 h-4 text-[#06b6d4]" aria-hidden="true" />
-                    <span>Free Shipping $50+</span>
+                  <div className="flex items-center gap-2 text-sm text-[#2C2C2C]/70">
+                    <Truck className="w-4 h-4 text-[#D4AF37]" aria-hidden="true" />
+                    <span>Complimentary Shipping $50+</span>
                   </div>
                 </div>
               </div>
 
               <div className="relative">
                 <div className="relative aspect-square max-w-lg mx-auto">
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/30 to-[#7c3aed]/30 rounded-3xl blur-2xl" />
-                  <div className="relative z-10 aspect-square rounded-3xl bg-gradient-to-br from-[#ff00b0]/20 to-[#7c3aed]/20 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#E8C4C4]/30 to-[#D4AF37]/20 rounded-3xl blur-2xl" />
+                  <div className="relative z-10 aspect-square rounded-3xl bg-gradient-to-br from-[#FFFEF9] to-[#FAF7F2] border border-[#D4AF37]/20 flex items-center justify-center shadow-lg">
                     <div className="text-center p-8">
-                      <Sparkles className="w-16 h-16 text-[#ff00b0] mx-auto mb-4" />
-                      <p className="text-white/60 text-sm">Featured product images coming soon</p>
+                      <Sparkles className="w-16 h-16 text-[#D4AF37] mx-auto mb-4" />
+                      <p className="text-[#2C2C2C]/50 text-sm">Featured collection coming soon</p>
                     </div>
                   </div>
-                  <div className="absolute -bottom-4 -left-4 z-20 bg-[#111111] border border-white/10 rounded-2xl p-4 shadow-2xl">
+                  <div className="absolute -bottom-4 -left-4 z-20 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl p-4 shadow-xl">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff00b0] to-[#7c3aed] flex items-center justify-center">
-                        <span className="text-white font-black text-lg">14</span>
+                      <div className="w-12 h-12 rounded-full bg-[#D4AF37] flex items-center justify-center">
+                        <span className="text-white font-semibold text-lg">14</span>
                       </div>
                       <div>
-                        <p className="text-white font-bold">Day Wear</p>
-                        <p className="text-white/60 text-sm">Guaranteed</p>
+                        <p className="text-[#2C2C2C] font-medium">Day Wear</p>
+                        <p className="text-[#2C2C2C]/50 text-sm">Guaranteed</p>
                       </div>
                     </div>
                   </div>
@@ -369,29 +368,29 @@ export default function HomePage() {
         </section>
 
         {/* Category Cards */}
-        <section className="py-16 md:py-24 px-4 md:px-6">
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#FFFEF9]">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">SHOP BY CATEGORY</h2>
-              <p className="text-white/70 text-lg max-w-2xl mx-auto">Everything you need for your ultimate glow-up</p>
+              <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] text-[#2C2C2C] mb-4">EXPLORE COLLECTIONS</h2>
+              <p className="text-[#9B9B9B] text-lg max-w-2xl mx-auto">Curated selections for your beauty ritual</p>
             </div>
-            <Suspense fallback={<div className="grid md:grid-cols-3 gap-6">{[1,2,3].map(i => <div key={i} className="aspect-[4/5] rounded-3xl bg-[#111111] animate-pulse" />)}</div>}>
+            <Suspense fallback={<div className="grid md:grid-cols-3 gap-6">{[1,2,3].map(i => <div key={i} className="aspect-[4/5] rounded-2xl bg-[#E8C4C4]/20 animate-pulse" />)}</div>}>
               <ShopifyCollections />
             </Suspense>
           </div>
         </section>
 
         {/* Featured Products */}
-        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#050505]">
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#FAF7F2]">
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-12">
               <div>
-                <h2 className="text-3xl md:text-4xl font-black text-white mb-2">BESTSELLERS</h2>
-                <p className="text-white/70">Our most-loved products</p>
+                <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] text-[#2C2C2C] mb-2">MOST LOVED</h2>
+                <p className="text-[#9B9B9B]">Customer favorites</p>
               </div>
               <Link 
                 href="/collections/all"
-                className="hidden md:inline-flex items-center gap-2 text-[#ff00b0] font-bold hover:underline"
+                className="hidden md:inline-flex items-center gap-2 text-[#D4AF37] font-medium tracking-wide hover:text-[#B8860B] transition-colors"
               >
                 View All <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
@@ -404,20 +403,20 @@ export default function HomePage() {
             <div className="mt-8 text-center md:hidden">
               <Link 
                 href="/collections/all"
-                className="inline-flex items-center gap-2 text-[#ff00b0] font-bold"
+                className="inline-flex items-center gap-2 text-[#D4AF37] font-medium tracking-wide"
               >
-                View All Bestsellers <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                View All Favorites <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </Link>
             </div>
           </div>
         </section>
 
         {/* Shop by Category - All Products Grouped by Category */}
-        <section className="bg-[#050505]" id="shop-by-category">
+        <section className="bg-[#FFFEF9]" id="shop-by-category">
           <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">SHOP BY CATEGORY</h2>
-              <p className="text-white/70">Browse all our products organized by collection</p>
+              <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] text-[#2C2C2C] mb-4">SHOP BY CATEGORY</h2>
+              <p className="text-[#9B9B9B]">Browse our complete collection</p>
             </div>
           </div>
           <Suspense fallback={
@@ -432,35 +431,35 @@ export default function HomePage() {
         </section>
 
         {/* Testimonials */}
-        <section className="py-16 md:py-24 px-4 md:px-6">
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#FAF7F2]">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">WHAT THEY&apos;RE SAYING</h2>
+              <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] text-[#2C2C2C] mb-4">CLIENT TESTIMONIALS</h2>
               <div className="flex items-center justify-center gap-2">
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-[#feca57] fill-[#feca57]" aria-hidden="true" />
+                    <Star key={i} className="w-5 h-5 text-[#D4AF37] fill-[#D4AF37]" aria-hidden="true" />
                   ))}
                 </div>
-                <span className="text-white/80">4.9 average from 2,500+ reviews</span>
+                <span className="text-[#2C2C2C]/70">4.9 average from 2,500+ reviews</span>
               </div>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
               {testimonials.map((testimonial, i) => (
-                <div key={i} className="bg-[#111111] border border-white/10 rounded-2xl p-6">
+                <div key={i} className="bg-[#FFFEF9] border border-[#D4AF37]/10 rounded-xl p-6 shadow-sm">
                   <div className="flex mb-4">
                     {[...Array(testimonial.rating)].map((_, j) => (
-                      <Star key={j} className="w-4 h-4 text-[#feca57] fill-[#feca57]" aria-hidden="true" />
+                      <Star key={j} className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" aria-hidden="true" />
                     ))}
                   </div>
-                  <blockquote className="text-white/90 mb-4 leading-relaxed">
+                  <blockquote className="text-[#2C2C2C]/80 mb-4 leading-relaxed italic">
                     &ldquo;{testimonial.text}&rdquo;
                   </blockquote>
-                  <div className="border-t border-white/10 pt-4">
-                    <p className="text-white font-bold">{testimonial.name}</p>
-                    <p className="text-white/60 text-sm">{testimonial.location}</p>
-                    <p className="text-[#ff00b0] text-sm mt-1">Purchased: {testimonial.product}</p>
+                  <div className="border-t border-[#D4AF37]/10 pt-4">
+                    <p className="text-[#2C2C2C] font-medium">{testimonial.name}</p>
+                    <p className="text-[#9B9B9B] text-sm">{testimonial.location}</p>
+                    <p className="text-[#D4AF37] text-sm mt-1">Purchased: {testimonial.product}</p>
                   </div>
                 </div>
               ))}
@@ -469,14 +468,14 @@ export default function HomePage() {
         </section>
 
         {/* Instagram Feed */}
-        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#050505]">
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#FFFEF9]">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">
-                <Instagram className="inline-block w-8 h-8 mr-2" aria-hidden="true" />
+              <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] text-[#2C2C2C] mb-4">
+                <Instagram className="inline-block w-6 h-6 mr-2 text-[#D4AF37]" aria-hidden="true" />
                 @CRAZYGELS
               </h2>
-              <p className="text-white/70">Tag us in your looks for a chance to be featured</p>
+              <p className="text-[#9B9B9B]">Share your looks with us</p>
             </div>
 
             <div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
@@ -486,10 +485,10 @@ export default function HomePage() {
                   href="https://instagram.com/crazygels"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-[#ff00b0]/20 to-[#7c3aed]/20"
+                  className="group relative aspect-square rounded-lg overflow-hidden bg-gradient-to-br from-[#E8C4C4]/30 to-[#D4AF37]/20"
                 >
-                  <div className="absolute inset-0 bg-[#ff00b0]/0 group-hover:bg-[#ff00b0]/50 transition-colors flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-white font-bold">
+                  <div className="absolute inset-0 bg-[#D4AF37]/0 group-hover:bg-[#D4AF37]/50 transition-colors flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 text-white font-medium">
                       <Heart className="w-4 h-4 fill-white" aria-hidden="true" />
                       {post.likes}
                     </div>
@@ -501,29 +500,29 @@ export default function HomePage() {
         </section>
 
         {/* Why Choose Us */}
-        <section className="py-16 md:py-24 px-4 md:px-6">
+        <section className="py-16 md:py-24 px-4 md:px-6 bg-[#FAF7F2]">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">WHY CRAZY GELS?</h2>
-              <p className="text-white/70 text-lg max-w-2xl mx-auto">We&apos;re on a mission to make salon-quality beauty accessible to everyone</p>
+              <h2 className="text-2xl md:text-3xl font-light tracking-[0.15em] text-[#2C2C2C] mb-4">THE CRAZY GELS DIFFERENCE</h2>
+              <p className="text-[#9B9B9B] text-lg max-w-2xl mx-auto">Exceptional quality meets timeless elegance</p>
             </div>
 
             <div className="grid md:grid-cols-4 gap-6">
               {[
-                { icon: Shield, title: "Premium Quality", desc: "Only the highest quality materials and formulas", color: "#ff00b0" },
-                { icon: Truck, title: "Fast Shipping", desc: "Free shipping on orders over $50. 1-5 day delivery", color: "#7c3aed" },
-                { icon: RefreshCw, title: "Easy Returns", desc: "14-day hassle-free returns. No questions asked", color: "#06b6d4" },
-                { icon: Heart, title: "Cruelty Free", desc: "All products are vegan and never tested on animals", color: "#feca57" }
+                { icon: Shield, title: "Premium Quality", desc: "Only the highest quality materials and formulas", color: "#D4AF37" },
+                { icon: Truck, title: "Complimentary Shipping", desc: "Free shipping on orders over $50. 1-5 day delivery", color: "#8B7355" },
+                { icon: RefreshCw, title: "Easy Returns", desc: "14-day hassle-free returns. No questions asked", color: "#C9A9A6" },
+                { icon: Heart, title: "Cruelty Free", desc: "All products are vegan and never tested on animals", color: "#B8860B" }
               ].map((item, i) => (
                 <div key={i} className="text-center p-6">
                   <div 
                     className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-                    style={{ backgroundColor: `${item.color}20` }}
+                    style={{ backgroundColor: `${item.color}15` }}
                   >
                     <item.icon className="w-8 h-8" style={{ color: item.color }} aria-hidden="true" />
                   </div>
-                  <h3 className="text-white font-bold mb-2">{item.title}</h3>
-                  <p className="text-white/70 text-sm">{item.desc}</p>
+                  <h3 className="text-[#2C2C2C] font-medium mb-2">{item.title}</h3>
+                  <p className="text-[#9B9B9B] text-sm">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -532,15 +531,15 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#050505] border-t border-white/10" role="contentinfo">
+      <footer className="bg-[#2C2C2C]" role="contentinfo">
         <div className="border-b border-white/10">
           <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
               <div className="text-center lg:text-left">
-                <h2 className="text-2xl md:text-3xl font-black text-white mb-2">
-                  JOIN THE <span className="text-[#ff00b0]">CRAZY</span> CREW
+                <h2 className="text-xl md:text-2xl font-light tracking-[0.1em] text-[#FAF7F2] mb-2">
+                  JOIN OUR <span className="text-[#D4AF37]">INNER CIRCLE</span>
                 </h2>
-                <p className="text-white/80">Get exclusive deals, nail tips & early access to new designs</p>
+                <p className="text-[#FAF7F2]/70">Receive exclusive offers and beauty insights</p>
               </div>
               <form className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto" aria-label="Newsletter signup">
                 <label htmlFor="newsletter-email" className="sr-only">Email address</label>
@@ -549,11 +548,11 @@ export default function HomePage() {
                   type="email"
                   placeholder="Enter your email"
                   required
-                  className="px-6 py-4 bg-white/5 border border-white/10 rounded-full text-white placeholder:text-white/50 focus:outline-none focus:border-[#ff00b0] focus:ring-2 focus:ring-[#ff00b0]/20 transition-colors w-full sm:w-80"
+                  className="px-6 py-4 bg-white/5 border border-[#D4AF37]/30 rounded-full text-[#FAF7F2] placeholder:text-[#FAF7F2]/40 focus:outline-none focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-colors w-full sm:w-80"
                 />
                 <button
                   type="submit"
-                  className="px-8 py-4 bg-gradient-to-r from-[#ff00b0] to-[#7c3aed] text-white font-bold rounded-full hover:opacity-90 transition-opacity focus:outline-none focus:ring-2 focus:ring-[#ff00b0]/50"
+                  className="px-8 py-4 bg-[#D4AF37] text-[#2C2C2C] font-medium tracking-wide rounded-full hover:bg-[#B8860B] transition-colors focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
                 >
                   SUBSCRIBE
                 </button>
@@ -566,12 +565,12 @@ export default function HomePage() {
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="inline-block">
-                <span className="text-2xl md:text-3xl font-black bg-gradient-to-r from-[#ff00b0] to-[#ff6b6b] bg-clip-text text-transparent">
-                  CRAZY GELS
+                <span className="text-xl md:text-2xl font-light tracking-[0.2em] text-[#FAF7F2]">
+                  CRAZY <span className="text-[#D4AF37]">GELS</span>
                 </span>
               </Link>
-              <p className="text-white/80 text-sm leading-relaxed mt-4 mb-6">
-                Premium semi-cured gel nails for the modern woman. Salon-quality results at home.
+              <p className="text-[#FAF7F2]/70 text-sm leading-relaxed mt-4 mb-6">
+                Premium semi-cured gel nails for the discerning woman. Salon-quality elegance at home.
               </p>
               <div className="flex gap-3">
                 {[
@@ -582,7 +581,7 @@ export default function HomePage() {
                   <a
                     key={social.name}
                     href="#"
-                    className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/80 hover:text-[#ff00b0] hover:border-[#ff00b0]/50 transition-all"
+                    className="w-10 h-10 rounded-full bg-white/5 border border-[#D4AF37]/20 flex items-center justify-center text-[#FAF7F2]/70 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 transition-all"
                     aria-label={social.label}
                   >
                     <Instagram className="w-5 h-5" aria-hidden="true" />
@@ -597,11 +596,11 @@ export default function HomePage() {
               { title: "Company", links: [{ name: "About", href: "/pages/about" }, { name: "Blog", href: "/blogs/news" }, { name: "Careers", href: "/pages/careers" }, { name: "Press", href: "/pages/press" }] }
             ].map((col) => (
               <nav key={col.title} aria-label={col.title}>
-                <h3 className="text-white font-bold uppercase tracking-wider mb-4 md:mb-6">{col.title}</h3>
+                <h3 className="text-[#FAF7F2] font-medium uppercase tracking-widest text-sm mb-4 md:mb-6">{col.title}</h3>
                 <ul className="space-y-3">
                   {col.links.map((link) => (
                     <li key={link.name}>
-                      <Link href={link.href} className="text-white/80 hover:text-[#ff00b0] transition-colors text-sm">
+                      <Link href={link.href} className="text-[#FAF7F2]/70 hover:text-[#D4AF37] transition-colors text-sm">
                         {link.name}
                       </Link>
                     </li>
@@ -614,7 +613,7 @@ export default function HomePage() {
 
         <div className="border-t border-white/10">
           <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-white/70 text-xs text-center md:text-left">
+            <p className="text-[#FAF7F2]/50 text-xs text-center md:text-left">
               &copy; 2026 Crazy Gels. All rights reserved.
             </p>
             <div className="flex items-center gap-4 text-xs text-white/70">
