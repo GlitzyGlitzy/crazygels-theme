@@ -324,8 +324,8 @@ const getProductQuery = /* GraphQL */ `
 `;
 
 const getProductsQuery = /* GraphQL */ `
-  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int) {
-    products(sortKey: $sortKey, reverse: $reverse, query: $query, first: $first) {
+  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int, $after: String) {
+    products(sortKey: $sortKey, reverse: $reverse, query: $query, first: $first, after: $after) {
       edges {
         node {
           ...product
@@ -371,9 +371,9 @@ const getCollectionsQuery = /* GraphQL */ `
 `;
 
 const getCollectionProductsQuery = /* GraphQL */ `
-  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int) {
+  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int, $after: String) {
     collection(handle: $handle) {
-      products(sortKey: $sortKey, reverse: $reverse, first: $first) {
+      products(sortKey: $sortKey, reverse: $reverse, first: $first, after: $after) {
         edges {
           node {
             ...product
@@ -430,6 +430,54 @@ export async function getProducts({
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
 }
 
+// Fetch ALL products using cursor-based pagination
+export async function getAllProducts({
+  query,
+  reverse,
+  sortKey,
+}: {
+  query?: string;
+  reverse?: boolean;
+  sortKey?: string;
+} = {}): Promise<Product[]> {
+  const allProducts: ShopifyProduct[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  const pageSize = 50; // Max products per request
+  let pageNumber = 0;
+
+  while (hasNextPage) {
+    pageNumber++;
+    const res = await shopifyFetch<{
+      data: { products: Connection<ShopifyProduct> };
+      variables: { query?: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+    }>({
+      query: getProductsQuery,
+      tags: [TAGS.products],
+      variables: { 
+        query, 
+        reverse, 
+        sortKey, 
+        first: pageSize,
+        ...(cursor && { after: cursor })
+      },
+      revalidate: CACHE_TIMES.products,
+    });
+
+    const products = res.body.data.products;
+    const pageProducts = removeEdgesAndNodes(products);
+    allProducts.push(...pageProducts);
+    
+    console.log(`[v0] getAllProducts: Page ${pageNumber} fetched ${pageProducts.length} products (total: ${allProducts.length})`);
+    
+    hasNextPage = products.pageInfo.hasNextPage;
+    cursor = products.pageInfo.endCursor;
+  }
+
+  console.log(`[v0] getAllProducts: Completed - Total ${allProducts.length} products fetched`);
+  return reshapeProducts(allProducts);
+}
+
 export async function getCollection(handle: string): Promise<Collection | undefined> {
   const res = await shopifyFetch<{ data: { collection: ShopifyCollection }; variables: { handle: string } }>({
     query: getCollectionQuery,
@@ -481,6 +529,59 @@ export async function getCollectionProducts({
   }
 
   return reshapeProducts(removeEdgesAndNodes(res.body.data.collection.products));
+}
+
+// Fetch ALL products in a collection using cursor-based pagination
+export async function getAllCollectionProducts({
+  handle,
+  reverse,
+  sortKey,
+}: {
+  handle: string;
+  reverse?: boolean;
+  sortKey?: string;
+}): Promise<Product[]> {
+  const allProducts: ShopifyProduct[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  const pageSize = 50; // Max products per request
+  let pageNumber = 0;
+
+  while (hasNextPage) {
+    pageNumber++;
+    const res = await shopifyFetch<{
+      data: { collection: { products: Connection<ShopifyProduct> } | null };
+      variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+    }>({
+      query: getCollectionProductsQuery,
+      tags: [TAGS.collections, TAGS.products],
+      variables: { 
+        handle, 
+        reverse, 
+        sortKey, 
+        first: pageSize,
+        ...(cursor && { after: cursor })
+      },
+      revalidate: CACHE_TIMES.products,
+    });
+
+    if (!res.body.data.collection) {
+      console.log(`[v0] getAllCollectionProducts: No collection found for handle: ${handle}`);
+      return [];
+    }
+
+    const products = res.body.data.collection.products;
+    const pageProducts = removeEdgesAndNodes(products);
+    allProducts.push(...pageProducts);
+    
+    console.log(`[v0] getAllCollectionProducts(${handle}): Page ${pageNumber} fetched ${pageProducts.length} products (total: ${allProducts.length})`);
+    
+    hasNextPage = products.pageInfo.hasNextPage;
+    cursor = products.pageInfo.endCursor;
+  }
+
+  console.log(`[v0] getAllCollectionProducts(${handle}): Completed - Total ${allProducts.length} products fetched`);
+  return reshapeProducts(allProducts);
 }
 
 // Cart Operations
