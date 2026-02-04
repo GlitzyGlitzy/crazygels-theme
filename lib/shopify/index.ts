@@ -10,11 +10,16 @@ import {
   ShopifyProduct,
 } from './types';
 
-const domain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
-const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+const domain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || '';
+const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN || '';
 
-// Check if Shopify is configured
-export const isShopifyConfigured = Boolean(domain && storefrontAccessToken);
+// Check if Shopify is configured - must have both domain and token with actual values
+export const isShopifyConfigured = Boolean(
+  domain && 
+  domain.length > 0 && 
+  storefrontAccessToken && 
+  storefrontAccessToken.length > 0
+);
 
 const endpoint = domain ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
@@ -114,12 +119,20 @@ export async function shopifyFetch<T>({
       };
     } catch (e) {
       lastError = e as Error;
-      console.error(`Shopify Fetch Error (attempt ${attempt + 1}/${RATE_LIMIT.MAX_RETRIES}):`, e);
+      // Only log errors if not a configuration issue
+      if (isShopifyConfigured) {
+        console.error(`Shopify Fetch Error (attempt ${attempt + 1}/${RATE_LIMIT.MAX_RETRIES}):`, e);
+      }
       
       if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
         await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
       }
     }
+  }
+
+  // Don't throw loud errors when Shopify isn't configured
+  if (!isShopifyConfigured) {
+    throw new Error('Shopify not configured');
   }
 
   throw {
