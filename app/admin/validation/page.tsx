@@ -59,7 +59,7 @@ async function ValidationContent() {
     // Fetch products for each collection
     for (const collection of collections) {
       try {
-        const products = await getAllCollectionProducts(collection.handle);
+        const products = await getAllCollectionProducts({ handle: collection.handle });
         stats.collections.push({
           handle: collection.handle,
           title: collection.title,

@@ -53,7 +53,7 @@ export async function GET() {
     for (const collection of collections) {
       try {
         console.log(`[v0] Validation: Fetching products for collection "${collection.title}" (${collection.handle})...`);
-        const products = await getAllCollectionProducts(collection.handle);
+        const products = await getAllCollectionProducts({ handle: collection.handle });
         
         const collectionStats: CollectionStats = {
           handle: collection.handle,
