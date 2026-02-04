@@ -39,11 +39,14 @@ async function FeaturedProducts() {
   }
 
   let products: Product[] = []
+  let debugError: string | null = null
   
   try {
-    products = await getProducts({ first: 8, sortKey: "BEST_SELLING" })
-  } catch (error) {
-    console.error("Failed to fetch products:", error)
+    products = await getProducts({ first: 8 })
+    console.log("[v0] FeaturedProducts: Got", products.length, "products")
+  } catch (error: any) {
+    debugError = error?.message || error?.extensions?.code || JSON.stringify(error)
+    console.log("[v0] FeaturedProducts: Error fetching -", debugError)
   }
 
   if (products.length === 0) {
@@ -58,11 +61,12 @@ async function FeaturedProducts() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       {products.map((product) => {
-        const price = product.priceRange.minVariantPrice
-        const compareAtPrice = product.variants.edges[0]?.node.compareAtPrice
-        const hasDiscount = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount)
-        const isNew = product.tags.includes("new") || product.tags.includes("New")
-        const isBestseller = product.tags.includes("bestseller") || product.tags.includes("Bestseller")
+        const price = product.priceRange?.minVariantPrice
+        const compareAtPrice = product.variants?.[0]?.compareAtPrice
+        const hasDiscount = compareAtPrice && price && parseFloat(compareAtPrice.amount) > parseFloat(price.amount)
+        const tags = product.tags || []
+        const isNew = tags.includes("new") || tags.includes("New")
+        const isBestseller = tags.includes("bestseller") || tags.includes("Bestseller")
 
         return (
           <Link
@@ -138,7 +142,7 @@ async function ShopifyCollections() {
       // Filter to show only main categories (limit to 3)
       collections = collections.slice(0, 3)
     } catch (error) {
-      console.error("Failed to fetch collections:", error)
+      // Silently fail - use default categories
     }
   }
 

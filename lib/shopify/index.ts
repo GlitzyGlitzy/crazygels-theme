@@ -26,9 +26,6 @@ const hasValidToken = storefrontAccessToken.length > 20;
 
 export const isShopifyConfigured = Boolean(hasValidDomain && hasValidToken);
 
-// Debug: log config status
-console.log('[v0] Shopify Config:', { domain, hasValidDomain, hasValidToken, isShopifyConfigured });
-
 const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
@@ -114,7 +111,6 @@ export async function shopifyFetch<T>({
           e.message?.toLowerCase().includes('throttled')
         );
         if (throttleError) {
-          console.warn('Shopify throttled. Retrying...');
           await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
           continue;
         }
@@ -158,7 +154,11 @@ const reshapeImages = (images: Connection<Image>, productTitle: string): Image[]
 };
 
 const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean = true): Product | undefined => {
-  if (!product || (filterHiddenProducts && product.tags.includes('nextjs-frontend-hidden'))) {
+  if (!product) return undefined;
+  
+  // Safely check tags - might be undefined or not an array
+  const tags = product.tags || [];
+  if (filterHiddenProducts && Array.isArray(tags) && tags.includes('nextjs-frontend-hidden')) {
     return undefined;
   }
 
