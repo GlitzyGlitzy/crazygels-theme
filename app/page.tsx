@@ -44,8 +44,9 @@ async function FeaturedProducts() {
   
   try {
     products = await getProducts({ first: 8 })
-  } catch (error) {
-    // Silently fail - will show empty state
+    console.log("[v0] FeaturedProducts: Successfully fetched", products.length, "products from Shopify")
+  } catch (error: any) {
+    console.log("[v0] FeaturedProducts: Error fetching products -", error?.message || error)
   }
 
   if (products.length === 0) {
