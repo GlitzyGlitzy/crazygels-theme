@@ -26,9 +26,6 @@ const hasValidToken = storefrontAccessToken.length > 20;
 
 export const isShopifyConfigured = Boolean(hasValidDomain && hasValidToken);
 
-// Debug: log config status
-console.log('[v0] Shopify Config:', { domain, hasValidDomain, hasValidToken, isShopifyConfigured });
-
 const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
@@ -107,14 +104,6 @@ export async function shopifyFetch<T>({
       }
 
       const body = await result.json();
-      
-      // Debug: Log response
-      console.log('[v0] Shopify Response:', { 
-        status: result.status, 
-        hasErrors: !!body.errors,
-        hasData: !!body.data,
-        errorCode: body.errors?.[0]?.extensions?.code,
-      });
 
       if (body.errors) {
         // Check if it's a throttling error
@@ -122,11 +111,9 @@ export async function shopifyFetch<T>({
           e.message?.toLowerCase().includes('throttled')
         );
         if (throttleError) {
-          console.warn('Shopify throttled. Retrying...');
           await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
           continue;
         }
-        console.log('[v0] Shopify Error:', body.errors[0]);
         throw body.errors[0];
       }
 
@@ -136,7 +123,6 @@ export async function shopifyFetch<T>({
       };
     } catch (e) {
       lastError = e as Error;
-      console.log('[v0] Fetch Error:', lastError?.message);
       
       if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
         await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));

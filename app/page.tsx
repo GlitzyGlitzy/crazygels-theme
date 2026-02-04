@@ -39,24 +39,11 @@ async function FeaturedProducts() {
   }
 
   let products: Product[] = []
-  let fetchError: string | null = null
   
   try {
-    console.log("[v0] FeaturedProducts: Fetching products...")
     products = await getProducts({ first: 8, sortKey: "BEST_SELLING" })
-    console.log("[v0] FeaturedProducts: Got", products.length, "products")
-  } catch (error: any) {
-    fetchError = error?.message || error?.error?.extensions?.code || "Unknown error"
-    console.error("[v0] FeaturedProducts: Error:", fetchError, error)
-  }
-
-  if (fetchError) {
-    return (
-      <div className="text-center py-12 text-white/60">
-        <p>Error loading products: {fetchError}</p>
-        <p className="text-sm mt-2">Check console for details.</p>
-      </div>
-    )
+  } catch (error) {
+    // Silently fail - show empty state
   }
 
   if (products.length === 0) {
