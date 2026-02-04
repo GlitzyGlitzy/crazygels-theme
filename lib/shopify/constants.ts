@@ -1,5 +1,5 @@
-// Use latest stable API version for best compatibility
-export const SHOPIFY_GRAPHQL_API_ENDPOINT = '/api/2024-10/graphql.json';
+// Use stable API version (2024-01 is widely supported)
+export const SHOPIFY_GRAPHQL_API_ENDPOINT = '/api/2024-01/graphql.json';
 
 export const DEFAULT_OPTION = 'Default Title';
 
