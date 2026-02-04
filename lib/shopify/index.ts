@@ -26,6 +26,16 @@ const hasValidToken = storefrontAccessToken.length > 20;
 
 export const isShopifyConfigured = Boolean(hasValidDomain && hasValidToken);
 
+// Debug: Log config status
+console.log('[v0] Shopify Debug:', {
+  rawDomain: rawDomain ? 'SET' : 'NOT SET',
+  rawToken: rawToken ? `SET (${rawToken.length} chars)` : 'NOT SET',
+  domain,
+  hasValidDomain,
+  hasValidToken,
+  isShopifyConfigured,
+});
+
 const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
@@ -124,7 +134,12 @@ export async function shopifyFetch<T>({
       };
     } catch (e) {
       lastError = e as Error;
-      // Silently fail - don't log errors to console to avoid noise
+      // Debug: Log the actual error
+      console.log('[v0] Shopify fetch error:', {
+        message: lastError?.message,
+        endpoint,
+        attempt: attempt + 1,
+      });
       
       if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
         await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
