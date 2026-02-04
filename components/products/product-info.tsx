@@ -5,8 +5,7 @@ import { Product, ProductVariant } from '@/lib/shopify/types';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Plus, Minus, ShoppingBag, Heart, Share2, Check } from 'lucide-react';
-import { addToCart, createCart } from '@/lib/shopify';
-import { getCookie, setCookie } from '@/lib/shopify/cookies';
+import { addItemToCart } from '@/lib/shopify/actions';
 
 function formatPrice(amount: string, currencyCode: string) {
   return new Intl.NumberFormat('en-US', {
@@ -58,15 +57,7 @@ export function ProductInfo({ product }: { product: Product }) {
   const handleAddToCart = () => {
     startTransition(async () => {
       try {
-        let cartId = getCookie('cartId');
-
-        if (!cartId) {
-          const cart = await createCart();
-          cartId = cart.id;
-          setCookie('cartId', cartId);
-        }
-
-        await addToCart(cartId, [{ merchandiseId: selectedVariant.id, quantity }]);
+        await addItemToCart(selectedVariant.id, quantity);
         setIsAdded(true);
         setTimeout(() => setIsAdded(false), 2000);
       } catch (error) {
