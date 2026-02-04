@@ -235,17 +235,26 @@ export async function CategoryProducts() {
           handle: collection.handle,
           sortKey: "BEST_SELLING"
         })
+        console.log(`[v0] Collection "${collection.handle}": fetched ${products.length} products`)
         return { 
           collection, 
-          products: products.slice(0, 12), // Limit to 12 products per category
+          products: products.slice(0, 12), // Limit to 12 products per category for display
+          totalCount: products.length,
           color: getCategoryColor(collection.handle)
         }
       } catch (error) {
         console.error(`[v0] Error fetching products for ${collection.handle}:`, error)
-        return { collection, products: [], color: getCategoryColor(collection.handle) }
+        return { collection, products: [], totalCount: 0, color: getCategoryColor(collection.handle) }
       }
     })
   )
+
+  // Log total product counts
+  const totalProducts = collectionsWithProducts.reduce((sum, c) => sum + c.totalCount, 0)
+  console.log(`[v0] TOTAL PRODUCTS FETCHED: ${totalProducts} across ${collectionsWithProducts.length} collections`)
+  collectionsWithProducts.forEach(c => {
+    console.log(`[v0]   - ${c.collection.title}: ${c.totalCount} products`)
+  })
 
   // Filter out collections with no products
   const validCollections = collectionsWithProducts.filter(c => c.products.length > 0)
