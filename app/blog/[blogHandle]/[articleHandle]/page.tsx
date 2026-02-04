@@ -5,7 +5,8 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getArticle, getArticles, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
-import { Calendar, Clock, ArrowLeft, Share2, BookOpen, User } from 'lucide-react';
+import { ShareButton } from '@/components/blog/share-button';
+import { Calendar, Clock, ArrowLeft, BookOpen, User } from 'lucide-react';
 
 type Props = {
   params: Promise<{ blogHandle: string; articleHandle: string }>;
@@ -209,20 +210,7 @@ async function ArticleContent({ blogHandle, articleHandle }: { blogHandle: strin
             <ArrowLeft className="w-4 h-4" />
             Back to Blog
           </Link>
-          <button
-            className="flex items-center gap-2 text-white/60 hover:text-[#ff00b0] transition-colors"
-            onClick={() => {
-              if (typeof navigator !== 'undefined' && navigator.share) {
-                navigator.share({
-                  title: article.title,
-                  url: window.location.href,
-                });
-              }
-            }}
-          >
-            <Share2 className="w-4 h-4" />
-            Share
-          </button>
+<ShareButton title={article.title} />
         </div>
       </div>
 
