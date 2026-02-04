@@ -39,11 +39,14 @@ async function FeaturedProducts() {
   }
 
   let products: Product[] = []
+  let debugError: string | null = null
   
   try {
     products = await getProducts({ first: 8 })
-  } catch (error) {
-    // Silently fail - show empty state
+    console.log("[v0] FeaturedProducts: Got", products.length, "products")
+  } catch (error: any) {
+    debugError = error?.message || error?.extensions?.code || JSON.stringify(error)
+    console.log("[v0] FeaturedProducts: Error fetching -", debugError)
   }
 
   if (products.length === 0) {
