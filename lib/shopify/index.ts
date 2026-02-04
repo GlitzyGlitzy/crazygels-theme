@@ -1051,3 +1051,6 @@ export async function getCart(cartId: string): Promise<Cart | undefined> {
 
   return reshapeCart(res.body.data.cart);
 }
+
+// Re-export image utilities for convenience
+export * from './image';
