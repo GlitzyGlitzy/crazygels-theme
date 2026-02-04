@@ -41,7 +41,7 @@ async function FeaturedProducts() {
   let products: Product[] = []
   
   try {
-    products = await getProducts({ first: 8, sortKey: "BEST_SELLING" })
+    products = await getProducts({ first: 8 })
   } catch (error) {
     // Silently fail - show empty state
   }
@@ -138,7 +138,7 @@ async function ShopifyCollections() {
       // Filter to show only main categories (limit to 3)
       collections = collections.slice(0, 3)
     } catch (error) {
-      console.error("Failed to fetch collections:", error)
+      // Silently fail - use default categories
     }
   }
 
