@@ -78,7 +78,7 @@ export function ProductInfo({ product }: { product: Product }) {
     <div className="flex flex-col gap-6">
       {/* Title & Price */}
       <div>
-        <p className="text-sm font-medium text-[#ff00b0] uppercase tracking-wide">
+        <p className="text-sm font-medium text-[#D4AF37] uppercase tracking-widest">
           {product.vendor || 'Crazy Gels'}
         </p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight lg:text-4xl">
@@ -87,7 +87,7 @@ export function ProductInfo({ product }: { product: Product }) {
         
         {/* Price */}
         <div className="mt-4 flex items-baseline gap-3">
-          <span className="text-3xl font-bold text-[#ff00b0]">
+          <span className="text-3xl font-semibold text-[#B8860B]">
             {formatPrice(selectedVariant.price.amount, selectedVariant.price.currencyCode)}
           </span>
           {isOnSale && selectedVariant.compareAtPrice && (
@@ -95,7 +95,7 @@ export function ProductInfo({ product }: { product: Product }) {
               <span className="text-lg text-muted-foreground line-through">
                 {formatPrice(selectedVariant.compareAtPrice.amount, selectedVariant.compareAtPrice.currencyCode)}
               </span>
-              <span className="rounded-full bg-[#ff00b0]/10 px-2 py-1 text-xs font-semibold text-[#ff00b0]">
+              <span className="rounded-full bg-[#D4AF37]/10 px-2 py-1 text-xs font-medium tracking-wide text-[#B8860B]">
                 SAVE {Math.round(
                   ((parseFloat(selectedVariant.compareAtPrice.amount) - parseFloat(selectedVariant.price.amount)) /
                     parseFloat(selectedVariant.compareAtPrice.amount)) *
@@ -140,7 +140,7 @@ export function ProductInfo({ product }: { product: Product }) {
                       className={cn(
                         'relative rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all',
                         isSelected
-                          ? 'border-[#ff00b0] bg-[#ff00b0]/10 text-[#ff00b0]'
+                          ? 'border-[#D4AF37] bg-[#D4AF37]/10 text-[#B8860B]'
                           : 'border-border hover:border-muted-foreground',
                         isDisabled && 'cursor-not-allowed opacity-50'
                       )}
@@ -197,10 +197,10 @@ export function ProductInfo({ product }: { product: Product }) {
           disabled={isPending || !isAvailable}
           size="lg"
           className={cn(
-            'flex-1 gap-2 text-lg font-semibold transition-all',
+            'flex-1 gap-2 text-lg font-medium transition-all',
             isAdded
               ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-[#ff00b0] hover:bg-[#ff00b0]/90'
+              : 'bg-[#D4AF37] hover:bg-[#B8860B] text-white'
           )}
         >
           {isPending ? (

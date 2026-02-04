@@ -77,7 +77,7 @@ export default async function CollectionPage({
   const reverse = order === 'desc';
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#FAF7F2]">
       <DynamicHeader />
       <main>
       {/* Collection Header */}
@@ -89,31 +89,31 @@ export default async function CollectionPage({
               src={collection.image.url}
               alt={collection.image.altText || collection.title}
               fill
-              className="object-cover opacity-30"
+              className="object-cover opacity-20"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a0a]/60 via-[#0a0a0a]/80 to-[#0a0a0a]" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/60 via-[#FAF7F2]/80 to-[#FAF7F2]" />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/20 via-[#0a0a0a] to-[#7c3aed]/20" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
         )}
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           {/* Breadcrumb */}
           <Link
             href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-[#2C2C2C]/60 transition-colors hover:text-[#D4AF37]"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to Home
           </Link>
 
-          <h1 className="text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] sm:text-5xl lg:text-6xl">
             {collection.title}
           </h1>
 
           {collection.description && (
-            <p className="mt-4 max-w-2xl text-lg text-white/70">
+            <p className="mt-4 max-w-2xl text-lg text-[#2C2C2C]/70">
               {collection.description}
             </p>
           )}
@@ -159,8 +159,8 @@ async function ProductCount({
 }) {
   const products = await getAllCollectionProducts({ handle, sortKey, reverse });
   return (
-    <p className="text-white/60">
-      <span className="font-semibold text-white">{products.length}</span> products
+    <p className="text-[#2C2C2C]/60">
+      <span className="font-semibold text-[#2C2C2C]">{products.length}</span> products
     </p>
   );
 }
@@ -178,15 +178,15 @@ async function CollectionProducts({
 
   if (products.length === 0) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-[#111111]">
-        <div className="mb-4 h-16 w-16 rounded-full bg-[#ff00b0]/20 flex items-center justify-center">
-          <Grid3X3 className="h-8 w-8 text-[#ff00b0]" />
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-[#D4AF37]/20 bg-[#FFFEF9]">
+        <div className="mb-4 h-16 w-16 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
+          <Grid3X3 className="h-8 w-8 text-[#D4AF37]" />
         </div>
-        <h3 className="text-lg font-semibold text-white">No products found</h3>
-        <p className="mt-2 text-white/60">Check back soon for new arrivals</p>
+        <h3 className="text-lg font-semibold text-[#2C2C2C]">No products found</h3>
+        <p className="mt-2 text-[#2C2C2C]/60">Check back soon for new arrivals</p>
         <Link
           href="/collections"
-          className="mt-6 rounded-full bg-[#ff00b0] px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#ff00b0]/90"
+          className="mt-6 rounded-full bg-[#D4AF37] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B8860B]"
         >
           Browse All Collections
         </Link>
@@ -205,15 +205,15 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
     if (related.length === 0) return null;
 
     return (
-      <section className="border-t border-white/10 bg-[#0a0a0a] py-16">
+      <section className="border-t border-[#D4AF37]/10 bg-[#FFFEF9] py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-8 text-2xl font-bold text-white">Explore More Collections</h2>
+          <h2 className="mb-8 text-2xl font-medium text-[#2C2C2C]">Explore More Collections</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((collection) => (
               <Link
                 key={collection.handle}
                 href={`/collections/${collection.handle}`}
-                className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-2xl bg-[#111111]"
+                className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#D4AF37]/20"
               >
                 {collection.image ? (
                   <Image
@@ -223,11 +223,11 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/30 to-[#7c3aed]/30" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#C9A9A6]/20" />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9]/90 via-[#FFFEF9]/40 to-transparent" />
                 <div className="relative p-6">
-                  <h3 className="text-xl font-bold text-white group-hover:text-[#ff00b0] transition-colors">
+                  <h3 className="text-xl font-medium text-[#2C2C2C] group-hover:text-[#D4AF37] transition-colors">
                     {collection.title}
                   </h3>
                 </div>
@@ -244,23 +244,23 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
 
 function CollectionNotConfigured() {
   return (
-    <main className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+    <main className="min-h-screen bg-[#FAF7F2] flex items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-[#ff00b0]/20 flex items-center justify-center">
-          <SlidersHorizontal className="h-10 w-10 text-[#ff00b0]" />
+        <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
+          <SlidersHorizontal className="h-10 w-10 text-[#D4AF37]" />
         </div>
-        <h1 className="text-2xl font-bold text-white mb-4">Connect Your Shopify Store</h1>
-        <p className="text-white/60 mb-8">
+        <h1 className="text-2xl font-medium text-[#2C2C2C] mb-4">Connect Your Shopify Store</h1>
+        <p className="text-[#2C2C2C]/60 mb-8">
           Add your Shopify credentials to display collections and products.
         </p>
-        <div className="bg-[#111111] rounded-xl p-6 text-left border border-white/10">
-          <p className="text-white/40 text-sm mb-3">Required environment variables:</p>
-          <code className="block text-[#06b6d4] text-sm mb-1">SHOPIFY_STORE_DOMAIN</code>
-          <code className="block text-[#06b6d4] text-sm">SHOPIFY_STOREFRONT_ACCESS_TOKEN</code>
+        <div className="bg-[#FFFEF9] rounded-xl p-6 text-left border border-[#D4AF37]/20">
+          <p className="text-[#2C2C2C]/40 text-sm mb-3">Required environment variables:</p>
+          <code className="block text-[#B8860B] text-sm mb-1">SHOPIFY_STORE_DOMAIN</code>
+          <code className="block text-[#B8860B] text-sm">SHOPIFY_STOREFRONT_ACCESS_TOKEN</code>
         </div>
         <Link
           href="/"
-          className="mt-8 inline-flex items-center gap-2 text-[#ff00b0] hover:underline"
+          className="mt-8 inline-flex items-center gap-2 text-[#D4AF37] hover:underline"
         >
           <ChevronLeft className="h-4 w-4" />
           Back to Home

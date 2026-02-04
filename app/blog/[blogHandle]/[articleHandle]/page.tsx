@@ -43,12 +43,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function ArticleSkeleton() {
   return (
     <div className="animate-pulse max-w-4xl mx-auto">
-      <div className="aspect-[21/9] bg-white/10 rounded-2xl mb-8" />
-      <div className="h-8 bg-white/10 rounded w-3/4 mb-4" />
-      <div className="h-4 bg-white/10 rounded w-1/4 mb-8" />
+      <div className="aspect-[21/9] bg-[#D4AF37]/10 rounded-2xl mb-8" />
+      <div className="h-8 bg-[#D4AF37]/10 rounded w-3/4 mb-4" />
+      <div className="h-4 bg-[#D4AF37]/10 rounded w-1/4 mb-8" />
       <div className="space-y-4">
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className="h-4 bg-white/10 rounded w-full" />
+          <div key={i} className="h-4 bg-[#D4AF37]/10 rounded w-full" />
         ))}
       </div>
     </div>

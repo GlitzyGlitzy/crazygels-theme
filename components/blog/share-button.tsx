@@ -16,7 +16,7 @@ export function ShareButton({ title }: { title: string }) {
 
   return (
     <button
-      className="flex items-center gap-2 text-white/60 hover:text-[#ff00b0] transition-colors"
+      className="flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#D4AF37] transition-colors"
       onClick={handleShare}
     >
       <Share2 className="w-4 h-4" />
