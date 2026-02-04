@@ -13,7 +13,10 @@ import {
 const domain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
-const endpoint = `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
+// Check if Shopify is configured
+export const isShopifyConfigured = Boolean(domain && storefrontAccessToken);
+
+const endpoint = domain ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
@@ -52,6 +55,13 @@ export async function shopifyFetch<T>({
   variables?: ExtractVariables<T>;
   revalidate?: number;
 }): Promise<{ status: number; body: T } | never> {
+  // Check if Shopify is configured
+  if (!isShopifyConfigured) {
+    throw new Error(
+      'Shopify is not configured. Please add SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN environment variables.'
+    );
+  }
+
   let lastError: Error | null = null;
 
   for (let attempt = 0; attempt < RATE_LIMIT.MAX_RETRIES; attempt++) {

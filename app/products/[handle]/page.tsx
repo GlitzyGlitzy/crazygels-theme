@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getProduct, getProducts } from '@/lib/shopify';
+import { getProduct, getProducts, isShopifyConfigured } from '@/lib/shopify';
 import { ProductGallery } from '@/components/products/product-gallery';
 import { ProductInfo } from '@/components/products/product-info';
 import { ProductGrid } from '@/components/products/product-grid';
@@ -13,6 +13,10 @@ export async function generateMetadata({
 }: {
   params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
+  if (!isShopifyConfigured) {
+    return { title: 'Product | Crazy Gels' };
+  }
+  
   const { handle } = await params;
   const product = await getProduct(handle);
 
@@ -47,6 +51,10 @@ export default async function ProductPage({
 }: {
   params: Promise<{ handle: string }>;
 }) {
+  if (!isShopifyConfigured) {
+    notFound();
+  }
+
   const { handle } = await params;
   const product = await getProduct(handle);
 
