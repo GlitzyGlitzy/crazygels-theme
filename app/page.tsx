@@ -131,12 +131,15 @@ async function FeaturedProducts() {
 async function ShopifyCollections() {
   let collections: Collection[] = []
   
-  try {
-    collections = await getCollections()
-    // Filter to show only main categories (limit to 3)
-    collections = collections.slice(0, 3)
-  } catch (error) {
-    console.error("Failed to fetch collections:", error)
+  // Only fetch if Shopify is configured
+  if (isShopifyConfigured) {
+    try {
+      collections = await getCollections()
+      // Filter to show only main categories (limit to 3)
+      collections = collections.slice(0, 3)
+    } catch (error) {
+      console.error("Failed to fetch collections:", error)
+    }
   }
 
   const defaultCategories = [
