@@ -107,6 +107,14 @@ export async function shopifyFetch<T>({
       }
 
       const body = await result.json();
+      
+      // Debug: Log response
+      console.log('[v0] Shopify Response:', { 
+        status: result.status, 
+        hasErrors: !!body.errors,
+        hasData: !!body.data,
+        errorCode: body.errors?.[0]?.extensions?.code,
+      });
 
       if (body.errors) {
         // Check if it's a throttling error
@@ -118,6 +126,7 @@ export async function shopifyFetch<T>({
           await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
           continue;
         }
+        console.log('[v0] Shopify Error:', body.errors[0]);
         throw body.errors[0];
       }
 
@@ -127,6 +136,7 @@ export async function shopifyFetch<T>({
       };
     } catch (e) {
       lastError = e as Error;
+      console.log('[v0] Fetch Error:', lastError?.message);
       
       if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
         await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
