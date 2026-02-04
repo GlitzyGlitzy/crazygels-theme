@@ -58,11 +58,12 @@ async function FeaturedProducts() {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       {products.map((product) => {
-        const price = product.priceRange.minVariantPrice
-        const compareAtPrice = product.variants.edges[0]?.node.compareAtPrice
-        const hasDiscount = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount)
-        const isNew = product.tags.includes("new") || product.tags.includes("New")
-        const isBestseller = product.tags.includes("bestseller") || product.tags.includes("Bestseller")
+        const price = product.priceRange?.minVariantPrice
+        const compareAtPrice = product.variants?.[0]?.compareAtPrice
+        const hasDiscount = compareAtPrice && price && parseFloat(compareAtPrice.amount) > parseFloat(price.amount)
+        const tags = product.tags || []
+        const isNew = tags.includes("new") || tags.includes("New")
+        const isBestseller = tags.includes("bestseller") || tags.includes("Bestseller")
 
         return (
           <Link
