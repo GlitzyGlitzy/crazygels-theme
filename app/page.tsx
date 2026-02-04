@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Star, Sparkles, Heart, Shield, Truck, RefreshCw, Instagram, ArrowRight, Play, ShoppingBag } from "lucide-react"
-import { getProducts, getCollections } from "@/lib/shopify"
+import { getProducts, getCollections, isShopifyConfigured } from "@/lib/shopify"
 import { Product, Collection } from "@/lib/shopify/types"
 import { Header } from "@/components/layout/header"
 import { ProductGridSkeleton } from "@/components/products/product-grid"
@@ -16,6 +16,28 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
 
 // Featured Products Component with real Shopify data
 async function FeaturedProducts() {
+  // Check if Shopify is configured
+  if (!isShopifyConfigured) {
+    return (
+      <div className="text-center py-12 px-4">
+        <div className="max-w-md mx-auto bg-[#111111] border border-white/10 rounded-2xl p-8">
+          <div className="w-16 h-16 rounded-full bg-[#ff00b0]/20 flex items-center justify-center mx-auto mb-4">
+            <ShoppingBag className="w-8 h-8 text-[#ff00b0]" />
+          </div>
+          <h3 className="text-white font-bold text-lg mb-2">Connect Your Shopify Store</h3>
+          <p className="text-white/60 text-sm mb-4">
+            Add your Shopify credentials to display real products.
+          </p>
+          <div className="text-left bg-black/50 rounded-lg p-4 text-xs font-mono">
+            <p className="text-white/40 mb-1">Required environment variables:</p>
+            <p className="text-[#06b6d4]">SHOPIFY_STORE_DOMAIN</p>
+            <p className="text-[#06b6d4]">SHOPIFY_STOREFRONT_ACCESS_TOKEN</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   let products: Product[] = []
   
   try {
@@ -27,8 +49,8 @@ async function FeaturedProducts() {
   if (products.length === 0) {
     return (
       <div className="text-center py-12 text-white/60">
-        <p>No products available. Please check your Shopify connection.</p>
-        <p className="text-sm mt-2">Make sure SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN are set.</p>
+        <p>No products found in your Shopify store.</p>
+        <p className="text-sm mt-2">Add some products to your store to see them here.</p>
       </div>
     )
   }
@@ -109,12 +131,15 @@ async function FeaturedProducts() {
 async function ShopifyCollections() {
   let collections: Collection[] = []
   
-  try {
-    collections = await getCollections()
-    // Filter to show only main categories (limit to 3)
-    collections = collections.slice(0, 3)
-  } catch (error) {
-    console.error("Failed to fetch collections:", error)
+  // Only fetch if Shopify is configured
+  if (isShopifyConfigured) {
+    try {
+      collections = await getCollections()
+      // Filter to show only main categories (limit to 3)
+      collections = collections.slice(0, 3)
+    } catch (error) {
+      console.error("Failed to fetch collections:", error)
+    }
   }
 
   const defaultCategories = [

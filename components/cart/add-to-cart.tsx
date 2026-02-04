@@ -3,9 +3,8 @@
 import { useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { addToCart, createCart } from '@/lib/shopify';
 import { Product, ProductVariant } from '@/lib/shopify/types';
-import { getCookie, setCookie } from '@/lib/shopify/cookies';
+import { addItemToCart } from '@/lib/shopify/actions';
 
 export function AddToCart({
   product,
@@ -20,15 +19,7 @@ export function AddToCart({
 
   const handleAddToCart = () => {
     startTransition(async () => {
-      let cartId = getCookie('cartId');
-
-      if (!cartId) {
-        const cart = await createCart();
-        cartId = cart.id;
-        setCookie('cartId', cartId);
-      }
-
-      await addToCart(cartId, [{ merchandiseId: variant.id, quantity: 1 }]);
+      await addItemToCart(variant.id, 1);
     });
   };
 

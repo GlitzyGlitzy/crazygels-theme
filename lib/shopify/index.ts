@@ -1,4 +1,4 @@
-import { SHOPIFY_GRAPHQL_API_ENDPOINT, TAGS } from './constants';
+import { SHOPIFY_GRAPHQL_API_ENDPOINT, TAGS, RATE_LIMIT, CACHE_TIMES } from './constants';
 import {
   Cart,
   Collection,
@@ -13,9 +13,32 @@ import {
 const domain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const storefrontAccessToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
-const endpoint = `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}`;
+// Check if Shopify is configured
+export const isShopifyConfigured = Boolean(domain && storefrontAccessToken);
+
+const endpoint = domain ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
+
+// Simple in-memory rate limiter
+let lastRequestTime = 0;
+const requestQueue: (() => void)[] = [];
+let isProcessingQueue = false;
+
+async function waitForRateLimit(): Promise<void> {
+  const now = Date.now();
+  const timeSinceLastRequest = now - lastRequestTime;
+  const minInterval = 1000 / RATE_LIMIT.MAX_REQUESTS_PER_SECOND;
+
+  if (timeSinceLastRequest < minInterval) {
+    await new Promise((resolve) => setTimeout(resolve, minInterval - timeSinceLastRequest));
+  }
+  lastRequestTime = Date.now();
+}
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export async function shopifyFetch<T>({
   cache = 'force-cache',
@@ -23,46 +46,86 @@ export async function shopifyFetch<T>({
   query,
   tags,
   variables,
+  revalidate,
 }: {
   cache?: RequestCache;
   headers?: HeadersInit;
   query: string;
   tags?: string[];
   variables?: ExtractVariables<T>;
+  revalidate?: number;
 }): Promise<{ status: number; body: T } | never> {
-  try {
-    const result = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Shopify-Storefront-Access-Token': storefrontAccessToken || '',
-        ...headers,
-      },
-      body: JSON.stringify({
-        ...(query && { query }),
-        ...(variables && { variables }),
-      }),
-      cache,
-      ...(tags && { next: { tags } }),
-    });
-
-    const body = await result.json();
-
-    if (body.errors) {
-      throw body.errors[0];
-    }
-
-    return {
-      status: result.status,
-      body,
-    };
-  } catch (e) {
-    console.error('Shopify Fetch Error:', e);
-    throw {
-      error: e,
-      query,
-    };
+  // Check if Shopify is configured
+  if (!isShopifyConfigured) {
+    throw new Error(
+      'Shopify is not configured. Please add SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN environment variables.'
+    );
   }
+
+  let lastError: Error | null = null;
+
+  for (let attempt = 0; attempt < RATE_LIMIT.MAX_RETRIES; attempt++) {
+    try {
+      // Wait for rate limit before making request
+      await waitForRateLimit();
+
+      const result = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token': storefrontAccessToken || '',
+          ...headers,
+        },
+        body: JSON.stringify({
+          ...(query && { query }),
+          ...(variables && { variables }),
+        }),
+        cache,
+        ...(tags && { next: { tags, revalidate } }),
+      });
+
+      // Handle rate limiting (429 status)
+      if (result.status === 429) {
+        const retryAfter = result.headers.get('Retry-After');
+        const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1);
+        console.warn(`Shopify rate limited. Waiting ${waitTime}ms before retry...`);
+        await sleep(waitTime);
+        continue;
+      }
+
+      const body = await result.json();
+
+      if (body.errors) {
+        // Check if it's a throttling error
+        const throttleError = body.errors.find((e: { message?: string }) => 
+          e.message?.toLowerCase().includes('throttled')
+        );
+        if (throttleError) {
+          console.warn('Shopify throttled. Retrying...');
+          await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
+          continue;
+        }
+        throw body.errors[0];
+      }
+
+      return {
+        status: result.status,
+        body,
+      };
+    } catch (e) {
+      lastError = e as Error;
+      console.error(`Shopify Fetch Error (attempt ${attempt + 1}/${RATE_LIMIT.MAX_RETRIES}):`, e);
+      
+      if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
+        await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
+      }
+    }
+  }
+
+  throw {
+    error: lastError,
+    query,
+  };
 }
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
@@ -311,12 +374,13 @@ const getCollectionProductsQuery = /* GraphQL */ `
   ${productFragment}
 `;
 
-// API Functions
+// API Functions with proper caching and rate limit awareness
 export async function getProduct(handle: string): Promise<Product | undefined> {
   const res = await shopifyFetch<{ data: { product: ShopifyProduct }; variables: { handle: string } }>({
     query: getProductQuery,
     tags: [TAGS.products],
     variables: { handle },
+    revalidate: CACHE_TIMES.products,
   });
 
   return reshapeProduct(res.body.data.product, false);
@@ -333,13 +397,17 @@ export async function getProducts({
   sortKey?: string;
   first?: number;
 } = {}): Promise<Product[]> {
+  // Limit first to prevent large responses that hit rate limits
+  const safeFirst = Math.min(first, 50);
+  
   const res = await shopifyFetch<{
     data: { products: Connection<ShopifyProduct> };
     variables: { query?: string; reverse?: boolean; sortKey?: string; first?: number };
   }>({
     query: getProductsQuery,
     tags: [TAGS.products],
-    variables: { query, reverse, sortKey, first },
+    variables: { query, reverse, sortKey, first: safeFirst },
+    revalidate: CACHE_TIMES.products,
   });
 
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
@@ -350,6 +418,7 @@ export async function getCollection(handle: string): Promise<Collection | undefi
     query: getCollectionQuery,
     tags: [TAGS.collections],
     variables: { handle },
+    revalidate: CACHE_TIMES.collections,
   });
 
   return reshapeCollection(res.body.data.collection);
@@ -359,6 +428,7 @@ export async function getCollections(): Promise<Collection[]> {
   const res = await shopifyFetch<{ data: { collections: Connection<ShopifyCollection> } }>({
     query: getCollectionsQuery,
     tags: [TAGS.collections],
+    revalidate: CACHE_TIMES.collections,
   });
 
   return reshapeCollections(removeEdgesAndNodes(res.body.data.collections));
@@ -375,13 +445,17 @@ export async function getCollectionProducts({
   sortKey?: string;
   first?: number;
 }): Promise<Product[]> {
+  // Limit first to prevent large responses
+  const safeFirst = Math.min(first, 50);
+  
   const res = await shopifyFetch<{
     data: { collection: { products: Connection<ShopifyProduct> } };
     variables: { handle: string; reverse?: boolean; sortKey?: string; first?: number };
   }>({
     query: getCollectionProductsQuery,
     tags: [TAGS.collections, TAGS.products],
-    variables: { handle, reverse, sortKey, first },
+    variables: { handle, reverse, sortKey, first: safeFirst },
+    revalidate: CACHE_TIMES.products,
   });
 
   if (!res.body.data.collection) {
