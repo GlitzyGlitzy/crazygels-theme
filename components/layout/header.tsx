@@ -38,6 +38,15 @@ const menuItems = [
     ]
   },
   { label: "Bundles", href: "/collections/bundles" },
+  { label: "Blog", href: "/blog" },
+  { 
+    label: "Consult", 
+    href: "/consult",
+    submenu: [
+      { label: "Skin Test", href: "/consult/skin" },
+      { label: "Hair Test", href: "/consult/hair" }
+    ]
+  },
   { label: "Sale", href: "/collections/sale" }
 ]
 
