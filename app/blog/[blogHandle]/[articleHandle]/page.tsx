@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getArticle, getArticles, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
+import { Footer } from '@/components/layout/footer';
 import { ShareButton } from '@/components/blog/share-button';
 import { Calendar, Clock, ArrowLeft, BookOpen, User } from 'lucide-react';
 
@@ -234,6 +235,8 @@ export default async function ArticlePage({ params }: Props) {
           <ArticleContent blogHandle={blogHandle} articleHandle={articleHandle} />
         </Suspense>
       </main>
+      
+      <Footer />
     </div>
   );
 }

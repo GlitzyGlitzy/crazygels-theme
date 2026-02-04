@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getCollections, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
+import { Footer } from '@/components/layout/footer';
 import { ChevronLeft, Sparkles } from 'lucide-react';
 import { Collection } from '@/lib/shopify/types';
 
@@ -76,6 +77,8 @@ export default async function CollectionsPage() {
         </Suspense>
       </section>
       </main>
+      
+      <Footer />
     </div>
   );
 }

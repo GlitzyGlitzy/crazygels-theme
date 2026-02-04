@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getCollection, getCollectionProducts, getAllCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
+import { Footer } from '@/components/layout/footer';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { ChevronLeft, Grid3X3, LayoutGrid, SlidersHorizontal } from 'lucide-react';
 import { CollectionSorting } from '@/components/collections/collection-sorting';
@@ -144,6 +145,8 @@ export default async function CollectionPage({
         <RelatedCollections currentHandle={handle} />
       </Suspense>
       </main>
+      
+      <Footer />
     </div>
   );
 }

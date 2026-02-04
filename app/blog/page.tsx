@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getAllArticles, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
+import { Footer } from '@/components/layout/footer';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -224,6 +225,8 @@ export default function BlogPage() {
           <BlogArticles />
         </Suspense>
       </main>
+      
+      <Footer />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { fetchCart } from '@/lib/shopify/actions';
 import { isShopifyConfigured } from '@/lib/shopify';
 import { CartContents } from '@/components/cart/cart-contents';
 import { CartSummary } from '@/components/cart/cart-summary';
+import { Footer } from '@/components/layout/footer';
 import { ChevronLeft, ShoppingBag, Lock, Truck, RotateCcw } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -171,6 +172,8 @@ export default function CartPage() {
           <CartContent />
         </Suspense>
       </main>
+      
+      <Footer />
     </div>
   );
 }
