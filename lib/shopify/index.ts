@@ -15,15 +15,23 @@ const rawDomain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SH
 const rawToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
 // Validate that values are real (not undefined, not empty, not 'undefined' string)
-const domain = rawDomain && rawDomain !== 'undefined' && rawDomain.trim().length > 0 ? rawDomain.trim() : '';
+const domain = rawDomain && rawDomain !== 'undefined' && rawDomain.trim().length > 0 
+  ? rawDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '') // Remove protocol and trailing slash
+  : '';
 const storefrontAccessToken = rawToken && rawToken !== 'undefined' && rawToken.trim().length > 0 ? rawToken.trim() : '';
 
 // Check if Shopify is configured - must have both domain and token with actual valid values
-// Domain must contain .myshopify.com and token must start with shpat_ (private) or be >30 chars (public)
-const hasValidDomain = domain.includes('.myshopify.com') || domain.includes('shopify.com');
-const hasValidToken = storefrontAccessToken.startsWith('shpat_') || storefrontAccessToken.length > 30;
+const hasValidDomain = domain.includes('myshopify.com');
+const hasValidToken = storefrontAccessToken.length > 20;
 
 export const isShopifyConfigured = Boolean(hasValidDomain && hasValidToken);
+
+// Debug log (remove after fixing)
+console.log('[v0] Shopify config:', { 
+  domain: domain ? `${domain.slice(0, 10)}...` : 'NOT SET',
+  tokenSet: storefrontAccessToken ? `${storefrontAccessToken.slice(0, 10)}...` : 'NOT SET',
+  isConfigured: isShopifyConfigured 
+});
 
 const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
