@@ -26,13 +26,6 @@ const hasValidToken = storefrontAccessToken.length > 20;
 
 export const isShopifyConfigured = Boolean(hasValidDomain && hasValidToken);
 
-// Debug log (remove after fixing)
-console.log('[v0] Shopify config:', { 
-  domain: domain ? `${domain.slice(0, 10)}...` : 'NOT SET',
-  tokenSet: storefrontAccessToken ? `${storefrontAccessToken.slice(0, 10)}...` : 'NOT SET',
-  isConfigured: isShopifyConfigured 
-});
-
 const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
