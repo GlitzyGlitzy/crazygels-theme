@@ -124,7 +124,6 @@ export async function shopifyFetch<T>({
       };
     } catch (e) {
       lastError = e as Error;
-      // Silently fail - don't log errors to console to avoid noise
       
       if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
         await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
