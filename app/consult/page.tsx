@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Header } from '@/components/layout/header';
+import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Sparkles, Droplets, Wind, ArrowRight, Shield, Clock, Star } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -53,7 +53,7 @@ const benefits = [
 export default function ConsultPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Header />
+      <DynamicHeader />
       
       <main>
         {/* Hero Section */}

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getArticle, getArticles, isShopifyConfigured } from '@/lib/shopify';
-import { Header } from '@/components/layout/header';
+import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Calendar, Clock, ArrowLeft, Share2, BookOpen, User } from 'lucide-react';
 
 type Props = {
@@ -239,7 +239,7 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Header />
+      <DynamicHeader />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <Suspense fallback={<ArticleSkeleton />}>

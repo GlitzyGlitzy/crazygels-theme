@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getAllArticles, isShopifyConfigured } from '@/lib/shopify';
-import { Header } from '@/components/layout/header';
+import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -206,7 +206,7 @@ async function BlogArticles() {
 export default function BlogPage() {
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
-      <Header />
+      <DynamicHeader />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Page Header */}
