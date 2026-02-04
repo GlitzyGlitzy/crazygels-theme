@@ -444,10 +444,8 @@ export async function getAllProducts({
   let hasNextPage = true;
   let cursor: string | null = null;
   const pageSize = 50; // Max products per request
-  let pageNumber = 0;
 
   while (hasNextPage) {
-    pageNumber++;
     const res = await shopifyFetch<{
       data: { products: Connection<ShopifyProduct> };
       variables: { query?: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
@@ -468,13 +466,10 @@ export async function getAllProducts({
     const pageProducts = removeEdgesAndNodes(products);
     allProducts.push(...pageProducts);
     
-    console.log(`[v0] getAllProducts: Page ${pageNumber} fetched ${pageProducts.length} products (total: ${allProducts.length})`);
-    
     hasNextPage = products.pageInfo.hasNextPage;
     cursor = products.pageInfo.endCursor;
   }
 
-  console.log(`[v0] getAllProducts: Completed - Total ${allProducts.length} products fetched`);
   return reshapeProducts(allProducts);
 }
 
@@ -545,10 +540,8 @@ export async function getAllCollectionProducts({
   let hasNextPage = true;
   let cursor: string | null = null;
   const pageSize = 50; // Max products per request
-  let pageNumber = 0;
 
   while (hasNextPage) {
-    pageNumber++;
     const res = await shopifyFetch<{
       data: { collection: { products: Connection<ShopifyProduct> } | null };
       variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
@@ -566,7 +559,6 @@ export async function getAllCollectionProducts({
     });
 
     if (!res.body.data.collection) {
-      console.log(`[v0] getAllCollectionProducts: No collection found for handle: ${handle}`);
       return [];
     }
 
@@ -574,13 +566,10 @@ export async function getAllCollectionProducts({
     const pageProducts = removeEdgesAndNodes(products);
     allProducts.push(...pageProducts);
     
-    console.log(`[v0] getAllCollectionProducts(${handle}): Page ${pageNumber} fetched ${pageProducts.length} products (total: ${allProducts.length})`);
-    
     hasNextPage = products.pageInfo.hasNextPage;
     cursor = products.pageInfo.endCursor;
   }
 
-  console.log(`[v0] getAllCollectionProducts(${handle}): Completed - Total ${allProducts.length} products fetched`);
   return reshapeProducts(allProducts);
 }
 
