@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/lib/shopify/types';
+import { getOptimizedImageUrl, getImageSizes } from '@/lib/shopify/image';
 
 function formatPrice(amount: string, currencyCode: string = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
@@ -15,19 +16,27 @@ export function ProductCard({ product }: { product: Product }) {
   const compareAtPrice = variants.edges[0]?.node.compareAtPrice;
   const hasDiscount = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount);
 
+  // Get optimized image URL for card display (600px for crisp quality on retina)
+  const optimizedImageUrl = featuredImage?.url 
+    ? getOptimizedImageUrl(featuredImage.url, { width: 600, height: 600, crop: 'center' })
+    : null;
+
   return (
     <Link
       href={`/products/${handle}`}
       className="group relative flex flex-col overflow-hidden rounded-xl bg-card transition-all hover:shadow-lg"
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
-        {featuredImage ? (
+        {optimizedImageUrl ? (
           <Image
-            src={featuredImage.url}
-            alt={featuredImage.altText || title}
+            src={optimizedImageUrl}
+            alt={featuredImage?.altText || title}
             fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            sizes={getImageSizes('grid')}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
+            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground">
@@ -42,13 +51,13 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
         {hasDiscount && availableForSale && (
-          <div className="absolute left-2 top-2 rounded-full bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground">
+          <div className="absolute left-2 top-2 rounded-full bg-[#D4AF37] px-2 py-1 text-xs font-semibold text-white">
             Sale
           </div>
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-primary">
+        <h3 className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-[#D4AF37] transition-colors">
           {title}
         </h3>
         <div className="mt-2 flex items-center gap-2">

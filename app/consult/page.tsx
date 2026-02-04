@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
+import { Footer } from '@/components/layout/footer';
 import { Sparkles, Droplets, Wind, ArrowRight, Shield, Clock, Star } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -183,6 +184,8 @@ export default function ConsultPage() {
           </div>
         </section>
       </main>
+      
+      <Footer />
     </div>
   );
 }

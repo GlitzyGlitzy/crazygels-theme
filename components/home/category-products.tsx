@@ -3,6 +3,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Heart, ShoppingBag, ArrowRight } from "lucide-react"
 import { getCollections, getAllCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getOptimizedImageUrl } from "@/lib/shopify/image"
 import { Product, Collection } from "@/lib/shopify/types"
 
 function formatPrice(amount: string, currencyCode: string = "USD"): string {
@@ -20,6 +21,11 @@ function ProductCard({ product }: { product: Product }) {
   const tags = product.tags || []
   const isNew = tags.includes("new") || tags.includes("New")
   const isBestseller = tags.includes("bestseller") || tags.includes("Bestseller")
+  
+  // Get optimized image URL for card display (560px for crisp quality on retina)
+  const optimizedImageUrl = product.featuredImage?.url 
+    ? getOptimizedImageUrl(product.featuredImage.url, { width: 560, height: 560, crop: 'center' })
+    : null
 
   return (
     <Link
@@ -27,13 +33,16 @@ function ProductCard({ product }: { product: Product }) {
       className="group flex-shrink-0 w-[220px] md:w-[280px]"
     >
       <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FAF7F2] border border-[#D4AF37]/10 mb-3 shadow-sm">
-        {product.featuredImage ? (
+        {optimizedImageUrl ? (
           <Image
-            src={product.featuredImage.url}
-            alt={product.featuredImage.altText || product.title}
+            src={optimizedImageUrl}
+            alt={product.featuredImage?.altText || product.title}
             fill
             sizes="280px"
             className="object-cover group-hover:scale-105 transition-transform duration-500"
+            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
           />
         ) : (
           <div className="flex h-full items-center justify-center text-[#C9A9A6]">

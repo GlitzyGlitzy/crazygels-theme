@@ -3,7 +3,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { getOptimizedImageUrl } from '@/lib/shopify/image';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
+import { Footer } from '@/components/layout/footer';
 import { ChevronLeft, Sparkles } from 'lucide-react';
 import { Collection } from '@/lib/shopify/types';
 
@@ -76,6 +78,8 @@ export default async function CollectionsPage() {
         </Suspense>
       </section>
       </main>
+      
+      <Footer />
     </div>
   );
 }
@@ -121,23 +125,33 @@ async function CollectionsGrid() {
 
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {collections.map((collection) => (
-        <Link
-          key={collection.handle}
-          href={`/collections/${collection.handle}`}
-          className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#FFFEF9] transition-all hover:border-[#D4AF37]/50 hover:shadow-xl hover:shadow-[#D4AF37]/10"
-        >
-          {collection.image ? (
-            <>
-              <Image
-                src={collection.image.url}
-                alt={collection.image.altText || collection.title}
-                fill
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/60 to-transparent" />
-            </>
-          ) : (
+      {collections.map((collection) => {
+        // Get optimized image URL for collection cards (800px for crisp quality)
+        const optimizedImageUrl = collection.image?.url 
+          ? getOptimizedImageUrl(collection.image.url, { width: 800, height: 600, crop: 'center' })
+          : null;
+          
+        return (
+          <Link
+            key={collection.handle}
+            href={`/collections/${collection.handle}`}
+            className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#D4AF37]/20 bg-[#FFFEF9] transition-all hover:border-[#D4AF37]/50 hover:shadow-xl hover:shadow-[#D4AF37]/10"
+          >
+            {optimizedImageUrl ? (
+              <>
+                <Image
+                  src={optimizedImageUrl}
+                  alt={collection.image?.altText || collection.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/60 to-transparent" />
+              </>
+            ) : (
             <>
               <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-[#C9A9A6]/10" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/50 to-transparent" />
@@ -156,7 +170,8 @@ async function CollectionsGrid() {
             </span>
           </div>
         </Link>
-      ))}
+        );
+      })}
     </div>
   );
 }

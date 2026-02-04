@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Star, Sparkles, Heart, Shield, Truck, RefreshCw, Instagram, ArrowRight, Play, ShoppingBag } from "lucide-react"
 import { getProducts, getCollections, isShopifyConfigured } from "@/lib/shopify"
 import { Product, Collection } from "@/lib/shopify/types"
+import { getOptimizedImageUrl, getImageSizes } from "@/lib/shopify/image"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { ProductGridSkeleton } from "@/components/products/product-grid"
 import { CategoryProducts, CategorySectionSkeleton } from "@/components/home/category-products"
@@ -40,14 +41,12 @@ async function FeaturedProducts() {
   }
 
   let products: Product[] = []
-  let debugError: string | null = null
   
   try {
     products = await getProducts({ first: 8 })
-    console.log("[v0] FeaturedProducts: Got", products.length, "products")
+    console.log("[v0] FeaturedProducts: Successfully fetched", products.length, "products from Shopify")
   } catch (error: any) {
-    debugError = error?.message || error?.extensions?.code || JSON.stringify(error)
-    console.log("[v0] FeaturedProducts: Error fetching -", debugError)
+    console.log("[v0] FeaturedProducts: Error fetching products -", error?.message || error)
   }
 
   if (products.length === 0) {
@@ -68,6 +67,11 @@ async function FeaturedProducts() {
         const tags = product.tags || []
         const isNew = tags.includes("new") || tags.includes("New")
         const isBestseller = tags.includes("bestseller") || tags.includes("Bestseller")
+        
+        // Get optimized image URL for product cards (600px for crisp quality)
+        const optimizedImageUrl = product.featuredImage?.url 
+          ? getOptimizedImageUrl(product.featuredImage.url, { width: 600, height: 600, crop: 'center' })
+          : null
 
         return (
           <Link
@@ -76,13 +80,16 @@ async function FeaturedProducts() {
             className="group"
           >
             <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FFFEF9] border border-[#D4AF37]/10 mb-4 shadow-sm">
-              {product.featuredImage ? (
+              {optimizedImageUrl ? (
                 <Image
-                  src={product.featuredImage.url}
-                  alt={product.featuredImage.altText || product.title}
+                  src={optimizedImageUrl}
+                  alt={product.featuredImage?.altText || product.title}
                   fill
-                  sizes="(min-width: 1024px) 25vw, 50vw"
+                  sizes={getImageSizes('grid')}
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  quality={85}
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-[#C9A9A6]">
