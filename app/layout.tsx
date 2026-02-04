@@ -92,6 +92,38 @@ export const viewport = {
   maximumScale: 5,
 }
 
+// JSON-LD structured data for SEO
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Crazy Gels',
+  url: 'https://crazygels.com',
+  logo: 'https://crazygels.com/logo.png',
+  description: 'Premium semi-cured gel nails, hair extensions & skincare products',
+  sameAs: [
+    'https://www.instagram.com/crazygels',
+    'https://www.facebook.com/crazygels',
+    'https://www.tiktok.com/@crazygels',
+  ],
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'info@crazygels.com',
+    contactType: 'customer service',
+  },
+};
+
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Crazy Gels',
+  url: 'https://crazygels.com',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: 'https://crazygels.com/search?q={search_term_string}',
+    'query-input': 'required name=search_term_string',
+  },
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -99,6 +131,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+      </head>
       <body className={`font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Analytics />
