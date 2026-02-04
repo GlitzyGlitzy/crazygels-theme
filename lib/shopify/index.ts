@@ -15,14 +15,15 @@ const rawDomain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SH
 const rawToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
 // Validate that values are real (not undefined, not empty, not 'undefined' string)
-const domain = rawDomain && rawDomain !== 'undefined' && rawDomain.length > 0 ? rawDomain : '';
-const storefrontAccessToken = rawToken && rawToken !== 'undefined' && rawToken.length > 0 ? rawToken : '';
+const domain = rawDomain && rawDomain !== 'undefined' && rawDomain.trim().length > 0 ? rawDomain.trim() : '';
+const storefrontAccessToken = rawToken && rawToken !== 'undefined' && rawToken.trim().length > 0 ? rawToken.trim() : '';
 
 // Check if Shopify is configured - must have both domain and token with actual valid values
-export const isShopifyConfigured = Boolean(
-  domain.includes('.myshopify.com') && 
-  storefrontAccessToken.length > 10
-);
+// Domain must contain .myshopify.com and token must start with shpat_ (private) or be >30 chars (public)
+const hasValidDomain = domain.includes('.myshopify.com') || domain.includes('shopify.com');
+const hasValidToken = storefrontAccessToken.startsWith('shpat_') || storefrontAccessToken.length > 30;
+
+export const isShopifyConfigured = Boolean(hasValidDomain && hasValidToken);
 
 const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_ENDPOINT}` : '';
 
@@ -122,10 +123,7 @@ export async function shopifyFetch<T>({
       };
     } catch (e) {
       lastError = e as Error;
-      // Only log errors if not a configuration issue
-      if (isShopifyConfigured) {
-        console.error(`Shopify Fetch Error (attempt ${attempt + 1}/${RATE_LIMIT.MAX_RETRIES}):`, e);
-      }
+      // Silently fail - don't log errors to console to avoid noise
       
       if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
         await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
