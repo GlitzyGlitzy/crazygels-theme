@@ -132,9 +132,9 @@ export default async function ProductPage({
             <ChevronLeft className="h-4 w-4" />
             Back to Shop
           </Link>
-          <Link href="/" className="text-xl font-bold tracking-tight">
-            <span className="text-[#ff00b0]">Crazy</span>
-            <span className="text-foreground">Gels</span>
+          <Link href="/" className="text-xl font-light tracking-[0.15em]">
+            <span className="text-[#2C2C2C]">CRAZY </span>
+            <span className="font-medium text-[#D4AF37]">GELS</span>
           </Link>
           <div className="w-24" />
         </div>
@@ -188,29 +188,29 @@ export default async function ProductPage({
         {/* Trust Badges */}
         <div className="mt-12 grid grid-cols-2 gap-4 border-y border-border py-8 md:grid-cols-4">
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#ff00b0]/10 p-3">
-              <Truck className="h-6 w-6 text-[#ff00b0]" />
+            <div className="rounded-full bg-[#D4AF37]/10 p-3">
+              <Truck className="h-6 w-6 text-[#D4AF37]" />
             </div>
             <span className="text-sm font-medium">Free Shipping</span>
             <span className="text-xs text-muted-foreground">Orders over $50</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#7c3aed]/10 p-3">
-              <Shield className="h-6 w-6 text-[#7c3aed]" />
+            <div className="rounded-full bg-[#8B7355]/10 p-3">
+              <Shield className="h-6 w-6 text-[#8B7355]" />
             </div>
             <span className="text-sm font-medium">Secure Payment</span>
             <span className="text-xs text-muted-foreground">100% Protected</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#ff00b0]/10 p-3">
-              <RotateCcw className="h-6 w-6 text-[#ff00b0]" />
+            <div className="rounded-full bg-[#D4AF37]/10 p-3">
+              <RotateCcw className="h-6 w-6 text-[#D4AF37]" />
             </div>
             <span className="text-sm font-medium">Easy Returns</span>
             <span className="text-xs text-muted-foreground">30-Day Policy</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#7c3aed]/10 p-3">
-              <Star className="h-6 w-6 text-[#7c3aed]" />
+            <div className="rounded-full bg-[#8B7355]/10 p-3">
+              <Star className="h-6 w-6 text-[#8B7355]" />
             </div>
             <span className="text-sm font-medium">Top Rated</span>
             <span className="text-xs text-muted-foreground">50K+ Reviews</span>

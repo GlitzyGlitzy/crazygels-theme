@@ -80,14 +80,14 @@ async function RelatedArticles({ currentArticleId }: { currentArticleId: string 
     if (related.length === 0) return null;
 
     return (
-      <section className="mt-16 pt-12 border-t border-white/10">
-        <h2 className="text-2xl font-bold text-white mb-8">More Articles</h2>
+      <section className="mt-16 pt-12 border-t border-[#D4AF37]/20">
+        <h2 className="text-2xl font-medium text-[#2C2C2C] mb-8">More Articles</h2>
         <div className="grid md:grid-cols-3 gap-6">
           {related.map((article) => (
             <Link
               key={article.id}
               href={`/blog/${article.blog.handle}/${article.handle}`}
-              className="group bg-[#111111] border border-white/10 rounded-xl overflow-hidden hover:border-[#ff00b0]/50 transition-all"
+              className="group bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl overflow-hidden hover:border-[#D4AF37]/50 transition-all"
             >
               <div className="relative aspect-[16/10]">
                 {article.image ? (
@@ -98,16 +98,16 @@ async function RelatedArticles({ currentArticleId }: { currentArticleId: string 
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/20 to-[#7c3aed]/20 flex items-center justify-center">
-                    <BookOpen className="w-8 h-8 text-white/30" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-[#C9A9A6]/10 flex items-center justify-center">
+                    <BookOpen className="w-8 h-8 text-[#D4AF37]/30" />
                   </div>
                 )}
               </div>
               <div className="p-4">
-                <h3 className="font-semibold text-white line-clamp-2 group-hover:text-[#ff00b0] transition-colors">
+                <h3 className="font-medium text-[#2C2C2C] line-clamp-2 group-hover:text-[#D4AF37] transition-colors">
                   {article.title}
                 </h3>
-                <p className="text-white/50 text-sm mt-1">
+                <p className="text-[#2C2C2C]/50 text-sm mt-1">
                   {formatDate(article.publishedAt)}
                 </p>
               </div>
@@ -155,7 +155,7 @@ async function ArticleContent({ blogHandle, articleHandle }: { blogHandle: strin
             {article.tags.slice(0, 5).map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1 bg-[#ff00b0]/10 text-[#ff00b0] text-xs font-semibold rounded-full"
+                className="px-3 py-1.5 bg-[#D4AF37]/10 text-[#B8860B] text-xs font-medium tracking-wide rounded-full"
               >
                 {tag}
               </span>
@@ -163,15 +163,15 @@ async function ArticleContent({ blogHandle, articleHandle }: { blogHandle: strin
           </div>
         )}
 
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 text-balance">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight text-[#2C2C2C] mb-4 text-balance">
           {article.title}
         </h1>
 
         {/* Meta */}
-        <div className="flex flex-wrap items-center gap-4 text-white/60">
+        <div className="flex flex-wrap items-center gap-4 text-[#2C2C2C]/60">
           <span className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#ff00b0]/20 flex items-center justify-center">
-              <User className="w-4 h-4 text-[#ff00b0]" />
+            <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
+              <User className="w-4 h-4 text-[#D4AF37]" />
             </div>
             {article.author.name}
           </span>
@@ -188,24 +188,24 @@ async function ArticleContent({ blogHandle, articleHandle }: { blogHandle: strin
 
       {/* Article Content */}
       <div 
-        className="prose prose-invert prose-lg max-w-none
-          prose-headings:font-bold prose-headings:text-white
-          prose-p:text-white/80 prose-p:leading-relaxed
-          prose-a:text-[#ff00b0] prose-a:no-underline hover:prose-a:underline
-          prose-strong:text-white prose-strong:font-semibold
-          prose-ul:text-white/80 prose-ol:text-white/80
-          prose-li:marker:text-[#ff00b0]
-          prose-blockquote:border-l-[#ff00b0] prose-blockquote:text-white/70
+        className="prose prose-lg max-w-none
+          prose-headings:font-medium prose-headings:text-[#2C2C2C]
+          prose-p:text-[#2C2C2C]/80 prose-p:leading-relaxed
+          prose-a:text-[#D4AF37] prose-a:no-underline hover:prose-a:underline
+          prose-strong:text-[#2C2C2C] prose-strong:font-semibold
+          prose-ul:text-[#2C2C2C]/80 prose-ol:text-[#2C2C2C]/80
+          prose-li:marker:text-[#D4AF37]
+          prose-blockquote:border-l-[#D4AF37] prose-blockquote:text-[#2C2C2C]/70
           prose-img:rounded-xl"
         dangerouslySetInnerHTML={{ __html: article.contentHtml }}
       />
 
       {/* Share */}
-      <div className="mt-12 pt-8 border-t border-white/10">
+      <div className="mt-12 pt-8 border-t border-[#D4AF37]/20">
         <div className="flex items-center justify-between">
           <Link
             href="/blog"
-            className="flex items-center gap-2 text-white/60 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#D4AF37] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Blog
@@ -226,7 +226,7 @@ export default async function ArticlePage({ params }: Props) {
   const { blogHandle, articleHandle } = await params;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#FAF7F2]">
       <DynamicHeader />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
