@@ -8,7 +8,8 @@ export const HIDDEN_PRODUCT_TAG = 'nextjs-frontend-hidden';
 export const TAGS = {
   collections: 'collections',
   products: 'products',
-  cart: 'cart'
+  cart: 'cart',
+  blog: 'blog'
 };
 
 export const COLLECTION_SORT_KEYS = {

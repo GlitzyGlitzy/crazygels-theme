@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { ChevronLeft, Sparkles } from 'lucide-react';
 import { Collection } from '@/lib/shopify/types';
 
@@ -35,8 +36,10 @@ const DEFAULT_COLLECTIONS = [
 
 export default async function CollectionsPage() {
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
-      {/* Header */}
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <DynamicHeader />
+      <main>
+      {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#ff00b0]/10 via-[#0a0a0a] to-[#7c3aed]/10" />
         <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-[#ff00b0]/20 blur-3xl" />
@@ -72,7 +75,8 @@ export default async function CollectionsPage() {
           <CollectionsGrid />
         </Suspense>
       </section>
-    </main>
+      </main>
+    </div>
   );
 }
 

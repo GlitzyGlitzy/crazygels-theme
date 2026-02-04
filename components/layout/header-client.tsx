@@ -4,53 +4,18 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu, X, ShoppingBag, Search, User, ChevronDown } from "lucide-react"
 
-const menuItems = [
-  {
-    label: "Nails",
-    href: "/collections/nails",
-    submenu: [
-      { label: "All Nail Sets", href: "/collections/nails" },
-      { label: "French Tips", href: "/collections/french-tips" },
-      { label: "Solid Colors", href: "/collections/solid-colors" },
-      { label: "Glitter & Sparkle", href: "/collections/glitter" },
-      { label: "Nail Art", href: "/collections/nail-art" },
-      { label: "New Arrivals", href: "/collections/new-nails" }
-    ]
-  },
-  {
-    label: "Hair",
-    href: "/collections/hair",
-    submenu: [
-      { label: "All Hair Products", href: "/collections/hair" },
-      { label: "Hair Extensions", href: "/collections/hair-extensions" },
-      { label: "Hair Care", href: "/collections/hair-care" },
-      { label: "Styling Tools", href: "/collections/styling-tools" }
-    ]
-  },
-  {
-    label: "Skin",
-    href: "/collections/skin",
-    submenu: [
-      { label: "All Skin Products", href: "/collections/skin" },
-      { label: "Face Care", href: "/collections/face-care" },
-      { label: "Body Care", href: "/collections/body-care" },
-      { label: "Lip Care", href: "/collections/lip-care" }
-    ]
-  },
-  { label: "Bundles", href: "/collections/bundles" },
-  { label: "Blog", href: "/blog" },
-  { 
-    label: "Consult", 
-    href: "/consult",
-    submenu: [
-      { label: "Skin Test", href: "/consult/skin" },
-      { label: "Hair Test", href: "/consult/hair" }
-    ]
-  },
-  { label: "Sale", href: "/collections/sale" }
-]
+export interface MenuItem {
+  label: string
+  href: string
+  color?: string
+  submenu?: { label: string; href: string }[]
+}
 
-export function Header() {
+interface HeaderClientProps {
+  menuItems: MenuItem[]
+}
+
+export function HeaderClient({ menuItems }: HeaderClientProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
 
@@ -86,9 +51,20 @@ export function Header() {
               >
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-1 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-colors ${
-                    item.label === "Sale" ? "text-[#feca57]" : "text-white/90 hover:text-[#ff00b0]"
-                  }`}
+                  className="flex items-center gap-1 px-4 py-2 text-sm font-bold uppercase tracking-wider transition-colors"
+                  style={{ 
+                    color: item.color || (item.label === "Sale" ? "#feca57" : "rgba(255,255,255,0.9)")
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!item.color && item.label !== "Sale") {
+                      e.currentTarget.style.color = "#ff00b0"
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!item.color && item.label !== "Sale") {
+                      e.currentTarget.style.color = "rgba(255,255,255,0.9)"
+                    }
+                  }}
                 >
                   {item.label}
                   {item.submenu && <ChevronDown className="w-3 h-3" aria-hidden="true" />}
@@ -137,9 +113,10 @@ export function Header() {
               <div key={item.label}>
                 <Link
                   href={item.href}
-                  className={`block py-3 text-lg font-bold ${
-                    item.label === "Sale" ? "text-[#feca57]" : "text-white"
-                  }`}
+                  className="block py-3 text-lg font-bold"
+                  style={{ 
+                    color: item.color || (item.label === "Sale" ? "#feca57" : "white")
+                  }}
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.label}

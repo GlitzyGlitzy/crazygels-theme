@@ -8,6 +8,10 @@ import {
   ShopifyCart,
   ShopifyCollection,
   ShopifyProduct,
+  Blog,
+  BlogArticle,
+  ShopifyBlog,
+  ShopifyBlogArticle,
 } from './types';
 
 // Get env vars - check they exist and aren't 'undefined' string
@@ -324,8 +328,8 @@ const getProductQuery = /* GraphQL */ `
 `;
 
 const getProductsQuery = /* GraphQL */ `
-  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int) {
-    products(sortKey: $sortKey, reverse: $reverse, query: $query, first: $first) {
+  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int, $after: String) {
+    products(sortKey: $sortKey, reverse: $reverse, query: $query, first: $first, after: $after) {
       edges {
         node {
           ...product
@@ -371,9 +375,9 @@ const getCollectionsQuery = /* GraphQL */ `
 `;
 
 const getCollectionProductsQuery = /* GraphQL */ `
-  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int) {
+  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int, $after: String) {
     collection(handle: $handle) {
-      products(sortKey: $sortKey, reverse: $reverse, first: $first) {
+      products(sortKey: $sortKey, reverse: $reverse, first: $first, after: $after) {
         edges {
           node {
             ...product
@@ -430,6 +434,49 @@ export async function getProducts({
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
 }
 
+// Fetch ALL products using cursor-based pagination
+export async function getAllProducts({
+  query,
+  reverse,
+  sortKey,
+}: {
+  query?: string;
+  reverse?: boolean;
+  sortKey?: string;
+} = {}): Promise<Product[]> {
+  const allProducts: ShopifyProduct[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  const pageSize = 50; // Max products per request
+
+  while (hasNextPage) {
+    const res = await shopifyFetch<{
+      data: { products: Connection<ShopifyProduct> };
+      variables: { query?: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+    }>({
+      query: getProductsQuery,
+      tags: [TAGS.products],
+      variables: { 
+        query, 
+        reverse, 
+        sortKey, 
+        first: pageSize,
+        ...(cursor && { after: cursor })
+      },
+      revalidate: CACHE_TIMES.products,
+    });
+
+    const products = res.body.data.products;
+    const pageProducts = removeEdgesAndNodes(products);
+    allProducts.push(...pageProducts);
+    
+    hasNextPage = products.pageInfo.hasNextPage;
+    cursor = products.pageInfo.endCursor;
+  }
+
+  return reshapeProducts(allProducts);
+}
+
 export async function getCollection(handle: string): Promise<Collection | undefined> {
   const res = await shopifyFetch<{ data: { collection: ShopifyCollection }; variables: { handle: string } }>({
     query: getCollectionQuery,
@@ -481,6 +528,331 @@ export async function getCollectionProducts({
   }
 
   return reshapeProducts(removeEdgesAndNodes(res.body.data.collection.products));
+}
+
+// Fetch ALL products in a collection using cursor-based pagination
+export async function getAllCollectionProducts({
+  handle,
+  reverse,
+  sortKey,
+}: {
+  handle: string;
+  reverse?: boolean;
+  sortKey?: string;
+}): Promise<Product[]> {
+  const allProducts: ShopifyProduct[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  const pageSize = 50; // Max products per request
+
+  while (hasNextPage) {
+    const res = await shopifyFetch<{
+      data: { collection: { products: Connection<ShopifyProduct> } | null };
+      variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+    }>({
+      query: getCollectionProductsQuery,
+      tags: [TAGS.collections, TAGS.products],
+      variables: { 
+        handle, 
+        reverse, 
+        sortKey, 
+        first: pageSize,
+        ...(cursor && { after: cursor })
+      },
+      revalidate: CACHE_TIMES.products,
+    });
+
+    if (!res.body.data.collection) {
+      return [];
+    }
+
+    const products = res.body.data.collection.products;
+    const pageProducts = removeEdgesAndNodes(products);
+    allProducts.push(...pageProducts);
+    
+    hasNextPage = products.pageInfo.hasNextPage;
+    cursor = products.pageInfo.endCursor;
+  }
+
+  return reshapeProducts(allProducts);
+}
+
+// Blog Operations
+const articleFragment = /* GraphQL */ `
+  fragment article on Article {
+    id
+    handle
+    title
+    content
+    contentHtml
+    excerpt
+    excerptHtml
+    publishedAt
+    author {
+      name
+      bio
+    }
+    image {
+      url
+      altText
+      width
+      height
+    }
+    tags
+    seo {
+      title
+      description
+    }
+    blog {
+      handle
+      title
+    }
+  }
+`;
+
+const getArticlesQuery = /* GraphQL */ `
+  query getArticles($first: Int, $query: String, $sortKey: ArticleSortKeys, $reverse: Boolean, $after: String) {
+    articles(first: $first, query: $query, sortKey: $sortKey, reverse: $reverse, after: $after) {
+      edges {
+        node {
+          ...article
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+  ${articleFragment}
+`;
+
+const getArticleQuery = /* GraphQL */ `
+  query getArticle($blogHandle: String!, $articleHandle: String!) {
+    blog(handle: $blogHandle) {
+      articleByHandle(handle: $articleHandle) {
+        ...article
+      }
+    }
+  }
+  ${articleFragment}
+`;
+
+const getBlogsQuery = /* GraphQL */ `
+  query getBlogs($first: Int) {
+    blogs(first: $first) {
+      edges {
+        node {
+          id
+          handle
+          title
+          seo {
+            title
+            description
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+`;
+
+const getBlogQuery = /* GraphQL */ `
+  query getBlog($handle: String!, $first: Int, $after: String) {
+    blog(handle: $handle) {
+      id
+      handle
+      title
+      seo {
+        title
+        description
+      }
+      articles(first: $first, after: $after, sortKey: PUBLISHED_AT, reverse: true) {
+        edges {
+          node {
+            ...article
+          }
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
+        }
+      }
+    }
+  }
+  ${articleFragment}
+`;
+
+function reshapeArticle(article: ShopifyBlogArticle): BlogArticle {
+  return {
+    ...article,
+    author: article.author || { name: 'Unknown' },
+  };
+}
+
+function reshapeArticles(articles: ShopifyBlogArticle[]): BlogArticle[] {
+  return articles.map(reshapeArticle);
+}
+
+// Get all articles with pagination
+export async function getArticles({
+  first = 20,
+  query,
+  sortKey = 'PUBLISHED_AT',
+  reverse = true,
+}: {
+  first?: number;
+  query?: string;
+  sortKey?: string;
+  reverse?: boolean;
+} = {}): Promise<BlogArticle[]> {
+  const res = await shopifyFetch<{
+    data: { articles: Connection<ShopifyBlogArticle> };
+    variables: { first?: number; query?: string; sortKey?: string; reverse?: boolean };
+  }>({
+    query: getArticlesQuery,
+    tags: [TAGS.collections],
+    variables: { first: Math.min(first, 50), query, sortKey, reverse },
+    revalidate: CACHE_TIMES.products,
+  });
+
+  return reshapeArticles(removeEdgesAndNodes(res.body.data.articles));
+}
+
+// Get ALL articles with cursor-based pagination
+export async function getAllArticles({
+  query,
+  sortKey = 'PUBLISHED_AT',
+  reverse = true,
+}: {
+  query?: string;
+  sortKey?: string;
+  reverse?: boolean;
+} = {}): Promise<BlogArticle[]> {
+  const allArticles: ShopifyBlogArticle[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  const pageSize = 50;
+
+  while (hasNextPage) {
+    const res = await shopifyFetch<{
+      data: { articles: Connection<ShopifyBlogArticle> };
+      variables: { first: number; query?: string; sortKey?: string; reverse?: boolean; after?: string };
+    }>({
+      query: getArticlesQuery,
+      tags: [TAGS.collections],
+      variables: { 
+        first: pageSize, 
+        query, 
+        sortKey, 
+        reverse,
+        ...(cursor && { after: cursor })
+      },
+      revalidate: CACHE_TIMES.products,
+    });
+
+    const articles = res.body.data.articles;
+    allArticles.push(...removeEdgesAndNodes(articles));
+    
+    hasNextPage = articles.pageInfo.hasNextPage;
+    cursor = articles.pageInfo.endCursor;
+  }
+
+  return reshapeArticles(allArticles);
+}
+
+// Get single article by handle
+export async function getArticle(blogHandle: string, articleHandle: string): Promise<BlogArticle | null> {
+  const res = await shopifyFetch<{
+    data: { blog: { articleByHandle: ShopifyBlogArticle | null } | null };
+    variables: { blogHandle: string; articleHandle: string };
+  }>({
+    query: getArticleQuery,
+    tags: [TAGS.collections],
+    variables: { blogHandle, articleHandle },
+    revalidate: CACHE_TIMES.products,
+  });
+
+  if (!res.body.data.blog?.articleByHandle) {
+    return null;
+  }
+
+  return reshapeArticle(res.body.data.blog.articleByHandle);
+}
+
+// Get all blogs
+export async function getBlogs(first = 10): Promise<Blog[]> {
+  const res = await shopifyFetch<{
+    data: { blogs: Connection<ShopifyBlog> };
+    variables: { first: number };
+  }>({
+    query: getBlogsQuery,
+    tags: [TAGS.collections],
+    variables: { first },
+    revalidate: CACHE_TIMES.products,
+  });
+
+  return removeEdgesAndNodes(res.body.data.blogs);
+}
+
+// Get blog with articles
+export async function getBlog(handle: string, articleCount = 20): Promise<Blog | null> {
+  const res = await shopifyFetch<{
+    data: { blog: ShopifyBlog | null };
+    variables: { handle: string; first: number };
+  }>({
+    query: getBlogQuery,
+    tags: [TAGS.collections],
+    variables: { handle, first: articleCount },
+    revalidate: CACHE_TIMES.products,
+  });
+
+  return res.body.data.blog;
+}
+
+// Get ALL articles from a specific blog with pagination
+export async function getAllBlogArticles(handle: string): Promise<BlogArticle[]> {
+  const allArticles: ShopifyBlogArticle[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
+  const pageSize = 50;
+
+  while (hasNextPage) {
+    const res = await shopifyFetch<{
+      data: { blog: { articles: Connection<ShopifyBlogArticle> } | null };
+      variables: { handle: string; first: number; after?: string };
+    }>({
+      query: getBlogQuery,
+      tags: [TAGS.collections],
+      variables: { 
+        handle, 
+        first: pageSize,
+        ...(cursor && { after: cursor })
+      },
+      revalidate: CACHE_TIMES.products,
+    });
+
+    if (!res.body.data.blog) {
+      return [];
+    }
+
+    const articles = res.body.data.blog.articles;
+    allArticles.push(...removeEdgesAndNodes(articles));
+    
+    hasNextPage = articles.pageInfo.hasNextPage;
+    cursor = articles.pageInfo.endCursor;
+  }
+
+  return reshapeArticles(allArticles);
 }
 
 // Cart Operations

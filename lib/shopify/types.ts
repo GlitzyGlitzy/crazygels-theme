@@ -245,3 +245,76 @@ export type ShopifyCollectionProductsOperation = {
     reverse?: boolean;
   };
 };
+
+// Blog Types
+export type BlogArticle = {
+  id: string;
+  handle: string;
+  title: string;
+  content: string;
+  contentHtml: string;
+  excerpt: string;
+  excerptHtml: string;
+  publishedAt: string;
+  author: {
+    name: string;
+    bio?: string;
+  };
+  image?: Image;
+  tags: string[];
+  seo: SEO;
+  blog: {
+    handle: string;
+    title: string;
+  };
+};
+
+export type Blog = {
+  id: string;
+  handle: string;
+  title: string;
+  seo: SEO;
+  articles: Connection<BlogArticle>;
+};
+
+export type ShopifyBlog = Blog;
+export type ShopifyBlogArticle = BlogArticle;
+
+export type ShopifyBlogOperation = {
+  data: {
+    blog: ShopifyBlog | null;
+  };
+  variables: {
+    handle: string;
+  };
+};
+
+export type ShopifyBlogsOperation = {
+  data: {
+    blogs: Connection<ShopifyBlog>;
+  };
+};
+
+export type ShopifyArticleOperation = {
+  data: {
+    blog: {
+      articleByHandle: ShopifyBlogArticle | null;
+    } | null;
+  };
+  variables: {
+    blogHandle: string;
+    articleHandle: string;
+  };
+};
+
+export type ShopifyArticlesOperation = {
+  data: {
+    articles: Connection<ShopifyBlogArticle>;
+  };
+  variables: {
+    first?: number;
+    query?: string;
+    sortKey?: string;
+    reverse?: boolean;
+  };
+};

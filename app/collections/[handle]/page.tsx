@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getCollection, getCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { getCollection, getCollectionProducts, getAllCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { ChevronLeft, Grid3X3, LayoutGrid, SlidersHorizontal } from 'lucide-react';
 import { CollectionSorting } from '@/components/collections/collection-sorting';
@@ -76,7 +77,9 @@ export default async function CollectionPage({
   const reverse = order === 'desc';
 
   return (
-    <main className="min-h-screen bg-[#0a0a0a]">
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <DynamicHeader />
+      <main>
       {/* Collection Header */}
       <section className="relative overflow-hidden">
         {/* Background */}
@@ -140,7 +143,8 @@ export default async function CollectionPage({
       <Suspense fallback={null}>
         <RelatedCollections currentHandle={handle} />
       </Suspense>
-    </main>
+      </main>
+    </div>
   );
 }
 
@@ -153,7 +157,7 @@ async function ProductCount({
   sortKey: string;
   reverse: boolean;
 }) {
-  const products = await getCollectionProducts({ handle, sortKey, reverse, first: 50 });
+  const products = await getAllCollectionProducts({ handle, sortKey, reverse });
   return (
     <p className="text-white/60">
       <span className="font-semibold text-white">{products.length}</span> products
@@ -170,7 +174,7 @@ async function CollectionProducts({
   sortKey: string;
   reverse: boolean;
 }) {
-  const products = await getCollectionProducts({ handle, sortKey, reverse, first: 50 });
+  const products = await getAllCollectionProducts({ handle, sortKey, reverse });
 
   if (products.length === 0) {
     return (

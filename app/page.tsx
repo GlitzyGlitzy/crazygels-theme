@@ -4,8 +4,9 @@ import Link from "next/link"
 import { Star, Sparkles, Heart, Shield, Truck, RefreshCw, Instagram, ArrowRight, Play, ShoppingBag } from "lucide-react"
 import { getProducts, getCollections, isShopifyConfigured } from "@/lib/shopify"
 import { Product, Collection } from "@/lib/shopify/types"
-import { Header } from "@/components/layout/header"
+import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { ProductGridSkeleton } from "@/components/products/product-grid"
+import { CategoryProducts, CategorySectionSkeleton } from "@/components/home/category-products"
 
 function formatPrice(amount: string, currencyCode: string = "USD"): string {
   return new Intl.NumberFormat("en-US", {
@@ -279,7 +280,7 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <Header />
+      <DynamicHeader />
 
       <main>
         {/* Hero Section */}
@@ -409,6 +410,25 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+        </section>
+
+        {/* Shop by Category - All Products Grouped by Category */}
+        <section className="bg-[#050505]" id="shop-by-category">
+          <div className="max-w-7xl mx-auto px-4 md:px-6 py-16 md:py-24">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-black text-white mb-4">SHOP BY CATEGORY</h2>
+              <p className="text-white/70">Browse all our products organized by collection</p>
+            </div>
+          </div>
+          <Suspense fallback={
+            <div>
+              <CategorySectionSkeleton />
+              <CategorySectionSkeleton />
+              <CategorySectionSkeleton />
+            </div>
+          }>
+            <CategoryProducts />
+          </Suspense>
         </section>
 
         {/* Testimonials */}
