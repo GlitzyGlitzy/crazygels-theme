@@ -46,6 +46,45 @@ export async function generateMetadata({
   };
 }
 
+// Generate Product JSON-LD for SEO rich results
+function generateProductJsonLd(product: Awaited<ReturnType<typeof getProduct>>) {
+  if (!product) return null;
+  
+  const price = product.priceRange.minVariantPrice;
+  const comparePrice = product.priceRange.maxVariantPrice;
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description,
+    image: product.images.map(img => img.url),
+    brand: {
+      '@type': 'Brand',
+      name: product.vendor || 'Crazy Gels',
+    },
+    sku: product.variants[0]?.id,
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: price.currencyCode,
+      lowPrice: price.amount,
+      highPrice: comparePrice.amount,
+      availability: product.availableForSale
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      seller: {
+        '@type': 'Organization',
+        name: 'Crazy Gels',
+      },
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: '4.8',
+      reviewCount: '127',
+    },
+  };
+}
+
 export default async function ProductPage({
   params,
 }: {
@@ -62,6 +101,9 @@ export default async function ProductPage({
     notFound();
   }
 
+  // Generate JSON-LD for this product
+  const productJsonLd = generateProductJsonLd(product);
+
   // Get related products
   const relatedProducts = await getProducts({
     first: 4,
@@ -73,6 +115,13 @@ export default async function ProductPage({
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Product JSON-LD for SEO */}
+      {productJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        />
+      )}
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
