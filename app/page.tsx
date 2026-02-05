@@ -161,6 +161,7 @@ async function ShopifyCollections() {
       description: "Salon-quality gel nails you can apply at home in minutes. 20+ designs, 14-day wear.",
       href: "/collections/nails",
       color: "#D4AF37",
+      image: "/images/collection-nails.jpg",
       features: ["14-Day Wear", "UV Cured", "Easy Apply"]
     },
     {
@@ -169,6 +170,7 @@ async function ShopifyCollections() {
       description: "Clip-in, tape-in, and ponytail extensions in 30+ shades. 100% Remy human hair.",
       href: "/collections/hair",
       color: "#8B7355",
+      image: "/images/collection-hair.jpg",
       features: ["100% Remy", "30+ Shades", "Heat Safe"]
     },
     {
@@ -177,6 +179,7 @@ async function ShopifyCollections() {
       description: "Clean, effective skincare for your best glow. Serums, masks, and more.",
       href: "/collections/skin",
       color: "#C9A9A6",
+      image: "/images/collection-skin.jpg",
       features: ["Cruelty Free", "Vegan", "Clean Beauty"]
     }
   ]
@@ -187,7 +190,7 @@ async function ShopifyCollections() {
         title: col.title.toUpperCase(),
         subtitle: col.description?.slice(0, 50) || defaultCategories[i]?.subtitle || "",
         description: col.description || defaultCategories[i]?.description || "",
-        image: col.image?.url,
+        image: col.image?.url || defaultCategories[i]?.image,
         href: `/collections/${col.handle}`,
         color: defaultCategories[i]?.color || "#D4AF37",
         features: defaultCategories[i]?.features || []
@@ -203,18 +206,14 @@ async function ShopifyCollections() {
           className="group relative overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#D4AF37]/10 hover:border-[#D4AF37]/30 transition-all duration-300 shadow-sm"
         >
           <div className="aspect-[4/5] relative overflow-hidden">
-            {category.image ? (
-              <Image
-                src={category.image}
-                alt={category.title}
-                fill
-                sizes="(min-width: 768px) 33vw, 100vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            ) : (
-              <div className="absolute inset-0 bg-gradient-to-br from-[#E8C4C4]/30 via-[#D4AF37]/20 to-[#FAF7F2]" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/80 via-transparent to-transparent" />
+            <Image
+              src={category.image || "/images/collection-nails.jpg"}
+              alt={category.title}
+              fill
+              sizes="(min-width: 768px) 33vw, 100vw"
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/80 via-[#2C2C2C]/20 to-transparent" />
           </div>
           <div className="absolute bottom-0 left-0 right-0 p-6">
             <p className="text-sm text-white/70 mb-1 tracking-wide">{category.subtitle}</p>
@@ -351,11 +350,15 @@ export default function HomePage() {
               <div className="relative">
                 <div className="relative aspect-square max-w-lg mx-auto">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#E8C4C4]/30 to-[#D4AF37]/20 rounded-3xl blur-2xl" />
-                  <div className="relative z-10 aspect-square rounded-3xl bg-gradient-to-br from-[#FFFEF9] to-[#FAF7F2] border border-[#D4AF37]/20 flex items-center justify-center shadow-lg">
-                    <div className="text-center p-8">
-                      <Sparkles className="w-16 h-16 text-[#D4AF37] mx-auto mb-4" />
-                      <p className="text-[#2C2C2C]/50 text-sm">Featured collection coming soon</p>
-                    </div>
+                  <div className="relative z-10 aspect-square rounded-3xl overflow-hidden border border-[#D4AF37]/20 shadow-lg">
+                    <Image
+                      src="/images/hero-nails.jpg"
+                      alt="Elegant hands with beautiful gel nails"
+                      fill
+                      className="object-cover"
+                      priority
+                      sizes="(max-width: 768px) 100vw, 512px"
+                    />
                   </div>
                   <div className="absolute -bottom-4 -left-4 z-20 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl p-4 shadow-xl">
                     <div className="flex items-center gap-3">
@@ -367,6 +370,17 @@ export default function HomePage() {
                         <p className="text-[#2C2C2C]/50 text-sm">Guaranteed</p>
                       </div>
                     </div>
+                  </div>
+                  <div className="absolute -top-4 -right-4 z-20 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl p-4 shadow-xl">
+                    <div className="flex items-center gap-2">
+                      <div className="flex -space-x-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37]" aria-hidden="true" />
+                        ))}
+                      </div>
+                      <span className="text-sm font-medium text-[#2C2C2C]">2,500+</span>
+                    </div>
+                    <p className="text-[#2C2C2C]/50 text-xs mt-1">Happy Customers</p>
                   </div>
                 </div>
               </div>
