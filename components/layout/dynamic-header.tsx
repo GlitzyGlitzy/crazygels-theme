@@ -138,10 +138,6 @@ export async function DynamicHeader() {
     try {
       const collections = await getCollections()
       
-      console.log("[v0] DynamicHeader: All collection handles from Shopify:", 
-        collections.map(c => c.handle).join(", ")
-      )
-      
       // Filter and organize collections into categories
       const mainCategories = ['nails', 'nail', 'hair', 'skin', 'skincare', 'treatments']
       const categoryCollections: Record<string, MenuItem> = {}
@@ -299,16 +295,11 @@ export async function DynamicHeader() {
 
       }
 
-      console.log("[v0] DynamicHeader: Final menu hrefs:", 
-        dynamicMenuItems.map(item => item.href).join(", ")
-      )
-      
       if (dynamicMenuItems.length > 0) {
         menuItems = dynamicMenuItems
       }
-    } catch (error: any) {
+    } catch (error) {
       // Fall back to default menu items on error
-      console.error("[v0] DynamicHeader: Error fetching collections:", error?.message || error)
     }
   }
 

@@ -210,12 +210,6 @@ export async function CategoryProducts() {
   
   try {
     const allCollections = await getCollections()
-    console.log(`[v0] CategoryProducts: Total collections from Shopify: ${allCollections.length}`)
-    
-    // Log all collections
-    allCollections.forEach(c => {
-      console.log(`[v0] CategoryProducts: Collection "${c.title}" (${c.handle})`)
-    })
     
     // Filter out system collections - no limit on categories
     collections = allCollections.filter(c => 
@@ -223,10 +217,7 @@ export async function CategoryProducts() {
       !c.handle.includes('frontpage') &&
       c.handle !== 'sale'
     )
-    
-    console.log(`[v0] CategoryProducts: Filtered to ${collections.length} display collections`)
-  } catch (error: any) {
-    console.error("[v0] CategoryProducts: Error fetching collections:", error?.message || error)
+  } catch (error) {
     return (
       <div className="text-center py-12 px-4">
         <p className="text-white/60">Unable to load categories. Please try again later.</p>
@@ -250,15 +241,13 @@ export async function CategoryProducts() {
           handle: collection.handle,
           sortKey: "BEST_SELLING"
         })
-        console.log(`[v0] CategoryProducts: Collection "${collection.title}" has ${products.length} products`)
         return { 
           collection, 
-          products: products, // All products - no limit
+          products: products,
           totalCount: products.length,
           color: getCategoryColor(collection.handle)
         }
-      } catch (error: any) {
-        console.error(`[v0] CategoryProducts: Error fetching products for ${collection.handle}:`, error?.message || error)
+      } catch (error) {
         return { collection, products: [], totalCount: 0, color: getCategoryColor(collection.handle) }
       }
     })
@@ -266,10 +255,6 @@ export async function CategoryProducts() {
 
   // Filter out collections with no products
   const validCollections = collectionsWithProducts.filter(c => c.products.length > 0)
-  
-  // Log summary
-  const totalProducts = validCollections.reduce((sum, c) => sum + c.totalCount, 0)
-  console.log(`[v0] CategoryProducts: Summary - ${validCollections.length} collections with ${totalProducts} total products`)
 
   return (
     <div className="bg-[#FFFEF9]">

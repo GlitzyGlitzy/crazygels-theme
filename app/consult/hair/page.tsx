@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, UIMessage } from 'ai';
 import Link from 'next/link';
-import { ArrowLeft, Send, Loader2, Sparkles, User, RefreshCcw, Wind } from 'lucide-react';
+import Image from 'next/image';
+import { ArrowLeft, Send, Loader2, Sparkles, User, RefreshCcw, Wind, ShoppingBag, ExternalLink } from 'lucide-react';
 
 function getUIMessageText(msg: UIMessage): string {
   if (!msg.parts || !Array.isArray(msg.parts)) return '';
@@ -12,6 +13,115 @@ function getUIMessageText(msg: UIMessage): string {
     .filter((p): p is { type: 'text'; text: string } => p.type === 'text')
     .map((p) => p.text)
     .join('');
+}
+
+interface RecommendedProduct {
+  handle: string;
+  title: string;
+  price: string;
+  compareAtPrice?: string;
+  imageUrl?: string;
+  description: string;
+  concerns: string[];
+  collection?: string;
+  reason: string;
+}
+
+interface ToolOutput {
+  success: boolean;
+  assessedType: string;
+  concerns: string[];
+  products: RecommendedProduct[];
+  routineSummary: string;
+  totalRecommended: number;
+}
+
+function ProductRecommendationCard({ product }: { product: RecommendedProduct }) {
+  return (
+    <Link
+      href={`/products/${product.handle}`}
+      className="group block bg-[#FAFAF8] border border-[#E8E4DC] rounded-2xl overflow-hidden hover:border-[#6B5B4F]/40 transition-all duration-300 hover:shadow-lg"
+    >
+      <div className="aspect-square relative bg-[#F5F3EF] overflow-hidden">
+        {product.imageUrl ? (
+          <Image
+            src={product.imageUrl}
+            alt={product.title}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+            sizes="200px"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ShoppingBag className="w-8 h-8 text-[#1A1A1A]/20" />
+          </div>
+        )}
+        {product.compareAtPrice && (
+          <div className="absolute top-2 left-2 bg-[#6B5B4F] text-white text-[10px] uppercase tracking-wider px-2 py-1 rounded-full">
+            Sale
+          </div>
+        )}
+      </div>
+      <div className="p-4">
+        <h4 className="text-sm font-medium text-[#1A1A1A] group-hover:text-[#6B5B4F] transition-colors line-clamp-2 mb-1">
+          {product.title}
+        </h4>
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-sm font-semibold text-[#1A1A1A]">{product.price}</span>
+          {product.compareAtPrice && (
+            <span className="text-xs text-[#666666] line-through">{product.compareAtPrice}</span>
+          )}
+        </div>
+        <p className="text-xs text-[#666666] leading-relaxed line-clamp-2 mb-3">
+          {product.reason}
+        </p>
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#6B5B4F] group-hover:underline">
+          View Product <ExternalLink className="w-3 h-3" />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function ProductRecommendations({ output }: { output: ToolOutput }) {
+  return (
+    <div className="bg-[#FAFAF8] border border-[#E8E4DC] rounded-2xl p-6 max-w-full">
+      <div className="flex items-center gap-2 mb-1">
+        <Sparkles className="w-4 h-4 text-[#6B5B4F]" />
+        <h3 className="text-xs uppercase tracking-widest text-[#6B5B4F] font-medium">
+          Your Personalized Recommendations
+        </h3>
+      </div>
+      
+      {output.assessedType && (
+        <p className="text-sm text-[#666666] mb-4">
+          Hair type: <span className="font-medium text-[#1A1A1A]">{output.assessedType}</span>
+          {output.concerns.length > 0 && (
+            <> &middot; Concerns: <span className="font-medium text-[#1A1A1A]">{output.concerns.join(', ')}</span></>
+          )}
+        </p>
+      )}
+      
+      {output.products && output.products.length > 0 ? (
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          {output.products.map((product) => (
+            <ProductRecommendationCard key={product.handle} product={product} />
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-[#666666] mb-4">
+          Based on your profile, we are preparing recommendations for you.
+        </p>
+      )}
+      
+      {output.routineSummary && (
+        <div className="border-t border-[#E8E4DC] pt-4 mt-2">
+          <h4 className="text-xs uppercase tracking-wider text-[#6B5B4F] font-medium mb-2">Routine Summary</h4>
+          <p className="text-sm text-[#666666] leading-relaxed">{output.routineSummary}</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function HairConsultPage() {
@@ -41,34 +151,34 @@ export default function HairConsultPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F2] flex flex-col">
+    <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#FAF7F2]/95 backdrop-blur-xl border-b border-[#D4AF37]/20">
+      <header className="sticky top-0 z-50 bg-[#FAFAF8]/95 backdrop-blur-xl border-b border-[#E8E4DC]">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link 
             href="/consult" 
-            className="flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#D4AF37] transition-colors"
+            className="flex items-center gap-2 text-[#666666] hover:text-[#6B5B4F] transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Back</span>
+            <span className="hidden sm:inline text-sm">Back</span>
           </Link>
           
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8B7355] to-[#C9A9A6] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-[#6B5B4F] flex items-center justify-center">
               <Wind className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-[#2C2C2C] font-medium">Hair Analysis</h1>
-              <p className="text-[#2C2C2C]/50 text-xs">with Glow AI</p>
+              <h1 className="text-[#1A1A1A] font-medium text-sm">Hair Analysis</h1>
+              <p className="text-[#9B9B9B] text-xs">Powered by AI</p>
             </div>
           </div>
           
           <button
             onClick={handleRestart}
-            className="flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#D4AF37] transition-colors"
+            className="flex items-center gap-2 text-[#666666] hover:text-[#6B5B4F] transition-colors"
           >
             <RefreshCcw className="w-5 h-5" />
-            <span className="hidden sm:inline">Restart</span>
+            <span className="hidden sm:inline text-sm">Restart</span>
           </button>
         </div>
       </header>
@@ -77,16 +187,16 @@ export default function HairConsultPage() {
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {messages.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#8B7355]/20 to-[#C9A9A6]/20 flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-10 h-10 text-[#8B7355]" />
+            <div className="text-center py-16">
+              <div className="w-20 h-20 rounded-full bg-[#6B5B4F]/10 flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-[#6B5B4F]" />
               </div>
-              <h2 className="text-2xl font-medium text-[#2C2C2C] mb-3">
+              <h2 className="text-2xl font-serif text-[#1A1A1A] mb-3">
                 Ready for Your Hair Analysis
               </h2>
-              <p className="text-[#2C2C2C]/60 max-w-md mx-auto mb-8">
-                Tell me about your hair! What&apos;s your biggest concern right now? 
-                I&apos;ll ask a few questions to understand your hair better.
+              <p className="text-[#666666] max-w-md mx-auto mb-8 leading-relaxed">
+                Tell me about your hair. What is your biggest concern right now? 
+                I will ask a few questions to understand your hair better, then recommend products from our collection.
               </p>
               <div className="flex flex-wrap justify-center gap-2">
                 {['Dry & damaged', 'Frizzy hair', 'Thinning hair', 'Color-treated', 'Scalp issues', 'Curly care'].map((suggestion) => (
@@ -95,7 +205,7 @@ export default function HairConsultPage() {
                     onClick={() => {
                       setInput(`My main concern is ${suggestion.toLowerCase()}`);
                     }}
-                    className="px-4 py-2 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-full text-sm text-[#2C2C2C]/80 hover:border-[#8B7355]/50 hover:text-[#2C2C2C] transition-all"
+                    className="px-4 py-2 bg-white border border-[#E8E4DC] rounded-full text-sm text-[#666666] hover:border-[#6B5B4F]/50 hover:text-[#1A1A1A] transition-all"
                   >
                     {suggestion}
                   </button>
@@ -105,48 +215,69 @@ export default function HairConsultPage() {
           ) : (
             <div className="space-y-6">
               {messages.map((message) => {
-                const text = getUIMessageText(message);
                 const isUser = message.role === 'user';
                 
                 return (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
-                  >
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                  <div key={message.id} className={`flex gap-3 ${isUser ? 'flex-row-reverse' : ''}`}>
+                    <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${
                       isUser 
-                        ? 'bg-[#D4AF37]' 
-                        : 'bg-gradient-to-br from-[#8B7355] to-[#C9A9A6]'
+                        ? 'bg-[#1A1A1A]' 
+                        : 'bg-[#6B5B4F]'
                     }`}>
                       {isUser ? (
-                        <User className="w-5 h-5 text-white" />
+                        <User className="w-4 h-4 text-white" />
                       ) : (
-                        <Sparkles className="w-5 h-5 text-white" />
+                        <Sparkles className="w-4 h-4 text-white" />
                       )}
                     </div>
-                    <div className={`max-w-[80%] ${isUser ? 'text-right' : ''}`}>
-                      <div className={`inline-block p-4 rounded-2xl ${
-                        isUser 
-                          ? 'bg-[#D4AF37] text-white' 
-                          : 'bg-[#FFFEF9] border border-[#D4AF37]/20 text-[#2C2C2C]/90'
-                      }`}>
-                        <p className="whitespace-pre-wrap">{text}</p>
-                      </div>
+                    <div className={`max-w-[85%] space-y-3 ${isUser ? 'items-end flex flex-col' : ''}`}>
+                      {message.parts.map((part, index) => {
+                        if (part.type === 'text' && part.text) {
+                          return (
+                            <div key={index} className={`inline-block p-4 rounded-2xl ${
+                              isUser 
+                                ? 'bg-[#1A1A1A] text-white' 
+                                : 'bg-white border border-[#E8E4DC] text-[#1A1A1A]/90'
+                            }`}>
+                              <p className="whitespace-pre-wrap text-sm leading-relaxed">{part.text}</p>
+                            </div>
+                          );
+                        }
+                        
+                        if (part.type === 'tool-recommendProducts' && part.state === 'output-available') {
+                          return (
+                            <ProductRecommendations key={index} output={part.output as ToolOutput} />
+                          );
+                        }
+                        
+                        if (part.type === 'tool-recommendProducts' && (part.state === 'input-available' || part.state === 'input-streaming')) {
+                          return (
+                            <div key={index} className="bg-white border border-[#E8E4DC] rounded-2xl p-4">
+                              <div className="flex items-center gap-2 text-[#6B5B4F]">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span className="text-sm">Finding the best products for you...</span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        
+                        return null;
+                      })}
                     </div>
                   </div>
                 );
               })}
               
-              {isLoading && (
+              {isLoading && !messages[messages.length - 1]?.parts?.some(p => p.type === 'tool-recommendProducts') && (
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#8B7355] to-[#C9A9A6] flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
+                  <div className="flex-shrink-0 w-9 h-9 rounded-full bg-[#6B5B4F] flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-white" />
                   </div>
-                  <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl p-4">
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 bg-[#8B7355] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 bg-[#8B7355] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 bg-[#8B7355] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="bg-white border border-[#E8E4DC] rounded-2xl p-4">
+                    <div className="flex gap-1.5">
+                      <span className="w-2 h-2 bg-[#6B5B4F] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-[#6B5B4F] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-[#6B5B4F] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
@@ -157,31 +288,31 @@ export default function HairConsultPage() {
       </main>
 
       {/* Input Area */}
-      <footer className="sticky bottom-0 bg-[#FAF7F2]/95 backdrop-blur-xl border-t border-[#D4AF37]/20">
+      <footer className="sticky bottom-0 bg-[#FAFAF8]/95 backdrop-blur-xl border-t border-[#E8E4DC]">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <form onSubmit={handleSubmit} className="flex gap-3">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-full px-5 py-3 text-[#2C2C2C] placeholder:text-[#2C2C2C]/40 focus:outline-none focus:border-[#8B7355]/50 transition-colors"
+              placeholder="Tell me about your hair..."
+              className="flex-1 bg-white border border-[#E8E4DC] rounded-full px-5 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#6B5B4F]/50 transition-colors"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="w-12 h-12 bg-gradient-to-r from-[#8B7355] to-[#C9A9A6] rounded-full flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+              className="w-11 h-11 bg-[#6B5B4F] rounded-full flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#5A4A3E] transition-colors"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Send className="w-5 h-5" />
+                <Send className="w-4 h-4" />
               )}
             </button>
           </form>
-          <p className="text-center text-[#2C2C2C]/40 text-xs mt-3">
-            Powered by AI. Recommendations are for informational purposes only.
+          <p className="text-center text-[#9B9B9B] text-[11px] mt-3">
+            AI-powered recommendations from your CrazyGels product catalog
           </p>
         </div>
       </footer>
