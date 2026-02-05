@@ -1,10 +1,16 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
-const _geist = Geist({ subsets: ["latin"] });
-const _geistMono = Geist_Mono({ subsets: ["latin"] });
+const _geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
+const _geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
+const _cormorant = Cormorant_Garamond({ 
+  subsets: ["latin"], 
+  weight: ["300", "400", "500", "600"],
+  style: ["normal", "italic"],
+  variable: "--font-serif"
+});
 
 export const metadata: Metadata = {
   title: 'Crazy Gels | Premium Semi-Cured Gel Nails, Hair & Skin Care',
@@ -141,7 +147,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
         />
       </head>
-      <body className={`font-sans antialiased`} suppressHydrationWarning>
+      <body className={`${_geist.variable} ${_geistMono.variable} ${_cormorant.variable} font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Analytics />
       </body>

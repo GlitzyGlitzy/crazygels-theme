@@ -75,8 +75,9 @@
 }
 
 @theme inline {
-  --font-sans: 'Geist', 'Geist Fallback';
-  --font-mono: 'Geist Mono', 'Geist Mono Fallback';
+  --font-sans: var(--font-sans), 'Geist', 'Geist Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-serif), 'Cormorant Garamond', 'Georgia', ui-serif, serif;
+  --font-mono: var(--font-mono), 'Geist Mono', 'Geist Mono Fallback', ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -124,21 +125,21 @@
   }
 }
 
-/* CrazyGels Luxury Elegant Theme */
-/* Target: Beauty-conscious women 30s-60s, luxury aspirational */
-/* Palette: Soft neutrals - creams, golds, muted pastels */
+/* CrazyGels Luxury Editorial Theme */
+/* Inspired by high-end fashion editorial and luxury beauty brands */
+/* Palette: Warm neutrals, sophisticated browns, crisp whites */
 
 :root {
-  /* Luxury Color Palette */
-  --luxury-cream: #FAF7F2;
-  --luxury-champagne: #D4AF37;
-  --luxury-gold: #B8860B;
-  --luxury-blush: #E8C4C4;
-  --luxury-rose: #C9A9A6;
+  /* Luxury Color Palette - Editorial Aesthetic */
+  --luxury-cream: #FAFAF8;
+  --luxury-warm: #F5F3EF;
+  --luxury-sand: #E8E4DC;
   --luxury-taupe: #8B7355;
-  --luxury-charcoal: #2C2C2C;
-  --luxury-warm-white: #FFFEF9;
-  --luxury-soft-gray: #9B9B9B;
+  --luxury-brown: #6B5B4F;
+  --luxury-charcoal: #1A1A1A;
+  --luxury-gray: #666666;
+  --luxury-light-gray: #9B9B9B;
+  --luxury-white: #FFFFFF;
 }
 
 /* Marquee Animation */
