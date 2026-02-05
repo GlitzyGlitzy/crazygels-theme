@@ -39,7 +39,9 @@ const DEFAULT_COLLECTIONS = [
 export default async function CollectionsPage() {
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
-      <DynamicHeader />
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#D4AF37]/20" />}>
+        <DynamicHeader />
+      </Suspense>
       <main>
       {/* Hero Section */}
       <section className="relative overflow-hidden">

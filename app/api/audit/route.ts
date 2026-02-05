@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getCollections, getCollectionProducts, getAllProducts, isShopifyConfigured } from '@/lib/shopify'
+import { getCollections, getCollectionProducts, getProducts, isShopifyConfigured } from '@/lib/shopify'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,7 +14,7 @@ export async function GET() {
   try {
     // Fetch all products and collections
     const [allProducts, collections] = await Promise.all([
-      getAllProducts({}),
+      getProducts({ first: 100 }),
       getCollections(),
     ])
 

@@ -55,7 +55,7 @@ async function sleep(ms: number): Promise<void> {
 }
 
 export async function shopifyFetch<T>({
-  cache = 'force-cache',
+  cache,
   headers,
   query,
   tags,
@@ -83,6 +83,13 @@ export async function shopifyFetch<T>({
       // Wait for rate limit before making request
       await waitForRateLimit();
 
+      // Use no-store by default to avoid 2MB cache limit issues.
+      // Only use next.revalidate for ISR when explicitly requested AND cache is not no-store.
+      const effectiveCache = cache || (revalidate ? undefined : 'no-store');
+      const nextOptions = revalidate && effectiveCache !== 'no-store'
+        ? { next: { tags, revalidate } }
+        : {};
+
       const result = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -94,8 +101,8 @@ export async function shopifyFetch<T>({
           ...(query && { query }),
           ...(variables && { variables }),
         }),
-        cache,
-        ...(tags && { next: { tags, revalidate } }),
+        ...(effectiveCache && { cache: effectiveCache }),
+        ...nextOptions,
       });
 
       // Handle rate limiting (429 status)

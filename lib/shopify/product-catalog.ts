@@ -1,4 +1,4 @@
-import { getProducts, getAllCollectionProducts, getCollections, isShopifyConfigured } from './index'
+import { getProducts, getCollectionProducts, getCollections, isShopifyConfigured } from './index'
 import type { Product, Collection } from './types'
 
 // Keywords for classifying products into skin vs hair
@@ -159,7 +159,7 @@ export async function buildProductCatalog(): Promise<ProductCatalog> {
       if (!collection) continue
       
       try {
-        const products = await getAllCollectionProducts({ handle })
+        const products = await getCollectionProducts({ handle, first: 50 })
         for (const product of products) {
           if (seenIds.has(product.id) || !product.availableForSale) continue
           seenIds.add(product.id)
@@ -179,7 +179,7 @@ export async function buildProductCatalog(): Promise<ProductCatalog> {
       if (!collection) continue
       
       try {
-        const products = await getAllCollectionProducts({ handle })
+        const products = await getCollectionProducts({ handle, first: 50 })
         for (const product of products) {
           if (seenIds.has(product.id) || !product.availableForSale) continue
           seenIds.add(product.id)

@@ -82,7 +82,9 @@ async function HeroImage() {
   if (!isShopifyConfigured) return null
 
   try {
+    console.log("[v0] HeroImage: fetching 3 products for hero")
     const products = await getProducts({ first: 3 })
+    console.log("[v0] HeroImage: got", products.length, "products")
     const product = products.find(p => p.featuredImage?.url)
     if (!product?.featuredImage?.url) return null
 
@@ -110,8 +112,10 @@ async function CollectionSection({
 }) {
   let products: Product[] = []
   try {
+    console.log("[v0] CollectionSection: fetching 4 products for", collection.handle)
     const fetched = await getCollectionProducts({ handle: collection.handle, first: 4 })
     products = fetched.filter(p => p.featuredImage?.url).slice(0, 4)
+    console.log("[v0] CollectionSection:", collection.handle, "got", products.length, "products with images")
   } catch {
     products = []
   }
@@ -153,7 +157,9 @@ async function CollectionSections() {
   if (!isShopifyConfigured) return null
 
   try {
+    console.log("[v0] CollectionSections: fetching collections")
     const collections = await getCollections()
+    console.log("[v0] CollectionSections: got", collections.length, "collections")
     const visible = collections.filter(c =>
       !['all', 'frontpage', 'all-products'].includes(c.handle.toLowerCase())
     ).slice(0, 5)
