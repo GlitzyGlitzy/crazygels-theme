@@ -512,7 +512,6 @@ export async function getCollections(): Promise<Collection[]> {
     cursor = collections.pageInfo.endCursor;
   }
 
-  console.log(`[v0] getCollections: Fetched ${allCollections.length} total collections from Shopify`);
   return reshapeCollections(allCollections);
 }
 

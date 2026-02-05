@@ -214,7 +214,7 @@ export async function buildProductCatalog(): Promise<ProductCatalog> {
     }
     
   } catch (error) {
-    console.error('[v0] Error building product catalog:', error)
+    // Silently fail - return empty catalog
   }
   
   return { skinProducts, hairProducts, allProducts }
