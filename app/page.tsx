@@ -43,7 +43,7 @@ async function FeaturedProducts() {
   let products: Product[] = []
   
   try {
-    products = await getProducts({ first: 8 })
+    products = await getProducts({ first: 250 }) // Fetch all products
     console.log("[v0] FeaturedProducts: Successfully fetched", products.length, "products from Shopify")
   } catch (error: any) {
     console.log("[v0] FeaturedProducts: Error fetching products -", error?.message || error)
@@ -148,7 +148,7 @@ async function ShopifyCollections() {
     try {
       collections = await getCollections()
       // Filter to show only main categories (limit to 3)
-      collections = collections.slice(0, 3)
+      // No limit on collections - show all
     } catch (error) {
       // Silently fail - use default categories
     }

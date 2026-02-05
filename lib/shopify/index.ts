@@ -356,8 +356,8 @@ const getCollectionQuery = /* GraphQL */ `
 `;
 
 const getCollectionsQuery = /* GraphQL */ `
-  query getCollections {
-    collections(first: 100, sortKey: TITLE) {
+  query getCollections($first: Int = 250, $after: String) {
+    collections(first: $first, sortKey: TITLE, after: $after) {
       edges {
         node {
           ...collection
@@ -411,15 +411,15 @@ export async function getProducts({
   query,
   reverse,
   sortKey,
-  first = 20,
+  first = 250,
 }: {
   query?: string;
   reverse?: boolean;
   sortKey?: string;
   first?: number;
 } = {}): Promise<Product[]> {
-  // Limit first to prevent large responses that hit rate limits
-  const safeFirst = Math.min(first, 50);
+  // Use Shopify's maximum allowed (250)
+  const safeFirst = Math.min(first, 250);
   
   const res = await shopifyFetch<{
     data: { products: Connection<ShopifyProduct> };
@@ -447,7 +447,7 @@ export async function getAllProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  const pageSize = 50; // Max products per request
+  const pageSize = 250; // Shopify max per request
 
   while (hasNextPage) {
     const res = await shopifyFetch<{
@@ -489,28 +489,46 @@ export async function getCollection(handle: string): Promise<Collection | undefi
 }
 
 export async function getCollections(): Promise<Collection[]> {
-  const res = await shopifyFetch<{ data: { collections: Connection<ShopifyCollection> } }>({
-    query: getCollectionsQuery,
-    tags: [TAGS.collections],
-    revalidate: CACHE_TIMES.collections,
-  });
+  let allCollections: ShopifyCollection[] = [];
+  let hasNextPage = true;
+  let cursor: string | null = null;
 
-  return reshapeCollections(removeEdgesAndNodes(res.body.data.collections));
+  // Paginate through ALL collections
+  while (hasNextPage) {
+    const res = await shopifyFetch<{ 
+      data: { collections: Connection<ShopifyCollection> };
+      variables: { first: number; after: string | null };
+    }>({
+      query: getCollectionsQuery,
+      tags: [TAGS.collections],
+      variables: { first: 250, after: cursor },
+      revalidate: CACHE_TIMES.collections,
+    });
+
+    const collections = res.body.data.collections;
+    allCollections = allCollections.concat(removeEdgesAndNodes(collections));
+    
+    hasNextPage = collections.pageInfo.hasNextPage;
+    cursor = collections.pageInfo.endCursor;
+  }
+
+  console.log(`[v0] getCollections: Fetched ${allCollections.length} total collections from Shopify`);
+  return reshapeCollections(allCollections);
 }
 
 export async function getCollectionProducts({
   handle,
   reverse,
   sortKey,
-  first = 20,
+  first = 250,
 }: {
   handle: string;
   reverse?: boolean;
   sortKey?: string;
   first?: number;
 }): Promise<Product[]> {
-  // Limit first to prevent large responses
-  const safeFirst = Math.min(first, 50);
+  // Use maximum allowed by Shopify (250)
+  const safeFirst = Math.min(first, 250);
   
   const res = await shopifyFetch<{
     data: { collection: { products: Connection<ShopifyProduct> } };
@@ -543,7 +561,7 @@ export async function getAllCollectionProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  const pageSize = 50; // Max products per request
+  const pageSize = 250; // Shopify max per request
 
   while (hasNextPage) {
     const res = await shopifyFetch<{

@@ -217,12 +217,12 @@ export async function CategoryProducts() {
       console.log(`[v0] CategoryProducts: Collection "${c.title}" (${c.handle})`)
     })
     
-    // Filter out system collections and limit to main categories
+    // Filter out system collections - no limit on categories
     collections = allCollections.filter(c => 
       !c.handle.includes('all') && 
       !c.handle.includes('frontpage') &&
       c.handle !== 'sale'
-    ).slice(0, 6) // Limit to 6 main categories
+    )
     
     console.log(`[v0] CategoryProducts: Filtered to ${collections.length} display collections`)
   } catch (error: any) {
@@ -253,7 +253,7 @@ export async function CategoryProducts() {
         console.log(`[v0] CategoryProducts: Collection "${collection.title}" has ${products.length} products`)
         return { 
           collection, 
-          products: products.slice(0, 12), // Limit to 12 products per category for display
+          products: products, // All products - no limit
           totalCount: products.length,
           color: getCategoryColor(collection.handle)
         }
