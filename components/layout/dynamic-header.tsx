@@ -1,90 +1,41 @@
-import { getCollections, getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
-import { getOptimizedImageUrl } from "@/lib/shopify/image"
-import { HeaderClient, MenuItem, FeaturedProduct } from "./header-client"
+import { getCollections, isShopifyConfigured } from "@/lib/shopify"
+import { HeaderClient, MenuItem } from "./header-client"
 
-// Map collection handles to their color accents - luxury palette
-const categoryColors: Record<string, string> = {
-  nails: "#D4AF37",
-  nail: "#D4AF37",
-  hair: "#8B7355",
-  skin: "#C9A9A6",
-  skincare: "#C9A9A6",
-  treatments: "#C9A9A6",
-  bundles: "#B8860B",
-  sale: "#B8860B",
-  new: "#D4AF37",
-  featured: "#D4AF37",
+// Map collection handles to navigation groupings
+const MAIN_CATEGORIES = ['nails', 'nail', 'hair', 'skin', 'skincare'] as const
+const CATEGORY_LABELS: Record<string, string> = {
+  nail: 'Nails',
+  nails: 'Nails',
+  hair: 'Hair',
+  skin: 'Skin',
+  skincare: 'Skin',
 }
 
-// Main category keywords for grouping
-const mainCategoryKeywords = ['nails', 'nail', 'hair', 'skin', 'skincare', 'treatments', 'body', 'face']
+// Preferred display order for main categories
+const CATEGORY_ORDER = ['nails', 'nail', 'hair', 'skin', 'skincare']
 
-function getCategoryColor(handle: string): string | undefined {
-  const lowerHandle = handle.toLowerCase()
-  for (const [key, color] of Object.entries(categoryColors)) {
-    if (lowerHandle.includes(key)) return color
-  }
-  return undefined
-}
+// Handles to always exclude from nav
+const EXCLUDED_HANDLES = ['all', 'frontpage', 'all-products']
 
-// Format price for display
-function formatPrice(amount: string, currencyCode: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(parseFloat(amount))
-}
-
-// Fetch featured products for a collection
-async function getFeaturedProductsForCollection(handle: string): Promise<{ 
-  products: FeaturedProduct[], 
-  totalCount: number,
-  heroImage?: { url: string; altText?: string }
-}> {
-  try {
-    const collectionProducts = await getCollectionProducts({ 
-      handle, 
-      first: 10, // Get 10 to have options for featuring
-      sortKey: 'BEST_SELLING'
-    })
-    
-    const featuredProducts: FeaturedProduct[] = collectionProducts.slice(0, 4).map(product => ({
-      id: product.id,
-      title: product.title,
-      handle: product.handle,
-      price: formatPrice(
-        product.priceRange.minVariantPrice.amount,
-        product.priceRange.minVariantPrice.currencyCode
-      ),
-      compareAtPrice: product.variants.edges[0]?.node.compareAtPrice
-        ? formatPrice(
-            product.variants.edges[0].node.compareAtPrice.amount,
-            product.variants.edges[0].node.compareAtPrice.currencyCode
-          )
-        : undefined,
-      image: product.featuredImage ? {
-        url: getOptimizedImageUrl(product.featuredImage.url, { width: 300, height: 300, crop: 'center' }),
-        altText: product.featuredImage.altText || product.title
-      } : undefined
-    }))
-    
-    // Use first product image as hero if no dedicated collection image
-    const heroImage = collectionProducts[0]?.featuredImage ? {
-      url: getOptimizedImageUrl(collectionProducts[0].featuredImage.url, { width: 400, height: 500, crop: 'center' }),
-      altText: collectionProducts[0].featuredImage.altText || handle
-    } : undefined
-    
-    return { 
-      products: featuredProducts, 
-      totalCount: collectionProducts.length,
-      heroImage 
+function isMainCategory(handle: string): string | null {
+  const lower = handle.toLowerCase()
+  for (const cat of MAIN_CATEGORIES) {
+    if (lower === cat || lower === `${cat}s` || lower === `all-${cat}` || lower === `all-${cat}s`) {
+      return cat
     }
-  } catch (error) {
-    return { products: [], totalCount: 0 }
   }
+  return null
 }
 
-// Default menu items as fallback
+function getParentCategory(handle: string): string | null {
+  const lower = handle.toLowerCase()
+  for (const cat of MAIN_CATEGORIES) {
+    if (lower.includes(cat)) return cat
+  }
+  return null
+}
+
+// Default fallback menu when Shopify is not connected
 const defaultMenuItems: MenuItem[] = [
   {
     label: "Nails",
@@ -93,9 +44,6 @@ const defaultMenuItems: MenuItem[] = [
       { label: "All Nail Sets", href: "/collections/nails" },
       { label: "French Tips", href: "/collections/french-tips" },
       { label: "Solid Colors", href: "/collections/solid-colors" },
-      { label: "Glitter & Sparkle", href: "/collections/glitter" },
-      { label: "Nail Art", href: "/collections/nail-art" },
-      { label: "New Arrivals", href: "/collections/new-nails" }
     ]
   },
   {
@@ -104,8 +52,6 @@ const defaultMenuItems: MenuItem[] = [
     submenu: [
       { label: "All Hair Products", href: "/collections/hair" },
       { label: "Hair Extensions", href: "/collections/hair-extensions" },
-      { label: "Hair Care", href: "/collections/hair-care" },
-      { label: "Styling Tools", href: "/collections/styling-tools" }
     ]
   },
   {
@@ -114,14 +60,12 @@ const defaultMenuItems: MenuItem[] = [
     submenu: [
       { label: "All Skin Products", href: "/collections/skin" },
       { label: "Face Care", href: "/collections/face-care" },
-      { label: "Body Care", href: "/collections/body-care" },
-      { label: "Lip Care", href: "/collections/lip-care" }
     ]
   },
   { label: "Bundles", href: "/collections/bundles" },
   { label: "Blog", href: "/blog" },
-  { 
-    label: "Consult", 
+  {
+    label: "Consult",
     href: "/consult",
     submenu: [
       { label: "Skin Test", href: "/consult/skin" },
@@ -132,175 +76,131 @@ const defaultMenuItems: MenuItem[] = [
 ]
 
 export async function DynamicHeader() {
+  if (!isShopifyConfigured) {
+    return <HeaderClient menuItems={defaultMenuItems} />
+  }
+
   let menuItems: MenuItem[] = defaultMenuItems
 
-  if (isShopifyConfigured) {
-    try {
-      const collections = await getCollections()
-      
-      // Filter and organize collections into categories
-      const mainCategories = ['nails', 'nail', 'hair', 'skin', 'skincare', 'treatments']
-      const categoryCollections: Record<string, MenuItem> = {}
-      
-      // First pass: identify all main categories
-      collections.forEach((collection) => {
-        const handle = collection.handle.toLowerCase()
-        
-        // Skip system collections
-        if (handle === 'all' || handle === 'frontpage' || handle === 'all-products') return
-        
-        // Check if this is a main category (exact match or plural form)
-        const isMainCategory = mainCategories.some(cat => 
-          handle === cat || 
-          handle === `${cat}s` || 
-          handle === `all-${cat}` ||
-          handle === `all-${cat}s`
-        )
-        
-        if (isMainCategory) {
-          const categoryKey = mainCategories.find(cat => handle.includes(cat)) || handle
-          if (!categoryCollections[categoryKey]) {
-            categoryCollections[categoryKey] = {
-              label: collection.title,
-              href: `/collections/${collection.handle}`,
-              color: getCategoryColor(handle),
-              submenu: [{ label: `All ${collection.title}`, href: `/collections/${collection.handle}` }]
-            }
+  try {
+    const collections = await getCollections()
 
-          }
-        }
-      })
-      
-      // Second pass: add subcategories to their parent categories
-      collections.forEach((collection) => {
-        const handle = collection.handle.toLowerCase()
-        
-        // Skip system collections and main categories already processed
-        if (handle === 'all' || handle === 'frontpage' || handle === 'all-products') return
-        
-        const isMainCategory = mainCategories.some(cat => 
-          handle === cat || 
-          handle === `${cat}s` || 
-          handle === `all-${cat}` ||
-          handle === `all-${cat}s`
-        )
-        
-        if (!isMainCategory) {
-          // Find which parent category this belongs to
-          const parentCategory = mainCategories.find(cat => handle.includes(cat))
-          
-          if (parentCategory && categoryCollections[parentCategory]) {
-            // Add as subcategory
-            categoryCollections[parentCategory].submenu?.push({
-              label: collection.title,
-              href: `/collections/${collection.handle}`
-            })
+    // Separate collections into main categories and subcategories
+    const categoryMap: Record<string, { main: { title: string; handle: string } | null; subs: { label: string; href: string }[] }> = {}
 
-          } else if (parentCategory) {
-            // Parent doesn't exist yet - use THIS collection as the main category
-            // This ensures we always link to real Shopify collections that exist
-            categoryCollections[parentCategory] = {
-              label: collection.title,
-              href: `/collections/${collection.handle}`,
-              color: getCategoryColor(parentCategory),
-              submenu: [
-                { label: `All ${collection.title}`, href: `/collections/${collection.handle}` }
-              ]
-            }
-
-          }
-        }
-      })
-
-      // Build menu items from discovered categories
-      const dynamicMenuItems: MenuItem[] = []
-      
-      // Add main categories in preferred order
-      const categoryOrder = ['nail', 'nails', 'hair', 'skin', 'skincare', 'treatments']
-      const addedCategories = new Set<string>()
-      
-      // Fetch featured products for main categories in parallel
-      const mainCategoryHandles: string[] = []
-      categoryOrder.forEach(cat => {
-        if (categoryCollections[cat] && !addedCategories.has(cat)) {
-          const handle = categoryCollections[cat].href.replace('/collections/', '')
-          mainCategoryHandles.push(handle)
-        }
-      })
-      
-      const featuredData = await Promise.all(
-        mainCategoryHandles.map(handle => getFeaturedProductsForCollection(handle))
-      )
-      
-      let featuredIndex = 0
-      categoryOrder.forEach(cat => {
-        if (categoryCollections[cat] && !addedCategories.has(cat)) {
-          const { products, totalCount, heroImage } = featuredData[featuredIndex] || { products: [], totalCount: 0 }
-          featuredIndex++
-          
-          dynamicMenuItems.push({
-            ...categoryCollections[cat],
-            productCount: totalCount,
-            featuredProducts: products,
-            heroImage: heroImage
-          })
-          addedCategories.add(cat)
-        }
-      })
-
-      // Add remaining categories not in the preferred order
-      Object.entries(categoryCollections).forEach(([key, item]) => {
-        if (!addedCategories.has(key)) {
-          dynamicMenuItems.push(item)
-          addedCategories.add(key)
-        }
-      })
-
-      // Check if bundles collection exists
-      const bundlesCollection = collections.find(c => 
-        c.handle.toLowerCase() === 'bundles' || c.handle.toLowerCase() === 'bundle'
-      )
-      if (bundlesCollection) {
-        dynamicMenuItems.push({
-          label: bundlesCollection.title,
-          href: `/collections/${bundlesCollection.handle}`,
-          color: categoryColors.bundles
-        })
-
-      }
-
-      // Add static menu items
-      dynamicMenuItems.push(
-        { label: "Blog", href: "/blog" },
-        { 
-          label: "Consult", 
-          href: "/consult",
-          submenu: [
-            { label: "Skin Test", href: "/consult/skin" },
-            { label: "Hair Test", href: "/consult/hair" }
-          ]
-        }
-      )
-
-      // Check if sale collection exists
-      const saleCollection = collections.find(c => 
-        c.handle.toLowerCase() === 'sale' || c.handle.toLowerCase() === 'on-sale'
-      )
-      if (saleCollection) {
-        dynamicMenuItems.push({
-          label: saleCollection.title,
-          href: `/collections/${saleCollection.handle}`,
-          color: categoryColors.sale
-        })
-
-      }
-
-      if (dynamicMenuItems.length > 0) {
-        menuItems = dynamicMenuItems
-      }
-    } catch (error) {
-      // Fall back to default menu items on error
+    // Initialize categories
+    for (const cat of MAIN_CATEGORIES) {
+      categoryMap[cat] = { main: null, subs: [] }
     }
+
+    // First pass: find main category collections
+    for (const collection of collections) {
+      const handle = collection.handle.toLowerCase()
+      if (EXCLUDED_HANDLES.includes(handle)) continue
+
+      const mainCat = isMainCategory(handle)
+      if (mainCat && categoryMap[mainCat]) {
+        categoryMap[mainCat].main = { title: collection.title, handle: collection.handle }
+      }
+    }
+
+    // Second pass: assign subcategories
+    for (const collection of collections) {
+      const handle = collection.handle.toLowerCase()
+      if (EXCLUDED_HANDLES.includes(handle)) continue
+      if (isMainCategory(handle)) continue // Skip main categories
+
+      const parent = getParentCategory(handle)
+      if (parent && categoryMap[parent]) {
+        categoryMap[parent].subs.push({
+          label: collection.title,
+          href: `/collections/${collection.handle}`
+        })
+      }
+    }
+
+    // Build dynamic menu items in preferred order
+    const dynamicItems: MenuItem[] = []
+    const addedCategories = new Set<string>()
+
+    for (const cat of CATEGORY_ORDER) {
+      if (addedCategories.has(cat)) continue
+      const data = categoryMap[cat]
+      if (!data?.main) continue
+
+      // Deduplicate across synonym categories (e.g., skin/skincare)
+      const label = CATEGORY_LABELS[cat] || data.main.title
+      if ([...addedCategories].some(c => CATEGORY_LABELS[c] === label)) continue
+
+      const submenu = [
+        { label: `All ${label}`, href: `/collections/${data.main.handle}` },
+        ...data.subs
+      ]
+
+      dynamicItems.push({
+        label,
+        href: `/collections/${data.main.handle}`,
+        submenu: submenu.length > 1 ? submenu : undefined,
+      })
+      addedCategories.add(cat)
+    }
+
+    // Add bundles if it exists
+    const bundlesCollection = collections.find(c =>
+      c.handle.toLowerCase() === 'bundles' || c.handle.toLowerCase() === 'bundle'
+    )
+    if (bundlesCollection) {
+      dynamicItems.push({
+        label: bundlesCollection.title,
+        href: `/collections/${bundlesCollection.handle}`,
+      })
+    }
+
+    // Add standalone collections that don't belong to any main category
+    for (const collection of collections) {
+      const handle = collection.handle.toLowerCase()
+      if (EXCLUDED_HANDLES.includes(handle)) continue
+      if (isMainCategory(handle)) continue
+      if (getParentCategory(handle)) continue
+      if (handle === 'bundles' || handle === 'bundle') continue
+      if (handle === 'sale' || handle === 'on-sale') continue
+
+      dynamicItems.push({
+        label: collection.title,
+        href: `/collections/${collection.handle}`,
+      })
+    }
+
+    // Static pages
+    dynamicItems.push(
+      { label: "Blog", href: "/blog" },
+      {
+        label: "Consult",
+        href: "/consult",
+        submenu: [
+          { label: "Skin Test", href: "/consult/skin" },
+          { label: "Hair Test", href: "/consult/hair" }
+        ]
+      }
+    )
+
+    // Sale at the end
+    const saleCollection = collections.find(c =>
+      c.handle.toLowerCase() === 'sale' || c.handle.toLowerCase() === 'on-sale'
+    )
+    if (saleCollection) {
+      dynamicItems.push({
+        label: saleCollection.title,
+        href: `/collections/${saleCollection.handle}`,
+        color: "#B8860B"
+      })
+    }
+
+    if (dynamicItems.length > 0) {
+      menuItems = dynamicItems
+    }
+  } catch {
+    // Fall back to default menu items on error
   }
 
   return <HeaderClient menuItems={menuItems} />

@@ -2,10 +2,11 @@ import { Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
-import { getAllProducts, getCollections, getAllCollectionProducts, isShopifyConfigured, getProducts } from "@/lib/shopify"
-import { Product, Collection } from "@/lib/shopify/types"
+import { getCollections, getCollectionProducts, isShopifyConfigured, getProducts } from "@/lib/shopify"
+import { Product } from "@/lib/shopify/types"
 import { getOptimizedImageUrl } from "@/lib/shopify/image"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
+import { Footer } from "@/components/layout/footer"
 
 function formatPrice(amount: string, currencyCode: string = "USD"): string {
   return new Intl.NumberFormat("en-US", {
@@ -14,31 +15,27 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
   }).format(parseFloat(amount))
 }
 
-// Product Card Component
-function ProductCard({ product, size = "default" }: { product: Product; size?: "default" | "large" }) {
+// --- Product Card ---
+function ProductCard({ product }: { product: Product }) {
   const price = product.priceRange?.minVariantPrice
   const firstVariant = product.variants?.edges?.[0]?.node
   const compareAtPrice = firstVariant?.compareAtPrice
   const hasDiscount = compareAtPrice && price && parseFloat(compareAtPrice.amount) > parseFloat(price.amount)
-  
-  const imageUrl = product.featuredImage?.url 
-    ? getOptimizedImageUrl(product.featuredImage.url, { 
-        width: size === "large" ? 800 : 500, 
-        height: size === "large" ? 1000 : 625, 
-        crop: 'center' 
-      })
+
+  const imageUrl = product.featuredImage?.url
+    ? getOptimizedImageUrl(product.featuredImage.url, { width: 500, height: 625, crop: 'center' })
     : null
 
   return (
     <Link href={`/products/${product.handle}`} className="group block">
-      <div className={`relative ${size === "large" ? "aspect-[4/5]" : "aspect-[4/5]"} overflow-hidden bg-[#F5F3EF] mb-4`}>
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F3EF] mb-4">
         {imageUrl && (
           <Image
             src={imageUrl}
             alt={product.featuredImage?.altText || product.title}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes={size === "large" ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
+            sizes="(max-width: 768px) 50vw, 25vw"
           />
         )}
         {hasDiscount && (
@@ -48,7 +45,7 @@ function ProductCard({ product, size = "default" }: { product: Product; size?: "
         )}
       </div>
       <div className="space-y-1">
-        <h3 className="text-sm font-normal text-[#1A1A1A] group-hover:text-[#8B7355] transition-colors tracking-wide">
+        <h3 className="text-sm font-normal text-[#1A1A1A] group-hover:text-[#8B7355] transition-colors tracking-wide line-clamp-2">
           {product.title}
         </h3>
         <div className="flex items-center gap-2">
@@ -66,8 +63,7 @@ function ProductCard({ product, size = "default" }: { product: Product; size?: "
   )
 }
 
-// --- Loading Skeletons ---
-
+// --- Skeletons ---
 function ProductCardSkeleton() {
   return (
     <div className="animate-pulse">
@@ -110,7 +106,7 @@ function HeroImagesSkeleton() {
   )
 }
 
-// --- Async Server Components for data-heavy sections ---
+// --- Async Data Components ---
 
 async function HeroImages() {
   if (!isShopifyConfigured) {
@@ -123,7 +119,7 @@ async function HeroImages() {
 
   let heroProducts: Product[] = []
   try {
-    const products = await getProducts({ first: 3 })
+    const products = await getProducts({ first: 6 })
     heroProducts = products.filter(p => p.featuredImage?.url).slice(0, 3)
   } catch {
     heroProducts = []
@@ -132,7 +128,7 @@ async function HeroImages() {
   if (heroProducts.length < 3) {
     return (
       <div className="aspect-[4/5] bg-gradient-to-br from-[#F5F3EF] to-[#E8E4DC] flex items-center justify-center">
-        <p className="text-[#9B9B9B] text-sm tracking-wide">Connect Shopify to display products</p>
+        <p className="text-[#9B9B9B] text-sm tracking-wide">Products loading...</p>
       </div>
     )
   }
@@ -178,13 +174,14 @@ async function FeaturedCollection() {
 
   try {
     const collections = await getCollections()
-    const nailCollection = collections.find(c => 
+    const nailCollection = collections.find(c =>
       c.handle.includes('nail') || c.handle.includes('gel')
     )
-    
+
     if (!nailCollection) return null
 
-    const products = await getAllCollectionProducts({ handle: nailCollection.handle })
+    // Only fetch limited products - NOT all products
+    const products = await getCollectionProducts({ handle: nailCollection.handle, first: 8 })
     const productsWithImages = products.filter(p => p.featuredImage?.url)
 
     if (productsWithImages.length === 0) return null
@@ -197,12 +194,11 @@ async function FeaturedCollection() {
               <p className="text-[11px] font-medium tracking-[0.3em] text-[#8B7355] uppercase mb-3">
                 Featured Collection
               </p>
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light tracking-[-0.02em] text-[#1A1A1A]">
+              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light tracking-[-0.02em] text-[#1A1A1A] text-balance">
                 {nailCollection.title}
-                <span className="text-lg text-[#9B9B9B] font-sans ml-3">({productsWithImages.length})</span>
               </h2>
             </div>
-            <Link 
+            <Link
               href={`/collections/${nailCollection.handle}`}
               className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#1A1A1A] uppercase hover:text-[#8B7355] transition-colors"
             >
@@ -212,7 +208,7 @@ async function FeaturedCollection() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-            {productsWithImages.map((product) => (
+            {productsWithImages.slice(0, 8).map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
@@ -225,25 +221,18 @@ async function FeaturedCollection() {
 }
 
 async function EditorialBanner() {
-  if (!isShopifyConfigured) {
-    return (
-      <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#E8E4DC] to-[#D4CFC5]" />
-        <div className="absolute inset-0 bg-[#1A1A1A]/40" />
-        <BannerContent />
-      </section>
-    )
-  }
-
   let bannerImage: string | null = null
-  try {
-    const products = await getProducts({ first: 1 })
-    const firstProduct = products.find(p => p.featuredImage?.url)
-    bannerImage = firstProduct?.featuredImage?.url 
-      ? getOptimizedImageUrl(firstProduct.featuredImage.url, { width: 1920, height: 1080, crop: 'center' })
-      : null
-  } catch {
-    bannerImage = null
+
+  if (isShopifyConfigured) {
+    try {
+      const products = await getProducts({ first: 1 })
+      const firstProduct = products.find(p => p.featuredImage?.url)
+      bannerImage = firstProduct?.featuredImage?.url
+        ? getOptimizedImageUrl(firstProduct.featuredImage.url, { width: 1920, height: 1080, crop: 'center' })
+        : null
+    } catch {
+      bannerImage = null
+    }
   }
 
   return (
@@ -251,7 +240,7 @@ async function EditorialBanner() {
       {bannerImage ? (
         <Image
           src={bannerImage}
-          alt="Featured product"
+          alt="Featured beauty product"
           fill
           className="object-cover"
           sizes="100vw"
@@ -260,32 +249,26 @@ async function EditorialBanner() {
         <div className="absolute inset-0 bg-gradient-to-br from-[#E8E4DC] to-[#D4CFC5]" />
       )}
       <div className="absolute inset-0 bg-[#1A1A1A]/40" />
-      <BannerContent />
-    </section>
-  )
-}
-
-function BannerContent() {
-  return (
-    <div className="absolute inset-0 flex items-center justify-center text-center px-6">
-      <div className="max-w-2xl">
-        <p className="text-[11px] font-medium tracking-[0.3em] text-white/80 uppercase mb-6">
-          The Art of Self-Care
-        </p>
-        <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight mb-8">
-          Beauty that
-          <br />
-          <span className="italic">empowers</span>
-        </h2>
-        <Link
-          href="/collections/nails"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-white text-[#1A1A1A] text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#F5F3EF] transition-colors"
-        >
-          Discover More
-          <ArrowRight className="w-4 h-4" />
-        </Link>
+      <div className="absolute inset-0 flex items-center justify-center text-center px-6">
+        <div className="max-w-2xl">
+          <p className="text-[11px] font-medium tracking-[0.3em] text-white/80 uppercase mb-6">
+            The Art of Self-Care
+          </p>
+          <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light text-white leading-tight mb-8 text-balance">
+            Beauty that
+            <br />
+            <span className="italic">empowers</span>
+          </h2>
+          <Link
+            href="/collections"
+            className="inline-flex items-center gap-3 px-8 py-4 bg-white text-[#1A1A1A] text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#F5F3EF] transition-colors"
+          >
+            Discover More
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
 
@@ -294,18 +277,23 @@ async function OtherCollections() {
 
   try {
     const collections = await getCollections()
-    const nailHandle = collections.find(c => 
+    const nailHandle = collections.find(c =>
       c.handle.includes('nail') || c.handle.includes('gel')
     )?.handle
 
-    const otherCollections = collections.filter(c => 
-      !c.handle.includes('frontpage') && c.handle !== nailHandle
-    )
+    const otherCollections = collections.filter(c =>
+      !c.handle.includes('frontpage') &&
+      c.handle !== 'all' &&
+      c.handle !== nailHandle
+    ).slice(0, 4) // Limit to 4 other collections
 
+    if (otherCollections.length === 0) return null
+
+    // Fetch limited products per collection in parallel
     const collectionsWithProducts = await Promise.all(
       otherCollections.map(async (collection) => {
         try {
-          const products = await getAllCollectionProducts({ handle: collection.handle })
+          const products = await getCollectionProducts({ handle: collection.handle, first: 8 })
           return { collection, products: products.filter(p => p.featuredImage?.url) }
         } catch {
           return { collection, products: [] as Product[] }
@@ -326,15 +314,14 @@ async function OtherCollections() {
                   <p className="text-[11px] font-medium tracking-[0.3em] text-[#8B7355] uppercase mb-3">
                     Collection
                   </p>
-                  <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light tracking-[-0.02em] text-[#1A1A1A]">
+                  <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light tracking-[-0.02em] text-[#1A1A1A] text-balance">
                     {collectionData.collection.title}
-                    <span className="text-lg text-[#9B9B9B] font-sans ml-3">({collectionData.products.length})</span>
                   </h2>
                   {collectionData.collection.description && (
-                    <p className="text-[#666] mt-3 max-w-lg">{collectionData.collection.description}</p>
+                    <p className="text-[#666] mt-3 max-w-lg text-pretty">{collectionData.collection.description}</p>
                   )}
                 </div>
-                <Link 
+                <Link
                   href={`/collections/${collectionData.collection.handle}`}
                   className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#1A1A1A] uppercase hover:text-[#8B7355] transition-colors"
                 >
@@ -344,7 +331,7 @@ async function OtherCollections() {
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
-                {collectionData.products.map((product) => (
+                {collectionData.products.slice(0, 8).map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
@@ -358,41 +345,7 @@ async function OtherCollections() {
   }
 }
 
-async function ProductsSummary() {
-  if (!isShopifyConfigured) return null
-
-  try {
-    const [allProducts, collections] = await Promise.all([
-      getAllProducts({}),
-      getCollections(),
-    ])
-    const productsWithImages = allProducts.filter(p => p.featuredImage?.url)
-    const collectionCount = collections.filter(c => !c.handle.includes('frontpage')).length
-
-    if (productsWithImages.length === 0) return null
-
-    return (
-      <section className="py-16 bg-white border-y border-[#E8E4DC]">
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-12 text-center">
-          <p className="text-[#9B9B9B] text-sm tracking-wide mb-4">
-            Showing {productsWithImages.length} products across {collectionCount} collections
-          </p>
-          <Link
-            href="/collections/all"
-            className="inline-flex items-center gap-3 px-8 py-4 border border-[#1A1A1A] text-[#1A1A1A] text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#1A1A1A] hover:text-white transition-colors duration-300"
-          >
-            Browse All Products
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </section>
-    )
-  } catch {
-    return null
-  }
-}
-
-// --- Main Page Component ---
+// --- Main Page ---
 
 export default function HomePage() {
   return (
@@ -405,19 +358,21 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <DynamicHeader />
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#D4AF37]/20" />}>
+        <DynamicHeader />
+      </Suspense>
 
       <main>
-        {/* Hero Section - Editorial Style */}
+        {/* Hero Section */}
         <section className="relative">
           <div className="max-w-[1600px] mx-auto px-6 lg:px-12 py-16 lg:py-24">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-              {/* Left - Typography (static, renders immediately) */}
+              {/* Left - Typography (static) */}
               <div className="order-2 lg:order-1">
                 <p className="text-[11px] font-medium tracking-[0.3em] text-[#8B7355] uppercase mb-6">
                   New Collection
                 </p>
-                <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light leading-[0.95] tracking-[-0.02em] text-[#1A1A1A] mb-8">
+                <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-light leading-[0.95] tracking-[-0.02em] text-[#1A1A1A] mb-8 text-balance">
                   Effortless
                   <br />
                   <span className="italic">elegance</span>
@@ -429,7 +384,7 @@ export default function HomePage() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Link
-                    href="/collections/nails"
+                    href="/collections"
                     className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1A1A1A] text-white text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#8B7355] transition-colors duration-300"
                   >
                     Shop Now
@@ -444,7 +399,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Right - Hero Images (streamed in) */}
+              {/* Right - Hero Images (streamed) */}
               <div className="order-1 lg:order-2">
                 <Suspense fallback={<HeroImagesSkeleton />}>
                   <HeroImages />
@@ -454,7 +409,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Trust Bar (static, renders immediately) */}
+        {/* Trust Bar (static) */}
         <section className="border-y border-[#E8E4DC] bg-white">
           <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#E8E4DC]">
@@ -474,29 +429,22 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Featured Collection - streamed */}
+        {/* Featured Collection */}
         <Suspense fallback={<CollectionSkeleton />}>
           <FeaturedCollection />
         </Suspense>
 
-        {/* Editorial Banner - streamed */}
-        <Suspense fallback={
-          <section className="relative h-[70vh] min-h-[500px] overflow-hidden bg-[#E8E4DC] animate-pulse" />
-        }>
+        {/* Editorial Banner */}
+        <Suspense fallback={<section className="relative h-[70vh] min-h-[500px] overflow-hidden bg-[#E8E4DC] animate-pulse" />}>
           <EditorialBanner />
         </Suspense>
 
-        {/* Other Collections - streamed */}
+        {/* Other Collections */}
         <Suspense fallback={<CollectionSkeleton />}>
           <OtherCollections />
         </Suspense>
 
-        {/* Products Summary - streamed */}
-        <Suspense fallback={null}>
-          <ProductsSummary />
-        </Suspense>
-
-        {/* Testimonials (static, renders immediately) */}
+        {/* Testimonials (static) */}
         <section className="py-20 lg:py-28 bg-[#F5F3EF]">
           <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
             <div className="text-center mb-16">
@@ -558,7 +506,9 @@ export default function HomePage() {
               Subscribe for exclusive offers, early access to new collections, and beauty tips.
             </p>
             <form className="flex flex-col sm:flex-row gap-3">
+              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
               <input
+                id="newsletter-email"
                 type="email"
                 placeholder="Enter your email"
                 className="flex-1 px-6 py-4 bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm tracking-wide focus:outline-none focus:border-[#8B7355]"
@@ -575,69 +525,7 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-[#FAFAF8] border-t border-[#E8E4DC]">
-        <div className="max-w-[1600px] mx-auto px-6 lg:px-12 py-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-            <div className="col-span-2 md:col-span-1">
-              <Link href="/" className="text-2xl font-serif tracking-wide text-[#1A1A1A]">
-                CrazyGels
-              </Link>
-              <p className="text-sm text-[#666] mt-4 leading-relaxed">
-                Premium beauty products crafted for the modern woman.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium tracking-[0.2em] text-[#1A1A1A] uppercase mb-4">Shop</h4>
-              <ul className="space-y-3">
-                {["Nails", "Hair", "Skincare", "Bundles", "Sale"].map((item) => (
-                  <li key={item}>
-                    <Link href={`/collections/${item.toLowerCase()}`} className="text-sm text-[#666] hover:text-[#1A1A1A] transition-colors">
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium tracking-[0.2em] text-[#1A1A1A] uppercase mb-4">Help</h4>
-              <ul className="space-y-3">
-                {["FAQ", "Shipping", "Returns", "Contact"].map((item) => (
-                  <li key={item}>
-                    <Link href={`/pages/${item.toLowerCase()}`} className="text-sm text-[#666] hover:text-[#1A1A1A] transition-colors">
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-xs font-medium tracking-[0.2em] text-[#1A1A1A] uppercase mb-4">Follow</h4>
-              <ul className="space-y-3">
-                {["Instagram", "TikTok", "Pinterest", "YouTube"].map((item) => (
-                  <li key={item}>
-                    <Link href="#" className="text-sm text-[#666] hover:text-[#1A1A1A] transition-colors">
-                      {item}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-[#E8E4DC] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-[#9B9B9B]">
-              &copy; 2026 CrazyGels. All rights reserved.
-            </p>
-            <div className="flex gap-6">
-              <Link href="/pages/privacy" className="text-xs text-[#9B9B9B] hover:text-[#1A1A1A] transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/pages/terms" className="text-xs text-[#9B9B9B] hover:text-[#1A1A1A] transition-colors">
-                Terms of Service
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }

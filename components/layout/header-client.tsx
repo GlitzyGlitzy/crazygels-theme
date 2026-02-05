@@ -1,33 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { Menu, X, ShoppingBag, Search, User, ChevronDown, ArrowRight } from "lucide-react"
-
-// Featured product for mega menu
-export interface FeaturedProduct {
-  id: string
-  title: string
-  handle: string
-  price: string
-  compareAtPrice?: string
-  image?: {
-    url: string
-    altText?: string
-  }
-}
+import { Menu, X, ShoppingBag, Search, User, ChevronDown } from "lucide-react"
 
 export interface MenuItem {
   label: string
   href: string
   color?: string
-  productCount?: number
-  heroImage?: {
-    url: string
-    altText?: string
-  }
-  featuredProducts?: FeaturedProduct[]
   submenu?: { label: string; href: string }[]
 }
 
@@ -38,13 +18,42 @@ interface HeaderClientProps {
 export function HeaderClient({ menuItems }: HeaderClientProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false)
+    setMobileExpandedItem(null)
+  }, [])
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [mobileMenuOpen])
+
+  const handleMouseEnter = (label: string) => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    setActiveDropdown(label)
+  }
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => setActiveDropdown(null), 150)
+  }
 
   return (
     <header className="sticky top-0 z-50 bg-[#FAF7F2]/98 backdrop-blur-xl border-b border-[#D4AF37]/20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Mobile Menu Button */}
-          <button 
+          <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 text-[#2C2C2C] hover:text-[#D4AF37] transition-colors"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -62,152 +71,37 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1" aria-label="Main navigation">
-            {menuItems.map((item) => {
-              const hasMegaMenu = item.featuredProducts && item.featuredProducts.length > 0
-              const hasSubmenu = item.submenu && item.submenu.length > 0
-              
-              return (
-                <div 
-                  key={item.label}
-                  className="relative"
-                  onMouseEnter={() => (hasMegaMenu || hasSubmenu) && setActiveDropdown(item.label)}
-                  onMouseLeave={() => setActiveDropdown(null)}
+            {menuItems.map((item) => (
+              <div
+                key={item.label}
+                className="relative"
+                onMouseEnter={() => item.submenu && handleMouseEnter(item.label)}
+                onMouseLeave={handleMouseLeave}
+              >
+                <Link
+                  href={item.href}
+                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-widest transition-colors text-[#2C2C2C] hover:text-[#D4AF37]"
+                  style={item.color ? { color: item.color } : undefined}
                 >
-                  <Link
-                    href={item.href}
-                    className="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-widest transition-colors"
-                    style={{ 
-                      color: item.color || (item.label === "Sale" ? "#B8860B" : "#2C2C2C")
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!item.color && item.label !== "Sale") {
-                        e.currentTarget.style.color = "#D4AF37"
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!item.color && item.label !== "Sale") {
-                        e.currentTarget.style.color = "#2C2C2C"
-                      }
-                    }}
-                  >
-                    {item.label}
-                    {item.productCount !== undefined && (
-                      <span className="ml-1 text-[10px] text-[#D4AF37] font-normal">({item.productCount})</span>
-                    )}
-                    {(hasMegaMenu || hasSubmenu) && <ChevronDown className="w-3 h-3" aria-hidden="true" />}
-                  </Link>
+                  {item.label}
+                  {item.submenu && <ChevronDown className="w-3 h-3" aria-hidden="true" />}
+                </Link>
 
-                  {/* Luxury Mega Menu */}
-                  {hasMegaMenu && activeDropdown === item.label && (
-                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-[800px] bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl shadow-2xl mt-2 overflow-hidden">
-                      <div className="grid grid-cols-12 gap-0">
-                        {/* Hero Image Section */}
-                        {item.heroImage && (
-                          <div className="col-span-4 relative h-full min-h-[320px]">
-                            <Image
-                              src={item.heroImage.url}
-                              alt={item.heroImage.altText || item.label}
-                              fill
-                              className="object-cover"
-                              sizes="300px"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#2C2C2C]/40" />
-                            <div className="absolute bottom-6 left-6 right-6">
-                              <h3 className="text-white text-xl font-light tracking-wide mb-2">{item.label}</h3>
-                              {item.productCount !== undefined && (
-                                <p className="text-white/80 text-sm">{item.productCount} Products</p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Featured Products Section */}
-                        <div className={item.heroImage ? "col-span-8" : "col-span-12"}>
-                          <div className="p-6">
-                            <div className="flex items-center justify-between mb-4">
-                              <h4 className="text-xs uppercase tracking-widest text-[#D4AF37] font-medium">Featured Products</h4>
-                              <Link 
-                                href={item.href}
-                                className="text-xs uppercase tracking-wider text-[#2C2C2C]/60 hover:text-[#D4AF37] flex items-center gap-1 transition-colors"
-                              >
-                                View All <ArrowRight className="w-3 h-3" />
-                              </Link>
-                            </div>
-                            
-                            <div className="grid grid-cols-4 gap-4">
-                              {item.featuredProducts?.slice(0, 4).map((product) => (
-                                <Link
-                                  key={product.id}
-                                  href={`/products/${product.handle}`}
-                                  className="group"
-                                >
-                                  <div className="aspect-square rounded-xl overflow-hidden bg-[#FAF7F2] mb-2 border border-[#D4AF37]/10">
-                                    {product.image ? (
-                                      <Image
-                                        src={product.image.url}
-                                        alt={product.image.altText || product.title}
-                                        width={150}
-                                        height={150}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full flex items-center justify-center text-[#2C2C2C]/30 text-xs">
-                                        No image
-                                      </div>
-                                    )}
-                                  </div>
-                                  <h5 className="text-xs text-[#2C2C2C] group-hover:text-[#D4AF37] transition-colors line-clamp-2 font-medium">
-                                    {product.title}
-                                  </h5>
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs font-semibold text-[#2C2C2C]">{product.price}</span>
-                                    {product.compareAtPrice && (
-                                      <span className="text-[10px] text-[#2C2C2C]/50 line-through">{product.compareAtPrice}</span>
-                                    )}
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
-                            
-                            {/* Subcategory Links */}
-                            {hasSubmenu && (
-                              <div className="mt-6 pt-4 border-t border-[#D4AF37]/10">
-                                <div className="flex flex-wrap gap-3">
-                                  {item.submenu?.map((subitem) => (
-                                    <Link
-                                      key={subitem.label}
-                                      href={subitem.href}
-                                      className="text-xs text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors"
-                                    >
-                                      {subitem.label}
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Simple Dropdown (for items without featured products) */}
-                  {!hasMegaMenu && hasSubmenu && activeDropdown === item.label && (
-                    <div className="absolute top-full left-0 w-56 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl shadow-2xl py-2 mt-1">
-                      {item.submenu?.map((subitem) => (
-                        <Link
-                          key={subitem.label}
-                          href={subitem.href}
-                          className="block px-4 py-2 text-sm text-[#2C2C2C]/80 hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 transition-colors"
-                        >
-                          {subitem.label}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )
-            })}
+                {item.submenu && activeDropdown === item.label && (
+                  <div className="absolute top-full left-0 w-56 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl shadow-2xl py-2 mt-1 z-50">
+                    {item.submenu.map((subitem) => (
+                      <Link
+                        key={subitem.href}
+                        href={subitem.href}
+                        className="block px-4 py-2.5 text-sm text-[#2C2C2C]/80 hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 transition-colors"
+                      >
+                        {subitem.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </nav>
 
           {/* Right Icons */}
@@ -220,9 +114,6 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
             </Link>
             <Link href="/cart" className="relative p-2 text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors" aria-label="Shopping cart">
               <ShoppingBag className="w-5 h-5" aria-hidden="true" />
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-[#D4AF37] rounded-full text-[10px] font-bold flex items-center justify-center text-white" aria-hidden="true">
-                0
-              </span>
             </Link>
           </div>
         </div>
@@ -230,25 +121,35 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#FFFEF9] border-t border-[#D4AF37]/20">
-          <nav className="px-4 py-4 space-y-2" aria-label="Mobile navigation">
+        <div className="md:hidden bg-[#FFFEF9] border-t border-[#D4AF37]/20 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <nav className="px-4 py-4 space-y-1" aria-label="Mobile navigation">
             {menuItems.map((item) => (
               <div key={item.label}>
-                <Link
-                  href={item.href}
-                  className="block py-3 text-lg font-medium tracking-wide"
-                  style={{ 
-                    color: item.color || (item.label === "Sale" ? "#B8860B" : "#2C2C2C")
-                  }}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-                {item.submenu && (
-                  <div className="pl-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <Link
+                    href={item.href}
+                    className="flex-1 block py-3 text-lg font-medium tracking-wide text-[#2C2C2C]"
+                    style={item.color ? { color: item.color } : undefined}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                  {item.submenu && (
+                    <button
+                      onClick={() => setMobileExpandedItem(mobileExpandedItem === item.label ? null : item.label)}
+                      className="p-2 text-[#2C2C2C]/60"
+                      aria-label={`Expand ${item.label} submenu`}
+                      aria-expanded={mobileExpandedItem === item.label}
+                    >
+                      <ChevronDown className={`w-4 h-4 transition-transform ${mobileExpandedItem === item.label ? 'rotate-180' : ''}`} aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+                {item.submenu && mobileExpandedItem === item.label && (
+                  <div className="pl-4 pb-2 space-y-1">
                     {item.submenu.map((subitem) => (
                       <Link
-                        key={subitem.label}
+                        key={subitem.href}
                         href={subitem.href}
                         className="block py-2 text-[#2C2C2C]/60 text-sm"
                         onClick={() => setMobileMenuOpen(false)}

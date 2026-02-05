@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCollections, getAllCollectionProducts, getProducts, isShopifyConfigured } from '@/lib/shopify';
+import { getCollections, getCollectionProducts, getProducts, isShopifyConfigured } from '@/lib/shopify';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,7 +53,7 @@ export async function GET() {
     for (const collection of collections) {
       try {
         console.log(`[v0] Validation: Fetching products for collection "${collection.title}" (${collection.handle})...`);
-        const products = await getAllCollectionProducts({ handle: collection.handle });
+        const products = await getCollectionProducts({ handle: collection.handle, first: 100 });
         
         const collectionStats: CollectionStats = {
           handle: collection.handle,

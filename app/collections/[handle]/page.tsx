@@ -3,12 +3,40 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getCollection, getCollectionProducts, getAllCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { getCollection, getCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
-import { ChevronLeft, Grid3X3, LayoutGrid, SlidersHorizontal } from 'lucide-react';
+import { ChevronLeft, Grid3X3, SlidersHorizontal } from 'lucide-react';
 import { CollectionSorting } from '@/components/collections/collection-sorting';
+
+// SEO-optimized metadata per collection
+const COLLECTION_SEO: Record<string, { title: string; description: string }> = {
+  nails: {
+    title: 'Premium Semi-Cured Gel Nails | Crazy Gels',
+    description: 'Shop salon-quality semi-cured gel nails. Easy DIY application, lasts 2+ weeks, zero damage. French tips, nail art, solid colors and more.',
+  },
+  hair: {
+    title: 'Hair Extensions & Hair Care Products | Crazy Gels',
+    description: 'Premium hair extensions, hair care and styling products. Clip-in extensions, nourishing treatments and professional styling tools.',
+  },
+  skin: {
+    title: 'Luxury Skincare Products | Crazy Gels',
+    description: 'Refined skincare for radiant results. Serums, moisturizers, masks and treatments crafted with premium ingredients.',
+  },
+  skincare: {
+    title: 'Luxury Skincare Products | Crazy Gels',
+    description: 'Refined skincare for radiant results. Serums, moisturizers, masks and treatments crafted with premium ingredients.',
+  },
+  bundles: {
+    title: 'Beauty Bundles & Value Sets | Crazy Gels',
+    description: 'Save with our curated beauty bundles. Premium nail, hair and skin care sets at special prices.',
+  },
+  sale: {
+    title: 'Sale & Special Offers | Crazy Gels',
+    description: 'Shop our latest deals on premium beauty products. Limited-time offers on gel nails, hair care and skincare.',
+  },
+}
 
 export async function generateMetadata({
   params,
@@ -26,18 +54,32 @@ export async function generateMetadata({
     return { title: 'Collection Not Found | Crazy Gels' };
   }
 
+  // Use pre-written SEO metadata if available, otherwise generate from collection data
+  const seo = COLLECTION_SEO[handle.toLowerCase()]
+
+  const title = seo?.title || collection.seo?.title || `${collection.title} | Crazy Gels`
+  const description = seo?.description || collection.seo?.description || collection.description || `Shop our ${collection.title} collection. Premium beauty products from Crazy Gels.`
+
   return {
-    title: `${collection.title} | Crazy Gels`,
-    description: collection.description || `Shop our ${collection.title} collection at Crazy Gels`,
+    title,
+    description,
     openGraph: {
       title: collection.title,
-      description: collection.description || `Shop our ${collection.title} collection`,
+      description,
       images: collection.image ? [{ url: collection.image.url }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    alternates: {
+      canonical: `/collections/${handle}`,
     },
   };
 }
 
-// Static params for common collections
 export async function generateStaticParams() {
   if (!isShopifyConfigured) {
     return [{ handle: 'nails' }, { handle: 'hair' }, { handle: 'skin' }];
@@ -73,79 +115,96 @@ export default async function CollectionPage({
     notFound();
   }
 
-  // Map sort params to Shopify sort keys
   const sortKey = sort?.toUpperCase() || 'BEST_SELLING';
   const reverse = order === 'desc';
 
+  // Generate collection JSON-LD
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: collection.title,
+    description: collection.description || `Shop our ${collection.title} collection`,
+    url: `https://crazygels.com/collections/${handle}`,
+    ...(collection.image && { image: collection.image.url }),
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Crazy Gels',
+      url: 'https://crazygels.com',
+    },
+  }
+
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
-      <DynamicHeader />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+      />
+
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#D4AF37]/20" />}>
+        <DynamicHeader />
+      </Suspense>
+
       <main>
-      {/* Collection Header */}
-      <section className="relative overflow-hidden">
-        {/* Background */}
-        {collection.image ? (
-          <div className="absolute inset-0">
-            <Image
-              src={collection.image.url}
-              alt={collection.image.altText || collection.title}
-              fill
-              className="object-cover opacity-20"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/60 via-[#FAF7F2]/80 to-[#FAF7F2]" />
-          </div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
-        )}
-
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          {/* Breadcrumb */}
-          <Link
-            href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-[#2C2C2C]/60 transition-colors hover:text-[#D4AF37]"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
-
-          <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] sm:text-5xl lg:text-6xl">
-            {collection.title}
-          </h1>
-
-          {collection.description && (
-            <p className="mt-4 max-w-2xl text-lg text-[#2C2C2C]/70">
-              {collection.description}
-            </p>
+        {/* Collection Header */}
+        <section className="relative overflow-hidden">
+          {collection.image ? (
+            <div className="absolute inset-0">
+              <Image
+                src={collection.image.url}
+                alt={collection.image.altText || collection.title}
+                fill
+                className="object-cover opacity-20"
+                priority
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/60 via-[#FAF7F2]/80 to-[#FAF7F2]" />
+            </div>
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
           )}
-        </div>
-      </section>
 
-      {/* Products Section */}
-      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
-        {/* Toolbar */}
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <Suspense fallback={<div className="h-10 w-48 animate-pulse rounded-lg bg-white/5" />}>
-            <ProductCount handle={handle} sortKey={sortKey} reverse={reverse} />
-          </Suspense>
+          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <nav aria-label="Breadcrumb">
+              <ol className="flex items-center gap-2 text-sm text-[#2C2C2C]/60 mb-6">
+                <li><Link href="/" className="hover:text-[#D4AF37] transition-colors">Home</Link></li>
+                <li aria-hidden="true">/</li>
+                <li><Link href="/collections" className="hover:text-[#D4AF37] transition-colors">Collections</Link></li>
+                <li aria-hidden="true">/</li>
+                <li className="text-[#2C2C2C]" aria-current="page">{collection.title}</li>
+              </ol>
+            </nav>
 
-          <div className="flex items-center gap-4">
+            <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] sm:text-5xl lg:text-6xl">
+              {collection.title}
+            </h1>
+
+            {collection.description && (
+              <p className="mt-4 max-w-2xl text-lg text-[#2C2C2C]/70 text-pretty">
+                {collection.description}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Products */}
+        <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <Suspense fallback={<div className="h-6 w-32 animate-pulse rounded bg-[#E8E4DC]" />}>
+              <ProductCount handle={handle} sortKey={sortKey} reverse={reverse} />
+            </Suspense>
             <CollectionSorting currentSort={sort} currentOrder={order} />
           </div>
-        </div>
 
-        {/* Products Grid */}
-        <Suspense fallback={<ProductGridSkeleton count={12} />}>
-          <CollectionProducts handle={handle} sortKey={sortKey} reverse={reverse} />
+          <Suspense fallback={<ProductGridSkeleton count={12} />}>
+            <CollectionProducts handle={handle} sortKey={sortKey} reverse={reverse} />
+          </Suspense>
+        </section>
+
+        {/* Related Collections */}
+        <Suspense fallback={null}>
+          <RelatedCollections currentHandle={handle} />
         </Suspense>
-      </section>
-
-      {/* Related Collections */}
-      <Suspense fallback={null}>
-        <RelatedCollections currentHandle={handle} />
-      </Suspense>
       </main>
-      
+
       <Footer />
     </div>
   );
@@ -160,10 +219,12 @@ async function ProductCount({
   sortKey: string;
   reverse: boolean;
 }) {
-  const products = await getAllCollectionProducts({ handle, sortKey, reverse });
+  // Use limited fetch just for count display
+  const products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
   return (
     <p className="text-[#2C2C2C]/60">
-      <span className="font-semibold text-[#2C2C2C]">{products.length}</span> products
+      <span className="font-semibold text-[#2C2C2C]">{products.length}</span>{' '}
+      {products.length === 100 ? '+' : ''} products
     </p>
   );
 }
@@ -177,7 +238,8 @@ async function CollectionProducts({
   sortKey: string;
   reverse: boolean;
 }) {
-  const products = await getAllCollectionProducts({ handle, sortKey, reverse });
+  // Fetch up to 100 products (reasonable limit for a page)
+  const products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
 
   if (products.length === 0) {
     return (
@@ -203,7 +265,9 @@ async function CollectionProducts({
 async function RelatedCollections({ currentHandle }: { currentHandle: string }) {
   try {
     const collections = await getCollections();
-    const related = collections.filter((c) => c.handle !== currentHandle).slice(0, 3);
+    const related = collections
+      .filter((c) => c.handle !== currentHandle && c.handle !== 'frontpage' && c.handle !== 'all')
+      .slice(0, 3);
 
     if (related.length === 0) return null;
 
@@ -224,6 +288,7 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
                     alt={collection.image.altText || collection.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#C9A9A6]/20" />
