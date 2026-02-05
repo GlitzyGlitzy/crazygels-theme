@@ -99,6 +99,10 @@ export default async function HomePage() {
     isShopifyConfigured ? getProducts({ first: 12 }) : Promise.resolve([])
   ])
 
+  console.log("[v0] FeaturedProducts: Got", allProducts.length, "products")
+  console.log("[v0] Hero Products:", heroProducts.length)
+  console.log("[v0] Nails Collection Products:", nailsData.products.length)
+
   const featuredProducts = allProducts.filter(p => p.featuredImage?.url).slice(0, 8)
 
   return (
