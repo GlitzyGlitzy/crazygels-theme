@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getProduct, getCollectionProducts, isShopifyConfigured } from '@/lib/shopify';
+
+export const revalidate = 300;
 import { ProductGallery } from '@/components/products/product-gallery';
 import { ProductInfo } from '@/components/products/product-info';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';

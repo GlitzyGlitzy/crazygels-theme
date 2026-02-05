@@ -83,13 +83,9 @@ export async function shopifyFetch<T>({
       // Wait for rate limit before making request
       await waitForRateLimit();
 
-      // Use no-store by default to avoid 2MB cache limit issues.
-      // Only use next.revalidate for ISR when explicitly requested AND cache is not no-store.
-      const effectiveCache = cache || (revalidate ? undefined : 'no-store');
-      const nextOptions = revalidate && effectiveCache !== 'no-store'
-        ? { next: { tags, revalidate } }
-        : {};
-
+      // Always use no-store to avoid the 2MB Next.js data cache limit.
+      // Shopify responses with many products/variants easily exceed 2MB.
+      // Page-level revalidation (export const revalidate) handles caching instead.
       const result = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -101,8 +97,7 @@ export async function shopifyFetch<T>({
           ...(query && { query }),
           ...(variables && { variables }),
         }),
-        ...(effectiveCache && { cache: effectiveCache }),
-        ...nextOptions,
+        cache: 'no-store',
       });
 
       // Handle rate limiting (429 status)

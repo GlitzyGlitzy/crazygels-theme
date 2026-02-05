@@ -4,6 +4,8 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getCollection, getCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
+
+export const revalidate = 300;
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';

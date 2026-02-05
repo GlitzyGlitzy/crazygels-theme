@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCollections, isShopifyConfigured } from '@/lib/shopify';
+
+export const revalidate = 300;
 import { getOptimizedImageUrl } from '@/lib/shopify/image';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
