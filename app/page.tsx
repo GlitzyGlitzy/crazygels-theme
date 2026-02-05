@@ -277,9 +277,9 @@ export default async function HomePage() {
 
         {/* Editorial Banner */}
         <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
-          {featuredProducts[0]?.featuredImage?.url ? (
+          {productsWithImages[0]?.featuredImage?.url ? (
             <Image
-              src={getOptimizedImageUrl(featuredProducts[0].featuredImage.url, { width: 1920, height: 1080, crop: 'center' })}
+              src={getOptimizedImageUrl(productsWithImages[0].featuredImage.url, { width: 1920, height: 1080, crop: 'center' })}
               alt="Featured product"
               fill
               className="object-cover"
