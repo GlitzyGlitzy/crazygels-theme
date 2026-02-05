@@ -1,5 +1,6 @@
-import { getCollections, isShopifyConfigured } from "@/lib/shopify"
-import { HeaderClient, MenuItem } from "./header-client"
+import { getCollections, getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getOptimizedImageUrl } from "@/lib/shopify/image"
+import { HeaderClient, MenuItem, FeaturedProduct } from "./header-client"
 
 // Map collection handles to their color accents - luxury palette
 const categoryColors: Record<string, string> = {
@@ -24,6 +25,63 @@ function getCategoryColor(handle: string): string | undefined {
     if (lowerHandle.includes(key)) return color
   }
   return undefined
+}
+
+// Format price for display
+function formatPrice(amount: string, currencyCode: string = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currencyCode,
+  }).format(parseFloat(amount))
+}
+
+// Fetch featured products for a collection
+async function getFeaturedProductsForCollection(handle: string): Promise<{ 
+  products: FeaturedProduct[], 
+  totalCount: number,
+  heroImage?: { url: string; altText?: string }
+}> {
+  try {
+    const collectionProducts = await getCollectionProducts({ 
+      handle, 
+      first: 10, // Get 10 to have options for featuring
+      sortKey: 'BEST_SELLING'
+    })
+    
+    const featuredProducts: FeaturedProduct[] = collectionProducts.slice(0, 4).map(product => ({
+      id: product.id,
+      title: product.title,
+      handle: product.handle,
+      price: formatPrice(
+        product.priceRange.minVariantPrice.amount,
+        product.priceRange.minVariantPrice.currencyCode
+      ),
+      compareAtPrice: product.variants.edges[0]?.node.compareAtPrice
+        ? formatPrice(
+            product.variants.edges[0].node.compareAtPrice.amount,
+            product.variants.edges[0].node.compareAtPrice.currencyCode
+          )
+        : undefined,
+      image: product.featuredImage ? {
+        url: getOptimizedImageUrl(product.featuredImage.url, { width: 300, height: 300, crop: 'center' }),
+        altText: product.featuredImage.altText || product.title
+      } : undefined
+    }))
+    
+    // Use first product image as hero if no dedicated collection image
+    const heroImage = collectionProducts[0]?.featuredImage ? {
+      url: getOptimizedImageUrl(collectionProducts[0].featuredImage.url, { width: 400, height: 500, crop: 'center' }),
+      altText: collectionProducts[0].featuredImage.altText || handle
+    } : undefined
+    
+    return { 
+      products: featuredProducts, 
+      totalCount: collectionProducts.length,
+      heroImage 
+    }
+  } catch (error) {
+    return { products: [], totalCount: 0 }
+  }
 }
 
 // Default menu items as fallback
@@ -79,12 +137,6 @@ export async function DynamicHeader() {
   if (isShopifyConfigured) {
     try {
       const collections = await getCollections()
-      console.log(`[v0] DynamicHeader: Fetched ${collections.length} collections from Shopify`)
-      
-      // Log all collection handles for debugging
-      collections.forEach(c => {
-        console.log(`[v0] DynamicHeader: Collection - "${c.title}" (${c.handle})`)
-      })
       
       // Filter and organize collections into categories
       const mainCategories = ['nails', 'nail', 'hair', 'skin', 'skincare', 'treatments']
@@ -114,7 +166,7 @@ export async function DynamicHeader() {
               color: getCategoryColor(handle),
               submenu: [{ label: `All ${collection.title}`, href: `/collections/${collection.handle}` }]
             }
-            console.log(`[v0] DynamicHeader: Created main category "${collection.title}" for ${categoryKey}`)
+
           }
         }
       })
@@ -143,7 +195,7 @@ export async function DynamicHeader() {
               label: collection.title,
               href: `/collections/${collection.handle}`
             })
-            console.log(`[v0] DynamicHeader: Added subcategory "${collection.title}" to ${parentCategory}`)
+
           } else if (parentCategory) {
             // Parent doesn't exist yet, create it with this as first subcategory
             categoryCollections[parentCategory] = {
@@ -155,7 +207,7 @@ export async function DynamicHeader() {
                 { label: collection.title, href: `/collections/${collection.handle}` }
               ]
             }
-            console.log(`[v0] DynamicHeader: Created category ${parentCategory} with subcategory "${collection.title}"`)
+
           }
         }
       })
@@ -167,11 +219,32 @@ export async function DynamicHeader() {
       const categoryOrder = ['nail', 'nails', 'hair', 'skin', 'skincare', 'treatments']
       const addedCategories = new Set<string>()
       
+      // Fetch featured products for main categories in parallel
+      const mainCategoryHandles: string[] = []
       categoryOrder.forEach(cat => {
         if (categoryCollections[cat] && !addedCategories.has(cat)) {
-          dynamicMenuItems.push(categoryCollections[cat])
+          const handle = categoryCollections[cat].href.replace('/collections/', '')
+          mainCategoryHandles.push(handle)
+        }
+      })
+      
+      const featuredData = await Promise.all(
+        mainCategoryHandles.map(handle => getFeaturedProductsForCollection(handle))
+      )
+      
+      let featuredIndex = 0
+      categoryOrder.forEach(cat => {
+        if (categoryCollections[cat] && !addedCategories.has(cat)) {
+          const { products, totalCount, heroImage } = featuredData[featuredIndex] || { products: [], totalCount: 0 }
+          featuredIndex++
+          
+          dynamicMenuItems.push({
+            ...categoryCollections[cat],
+            productCount: totalCount,
+            featuredProducts: products,
+            heroImage: heroImage
+          })
           addedCategories.add(cat)
-          console.log(`[v0] DynamicHeader: Added "${categoryCollections[cat].label}" to menu`)
         }
       })
 
@@ -180,7 +253,6 @@ export async function DynamicHeader() {
         if (!addedCategories.has(key)) {
           dynamicMenuItems.push(item)
           addedCategories.add(key)
-          console.log(`[v0] DynamicHeader: Added "${item.label}" to menu (additional)`)
         }
       })
 
@@ -194,7 +266,7 @@ export async function DynamicHeader() {
           href: `/collections/${bundlesCollection.handle}`,
           color: categoryColors.bundles
         })
-        console.log(`[v0] DynamicHeader: Added "Bundles" to menu`)
+
       }
 
       // Add static menu items
@@ -220,15 +292,8 @@ export async function DynamicHeader() {
           href: `/collections/${saleCollection.handle}`,
           color: categoryColors.sale
         })
-        console.log(`[v0] DynamicHeader: Added "Sale" to menu`)
-      }
 
-      // Log final menu structure
-      console.log(`[v0] DynamicHeader: Final menu has ${dynamicMenuItems.length} items`)
-      dynamicMenuItems.forEach(item => {
-        const subCount = item.submenu?.length || 0
-        console.log(`[v0] DynamicHeader: Menu item "${item.label}" with ${subCount} submenu items`)
-      })
+      }
 
       if (dynamicMenuItems.length > 0) {
         menuItems = dynamicMenuItems
