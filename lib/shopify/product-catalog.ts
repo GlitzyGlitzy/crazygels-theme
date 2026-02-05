@@ -194,7 +194,7 @@ export async function buildProductCatalog(): Promise<ProductCatalog> {
     }
     
     // Also fetch all products and classify any we missed
-    const allShopifyProducts = await getProducts({ first: 250 })
+    const allShopifyProducts = await getProducts({ first: 100 })
     for (const product of allShopifyProducts) {
       if (seenIds.has(product.id) || !product.availableForSale) continue
       seenIds.add(product.id)
