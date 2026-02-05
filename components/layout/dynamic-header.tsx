@@ -138,6 +138,10 @@ export async function DynamicHeader() {
     try {
       const collections = await getCollections()
       
+      console.log("[v0] DynamicHeader: All collection handles from Shopify:", 
+        collections.map(c => c.handle).join(", ")
+      )
+      
       // Filter and organize collections into categories
       const mainCategories = ['nails', 'nail', 'hair', 'skin', 'skincare', 'treatments']
       const categoryCollections: Record<string, MenuItem> = {}
@@ -197,14 +201,14 @@ export async function DynamicHeader() {
             })
 
           } else if (parentCategory) {
-            // Parent doesn't exist yet, create it with this as first subcategory
+            // Parent doesn't exist yet - use THIS collection as the main category
+            // This ensures we always link to real Shopify collections that exist
             categoryCollections[parentCategory] = {
-              label: parentCategory.charAt(0).toUpperCase() + parentCategory.slice(1),
-              href: `/collections/${parentCategory}`,
+              label: collection.title,
+              href: `/collections/${collection.handle}`,
               color: getCategoryColor(parentCategory),
               submenu: [
-                { label: `All ${parentCategory.charAt(0).toUpperCase() + parentCategory.slice(1)}`, href: `/collections/${parentCategory}` },
-                { label: collection.title, href: `/collections/${collection.handle}` }
+                { label: `All ${collection.title}`, href: `/collections/${collection.handle}` }
               ]
             }
 
@@ -295,6 +299,10 @@ export async function DynamicHeader() {
 
       }
 
+      console.log("[v0] DynamicHeader: Final menu hrefs:", 
+        dynamicMenuItems.map(item => item.href).join(", ")
+      )
+      
       if (dynamicMenuItems.length > 0) {
         menuItems = dynamicMenuItems
       }
