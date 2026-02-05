@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
-import { getProducts, getCollections, getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getAllProducts, getCollections, getAllCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
 import { Product, Collection } from "@/lib/shopify/types"
 import { getOptimizedImageUrl } from "@/lib/shopify/image"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
@@ -14,36 +14,47 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
   }).format(parseFloat(amount))
 }
 
-// Fetch hero products (3 featured products for the hero grid)
-async function getHeroProducts(): Promise<Product[]> {
+// Fetch ALL products from the store
+async function fetchAllProducts(): Promise<Product[]> {
   if (!isShopifyConfigured) return []
   try {
-    const products = await getProducts({ first: 6 })
-    return products.filter(p => p.featuredImage?.url).slice(0, 3)
+    const products = await getAllProducts({})
+    console.log("[v0] fetchAllProducts: Total products from Shopify:", products.length)
+    return products
   } catch {
     return []
   }
 }
 
-// Fetch collection with products for showcase
-async function getCollectionWithProducts(handle: string): Promise<{ collection: Collection | null; products: Product[] }> {
-  if (!isShopifyConfigured) return { collection: null, products: [] }
+// Fetch ALL collections with ALL their products
+async function fetchAllCollectionsWithProducts(): Promise<{ collection: Collection; products: Product[] }[]> {
+  if (!isShopifyConfigured) return []
   try {
     const collections = await getCollections()
-    const collection = collections.find(c => c.handle.toLowerCase().includes(handle))
-    if (!collection) return { collection: null, products: [] }
-    
-    const products = await getCollectionProducts({ handle: collection.handle, first: 8 })
-    return { collection, products: products.filter(p => p.featuredImage?.url) }
+    // Fetch products for each collection in parallel
+    const results = await Promise.all(
+      collections
+        .filter(c => !c.handle.includes('frontpage'))
+        .map(async (collection) => {
+          try {
+            const products = await getAllCollectionProducts({ handle: collection.handle })
+            return { collection, products: products.filter(p => p.featuredImage?.url) }
+          } catch {
+            return { collection, products: [] }
+          }
+        })
+    )
+    return results.filter(r => r.products.length > 0)
   } catch {
-    return { collection: null, products: [] }
+    return []
   }
 }
 
 // Product Card Component
 function ProductCard({ product, size = "default" }: { product: Product; size?: "default" | "large" }) {
   const price = product.priceRange?.minVariantPrice
-  const compareAtPrice = product.variants?.[0]?.compareAtPrice
+  const firstVariant = product.variants?.edges?.[0]?.node
+  const compareAtPrice = firstVariant?.compareAtPrice
   const hasDiscount = compareAtPrice && price && parseFloat(compareAtPrice.amount) > parseFloat(price.amount)
   
   const imageUrl = product.featuredImage?.url 
@@ -92,14 +103,29 @@ function ProductCard({ product, size = "default" }: { product: Product; size?: "
 }
 
 export default async function HomePage() {
-  // Fetch data in parallel
-  const [heroProducts, nailsData, allProducts] = await Promise.all([
-    getHeroProducts(),
-    getCollectionWithProducts("nail"),
-    isShopifyConfigured ? getProducts({ first: 12 }) : Promise.resolve([])
+  // Fetch ALL data in parallel - no limits
+  const [allProducts, collectionsWithProducts] = await Promise.all([
+    fetchAllProducts(),
+    fetchAllCollectionsWithProducts(),
   ])
 
-  const featuredProducts = allProducts.filter(p => p.featuredImage?.url).slice(0, 8)
+  // Products with images for display
+  const productsWithImages = allProducts.filter(p => p.featuredImage?.url)
+  const heroProducts = productsWithImages.slice(0, 3)
+  
+  // Find the nail collection specifically for featured section
+  const nailsData = collectionsWithProducts.find(c => 
+    c.collection.handle.includes('nail') || c.collection.handle.includes('gel')
+  ) || { collection: null as Collection | null, products: [] as Product[] }
+  
+  // Other collections for additional sections
+  const otherCollections = collectionsWithProducts.filter(c => 
+    c.collection.handle !== nailsData.collection?.handle
+  )
+
+  console.log("[v0] HomePage: Total products with images:", productsWithImages.length)
+  console.log("[v0] HomePage: Collections with products:", collectionsWithProducts.length)
+  console.log("[v0] HomePage: Collections:", collectionsWithProducts.map(c => `${c.collection.title} (${c.products.length})`).join(", "))
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -228,6 +254,7 @@ export default async function HomePage() {
                   </p>
                   <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light tracking-[-0.02em] text-[#1A1A1A]">
                     {nailsData.collection?.title || "Nail Collection"}
+                    <span className="text-lg text-[#9B9B9B] font-sans ml-3">({nailsData.products.length})</span>
                   </h2>
                 </div>
                 <Link 
@@ -239,8 +266,8 @@ export default async function HomePage() {
                 </Link>
               </div>
 
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                {nailsData.products.slice(0, 4).map((product) => (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
+                {nailsData.products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
@@ -250,9 +277,9 @@ export default async function HomePage() {
 
         {/* Editorial Banner */}
         <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
-          {featuredProducts[0]?.featuredImage?.url ? (
+          {productsWithImages[0]?.featuredImage?.url ? (
             <Image
-              src={getOptimizedImageUrl(featuredProducts[0].featuredImage.url, { width: 1920, height: 1080, crop: 'center' })}
+              src={getOptimizedImageUrl(productsWithImages[0].featuredImage.url, { width: 1920, height: 1080, crop: 'center' })}
               alt="Featured product"
               fill
               className="object-cover"
@@ -283,34 +310,55 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* All Products Grid */}
-        {featuredProducts.length > 0 && (
-          <section className="py-20 lg:py-28 bg-white">
+        {/* All Other Collections */}
+        {otherCollections.map((collectionData, index) => (
+          <section key={collectionData.collection.handle} className={`py-20 lg:py-28 ${index % 2 === 0 ? 'bg-white' : 'bg-[#FAFAF8]'}`}>
             <div className="max-w-[1600px] mx-auto px-6 lg:px-12">
-              <div className="text-center mb-16">
-                <p className="text-[11px] font-medium tracking-[0.3em] text-[#8B7355] uppercase mb-3">
-                  Curated Selection
-                </p>
-                <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light tracking-[-0.02em] text-[#1A1A1A]">
-                  Bestsellers
-                </h2>
-              </div>
-
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-                {featuredProducts.slice(0, 8).map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-
-              <div className="text-center mt-12">
-                <Link
-                  href="/collections/all"
-                  className="inline-flex items-center gap-3 px-8 py-4 border border-[#1A1A1A] text-[#1A1A1A] text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#1A1A1A] hover:text-white transition-colors duration-300"
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+                <div>
+                  <p className="text-[11px] font-medium tracking-[0.3em] text-[#8B7355] uppercase mb-3">
+                    Collection
+                  </p>
+                  <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light tracking-[-0.02em] text-[#1A1A1A]">
+                    {collectionData.collection.title}
+                    <span className="text-lg text-[#9B9B9B] font-sans ml-3">({collectionData.products.length})</span>
+                  </h2>
+                  {collectionData.collection.description && (
+                    <p className="text-[#666] mt-3 max-w-lg">{collectionData.collection.description}</p>
+                  )}
+                </div>
+                <Link 
+                  href={`/collections/${collectionData.collection.handle}`}
+                  className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#1A1A1A] uppercase hover:text-[#8B7355] transition-colors"
                 >
-                  View All Products
+                  View All
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-8">
+                {collectionData.products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            </div>
+          </section>
+        ))}
+
+        {/* All Products Summary */}
+        {productsWithImages.length > 0 && (
+          <section className="py-16 bg-white border-y border-[#E8E4DC]">
+            <div className="max-w-[1600px] mx-auto px-6 lg:px-12 text-center">
+              <p className="text-[#9B9B9B] text-sm tracking-wide mb-4">
+                Showing {productsWithImages.length} products across {collectionsWithProducts.length} collections
+              </p>
+              <Link
+                href="/collections/all"
+                className="inline-flex items-center gap-3 px-8 py-4 border border-[#1A1A1A] text-[#1A1A1A] text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#1A1A1A] hover:text-white transition-colors duration-300"
+              >
+                Browse All Products
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </section>
         )}
