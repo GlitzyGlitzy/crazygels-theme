@@ -16,6 +16,26 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
   }).format(parseFloat(amount))
 }
 
+// Get hero image from first available product
+async function getHeroProductImage(): Promise<{ url: string; alt: string } | null> {
+  if (!isShopifyConfigured) return null
+  
+  try {
+    const products = await getProducts({ first: 10 })
+    // Find the first product with an image
+    const productWithImage = products.find(p => p.featuredImage?.url)
+    if (productWithImage?.featuredImage) {
+      return {
+        url: getOptimizedImageUrl(productWithImage.featuredImage.url, { width: 800, height: 800, crop: 'center' }),
+        alt: productWithImage.featuredImage.altText || productWithImage.title
+      }
+    }
+  } catch (error) {
+    // Fallback silently
+  }
+  return null
+}
+
 // Featured Products Component with real Shopify data
 async function FeaturedProducts() {
   // Check if Shopify is configured
@@ -44,9 +64,8 @@ async function FeaturedProducts() {
   
   try {
     products = await getProducts({ first: 250 }) // Fetch all products
-    console.log("[v0] FeaturedProducts: Successfully fetched", products.length, "products from Shopify")
-  } catch (error: any) {
-    console.log("[v0] FeaturedProducts: Error fetching products -", error?.message || error)
+  } catch (error) {
+    // Silently fail - show empty state
   }
 
   if (products.length === 0) {
@@ -139,16 +158,37 @@ async function FeaturedProducts() {
   )
 }
 
-// Collections Component with real Shopify data
+// Collections Component with real Shopify data - uses product images
 async function ShopifyCollections() {
   let collections: Collection[] = []
+  let collectionProductImages: Record<string, string> = {}
   
   // Only fetch if Shopify is configured
   if (isShopifyConfigured) {
     try {
       collections = await getCollections()
-      // Filter to show only main categories (limit to 3)
-      // No limit on collections - show all
+      // Filter to main categories only
+      const mainHandles = ['nails', 'hair', 'skin', 'skincare', 'treatments', 'haircare', 'nail-care']
+      collections = collections.filter(c => 
+        mainHandles.some(h => c.handle.toLowerCase().includes(h)) ||
+        !c.handle.includes('all')
+      ).slice(0, 3) // Show top 3
+      
+      // Fetch first product image for each collection
+      const { getCollectionProducts } = await import("@/lib/shopify")
+      await Promise.all(collections.map(async (col) => {
+        try {
+          const products = await getCollectionProducts({ handle: col.handle, first: 1 })
+          if (products[0]?.featuredImage?.url) {
+            collectionProductImages[col.handle] = getOptimizedImageUrl(
+              products[0].featuredImage.url, 
+              { width: 600, height: 750, crop: 'center' }
+            )
+          }
+        } catch (e) {
+          // Skip if error
+        }
+      }))
     } catch (error) {
       // Silently fail - use default categories
     }
@@ -161,7 +201,6 @@ async function ShopifyCollections() {
       description: "Salon-quality gel nails you can apply at home in minutes. 20+ designs, 14-day wear.",
       href: "/collections/nails",
       color: "#D4AF37",
-      image: "/images/collection-nails.jpg",
       features: ["14-Day Wear", "UV Cured", "Easy Apply"]
     },
     {
@@ -170,7 +209,6 @@ async function ShopifyCollections() {
       description: "Clip-in, tape-in, and ponytail extensions in 30+ shades. 100% Remy human hair.",
       href: "/collections/hair",
       color: "#8B7355",
-      image: "/images/collection-hair.jpg",
       features: ["100% Remy", "30+ Shades", "Heat Safe"]
     },
     {
@@ -179,18 +217,17 @@ async function ShopifyCollections() {
       description: "Clean, effective skincare for your best glow. Serums, masks, and more.",
       href: "/collections/skin",
       color: "#C9A9A6",
-      image: "/images/collection-skin.jpg",
       features: ["Cruelty Free", "Vegan", "Clean Beauty"]
     }
   ]
 
-  // If we have Shopify collections, merge with default styling
+  // If we have Shopify collections, merge with default styling and use product images
   const categories = collections.length > 0
     ? collections.map((col, i) => ({
         title: col.title.toUpperCase(),
         subtitle: col.description?.slice(0, 50) || defaultCategories[i]?.subtitle || "",
         description: col.description || defaultCategories[i]?.description || "",
-        image: col.image?.url || defaultCategories[i]?.image,
+        image: collectionProductImages[col.handle] || col.image?.url,
         href: `/collections/${col.handle}`,
         color: defaultCategories[i]?.color || "#D4AF37",
         features: defaultCategories[i]?.features || []
@@ -206,13 +243,19 @@ async function ShopifyCollections() {
           className="group relative overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#D4AF37]/10 hover:border-[#D4AF37]/30 transition-all duration-300 shadow-sm"
         >
           <div className="aspect-[4/5] relative overflow-hidden">
-            <Image
-              src={category.image || "/images/collection-nails.jpg"}
-              alt={category.title}
-              fill
-              sizes="(min-width: 768px) 33vw, 100vw"
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+            {category.image ? (
+              <Image
+                src={category.image}
+                alt={category.title}
+                fill
+                sizes="(min-width: 768px) 33vw, 100vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-[#E8C4C4]/30 via-[#D4AF37]/20 to-[#FAF7F2] flex items-center justify-center">
+                <ShoppingBag className="w-16 h-16 text-[#D4AF37]/50" />
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#2C2C2C]/80 via-[#2C2C2C]/20 to-transparent" />
           </div>
           <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -240,7 +283,9 @@ async function ShopifyCollections() {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Fetch hero product image from Shopify
+  const heroImage = await getHeroProductImage()
   const testimonials = [
     {
       name: "Sarah M.",
@@ -351,14 +396,20 @@ export default function HomePage() {
                 <div className="relative aspect-square max-w-lg mx-auto">
                   <div className="absolute inset-0 bg-gradient-to-br from-[#E8C4C4]/30 to-[#D4AF37]/20 rounded-3xl blur-2xl" />
                   <div className="relative z-10 aspect-square rounded-3xl overflow-hidden border border-[#D4AF37]/20 shadow-lg">
-                    <Image
-                      src="/images/hero-nails.jpg"
-                      alt="Elegant hands with beautiful gel nails"
-                      fill
-                      className="object-cover"
-                      priority
-                      sizes="(max-width: 768px) 100vw, 512px"
-                    />
+                    {heroImage ? (
+                      <Image
+                        src={heroImage.url}
+                        alt={heroImage.alt}
+                        fill
+                        className="object-cover"
+                        priority
+                        sizes="(max-width: 768px) 100vw, 512px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-[#E8C4C4]/30 via-[#D4AF37]/20 to-[#FAF7F2] flex items-center justify-center">
+                        <Sparkles className="w-16 h-16 text-[#D4AF37]" />
+                      </div>
+                    )}
                   </div>
                   <div className="absolute -bottom-4 -left-4 z-20 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl p-4 shadow-xl">
                     <div className="flex items-center gap-3">
