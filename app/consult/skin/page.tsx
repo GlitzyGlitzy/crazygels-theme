@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, UIMessage } from 'ai';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { ArrowLeft, Send, Loader2, Sparkles, User, RefreshCcw, Droplets, ShoppingBag, ExternalLink } from 'lucide-react';
 
 function getUIMessageText(msg: UIMessage): string {
@@ -44,12 +44,11 @@ function ProductRecommendationCard({ product }: { product: RecommendedProduct })
     >
       <div className="aspect-square relative bg-[#F5F3EF] overflow-hidden">
         {product.imageUrl ? (
-          <Image
+          <img
             src={product.imageUrl}
             alt={product.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-500"
-            sizes="200px"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

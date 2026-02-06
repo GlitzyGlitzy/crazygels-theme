@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/lib/shopify/types';
 function formatPrice(amount: string, currencyCode: string = 'USD'): string {
@@ -21,12 +20,11 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
         {featuredImage?.url ? (
-          <Image
+          <img
             src={featuredImage.url}
             alt={featuredImage.altText || title}
-            fill
-            sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground">

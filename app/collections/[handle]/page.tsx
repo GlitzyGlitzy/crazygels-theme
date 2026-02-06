@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import Image from 'next/image';
+
 import Link from 'next/link';
 import { getCollection, getCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
@@ -147,12 +147,10 @@ export default async function CollectionPage({
         <section className="relative overflow-hidden">
           {collection.image ? (
             <div className="absolute inset-0">
-              <Image
+              <img
                 src={collection.image.url}
                 alt={collection.image.altText || collection.title}
-                fill
-                className="object-cover opacity-20"
-                priority
+                className="absolute inset-0 w-full h-full object-cover opacity-20"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/60 via-[#FAF7F2]/80 to-[#FAF7F2]" />
             </div>
@@ -281,12 +279,11 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
                 className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#D4AF37]/20"
               >
                 {collection.image ? (
-                  <Image
+                  <img
                     src={collection.image.url}
                     alt={collection.image.altText || collection.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#C9A9A6]/20" />
