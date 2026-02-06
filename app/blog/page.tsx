@@ -16,13 +16,13 @@ function BlogSkeleton() {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {[1, 2, 3, 4, 5, 6].map((i) => (
-        <div key={i} className="animate-pulse bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl overflow-hidden">
-          <div className="aspect-[16/10] bg-[#D4AF37]/10" />
+        <div key={i} className="animate-pulse bg-[#FFFEF9] border border-[#B76E79]/20 rounded-2xl overflow-hidden">
+          <div className="aspect-[16/10] bg-[#B76E79]/10" />
           <div className="p-6 space-y-3">
-            <div className="h-3 bg-[#D4AF37]/10 rounded w-1/3" />
-            <div className="h-5 bg-[#D4AF37]/10 rounded w-3/4" />
-            <div className="h-4 bg-[#D4AF37]/10 rounded w-full" />
-            <div className="h-4 bg-[#D4AF37]/10 rounded w-2/3" />
+            <div className="h-3 bg-[#B76E79]/10 rounded w-1/3" />
+            <div className="h-5 bg-[#B76E79]/10 rounded w-3/4" />
+            <div className="h-4 bg-[#B76E79]/10 rounded w-full" />
+            <div className="h-4 bg-[#B76E79]/10 rounded w-2/3" />
           </div>
         </div>
       ))}
@@ -33,9 +33,9 @@ function BlogSkeleton() {
 function NoBlogConfigured() {
   return (
     <div className="text-center py-16 px-4">
-      <div className="max-w-md mx-auto bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl p-8">
-        <div className="w-16 h-16 rounded-full bg-[#D4AF37]/20 flex items-center justify-center mx-auto mb-4">
-          <BookOpen className="w-8 h-8 text-[#D4AF37]" />
+      <div className="max-w-md mx-auto bg-[#FFFEF9] border border-[#B76E79]/20 rounded-2xl p-8">
+        <div className="w-16 h-16 rounded-full bg-[#B76E79]/20 flex items-center justify-center mx-auto mb-4">
+          <BookOpen className="w-8 h-8 text-[#B76E79]" />
         </div>
         <h3 className="text-[#2C2C2C] font-medium text-lg mb-2">Blog Coming Soon</h3>
         <p className="text-[#2C2C2C]/60 text-sm mb-4">
@@ -43,7 +43,7 @@ function NoBlogConfigured() {
         </p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-[#D4AF37] hover:underline"
+          className="inline-flex items-center gap-2 text-[#B76E79] hover:underline"
         >
           Return to Home <ArrowRight className="w-4 h-4" />
         </Link>
@@ -78,8 +78,8 @@ async function BlogArticles() {
     if (!articles || articles.length === 0) {
       return (
         <div className="text-center py-16">
-          <div className="w-20 h-20 rounded-full bg-[#D4AF37]/20 flex items-center justify-center mx-auto mb-6">
-            <BookOpen className="w-10 h-10 text-[#D4AF37]" />
+          <div className="w-20 h-20 rounded-full bg-[#B76E79]/20 flex items-center justify-center mx-auto mb-6">
+            <BookOpen className="w-10 h-10 text-[#B76E79]" />
           </div>
           <h2 className="text-2xl font-medium text-[#2C2C2C] mb-3">No Articles Yet</h2>
           <p className="text-[#2C2C2C]/60 mb-8">
@@ -87,7 +87,7 @@ async function BlogArticles() {
           </p>
           <Link
             href="/collections"
-            className="inline-flex items-center justify-center gap-2 bg-[#D4AF37] hover:bg-[#B8860B] text-white font-medium py-3 px-8 rounded-full transition-all"
+            className="inline-flex items-center justify-center gap-2 bg-[#B76E79] hover:bg-[#A15D67] text-white font-medium py-3 px-8 rounded-full transition-all"
           >
             Shop Products
           </Link>
@@ -104,7 +104,7 @@ async function BlogArticles() {
         {featuredArticle && (
           <Link
             href={`/blog/${featuredArticle.blog.handle}/${featuredArticle.handle}`}
-            className="group block bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl overflow-hidden hover:border-[#D4AF37]/50 transition-all"
+            className="group block bg-[#FFFEF9] border border-[#B76E79]/20 rounded-2xl overflow-hidden hover:border-[#B76E79]/50 transition-all"
           >
             <div className="grid md:grid-cols-2 gap-0">
               <div className="relative aspect-[16/10] md:aspect-auto">
@@ -115,12 +115,12 @@ async function BlogArticles() {
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#C9A9A6]/20 flex items-center justify-center">
-                    <BookOpen className="w-16 h-16 text-[#D4AF37]/30" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/20 to-[#C9A9A6]/20 flex items-center justify-center">
+                    <BookOpen className="w-16 h-16 text-[#B76E79]/30" />
                   </div>
                 )}
                 <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1.5 bg-[#D4AF37] text-white text-xs font-medium uppercase tracking-wide rounded-full">
+                  <span className="px-3 py-1.5 bg-[#B76E79] text-white text-xs font-medium uppercase tracking-wide rounded-full">
                     Featured
                   </span>
                 </div>
@@ -136,13 +136,13 @@ async function BlogArticles() {
                     {estimateReadTime(featuredArticle.content)} min read
                   </span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-medium text-[#2C2C2C] mb-3 group-hover:text-[#D4AF37] transition-colors">
+                <h2 className="text-2xl md:text-3xl font-medium text-[#2C2C2C] mb-3 group-hover:text-[#B76E79] transition-colors">
                   {featuredArticle.title}
                 </h2>
                 <p className="text-[#2C2C2C]/70 line-clamp-3 mb-4">
                   {featuredArticle.excerpt || featuredArticle.content.slice(0, 200)}
                 </p>
-                <span className="inline-flex items-center gap-2 text-[#D4AF37] font-medium">
+                <span className="inline-flex items-center gap-2 text-[#B76E79] font-medium">
                   Read Article <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </span>
               </div>
@@ -157,7 +157,7 @@ async function BlogArticles() {
                 <Link
                   key={article.id}
                   href={`/blog/${article.blog.handle}/${article.handle}`}
-                  className="group bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl overflow-hidden hover:border-[#D4AF37]/50 transition-all"
+                  className="group bg-[#FFFEF9] border border-[#B76E79]/20 rounded-2xl overflow-hidden hover:border-[#B76E79]/50 transition-all"
                 >
                   <div className="relative aspect-[16/10]">
                     {article.image?.url ? (
@@ -168,8 +168,8 @@ async function BlogArticles() {
                         loading="lazy"
                       />
                     ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-[#C9A9A6]/10 flex items-center justify-center">
-                      <BookOpen className="w-10 h-10 text-[#D4AF37]/30" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/10 to-[#C9A9A6]/10 flex items-center justify-center">
+                      <BookOpen className="w-10 h-10 text-[#B76E79]/30" />
                     </div>
                   )}
                 </div>
@@ -184,7 +184,7 @@ async function BlogArticles() {
                       {estimateReadTime(article.content)} min
                     </span>
                   </div>
-                  <h3 className="text-lg font-medium text-[#2C2C2C] mb-2 line-clamp-2 group-hover:text-[#D4AF37] transition-colors">
+                  <h3 className="text-lg font-medium text-[#2C2C2C] mb-2 line-clamp-2 group-hover:text-[#B76E79] transition-colors">
                     {article.title}
                   </h3>
                   <p className="text-[#2C2C2C]/60 text-sm line-clamp-2">
@@ -212,7 +212,7 @@ export default function BlogPage() {
         {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-light tracking-tight text-[#2C2C2C] mb-4">
-            Beauty <span className="font-medium text-[#D4AF37]">Blog</span>
+            Beauty <span className="font-medium text-[#B76E79]">Blog</span>
           </h1>
           <p className="text-[#2C2C2C]/60 text-lg max-w-2xl mx-auto">
             Tips, tutorials, and trends to help you look and feel your best

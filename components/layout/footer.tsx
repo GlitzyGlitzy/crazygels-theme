@@ -9,7 +9,7 @@ export function Footer() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="text-center lg:text-left">
               <h2 className="text-xl md:text-2xl font-light tracking-[0.1em] text-[#FAF7F2] mb-2">
-                JOIN OUR <span className="text-[#D4AF37]">INNER CIRCLE</span>
+                JOIN OUR <span className="text-[#B76E79]">INNER CIRCLE</span>
               </h2>
               <p className="text-[#FAF7F2]/70">Receive exclusive offers and beauty insights</p>
             </div>
@@ -20,11 +20,11 @@ export function Footer() {
                 type="email"
                 placeholder="Enter your email"
                 required
-                className="px-6 py-4 bg-white/5 border border-[#D4AF37]/30 rounded-full text-[#FAF7F2] placeholder:text-[#FAF7F2]/40 focus:outline-none focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 transition-colors w-full sm:w-80"
+                className="px-6 py-4 bg-white/5 border border-[#B76E79]/30 rounded-full text-[#FAF7F2] placeholder:text-[#FAF7F2]/40 focus:outline-none focus:border-[#B76E79] focus:ring-2 focus:ring-[#B76E79]/20 transition-colors w-full sm:w-80"
               />
               <button
                 type="submit"
-                className="px-8 py-4 bg-[#D4AF37] text-[#2C2C2C] font-medium tracking-wide rounded-full hover:bg-[#B8860B] transition-colors focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50"
+                className="px-8 py-4 bg-[#B76E79] text-[#2C2C2C] font-medium tracking-wide rounded-full hover:bg-[#A15D67] transition-colors focus:outline-none focus:ring-2 focus:ring-[#B76E79]/50"
               >
                 SUBSCRIBE
               </button>
@@ -38,7 +38,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="inline-block">
               <span className="text-xl md:text-2xl font-light tracking-[0.2em] text-[#FAF7F2]">
-                CRAZY <span className="text-[#D4AF37]">GELS</span>
+                CRAZY <span className="text-[#B76E79]">GELS</span>
               </span>
             </Link>
             <p className="text-[#FAF7F2]/70 text-sm leading-relaxed mt-4 mb-6">
@@ -55,7 +55,7 @@ export function Footer() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-white/5 border border-[#D4AF37]/20 flex items-center justify-center text-[#FAF7F2]/70 hover:text-[#D4AF37] hover:border-[#D4AF37]/50 transition-all"
+                  className="w-10 h-10 rounded-full bg-white/5 border border-[#B76E79]/20 flex items-center justify-center text-[#FAF7F2]/70 hover:text-[#B76E79] hover:border-[#B76E79]/50 transition-all"
                   aria-label={social.label}
                 >
                   <Instagram className="w-5 h-5" aria-hidden="true" />
@@ -74,7 +74,7 @@ export function Footer() {
               <ul className="space-y-3">
                 {col.links.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-[#FAF7F2]/70 hover:text-[#D4AF37] transition-colors text-sm">
+                    <Link href={link.href} className="text-[#FAF7F2]/70 hover:text-[#B76E79] transition-colors text-sm">
                       {link.name}
                     </Link>
                   </li>

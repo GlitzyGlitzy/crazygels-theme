@@ -134,8 +134,11 @@
   --luxury-cream: #FAFAF8;
   --luxury-warm: #F5F3EF;
   --luxury-sand: #E8E4DC;
-  --luxury-taupe: #8B7355;
+  --luxury-taupe: #9E6B73;
   --luxury-brown: #6B5B4F;
+  --luxury-rose-gold: #B76E79;
+  --luxury-rose-gold-dark: #A15D67;
+  --luxury-rose-gold-light: #C4868F;
   --luxury-charcoal: #1A1A1A;
   --luxury-gray: #666666;
   --luxury-light-gray: #9B9B9B;
@@ -228,7 +231,7 @@ html {
 
 /* Selection color */
 ::selection {
-  background-color: var(--luxury-champagne);
+  background-color: var(--luxury-rose-gold-light);
   color: var(--luxury-charcoal);
 }
 
@@ -242,10 +245,10 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--luxury-champagne), var(--luxury-rose));
+  background: linear-gradient(to bottom, var(--luxury-rose-gold-light), var(--luxury-rose-gold));
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, var(--luxury-gold), var(--luxury-champagne));
+  background: linear-gradient(to bottom, var(--luxury-rose-gold), var(--luxury-rose-gold-dark));
 }

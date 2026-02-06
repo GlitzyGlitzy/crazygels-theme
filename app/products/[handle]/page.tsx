@@ -121,21 +121,21 @@ export default async function ProductPage({
         />
       )}
 
-      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#D4AF37]/20" />}>
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#B76E79]/20" />}>
         <DynamicHeader />
       </Suspense>
 
       {/* Breadcrumb */}
       <nav className="mx-auto max-w-7xl px-4 py-4" aria-label="Breadcrumb">
         <ol className="flex items-center gap-2 text-sm text-[#2C2C2C]/60">
-          <li><Link href="/" className="hover:text-[#D4AF37] transition-colors">Home</Link></li>
+          <li><Link href="/" className="hover:text-[#B76E79] transition-colors">Home</Link></li>
           <li aria-hidden="true">/</li>
-          <li><Link href="/collections" className="hover:text-[#D4AF37] transition-colors">Collections</Link></li>
+          <li><Link href="/collections" className="hover:text-[#B76E79] transition-colors">Collections</Link></li>
           {product.productType && (
             <>
               <li aria-hidden="true">/</li>
               <li>
-                <Link href={`/collections/${product.productType.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-[#D4AF37] transition-colors">
+                <Link href={`/collections/${product.productType.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-[#B76E79] transition-colors">
                   {product.productType}
                 </Link>
               </li>
@@ -153,31 +153,31 @@ export default async function ProductPage({
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-12 grid grid-cols-2 gap-4 border-y border-[#D4AF37]/10 py-8 md:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-4 border-y border-[#B76E79]/10 py-8 md:grid-cols-4">
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#D4AF37]/10 p-3">
-              <Truck className="h-6 w-6 text-[#D4AF37]" />
+            <div className="rounded-full bg-[#B76E79]/10 p-3">
+              <Truck className="h-6 w-6 text-[#B76E79]" />
             </div>
             <span className="text-sm font-medium text-[#2C2C2C]">Free Shipping</span>
             <span className="text-xs text-[#2C2C2C]/60">Orders over $50</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#8B7355]/10 p-3">
-              <Shield className="h-6 w-6 text-[#8B7355]" />
+            <div className="rounded-full bg-[#9E6B73]/10 p-3">
+              <Shield className="h-6 w-6 text-[#9E6B73]" />
             </div>
             <span className="text-sm font-medium text-[#2C2C2C]">Secure Payment</span>
             <span className="text-xs text-[#2C2C2C]/60">100% Protected</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#D4AF37]/10 p-3">
-              <RotateCcw className="h-6 w-6 text-[#D4AF37]" />
+            <div className="rounded-full bg-[#B76E79]/10 p-3">
+              <RotateCcw className="h-6 w-6 text-[#B76E79]" />
             </div>
             <span className="text-sm font-medium text-[#2C2C2C]">Easy Returns</span>
             <span className="text-xs text-[#2C2C2C]/60">14-Day Policy</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#8B7355]/10 p-3">
-              <Star className="h-6 w-6 text-[#8B7355]" />
+            <div className="rounded-full bg-[#9E6B73]/10 p-3">
+              <Star className="h-6 w-6 text-[#9E6B73]" />
             </div>
             <span className="text-sm font-medium text-[#2C2C2C]">Top Rated</span>
             <span className="text-xs text-[#2C2C2C]/60">Trusted by 50K+</span>

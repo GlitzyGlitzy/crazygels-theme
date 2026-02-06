@@ -15,7 +15,7 @@ const consultTypes = [
     description: 'Get personalized skincare recommendations based on your skin type, concerns, and goals.',
     icon: Droplets,
     href: '/consult/skin',
-    gradient: 'from-[#D4AF37] to-[#B8860B]',
+    gradient: 'from-[#B76E79] to-[#A15D67]',
     features: ['Skin type assessment', 'Concern analysis', 'Product recommendations', 'Routine builder'],
   },
   {
@@ -23,7 +23,7 @@ const consultTypes = [
     description: 'Discover the perfect hair care routine tailored to your hair type and styling needs.',
     icon: Wind,
     href: '/consult/hair',
-    gradient: 'from-[#8B7355] to-[#C9A9A6]',
+    gradient: 'from-[#9E6B73] to-[#C9A9A6]',
     features: ['Hair type assessment', 'Damage analysis', 'Treatment suggestions', 'Style recommendations'],
   },
 ];
@@ -60,18 +60,18 @@ export default function ConsultPage() {
         {/* Hero Section */}
         <section className="relative overflow-hidden py-20 md:py-32">
           {/* Background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 via-transparent to-[#C9A9A6]/5" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#D4AF37]/5 rounded-full blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/5 via-transparent to-[#C9A9A6]/5" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#B76E79]/5 rounded-full blur-3xl" />
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#D4AF37]/10 border border-[#D4AF37]/20 rounded-full text-[#B8860B] text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#B76E79]/10 border border-[#B76E79]/20 rounded-full text-[#A15D67] text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
               AI-Powered Beauty Consultation
             </div>
             
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight text-[#2C2C2C] mb-6 text-balance">
               Your Personal{' '}
-              <span className="font-medium text-[#D4AF37]">
+              <span className="font-medium text-[#B76E79]">
                 Beauty Consultant
               </span>
             </h1>
@@ -91,7 +91,7 @@ export default function ConsultPage() {
                 <Link
                   key={consult.title}
                   href={consult.href}
-                  className="group relative bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-3xl p-8 md:p-10 hover:border-[#D4AF37]/50 transition-all duration-300 overflow-hidden shadow-sm"
+                  className="group relative bg-[#FFFEF9] border border-[#B76E79]/20 rounded-3xl p-8 md:p-10 hover:border-[#B76E79]/50 transition-all duration-300 overflow-hidden shadow-sm"
                 >
                   {/* Gradient overlay on hover */}
                   <div className={`absolute inset-0 bg-gradient-to-br ${consult.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
@@ -103,7 +103,7 @@ export default function ConsultPage() {
                     </div>
                     
                     {/* Content */}
-                    <h2 className="text-2xl md:text-3xl font-medium text-[#2C2C2C] mb-3 group-hover:text-[#D4AF37] transition-colors">
+                    <h2 className="text-2xl md:text-3xl font-medium text-[#2C2C2C] mb-3 group-hover:text-[#B76E79] transition-colors">
                       {consult.title}
                     </h2>
                     <p className="text-[#2C2C2C]/60 mb-6">
@@ -114,14 +114,14 @@ export default function ConsultPage() {
                     <ul className="space-y-2 mb-8">
                       {consult.features.map((feature) => (
                         <li key={feature} className="flex items-center gap-2 text-[#2C2C2C]/70 text-sm">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#B76E79]" />
                           {feature}
                         </li>
                       ))}
                     </ul>
                     
                     {/* CTA */}
-                    <span className="inline-flex items-center gap-2 text-[#D4AF37] font-medium">
+                    <span className="inline-flex items-center gap-2 text-[#B76E79] font-medium">
                       Start Consultation
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </span>
@@ -133,7 +133,7 @@ export default function ConsultPage() {
         </section>
 
         {/* Benefits */}
-        <section className="py-12 md:py-20 border-t border-[#D4AF37]/10">
+        <section className="py-12 md:py-20 border-t border-[#B76E79]/10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl md:text-3xl font-medium text-[#2C2C2C] text-center mb-12">
               Why Use Our AI Consultant?
@@ -143,10 +143,10 @@ export default function ConsultPage() {
               {benefits.map((benefit) => (
                 <div
                   key={benefit.title}
-                  className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl p-6 text-center shadow-sm"
+                  className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-2xl p-6 text-center shadow-sm"
                 >
-                  <div className="w-12 h-12 rounded-full bg-[#D4AF37]/10 flex items-center justify-center mx-auto mb-4">
-                    <benefit.icon className="w-6 h-6 text-[#D4AF37]" />
+                  <div className="w-12 h-12 rounded-full bg-[#B76E79]/10 flex items-center justify-center mx-auto mb-4">
+                    <benefit.icon className="w-6 h-6 text-[#B76E79]" />
                   </div>
                   <h3 className="text-lg font-medium text-[#2C2C2C] mb-2">{benefit.title}</h3>
                   <p className="text-[#2C2C2C]/60 text-sm">{benefit.description}</p>
@@ -168,14 +168,14 @@ export default function ConsultPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 href="/consult/skin"
-                className="inline-flex items-center justify-center gap-2 bg-[#D4AF37] hover:bg-[#B8860B] text-white font-medium py-3 px-8 rounded-full transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-[#B76E79] hover:bg-[#A15D67] text-white font-medium py-3 px-8 rounded-full transition-all"
               >
                 <Droplets className="w-5 h-5" />
                 Skin Analysis
               </Link>
               <Link
                 href="/consult/hair"
-                className="inline-flex items-center justify-center gap-2 bg-[#8B7355] hover:bg-[#6B5344] text-white font-medium py-3 px-8 rounded-full transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-[#9E6B73] hover:bg-[#8A5560] text-white font-medium py-3 px-8 rounded-full transition-all"
               >
                 <Wind className="w-5 h-5" />
                 Hair Analysis

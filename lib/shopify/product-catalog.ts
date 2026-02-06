@@ -22,12 +22,11 @@ const HAIR_KEYWORDS = [
 ]
 
 const SKIN_COLLECTION_HANDLES = [
-  'skincare', 'face-masks', 'vegan-serums', 'collagen-mask-overnight',
-  'oils-treatments', 'treatments', 'skin'
+  'skincare', 'treatments'
 ]
 
 const HAIR_COLLECTION_HANDLES = [
-  'haircare', 'hair', 'hair-care'
+  'haircare', 'treatments'
 ]
 
 // Concern-to-keyword mapping for skin

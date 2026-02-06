@@ -49,13 +49,13 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF7F2]/98 backdrop-blur-xl border-b border-[#D4AF37]/20">
+    <header className="sticky top-0 z-50 bg-[#FAF7F2]/98 backdrop-blur-xl border-b border-[#B76E79]/20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-[#2C2C2C] hover:text-[#D4AF37] transition-colors"
+            className="md:hidden p-2 text-[#2C2C2C] hover:text-[#B76E79] transition-colors"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileMenuOpen}
           >
@@ -65,7 +65,7 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
             <span className="text-2xl md:text-3xl font-light tracking-[0.2em] text-[#2C2C2C]">
-              CRAZY <span className="font-medium text-[#D4AF37]">GELS</span>
+              CRAZY <span className="font-medium text-[#B76E79]">GELS</span>
             </span>
           </Link>
 
@@ -80,7 +80,7 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
               >
                 <Link
                   href={item.href}
-                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-widest transition-colors text-[#2C2C2C] hover:text-[#D4AF37]"
+                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-widest transition-colors text-[#2C2C2C] hover:text-[#B76E79]"
                   style={item.color ? { color: item.color } : undefined}
                 >
                   {item.label}
@@ -88,12 +88,12 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
                 </Link>
 
                 {item.submenu && activeDropdown === item.label && (
-                  <div className="absolute top-full left-0 w-56 bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl shadow-2xl py-2 mt-1 z-50">
+                  <div className="absolute top-full left-0 w-56 bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl shadow-2xl py-2 mt-1 z-50">
                     {item.submenu.map((subitem) => (
                       <Link
                         key={subitem.href}
                         href={subitem.href}
-                        className="block px-4 py-2.5 text-sm text-[#2C2C2C]/80 hover:text-[#D4AF37] hover:bg-[#D4AF37]/5 transition-colors"
+                        className="block px-4 py-2.5 text-sm text-[#2C2C2C]/80 hover:text-[#B76E79] hover:bg-[#B76E79]/5 transition-colors"
                       >
                         {subitem.label}
                       </Link>
@@ -106,13 +106,13 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
           {/* Right Icons */}
           <div className="flex items-center gap-2 md:gap-4">
-            <button className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors" aria-label="Search products">
+            <button className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#B76E79] transition-colors" aria-label="Search products">
               <Search className="w-5 h-5" aria-hidden="true" />
             </button>
-            <Link href="/account" className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors" aria-label="My account">
+            <Link href="/account" className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#B76E79] transition-colors" aria-label="My account">
               <User className="w-5 h-5" aria-hidden="true" />
             </Link>
-            <Link href="/cart" className="relative p-2 text-[#2C2C2C]/70 hover:text-[#D4AF37] transition-colors" aria-label="Shopping cart">
+            <Link href="/cart" className="relative p-2 text-[#2C2C2C]/70 hover:text-[#B76E79] transition-colors" aria-label="Shopping cart">
               <ShoppingBag className="w-5 h-5" aria-hidden="true" />
             </Link>
           </div>
@@ -121,7 +121,7 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#FFFEF9] border-t border-[#D4AF37]/20 max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="md:hidden bg-[#FFFEF9] border-t border-[#B76E79]/20 max-h-[calc(100vh-4rem)] overflow-y-auto">
           <nav className="px-4 py-4 space-y-1" aria-label="Mobile navigation">
             {menuItems.map((item) => (
               <div key={item.label}>
