@@ -65,7 +65,7 @@ export function Footer() {
           </div>
 
           {[
-            { title: "Shop", links: [{ name: "Nails", href: "/collections/nails" }, { name: "Hair", href: "/collections/hair" }, { name: "Skin", href: "/collections/skin" }, { name: "Bundles", href: "/collections/bundles" }, { name: "Sale", href: "/collections/sale" }] },
+            { title: "Shop", links: [{ name: "Gel Nail Wraps", href: "/collections/gel-nail-wraps" }, { name: "French Styles", href: "/collections/french-styles" }, { name: "Haircare", href: "/collections/haircare" }, { name: "Skincare", href: "/collections/skincare" }, { name: "Treatments", href: "/collections/treatments" }] },
             { title: "Help", links: [{ name: "FAQ", href: "/pages/faq" }, { name: "Shipping", href: "/pages/shipping" }, { name: "Returns", href: "/pages/returns" }, { name: "Contact", href: "/pages/contact" }] },
             { title: "Company", links: [{ name: "About", href: "/pages/about" }, { name: "Blog", href: "/blog" }, { name: "Careers", href: "/pages/careers" }, { name: "Press", href: "/pages/press" }] }
           ].map((col) => (

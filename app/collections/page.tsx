@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { getOptimizedImageUrl } from '@/lib/shopify/image';
 
 export const revalidate = 300;
-import { getOptimizedImageUrl } from '@/lib/shopify/image';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
 import { ChevronLeft, Sparkles } from 'lucide-react';
@@ -19,22 +19,34 @@ export const metadata: Metadata = {
 // Default collections when Shopify is not configured - luxury palette
 const DEFAULT_COLLECTIONS = [
   {
-    handle: 'nails',
-    title: 'Nails',
-    description: 'Premium nail products for stunning manicures',
+    handle: 'gel-nail-wraps',
+    title: 'Gel Nail Wraps',
+    description: 'Premium semi-cured gel nail wraps for a salon finish at home',
     gradient: 'from-[#D4AF37] to-[#B8860B]',
   },
   {
-    handle: 'hair',
-    title: 'Hair',
+    handle: 'french-styles',
+    title: 'French Styles',
+    description: 'Classic and modern French tip gel nail designs',
+    gradient: 'from-[#C9A9A6] to-[#A89190]',
+  },
+  {
+    handle: 'haircare',
+    title: 'Haircare',
     description: 'Professional hair care and styling products',
     gradient: 'from-[#8B7355] to-[#6B5344]',
   },
   {
-    handle: 'skin',
-    title: 'Skin',
+    handle: 'skincare',
+    title: 'Skincare',
     description: 'Luxurious skincare for radiant results',
-    gradient: 'from-[#C9A9A6] to-[#A89190]',
+    gradient: 'from-[#D4AF37] to-[#8B7355]',
+  },
+  {
+    handle: 'treatments',
+    title: 'Treatments',
+    description: 'Professional beauty treatments and tools',
+    gradient: 'from-[#8B7355] to-[#C9A9A6]',
   },
 ];
 

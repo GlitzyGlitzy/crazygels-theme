@@ -4,9 +4,9 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getCollection, getCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { DynamicHeader } from '@/components/layout/dynamic-header';
 
 export const revalidate = 300;
-import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { ChevronLeft, Grid3X3, SlidersHorizontal } from 'lucide-react';
@@ -14,29 +14,25 @@ import { CollectionSorting } from '@/components/collections/collection-sorting';
 
 // SEO-optimized metadata per collection
 const COLLECTION_SEO: Record<string, { title: string; description: string }> = {
-  nails: {
-    title: 'Premium Semi-Cured Gel Nails | Crazy Gels',
-    description: 'Shop salon-quality semi-cured gel nails. Easy DIY application, lasts 2+ weeks, zero damage. French tips, nail art, solid colors and more.',
+  'gel-nail-wraps': {
+    title: 'Premium Semi-Cured Gel Nail Wraps | Crazy Gels',
+    description: 'Shop salon-quality semi-cured gel nail wraps. Easy DIY application, lasts 2+ weeks, zero damage. 285+ designs including French tips, nail art, and solid colors.',
   },
-  hair: {
-    title: 'Hair Extensions & Hair Care Products | Crazy Gels',
-    description: 'Premium hair extensions, hair care and styling products. Clip-in extensions, nourishing treatments and professional styling tools.',
+  'french-styles': {
+    title: 'French Style Gel Nails | Crazy Gels',
+    description: 'Classic and modern French tip gel nails. Elegant semi-cured gel nail wraps for a timeless manicure look at home.',
   },
-  skin: {
-    title: 'Luxury Skincare Products | Crazy Gels',
-    description: 'Refined skincare for radiant results. Serums, moisturizers, masks and treatments crafted with premium ingredients.',
+  haircare: {
+    title: 'Premium Hair Care Products | Crazy Gels',
+    description: 'Professional hair care and styling products. Nourishing treatments, shampoos, conditioners and styling tools for healthy, beautiful hair.',
   },
   skincare: {
     title: 'Luxury Skincare Products | Crazy Gels',
     description: 'Refined skincare for radiant results. Serums, moisturizers, masks and treatments crafted with premium ingredients.',
   },
-  bundles: {
-    title: 'Beauty Bundles & Value Sets | Crazy Gels',
-    description: 'Save with our curated beauty bundles. Premium nail, hair and skin care sets at special prices.',
-  },
-  sale: {
-    title: 'Sale & Special Offers | Crazy Gels',
-    description: 'Shop our latest deals on premium beauty products. Limited-time offers on gel nails, hair care and skincare.',
+  treatments: {
+    title: 'Beauty Treatments & Tools | Crazy Gels',
+    description: 'Professional beauty treatments and tools. UV lamps, nail prep kits, and application accessories for the perfect at-home salon experience.',
   },
 }
 
@@ -84,7 +80,7 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   if (!isShopifyConfigured) {
-    return [{ handle: 'nails' }, { handle: 'hair' }, { handle: 'skin' }];
+    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'treatments' }];
   }
 
   try {
@@ -93,7 +89,7 @@ export async function generateStaticParams() {
       handle: collection.handle,
     }));
   } catch {
-    return [{ handle: 'nails' }, { handle: 'hair' }, { handle: 'skin' }];
+    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'treatments' }];
   }
 }
 
