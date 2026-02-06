@@ -4,7 +4,6 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Product } from '@/lib/shopify/types';
-import { getOptimizedImageUrl } from '@/lib/shopify/image';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -27,13 +26,6 @@ export function ProductGallery({ product }: { product: Product }) {
   }
 
   const currentImage = images[selectedIndex];
-  
-  // Get optimized image URLs for main display (1200px for crisp quality)
-  const mainImageUrl = getOptimizedImageUrl(currentImage.url, { 
-    width: 1200, 
-    height: 1200, 
-    crop: 'center' 
-  });
 
   const goToPrevious = () => {
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -48,7 +40,7 @@ export function ProductGallery({ product }: { product: Product }) {
       {/* Main Image */}
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted group">
         <Image
-          src={mainImageUrl}
+          src={currentImage.url}
           alt={currentImage.altText || product.title}
           fill
           className={cn(
@@ -58,9 +50,6 @@ export function ProductGallery({ product }: { product: Product }) {
           onClick={() => setIsZoomed(!isZoomed)}
           priority
           sizes="(max-width: 768px) 100vw, 50vw"
-          quality={90}
-          placeholder="blur"
-          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
         />
 
         {/* Zoom Hint */}
@@ -107,15 +96,7 @@ export function ProductGallery({ product }: { product: Product }) {
       {/* Thumbnail Grid */}
       {images.length > 1 && (
         <div className="flex gap-3 overflow-x-auto pb-2">
-          {images.map((image, index) => {
-            // Optimized thumbnail URL (200px for crisp thumbnails on retina)
-            const thumbnailUrl = getOptimizedImageUrl(image.url, { 
-              width: 200, 
-              height: 200, 
-              crop: 'center' 
-            });
-            
-            return (
+          {images.map((image, index) => (
               <button
                 key={index}
                 onClick={() => setSelectedIndex(index)}
@@ -129,16 +110,14 @@ export function ProductGallery({ product }: { product: Product }) {
                 aria-current={selectedIndex === index ? 'true' : undefined}
               >
                 <Image
-                  src={thumbnailUrl}
+                  src={image.url}
                   alt={image.altText || `${product.title} - Image ${index + 1}`}
                   fill
                   className="object-cover"
                   sizes="80px"
-                  quality={80}
                 />
               </button>
-            );
-          })}
+          ))}
         </div>
       )}
 
