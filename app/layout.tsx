@@ -1,4 +1,4 @@
-/* v8 - sync header, fixed images */
+/* v9 */
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-icon.png',
   },
-    generator: 'v0.app'
+  generator: 'v0.app'
 }
 
 export const viewport = {
@@ -99,7 +99,6 @@ export const viewport = {
   maximumScale: 5,
 }
 
-// JSON-LD structured data for SEO
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',

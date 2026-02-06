@@ -2,7 +2,7 @@ import { HeaderClient, MenuItem } from "./header-client"
 
 const menuItems: MenuItem[] = [
   {
-    label: "Gel Nail Wraps",
+    label: "Nails",
     href: "/collections/gel-nail-wraps",
     submenu: [
       { label: "All Gel Nail Wraps", href: "/collections/gel-nail-wraps" },
@@ -10,11 +10,11 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    label: "Haircare",
+    label: "Hair",
     href: "/collections/haircare",
   },
   {
-    label: "Skincare",
+    label: "Skin",
     href: "/collections/skincare",
   },
   {

@@ -4,7 +4,6 @@ import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, isShopifyConfigured, getProducts } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
-import { getOptimizedImageUrl } from "@/lib/shopify/image"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
 
@@ -19,9 +18,7 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
 
 function ProductCard({ product }: { product: Product }) {
   const price = product.priceRange?.minVariantPrice
-  const imageUrl = product.featuredImage?.url
-    ? getOptimizedImageUrl(product.featuredImage.url, { width: 400, height: 500, crop: "center" })
-    : null
+  const imageUrl = product.featuredImage?.url || null
 
   return (
     <Link href={`/products/${product.handle}`} className="group block">
@@ -66,7 +63,6 @@ function ProductGridSkeleton({ count = 4 }: { count?: number }) {
   )
 }
 
-// Each collection section is its own async component fetching only 4 products
 async function CollectionProducts({ handle }: { handle: string }) {
   if (!isShopifyConfigured) return null
   try {
@@ -93,7 +89,7 @@ async function HeroProductImage() {
     if (!product?.featuredImage?.url) return null
     return (
       <Image
-        src={getOptimizedImageUrl(product.featuredImage.url, { width: 700, height: 875, crop: "center" })}
+        src={product.featuredImage.url}
         alt={product.featuredImage.altText || product.title}
         fill
         className="object-cover"
@@ -106,7 +102,6 @@ async function HeroProductImage() {
   }
 }
 
-// Static collection data - no async fetch needed for the section shells
 const HOMEPAGE_COLLECTIONS = [
   { handle: "gel-nail-wraps", title: "Gel Nail Wraps", bg: "bg-white" },
   { handle: "french-styles", title: "French Styles", bg: "bg-[#FAFAF8]" },
@@ -116,21 +111,18 @@ const HOMEPAGE_COLLECTIONS = [
 ]
 
 export default function HomePage() {
-  console.log("[v0] HomePage v8 rendering - this confirms the new code is running")
+  console.log("[v0] PAGE_V9_LOADED")
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
-      {/* Announcement Bar */}
       <div className="bg-[#1A1A1A] py-3">
         <p className="text-center text-[11px] font-medium tracking-[0.2em] text-white uppercase">
           Complimentary Shipping on Orders Over $50
         </p>
       </div>
 
-      {/* Header */}
       <DynamicHeader />
 
       <main>
-        {/* Hero */}
         <section className="relative">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
@@ -167,7 +159,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Trust Bar */}
         <section className="border-y border-[#E8E4DC] bg-white">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#E8E4DC]">
@@ -187,7 +178,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Collection Sections - each one is a static shell with only the product grid async */}
         {HOMEPAGE_COLLECTIONS.map((col) => (
           <section key={col.handle} className={`py-16 lg:py-20 ${col.bg}`}>
             <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
@@ -215,7 +205,6 @@ export default function HomePage() {
           </section>
         ))}
 
-        {/* Testimonials */}
         <section className="py-16 lg:py-20 bg-[#F5F3EF]">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
             <div className="text-center mb-12">
@@ -251,7 +240,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Newsletter */}
         <section className="py-16 lg:py-20 bg-[#1A1A1A]">
           <div className="max-w-xl mx-auto px-6 text-center">
             <p className="text-[11px] font-medium tracking-[0.3em] text-[#8B7355] uppercase mb-2">
