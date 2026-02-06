@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import { Star, ArrowRight, Truck, Shield, RefreshCw, Sparkles, Droplets, Wind } from "lucide-react"
+import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
@@ -79,7 +79,6 @@ async function CollectionProducts({ handle }: { handle: string }) {
   }
 }
 
-
 const HOMEPAGE_COLLECTIONS = [
   { handle: "gel-nail-wraps", title: "Gel Nail Wraps", bg: "bg-white" },
   { handle: "french-styles", title: "French Styles", bg: "bg-[#FAFAF8]" },
@@ -91,6 +90,7 @@ const HOMEPAGE_COLLECTIONS = [
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
+      {/* Announcement Bar */}
       <div className="bg-[#1A1A1A] py-3">
         <p className="text-center text-[11px] font-medium tracking-[0.2em] text-white uppercase">
           Complimentary Shipping on Orders Over $50
@@ -100,6 +100,7 @@ export default function HomePage() {
       <DynamicHeader />
 
       <main>
+        {/* Hero */}
         <section className="relative">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
@@ -138,6 +139,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Trust Strip */}
         <section className="border-y border-[#E8E4DC] bg-white">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
             <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#E8E4DC]">
@@ -157,6 +159,7 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Collection Sections */}
         {HOMEPAGE_COLLECTIONS.map((col) => (
           <section key={col.handle} className={`py-16 lg:py-20 ${col.bg}`}>
             <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
@@ -184,6 +187,7 @@ export default function HomePage() {
           </section>
         ))}
 
+        {/* Reviews */}
         <section className="py-16 lg:py-20 bg-[#F5F3EF]">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
             <div className="text-center mb-12">
@@ -221,135 +225,127 @@ export default function HomePage() {
 
         {/* AI Beauty Consultant Highlight */}
         <section className="relative py-20 lg:py-28 bg-[#1A1A1A] overflow-hidden">
-          {/* Subtle gold accent line */}
+          {/* Subtle gold accent line at top */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
+          {/* Ambient glow */}
+          <div className="absolute top-0 left-0 w-72 h-72 bg-[#8B7355]/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#D4AF37]/[0.08] rounded-full blur-[120px] translate-x-1/3 translate-y-1/3" />
 
-          <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-            {/* Section header */}
+          <div className="relative max-w-[1400px] mx-auto px-6 lg:px-12">
             <div className="text-center mb-14">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-[#D4AF37]/30 rounded-full mb-5">
-                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-                <span className="text-[11px] font-medium tracking-[0.2em] text-[#D4AF37] uppercase">
-                  AI-Powered
-                </span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                </svg>
+                <span className="text-[11px] font-medium tracking-[0.2em] text-[#D4AF37] uppercase">AI-Powered</span>
               </div>
               <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light text-white mb-4 text-balance">
-                Your Personal Beauty Consultant
+                Meet Your Personal
+                <br />
+                <span className="text-[#D4AF37]">Beauty Consultant</span>
               </h2>
-              <p className="text-white/50 max-w-lg mx-auto text-sm leading-relaxed">
-                Answer a few questions and receive expert-backed skincare and haircare recommendations tailored to your unique needs.
+              <p className="text-white/40 max-w-xl mx-auto text-base leading-relaxed">
+                Answer a few questions and receive expert-backed, personalized skincare and haircare recommendations in minutes.
               </p>
             </div>
 
-            {/* Consultation cards */}
             <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
               {/* Skin Analysis Card */}
               <Link
                 href="/consult/skin"
-                className="group relative rounded-2xl overflow-hidden"
+                className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.03] p-8 lg:p-10 transition-all duration-300 hover:border-[#D4AF37]/40 hover:bg-white/[0.06]"
               >
-                <div className="relative aspect-[3/4]">
-                  <img
-                    src="/images/consult-skin.jpg"
-                    alt="Skin analysis consultation - woman with glowing radiant skin"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  {/* Dark overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                  {/* Content overlay */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 lg:p-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-9 h-9 rounded-full bg-[#D4AF37] flex items-center justify-center">
-                        <Droplets className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-[10px] font-medium tracking-[0.2em] text-[#D4AF37] uppercase">
-                        Skin Analysis
-                      </span>
-                    </div>
-                    <h3 className="text-xl lg:text-2xl font-serif font-light text-white mb-2">
-                      Personalized Skincare Routine
-                    </h3>
-                    <p className="text-white/60 text-sm mb-4 max-w-xs">
-                      Skin type assessment, concern analysis, and product recommendations built just for you.
-                    </p>
-                    <span className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#D4AF37] uppercase group-hover:gap-3 transition-all">
-                      Start Analysis
-                      <ArrowRight className="w-4 h-4" />
-                    </span>
+                <div>
+                  <div className="w-14 h-14 flex items-center justify-center rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#D4AF37]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" />
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                      <line x1="9" y1="9" x2="9.01" y2="9" />
+                      <line x1="15" y1="9" x2="15.01" y2="9" />
+                    </svg>
                   </div>
+                  <h3 className="text-xl lg:text-2xl font-medium text-white mb-2 group-hover:text-[#D4AF37] transition-colors">
+                    Skin Analysis
+                  </h3>
+                  <p className="text-white/35 text-sm leading-relaxed mb-6">
+                    Discover your skin type, identify concerns, and get a curated routine with products that actually work for you.
+                  </p>
+                  <ul className="flex flex-wrap gap-2 mb-8">
+                    {["Skin type", "Concerns", "Products", "Routine"].map((tag) => (
+                      <li key={tag} className="px-3 py-1 text-[10px] font-medium tracking-wider text-[#D4AF37]/70 uppercase border border-[#D4AF37]/15 rounded-full">
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+                <span className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#D4AF37] uppercase">
+                  Start Analysis
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
               </Link>
 
               {/* Hair Analysis Card */}
               <Link
                 href="/consult/hair"
-                className="group relative rounded-2xl overflow-hidden"
+                className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.03] p-8 lg:p-10 transition-all duration-300 hover:border-[#8B7355]/50 hover:bg-white/[0.06]"
               >
-                <div className="relative aspect-[3/4]">
-                  <img
-                    src="/images/consult-hair.jpg"
-                    alt="Hair analysis consultation - woman with beautiful healthy hair"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
-                  {/* Dark overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-                  {/* Content overlay */}
-                  <div className="absolute inset-0 flex flex-col justify-end p-6 lg:p-8">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-9 h-9 rounded-full bg-[#8B7355] flex items-center justify-center">
-                        <Wind className="w-4 h-4 text-white" />
-                      </div>
-                      <span className="text-[10px] font-medium tracking-[0.2em] text-[#8B7355] uppercase">
-                        Hair Analysis
-                      </span>
-                    </div>
-                    <h3 className="text-xl lg:text-2xl font-serif font-light text-white mb-2">
-                      Tailored Hair Care Plan
-                    </h3>
-                    <p className="text-white/60 text-sm mb-4 max-w-xs">
-                      Discover your hair type, get damage analysis, and receive personalized treatment suggestions.
-                    </p>
-                    <span className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#8B7355] uppercase group-hover:gap-3 transition-all">
-                      Start Analysis
-                      <ArrowRight className="w-4 h-4" />
-                    </span>
+                <div>
+                  <div className="w-14 h-14 flex items-center justify-center rounded-full bg-[#8B7355]/15 border border-[#8B7355]/25 mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-[#C4A882]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10" />
+                      <path d="M20 16.2A7.5 7.5 0 0 0 14.2 8" />
+                      <path d="M17 21.1A10 10 0 0 0 22 12" />
+                    </svg>
                   </div>
+                  <h3 className="text-xl lg:text-2xl font-medium text-white mb-2 group-hover:text-[#C4A882] transition-colors">
+                    Hair Analysis
+                  </h3>
+                  <p className="text-white/35 text-sm leading-relaxed mb-6">
+                    Understand your hair type, assess damage, and receive tailored treatment and styling recommendations.
+                  </p>
+                  <ul className="flex flex-wrap gap-2 mb-8">
+                    {["Hair type", "Damage", "Treatments", "Styling"].map((tag) => (
+                      <li key={tag} className="px-3 py-1 text-[10px] font-medium tracking-wider text-[#C4A882]/70 uppercase border border-[#8B7355]/20 rounded-full">
+                        {tag}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+                <span className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#C4A882] uppercase">
+                  Start Analysis
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
               </Link>
             </div>
 
             {/* Trust badges */}
-            <div className="flex flex-wrap items-center justify-center gap-8 mt-10 text-white/40 text-xs tracking-[0.15em] uppercase">
+            <div className="flex flex-wrap items-center justify-center gap-8 mt-12 text-white/25 text-xs tracking-[0.15em] uppercase">
               <span className="flex items-center gap-2">
-                <Shield className="w-3.5 h-3.5" />
-                Private &amp; Secure
+                <Shield className="w-4 h-4" />
+                {'Private & Secure'}
               </span>
               <span className="flex items-center gap-2">
-                <Sparkles className="w-3.5 h-3.5" />
+                <Star className="w-4 h-4" />
                 Expert-Backed
               </span>
               <span className="flex items-center gap-2">
-                <Star className="w-3.5 h-3.5" />
-                Free Consultation
+                <RefreshCw className="w-4 h-4" />
+                {'Free & Instant'}
               </span>
             </div>
           </div>
-
-          {/* Bottom gold accent */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
         </section>
 
-        <section className="py-16 lg:py-20 bg-[#1A1A1A]">
+        {/* Newsletter */}
+        <section className="py-16 lg:py-20 bg-[#F5F3EF]">
           <div className="max-w-xl mx-auto px-6 text-center">
             <p className="text-[11px] font-medium tracking-[0.3em] text-[#8B7355] uppercase mb-2">
               Newsletter
             </p>
-            <h2 className="font-serif text-2xl md:text-3xl font-light text-white mb-4">
+            <h2 className="font-serif text-2xl md:text-3xl font-light text-[#1A1A1A] mb-4">
               Join the inner circle
             </h2>
-            <p className="text-white/60 mb-6 text-sm">
+            <p className="text-[#666] mb-6 text-sm">
               Subscribe for exclusive offers, early access, and beauty tips.
             </p>
             <form className="flex flex-col sm:flex-row gap-3">
@@ -358,11 +354,11 @@ export default function HomePage() {
                 id="newsletter-email"
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-6 py-3 bg-white/10 border border-white/20 text-white placeholder:text-white/40 text-sm tracking-wide focus:outline-none focus:border-[#8B7355]"
+                className="flex-1 px-6 py-3 bg-white border border-[#E8E4DC] text-[#1A1A1A] placeholder:text-[#9B9B9B] text-sm tracking-wide focus:outline-none focus:border-[#8B7355]"
               />
               <button
                 type="submit"
-                className="px-8 py-3 bg-white text-[#1A1A1A] text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#F5F3EF] transition-colors"
+                className="px-8 py-3 bg-[#1A1A1A] text-white text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#8B7355] transition-colors"
               >
                 Subscribe
               </button>
