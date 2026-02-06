@@ -116,6 +116,7 @@ const HOMEPAGE_COLLECTIONS = [
 ]
 
 export default function HomePage() {
+  console.log("[v0] HomePage v8 rendering - this confirms the new code is running")
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       {/* Announcement Bar */}
@@ -126,9 +127,7 @@ export default function HomePage() {
       </div>
 
       {/* Header */}
-      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#D4AF37]/20" />}>
-        <DynamicHeader />
-      </Suspense>
+      <DynamicHeader />
 
       <main>
         {/* Hero */}

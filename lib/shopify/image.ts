@@ -48,21 +48,14 @@ export function getOptimizedImageUrl(
   const { width, height, crop = 'center', scale = 1, format } = options;
   
   // Use Shopify's Image Transform API via query parameters.
-  // The old _WxH_crop_X suffix format only works for /products/ paths,
-  // NOT for /files/ paths on the newer CDN. Query params work for both.
-  const params = new URLSearchParams();
-  if (width) params.set('width', String(width));
-  if (height) params.set('height', String(height));
-  if (crop) params.set('crop', crop);
-  if (scale && scale > 1) params.set('scale', String(scale));
-  if (format) params.set('format', format);
+  // Preserve existing query params (especially ?v= cache buster) and add transform params.
+  const urlObj = new URL(url);
+  if (width) urlObj.searchParams.set('width', String(width));
+  if (height) urlObj.searchParams.set('height', String(height));
+  if (crop && width && height) urlObj.searchParams.set('crop', crop);
+  if (format) urlObj.searchParams.set('format', format);
 
-  // If no transform params needed, return original URL
-  if (params.toString() === '') return url;
-
-  // Strip existing query string and rebuild
-  const [baseUrl] = url.split('?');
-  return `${baseUrl}?${params.toString()}`;
+  return urlObj.toString();
 }
 
 /**
