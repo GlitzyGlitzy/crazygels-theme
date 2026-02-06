@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
+import { Star, ArrowRight, Truck, Shield, RefreshCw, Sparkles, Droplets, Wind } from "lucide-react"
 import { getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
@@ -217,6 +217,128 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+        </section>
+
+        {/* AI Beauty Consultant Highlight */}
+        <section className="relative py-20 lg:py-28 bg-[#1A1A1A] overflow-hidden">
+          {/* Subtle gold accent line */}
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
+
+          <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
+            {/* Section header */}
+            <div className="text-center mb-14">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-[#D4AF37]/30 rounded-full mb-5">
+                <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                <span className="text-[11px] font-medium tracking-[0.2em] text-[#D4AF37] uppercase">
+                  AI-Powered
+                </span>
+              </div>
+              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light text-white mb-4 text-balance">
+                Your Personal Beauty Consultant
+              </h2>
+              <p className="text-white/50 max-w-lg mx-auto text-sm leading-relaxed">
+                Answer a few questions and receive expert-backed skincare and haircare recommendations tailored to your unique needs.
+              </p>
+            </div>
+
+            {/* Consultation cards */}
+            <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
+              {/* Skin Analysis Card */}
+              <Link
+                href="/consult/skin"
+                className="group relative rounded-2xl overflow-hidden"
+              >
+                <div className="relative aspect-[3/4]">
+                  <img
+                    src="/images/consult-skin.jpg"
+                    alt="Skin analysis consultation - woman with glowing radiant skin"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  {/* Dark overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                  {/* Content overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 lg:p-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-9 h-9 rounded-full bg-[#D4AF37] flex items-center justify-center">
+                        <Droplets className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-[10px] font-medium tracking-[0.2em] text-[#D4AF37] uppercase">
+                        Skin Analysis
+                      </span>
+                    </div>
+                    <h3 className="text-xl lg:text-2xl font-serif font-light text-white mb-2">
+                      Personalized Skincare Routine
+                    </h3>
+                    <p className="text-white/60 text-sm mb-4 max-w-xs">
+                      Skin type assessment, concern analysis, and product recommendations built just for you.
+                    </p>
+                    <span className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#D4AF37] uppercase group-hover:gap-3 transition-all">
+                      Start Analysis
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+
+              {/* Hair Analysis Card */}
+              <Link
+                href="/consult/hair"
+                className="group relative rounded-2xl overflow-hidden"
+              >
+                <div className="relative aspect-[3/4]">
+                  <img
+                    src="/images/consult-hair.jpg"
+                    alt="Hair analysis consultation - woman with beautiful healthy hair"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  {/* Dark overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+                  {/* Content overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 lg:p-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-9 h-9 rounded-full bg-[#8B7355] flex items-center justify-center">
+                        <Wind className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-[10px] font-medium tracking-[0.2em] text-[#8B7355] uppercase">
+                        Hair Analysis
+                      </span>
+                    </div>
+                    <h3 className="text-xl lg:text-2xl font-serif font-light text-white mb-2">
+                      Tailored Hair Care Plan
+                    </h3>
+                    <p className="text-white/60 text-sm mb-4 max-w-xs">
+                      Discover your hair type, get damage analysis, and receive personalized treatment suggestions.
+                    </p>
+                    <span className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#8B7355] uppercase group-hover:gap-3 transition-all">
+                      Start Analysis
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
+            {/* Trust badges */}
+            <div className="flex flex-wrap items-center justify-center gap-8 mt-10 text-white/40 text-xs tracking-[0.15em] uppercase">
+              <span className="flex items-center gap-2">
+                <Shield className="w-3.5 h-3.5" />
+                Private &amp; Secure
+              </span>
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5" />
+                Expert-Backed
+              </span>
+              <span className="flex items-center gap-2">
+                <Star className="w-3.5 h-3.5" />
+                Free Consultation
+              </span>
+            </div>
+          </div>
+
+          {/* Bottom gold accent */}
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent" />
         </section>
 
         <section className="py-16 lg:py-20 bg-[#1A1A1A]">
