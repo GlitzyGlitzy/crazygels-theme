@@ -10,6 +10,8 @@ export async function POST(req: Request) {
   const relevantProducts = consultType === 'skin' ? catalog.skinProducts : catalog.hairProducts;
   const productCatalogText = catalogToPromptText(relevantProducts, consultType);
   
+  console.log(`[v0] Consult ${consultType}: ${relevantProducts.length} products found. Skin: ${catalog.skinProducts.length}, Hair: ${catalog.hairProducts.length}, All: ${catalog.allProducts.length}`);
+  
   const productListForTool = relevantProducts.map(p => ({
     handle: p.handle,
     title: p.title,
