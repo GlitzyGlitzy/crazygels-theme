@@ -65,18 +65,24 @@ export function getOptimizedImageUrl(
     sizeParam += `@${scale}x`;
   }
 
-  // Insert size parameter before the file extension
-  const urlParts = url.split('.');
-  const extension = urlParts.pop();
-  const baseUrl = urlParts.join('.');
-  
+  // Strip query string, reattach later
+  const [urlWithoutQuery, queryString] = url.split('?');
+
+  // Find the last dot to split filename from extension
+  const lastDotIndex = urlWithoutQuery!.lastIndexOf('.');
+  if (lastDotIndex === -1) return url;
+
+  const baseUrl = urlWithoutQuery!.substring(0, lastDotIndex);
+  const extension = urlWithoutQuery!.substring(lastDotIndex + 1);
+
   // Use the specified format or keep original
   const finalExtension = format || extension;
-  
-  // Remove any existing size parameters
+
+  // Remove any existing size parameters from the base URL
   const cleanBaseUrl = baseUrl.replace(/_\d+x\d*(_crop_\w+)?(@\d+x)?$/, '');
-  
-  return `${cleanBaseUrl}${sizeParam}.${finalExtension}`;
+
+  const optimizedUrl = `${cleanBaseUrl}${sizeParam}.${finalExtension}`;
+  return queryString ? `${optimizedUrl}?${queryString}` : optimizedUrl;
 }
 
 /**

@@ -83,9 +83,6 @@ export async function shopifyFetch<T>({
       // Wait for rate limit before making request
       await waitForRateLimit();
 
-      // Always use no-store to avoid the 2MB Next.js data cache limit.
-      // Shopify responses with many products/variants easily exceed 2MB.
-      // Page-level revalidation (export const revalidate) handles caching instead.
       const result = await fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -97,7 +94,10 @@ export async function shopifyFetch<T>({
           ...(query && { query }),
           ...(variables && { variables }),
         }),
-        cache: 'no-store',
+        cache: cache ?? 'force-cache',
+        ...(revalidate || tags
+          ? { next: { ...(revalidate && { revalidate }), ...(tags && { tags }) } }
+          : {}),
       });
 
       // Handle rate limiting (429 status)
