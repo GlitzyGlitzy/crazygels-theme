@@ -138,7 +138,7 @@ export default async function CollectionPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
       />
 
-      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#D4AF37]/20" />}>
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#B76E79]/20" />}>
         <DynamicHeader />
       </Suspense>
 
@@ -155,15 +155,15 @@ export default async function CollectionPage({
               <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/60 via-[#FAF7F2]/80 to-[#FAF7F2]" />
             </div>
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
           )}
 
           <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <nav aria-label="Breadcrumb">
               <ol className="flex items-center gap-2 text-sm text-[#2C2C2C]/60 mb-6">
-                <li><Link href="/" className="hover:text-[#D4AF37] transition-colors">Home</Link></li>
+                <li><Link href="/" className="hover:text-[#B76E79] transition-colors">Home</Link></li>
                 <li aria-hidden="true">/</li>
-                <li><Link href="/collections" className="hover:text-[#D4AF37] transition-colors">Collections</Link></li>
+                <li><Link href="/collections" className="hover:text-[#B76E79] transition-colors">Collections</Link></li>
                 <li aria-hidden="true">/</li>
                 <li className="text-[#2C2C2C]" aria-current="page">{collection.title}</li>
               </ol>
@@ -239,15 +239,15 @@ async function CollectionProducts({
 
   if (products.length === 0) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-[#D4AF37]/20 bg-[#FFFEF9]">
-        <div className="mb-4 h-16 w-16 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
-          <Grid3X3 className="h-8 w-8 text-[#D4AF37]" />
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9]">
+        <div className="mb-4 h-16 w-16 rounded-full bg-[#B76E79]/20 flex items-center justify-center">
+          <Grid3X3 className="h-8 w-8 text-[#B76E79]" />
         </div>
         <h3 className="text-lg font-semibold text-[#2C2C2C]">No products found</h3>
         <p className="mt-2 text-[#2C2C2C]/60">Check back soon for new arrivals</p>
         <Link
           href="/collections"
-          className="mt-6 rounded-full bg-[#D4AF37] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#B8860B]"
+          className="mt-6 rounded-full bg-[#B76E79] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A15D67]"
         >
           Browse All Collections
         </Link>
@@ -268,7 +268,7 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
     if (related.length === 0) return null;
 
     return (
-      <section className="border-t border-[#D4AF37]/10 bg-[#FFFEF9] py-16">
+      <section className="border-t border-[#B76E79]/10 bg-[#FFFEF9] py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="mb-8 text-2xl font-medium text-[#2C2C2C]">Explore More Collections</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -276,7 +276,7 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
               <Link
                 key={collection.handle}
                 href={`/collections/${collection.handle}`}
-                className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#D4AF37]/20"
+                className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#B76E79]/20"
               >
                 {collection.image ? (
                   <img
@@ -286,11 +286,11 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
                     loading="lazy"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#C9A9A6]/20" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/20 to-[#C9A9A6]/20" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9]/90 via-[#FFFEF9]/40 to-transparent" />
                 <div className="relative p-6">
-                  <h3 className="text-xl font-medium text-[#2C2C2C] group-hover:text-[#D4AF37] transition-colors">
+                  <h3 className="text-xl font-medium text-[#2C2C2C] group-hover:text-[#B76E79] transition-colors">
                     {collection.title}
                   </h3>
                 </div>
@@ -309,21 +309,21 @@ function CollectionNotConfigured() {
   return (
     <main className="min-h-screen bg-[#FAF7F2] flex items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-[#D4AF37]/20 flex items-center justify-center">
-          <SlidersHorizontal className="h-10 w-10 text-[#D4AF37]" />
+        <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-[#B76E79]/20 flex items-center justify-center">
+          <SlidersHorizontal className="h-10 w-10 text-[#B76E79]" />
         </div>
         <h1 className="text-2xl font-medium text-[#2C2C2C] mb-4">Connect Your Shopify Store</h1>
         <p className="text-[#2C2C2C]/60 mb-8">
           Add your Shopify credentials to display collections and products.
         </p>
-        <div className="bg-[#FFFEF9] rounded-xl p-6 text-left border border-[#D4AF37]/20">
+        <div className="bg-[#FFFEF9] rounded-xl p-6 text-left border border-[#B76E79]/20">
           <p className="text-[#2C2C2C]/40 text-sm mb-3">Required environment variables:</p>
-          <code className="block text-[#B8860B] text-sm mb-1">SHOPIFY_STORE_DOMAIN</code>
-          <code className="block text-[#B8860B] text-sm">SHOPIFY_STOREFRONT_ACCESS_TOKEN</code>
+          <code className="block text-[#A15D67] text-sm mb-1">SHOPIFY_STORE_DOMAIN</code>
+          <code className="block text-[#A15D67] text-sm">SHOPIFY_STOREFRONT_ACCESS_TOKEN</code>
         </div>
         <Link
           href="/"
-          className="mt-8 inline-flex items-center gap-2 text-[#D4AF37] hover:underline"
+          className="mt-8 inline-flex items-center gap-2 text-[#B76E79] hover:underline"
         >
           <ChevronLeft className="h-4 w-4" />
           Back to Home

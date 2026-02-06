@@ -86,7 +86,7 @@ async function ValidationContent() {
     <div className="space-y-8">
       {/* Status Summary */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl p-6">
+        <div className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
               <CheckCircle className="w-5 h-5 text-green-600" />
@@ -96,36 +96,36 @@ async function ValidationContent() {
           <p className="text-2xl font-semibold text-green-600">Connected</p>
         </div>
         
-        <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl p-6">
+        <div className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
-              <FolderOpen className="w-5 h-5 text-[#D4AF37]" />
+            <div className="w-10 h-10 rounded-full bg-[#B76E79]/10 flex items-center justify-center">
+              <FolderOpen className="w-5 h-5 text-[#B76E79]" />
             </div>
             <span className="text-[#2C2C2C]/60 text-sm font-medium">Collections</span>
           </div>
           <p className="text-2xl font-semibold text-[#2C2C2C]">{stats.totalCollections}</p>
         </div>
         
-        <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl p-6">
+        <div className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-[#D4AF37]/10 flex items-center justify-center">
-              <Package className="w-5 h-5 text-[#D4AF37]" />
+            <div className="w-10 h-10 rounded-full bg-[#B76E79]/10 flex items-center justify-center">
+              <Package className="w-5 h-5 text-[#B76E79]" />
             </div>
             <span className="text-[#2C2C2C]/60 text-sm font-medium">Unique Products</span>
           </div>
           <p className="text-2xl font-semibold text-[#2C2C2C]">{uniqueProductCount}</p>
         </div>
         
-        <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl p-6">
+        <div className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-full bg-[#8B7355]/10 flex items-center justify-center">
-              <Package className="w-5 h-5 text-[#8B7355]" />
+            <div className="w-10 h-10 rounded-full bg-[#9E6B73]/10 flex items-center justify-center">
+              <Package className="w-5 h-5 text-[#9E6B73]" />
             </div>
             <span className="text-[#2C2C2C]/60 text-sm font-medium">Total (with duplicates)</span>
           </div>
           <p className="text-2xl font-semibold text-[#2C2C2C]">{stats.totalProducts}</p>
           {duplicateCount > 0 && (
-            <p className="text-xs text-[#8B7355] mt-1">
+            <p className="text-xs text-[#9E6B73] mt-1">
               {duplicateCount} products in multiple collections
             </p>
           )}
@@ -150,8 +150,8 @@ async function ValidationContent() {
       )}
 
       {/* Collections Table */}
-      <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#D4AF37]/20">
+      <div className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl overflow-hidden">
+        <div className="px-6 py-4 border-b border-[#B76E79]/20">
           <h3 className="font-semibold text-[#2C2C2C]">Collections Breakdown</h3>
         </div>
         <div className="overflow-x-auto">
@@ -172,7 +172,7 @@ async function ValidationContent() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#D4AF37]/10">
+            <tbody className="divide-y divide-[#B76E79]/10">
               {stats.collections.map((collection) => (
                 <tr key={collection.handle} className="hover:bg-[#FAF7F2]/50">
                   <td className="px-6 py-4 text-sm font-medium text-[#2C2C2C]">
@@ -193,7 +193,7 @@ async function ValidationContent() {
                   <td className="px-6 py-4 text-sm text-center">
                     <Link
                       href={`/collections/${collection.handle}`}
-                      className="text-[#D4AF37] hover:text-[#B8860B] font-medium"
+                      className="text-[#B76E79] hover:text-[#A15D67] font-medium"
                     >
                       View
                     </Link>
@@ -217,7 +217,7 @@ async function ValidationContent() {
       </div>
 
       {/* Console Log Hint */}
-      <div className="bg-[#FAF7F2] border border-[#D4AF37]/20 rounded-xl p-6">
+      <div className="bg-[#FAF7F2] border border-[#B76E79]/20 rounded-xl p-6">
         <h3 className="font-semibold text-[#2C2C2C] mb-2">Debug Logs</h3>
         <p className="text-[#2C2C2C]/60 text-sm">
           Check your browser console or server logs for detailed [v0] debug messages showing 
@@ -233,13 +233,13 @@ function LoadingSkeleton() {
     <div className="space-y-8">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl p-6">
+          <div key={i} className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl p-6">
             <div className="h-10 w-10 rounded-full bg-[#E8C4C4]/20 animate-pulse mb-3" />
             <div className="h-8 w-20 bg-[#E8C4C4]/20 rounded animate-pulse" />
           </div>
         ))}
       </div>
-      <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-xl p-6">
+      <div className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl p-6">
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-12 bg-[#E8C4C4]/20 rounded animate-pulse" />
@@ -260,7 +260,7 @@ export default function ValidationPage() {
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#D4AF37] transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#B76E79] transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
@@ -268,7 +268,7 @@ export default function ValidationPage() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl md:text-3xl font-light tracking-[0.1em] text-[#2C2C2C]">
-                SHOPIFY <span className="font-medium text-[#D4AF37]">VALIDATION</span>
+                SHOPIFY <span className="font-medium text-[#B76E79]">VALIDATION</span>
               </h1>
               <p className="text-[#2C2C2C]/60 mt-1">
                 Verify your Shopify integration and product data
@@ -276,7 +276,7 @@ export default function ValidationPage() {
             </div>
             <a
               href="/admin/validation"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#D4AF37] hover:bg-[#B8860B] text-white font-medium rounded-lg transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#B76E79] hover:bg-[#A15D67] text-white font-medium rounded-lg transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
               Refresh

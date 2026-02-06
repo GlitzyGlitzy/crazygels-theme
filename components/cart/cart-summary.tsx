@@ -34,9 +34,9 @@ export function CartSummary({ cart }: { cart: Cart }) {
   };
 
   return (
-    <div className="bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl overflow-hidden sticky top-24">
+    <div className="bg-[#FFFEF9] border border-[#B76E79]/20 rounded-2xl overflow-hidden sticky top-24">
       {/* Header */}
-      <div className="p-6 border-b border-[#D4AF37]/10">
+      <div className="p-6 border-b border-[#B76E79]/10">
         <h2 className="text-lg font-semibold text-[#2C2C2C]">Order Summary</h2>
       </div>
 
@@ -44,13 +44,13 @@ export function CartSummary({ cart }: { cart: Cart }) {
       <div className="p-6 space-y-4">
         {/* Free Shipping Progress */}
         {shipping > 0 && (
-          <div className="bg-[#D4AF37]/10 rounded-lg p-4 mb-4">
+          <div className="bg-[#B76E79]/10 rounded-lg p-4 mb-4">
             <p className="text-sm text-[#2C2C2C] mb-2">
-              Add <span className="text-[#B8860B] font-semibold">{formatPrice(amountToFreeShipping.toString(), currencyCode)}</span> more for free shipping!
+              Add <span className="text-[#A15D67] font-semibold">{formatPrice(amountToFreeShipping.toString(), currencyCode)}</span> more for free shipping!
             </p>
             <div className="w-full bg-[#2C2C2C]/10 rounded-full h-2 overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] rounded-full transition-all"
+                className="h-full bg-gradient-to-r from-[#B76E79] to-[#A15D67] rounded-full transition-all"
                 style={{ width: `${Math.min((subtotal / shippingThreshold) * 100, 100)}%` }}
               />
             </div>
@@ -69,13 +69,13 @@ export function CartSummary({ cart }: { cart: Cart }) {
               value={promoCode}
               onChange={(e) => setPromoCode(e.target.value)}
               placeholder="Enter code"
-              className="flex-1 bg-[#FAF7F2] border border-[#D4AF37]/20 rounded-lg px-4 py-2 text-[#2C2C2C] placeholder:text-[#2C2C2C]/30 focus:outline-none focus:border-[#D4AF37]/50"
+              className="flex-1 bg-[#FAF7F2] border border-[#B76E79]/20 rounded-lg px-4 py-2 text-[#2C2C2C] placeholder:text-[#2C2C2C]/30 focus:outline-none focus:border-[#B76E79]/50"
             />
             <Button
               onClick={handleApplyPromo}
               disabled={isApplyingPromo || !promoCode.trim()}
               variant="outline"
-              className="border-[#D4AF37]/30 text-[#2C2C2C] hover:bg-[#D4AF37]/10"
+              className="border-[#B76E79]/30 text-[#2C2C2C] hover:bg-[#B76E79]/10"
             >
               Apply
             </Button>
@@ -83,7 +83,7 @@ export function CartSummary({ cart }: { cart: Cart }) {
         </div>
 
         {/* Price Breakdown */}
-        <div className="space-y-3 pt-4 border-t border-[#D4AF37]/10">
+        <div className="space-y-3 pt-4 border-t border-[#B76E79]/10">
           <div className="flex justify-between text-[#2C2C2C]/70">
             <span>Subtotal ({cart.totalQuantity} items)</span>
             <span>{formatPrice(subtotal.toString(), currencyCode)}</span>
@@ -103,7 +103,7 @@ export function CartSummary({ cart }: { cart: Cart }) {
         </div>
 
         {/* Total */}
-        <div className="flex justify-between items-center pt-4 border-t border-[#D4AF37]/10">
+        <div className="flex justify-between items-center pt-4 border-t border-[#B76E79]/10">
           <span className="text-lg font-semibold text-[#2C2C2C]">Total</span>
           <span className="text-2xl font-bold text-[#2C2C2C]">
             {formatPrice((total + shipping).toString(), currencyCode)}
@@ -113,7 +113,7 @@ export function CartSummary({ cart }: { cart: Cart }) {
         {/* Checkout Button */}
         <a
           href={cart.checkoutUrl}
-          className="w-full mt-4 bg-[#D4AF37] hover:bg-[#B8860B] text-white font-medium py-4 px-6 rounded-full transition-all flex items-center justify-center gap-2 group"
+          className="w-full mt-4 bg-[#B76E79] hover:bg-[#A15D67] text-white font-medium py-4 px-6 rounded-full transition-all flex items-center justify-center gap-2 group"
         >
           <CreditCard className="w-5 h-5" />
           Proceed to Checkout

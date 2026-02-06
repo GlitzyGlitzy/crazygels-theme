@@ -27,7 +27,7 @@ function ProductCard({ product }: { product: Product }) {
       href={`/products/${product.handle}`}
       className="group flex-shrink-0 w-[220px] md:w-[280px]"
     >
-      <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FAF7F2] border border-[#D4AF37]/10 mb-3 shadow-sm">
+      <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FAF7F2] border border-[#B76E79]/10 mb-3 shadow-sm">
         {product.featuredImage?.url ? (
           <img
             src={product.featuredImage.url}
@@ -42,9 +42,9 @@ function ProductCard({ product }: { product: Product }) {
         )}
         {(hasDiscount || isNew || isBestseller) && (
           <div className={`absolute top-3 left-3 px-3 py-1 text-xs font-medium tracking-wide rounded-full ${
-            hasDiscount ? "bg-[#B8860B] text-white" :
-            isNew ? "bg-[#8B7355] text-white" :
-            "bg-[#D4AF37] text-white"
+            hasDiscount ? "bg-[#A15D67] text-white" :
+            isNew ? "bg-[#9E6B73] text-white" :
+            "bg-[#B76E79] text-white"
           }`}>
             {hasDiscount ? "Sale" : isNew ? "New" : "Bestseller"}
           </div>
@@ -57,17 +57,17 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         )}
         <button 
-          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-[#C9A9A6] hover:text-[#D4AF37] hover:bg-white transition-all opacity-0 group-hover:opacity-100 shadow-sm"
+          className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-[#C9A9A6] hover:text-[#B76E79] hover:bg-white transition-all opacity-0 group-hover:opacity-100 shadow-sm"
           aria-label={`Add ${product.title} to wishlist`}
         >
           <Heart className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
-      <h3 className="text-[#2C2C2C] font-medium text-sm mb-1 group-hover:text-[#D4AF37] transition-colors line-clamp-2">
+      <h3 className="text-[#2C2C2C] font-medium text-sm mb-1 group-hover:text-[#B76E79] transition-colors line-clamp-2">
         {product.title}
       </h3>
       <div className="flex items-center gap-2">
-        <span className="text-[#B8860B] font-semibold text-sm">
+        <span className="text-[#A15D67] font-semibold text-sm">
           {formatPrice(price.amount, price.currencyCode)}
         </span>
         {hasDiscount && (
@@ -93,7 +93,7 @@ function CategorySection({
   if (products.length === 0) return null
 
   return (
-    <section className="py-12 md:py-16 border-b border-[#D4AF37]/10 last:border-b-0">
+    <section className="py-12 md:py-16 border-b border-[#B76E79]/10 last:border-b-0">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         {/* Section Header */}
         <div className="flex items-center justify-between mb-8">
@@ -111,7 +111,7 @@ function CategorySection({
           </div>
           <Link 
             href={`/collections/${collection.handle}`}
-            className="hidden md:inline-flex items-center gap-2 font-medium text-[#D4AF37] hover:text-[#B8860B] transition-colors text-sm tracking-wide"
+            className="hidden md:inline-flex items-center gap-2 font-medium text-[#B76E79] hover:text-[#A15D67] transition-colors text-sm tracking-wide"
           >
             View All <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
@@ -132,7 +132,7 @@ function CategorySection({
         <div className="mt-4 text-center md:hidden">
           <Link 
             href={`/collections/${collection.handle}`}
-            className="inline-flex items-center gap-2 font-medium text-[#D4AF37] text-sm tracking-wide"
+            className="inline-flex items-center gap-2 font-medium text-[#B76E79] text-sm tracking-wide"
           >
             View All {collection.title} <ArrowRight className="w-4 h-4" aria-hidden="true" />
           </Link>
@@ -145,7 +145,7 @@ function CategorySection({
 // Loading skeleton for category section
 export function CategorySectionSkeleton() {
   return (
-    <section className="py-12 md:py-16 border-b border-[#D4AF37]/10">
+    <section className="py-12 md:py-16 border-b border-[#B76E79]/10">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -169,14 +169,14 @@ export function CategorySectionSkeleton() {
 
 // Luxury category colors - soft, elegant tones
 const categoryColors: Record<string, string> = {
-  nails: "#D4AF37",      // Champagne gold
-  nail: "#D4AF37",
-  hair: "#8B7355",       // Warm taupe
+  nails: "#B76E79",      // Champagne gold
+  nail: "#B76E79",
+  hair: "#9E6B73",       // Warm taupe
   skin: "#C9A9A6",       // Dusty rose
   skincare: "#C9A9A6",
-  bundles: "#B8860B",    // Deep gold
+  bundles: "#A15D67",    // Deep gold
   sale: "#C9A9A6",       // Muted rose
-  default: "#D4AF37"
+  default: "#B76E79"
 }
 
 function getCategoryColor(handle: string): string {

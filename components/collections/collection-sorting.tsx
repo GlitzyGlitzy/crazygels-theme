@@ -62,7 +62,7 @@ export function CollectionSorting({
     <div ref={dropdownRef} className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-lg border border-[#D4AF37]/20 bg-[#FFFEF9] px-4 py-2.5 text-sm text-[#2C2C2C] transition-colors hover:border-[#D4AF37]/40 hover:bg-[#D4AF37]/5"
+        className="flex items-center gap-2 rounded-lg border border-[#B76E79]/20 bg-[#FFFEF9] px-4 py-2.5 text-sm text-[#2C2C2C] transition-colors hover:border-[#B76E79]/40 hover:bg-[#B76E79]/5"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
@@ -72,13 +72,13 @@ export function CollectionSorting({
           className={`h-4 w-4 text-[#2C2C2C]/60 transition-transform ${isOpen ? 'rotate-180' : ''}`}
         />
         {isPending && (
-          <span className="ml-1 h-4 w-4 animate-spin rounded-full border-2 border-[#D4AF37] border-t-transparent" />
+          <span className="ml-1 h-4 w-4 animate-spin rounded-full border-2 border-[#B76E79] border-t-transparent" />
         )}
       </button>
 
       {isOpen && (
         <div
-          className="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-xl border border-[#D4AF37]/20 bg-[#FFFEF9] p-1 shadow-xl"
+          className="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-xl border border-[#B76E79]/20 bg-[#FFFEF9] p-1 shadow-xl"
           role="listbox"
         >
           {SORT_OPTIONS.map((option) => {
@@ -89,8 +89,8 @@ export function CollectionSorting({
                 onClick={() => handleSort(option.value, option.order)}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                   isSelected
-                    ? 'bg-[#D4AF37]/10 text-[#B8860B]'
-                    : 'text-[#2C2C2C] hover:bg-[#D4AF37]/5'
+                    ? 'bg-[#B76E79]/10 text-[#A15D67]'
+                    : 'text-[#2C2C2C] hover:bg-[#B76E79]/5'
                 }`}
                 role="option"
                 aria-selected={isSelected}

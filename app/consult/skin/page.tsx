@@ -40,7 +40,7 @@ function ProductRecommendationCard({ product }: { product: RecommendedProduct })
   return (
     <Link
       href={`/products/${product.handle}`}
-      className="group block bg-[#FAFAF8] border border-[#E8E4DC] rounded-2xl overflow-hidden hover:border-[#8B7355]/40 transition-all duration-300 hover:shadow-lg"
+      className="group block bg-[#FAFAF8] border border-[#E8E4DC] rounded-2xl overflow-hidden hover:border-[#9E6B73]/40 transition-all duration-300 hover:shadow-lg"
     >
       <div className="aspect-square relative bg-[#F5F3EF] overflow-hidden">
         {product.imageUrl ? (
@@ -56,13 +56,13 @@ function ProductRecommendationCard({ product }: { product: RecommendedProduct })
           </div>
         )}
         {product.compareAtPrice && (
-          <div className="absolute top-2 left-2 bg-[#8B7355] text-white text-[10px] uppercase tracking-wider px-2 py-1 rounded-full">
+          <div className="absolute top-2 left-2 bg-[#9E6B73] text-white text-[10px] uppercase tracking-wider px-2 py-1 rounded-full">
             Sale
           </div>
         )}
       </div>
       <div className="p-4">
-        <h4 className="text-sm font-medium text-[#1A1A1A] group-hover:text-[#8B7355] transition-colors line-clamp-2 mb-1">
+        <h4 className="text-sm font-medium text-[#1A1A1A] group-hover:text-[#9E6B73] transition-colors line-clamp-2 mb-1">
           {product.title}
         </h4>
         <div className="flex items-center gap-2 mb-3">
@@ -74,7 +74,7 @@ function ProductRecommendationCard({ product }: { product: RecommendedProduct })
         <p className="text-xs text-[#666666] leading-relaxed line-clamp-2 mb-3">
           {product.reason}
         </p>
-        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#8B7355] group-hover:underline">
+        <span className="inline-flex items-center gap-1 text-xs font-medium text-[#9E6B73] group-hover:underline">
           View Product <ExternalLink className="w-3 h-3" />
         </span>
       </div>
@@ -86,8 +86,8 @@ function ProductRecommendations({ output }: { output: ToolOutput }) {
   return (
     <div className="bg-[#FAFAF8] border border-[#E8E4DC] rounded-2xl p-6 max-w-full">
       <div className="flex items-center gap-2 mb-1">
-        <Sparkles className="w-4 h-4 text-[#8B7355]" />
-        <h3 className="text-xs uppercase tracking-widest text-[#8B7355] font-medium">
+        <Sparkles className="w-4 h-4 text-[#9E6B73]" />
+        <h3 className="text-xs uppercase tracking-widest text-[#9E6B73] font-medium">
           Your Personalized Recommendations
         </h3>
       </div>
@@ -115,7 +115,7 @@ function ProductRecommendations({ output }: { output: ToolOutput }) {
       
       {output.routineSummary && (
         <div className="border-t border-[#E8E4DC] pt-4 mt-2">
-          <h4 className="text-xs uppercase tracking-wider text-[#8B7355] font-medium mb-2">Routine Summary</h4>
+          <h4 className="text-xs uppercase tracking-wider text-[#9E6B73] font-medium mb-2">Routine Summary</h4>
           <p className="text-sm text-[#666666] leading-relaxed">{output.routineSummary}</p>
         </div>
       )}
@@ -156,14 +156,14 @@ export default function SkinConsultPage() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link 
             href="/consult" 
-            className="flex items-center gap-2 text-[#666666] hover:text-[#8B7355] transition-colors"
+            className="flex items-center gap-2 text-[#666666] hover:text-[#9E6B73] transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             <span className="hidden sm:inline text-sm">Back</span>
           </Link>
           
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#8B7355] flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-[#9E6B73] flex items-center justify-center">
               <Droplets className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -174,7 +174,7 @@ export default function SkinConsultPage() {
           
           <button
             onClick={handleRestart}
-            className="flex items-center gap-2 text-[#666666] hover:text-[#8B7355] transition-colors"
+            className="flex items-center gap-2 text-[#666666] hover:text-[#9E6B73] transition-colors"
           >
             <RefreshCcw className="w-5 h-5" />
             <span className="hidden sm:inline text-sm">Restart</span>
@@ -187,8 +187,8 @@ export default function SkinConsultPage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           {messages.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-20 h-20 rounded-full bg-[#8B7355]/10 flex items-center justify-center mx-auto mb-6">
-                <Sparkles className="w-10 h-10 text-[#8B7355]" />
+              <div className="w-20 h-20 rounded-full bg-[#9E6B73]/10 flex items-center justify-center mx-auto mb-6">
+                <Sparkles className="w-10 h-10 text-[#9E6B73]" />
               </div>
               <h2 className="text-2xl font-serif text-[#1A1A1A] mb-3">
                 Ready for Your Skin Analysis
@@ -204,7 +204,7 @@ export default function SkinConsultPage() {
                     onClick={() => {
                       setInput(`My main concern is ${suggestion.toLowerCase()}`);
                     }}
-                    className="px-4 py-2 bg-white border border-[#E8E4DC] rounded-full text-sm text-[#666666] hover:border-[#8B7355]/50 hover:text-[#1A1A1A] transition-all"
+                    className="px-4 py-2 bg-white border border-[#E8E4DC] rounded-full text-sm text-[#666666] hover:border-[#9E6B73]/50 hover:text-[#1A1A1A] transition-all"
                   >
                     {suggestion}
                   </button>
@@ -221,7 +221,7 @@ export default function SkinConsultPage() {
                     <div className={`flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center ${
                       isUser 
                         ? 'bg-[#1A1A1A]' 
-                        : 'bg-[#8B7355]'
+                        : 'bg-[#9E6B73]'
                     }`}>
                       {isUser ? (
                         <User className="w-4 h-4 text-white" />
@@ -252,7 +252,7 @@ export default function SkinConsultPage() {
                         if (part.type === 'tool-recommendProducts' && (part.state === 'input-available' || part.state === 'input-streaming')) {
                           return (
                             <div key={index} className="bg-white border border-[#E8E4DC] rounded-2xl p-4">
-                              <div className="flex items-center gap-2 text-[#8B7355]">
+                              <div className="flex items-center gap-2 text-[#9E6B73]">
                                 <Loader2 className="w-4 h-4 animate-spin" />
                                 <span className="text-sm">Finding the best products for you...</span>
                               </div>
@@ -269,14 +269,14 @@ export default function SkinConsultPage() {
               
               {isLoading && !messages[messages.length - 1]?.parts?.some(p => p.type === 'tool-recommendProducts') && (
                 <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-9 h-9 rounded-full bg-[#8B7355] flex items-center justify-center">
+                  <div className="flex-shrink-0 w-9 h-9 rounded-full bg-[#9E6B73] flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-white" />
                   </div>
                   <div className="bg-white border border-[#E8E4DC] rounded-2xl p-4">
                     <div className="flex gap-1.5">
-                      <span className="w-2 h-2 bg-[#8B7355] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 bg-[#8B7355] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 bg-[#8B7355] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="w-2 h-2 bg-[#9E6B73] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-[#9E6B73] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-[#9E6B73] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 </div>
@@ -295,13 +295,13 @@ export default function SkinConsultPage() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Tell me about your skin..."
-              className="flex-1 bg-white border border-[#E8E4DC] rounded-full px-5 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#8B7355]/50 transition-colors"
+              className="flex-1 bg-white border border-[#E8E4DC] rounded-full px-5 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#9E6B73]/50 transition-colors"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="w-11 h-11 bg-[#8B7355] rounded-full flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#6B5B4F] transition-colors"
+              className="w-11 h-11 bg-[#9E6B73] rounded-full flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#6B5B4F] transition-colors"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
