@@ -25,10 +25,7 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     // Cache optimized images for 1 year
     minimumCacheTTL: 31536000,
-    // Quality setting for optimized images
-    dangerouslyAllowSVG: true,
-    contentDispositionType: 'attachment',
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+
   },
 }
 
