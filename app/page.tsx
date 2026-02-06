@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
-import { getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getCollectionProducts, getProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
@@ -61,11 +61,25 @@ function ProductGridSkeleton({ count = 4 }: { count?: number }) {
   )
 }
 
+// Keywords for virtual collections that don't exist as Shopify collections
+const VIRTUAL_KEYWORDS: Record<string, string[]> = {
+  'collagen-masks': ['collagen', 'mask', 'face mask', 'overnight mask', 'sleeping mask', 'sheet mask'],
+}
+
 async function CollectionProducts({ handle }: { handle: string }) {
   if (!isShopifyConfigured) return null
   try {
-    const fetched = await getCollectionProducts({ handle, first: 4 })
-    const products = fetched.filter((p) => p.featuredImage?.url).slice(0, 4)
+  let fetched
+  if (VIRTUAL_KEYWORDS[handle]) {
+    const all = await getProducts({ first: 100 })
+    fetched = all.filter((p) => {
+      const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase()
+      return VIRTUAL_KEYWORDS[handle].some((kw) => text.includes(kw.toLowerCase()))
+    })
+  } else {
+    fetched = await getCollectionProducts({ handle, first: 4 })
+  }
+  const products = fetched.filter((p) => p.featuredImage?.url).slice(0, 4)
     if (products.length === 0) return null
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
@@ -84,7 +98,8 @@ const HOMEPAGE_COLLECTIONS = [
   { handle: "french-styles", title: "French Styles", bg: "bg-[#FAFAF8]" },
   { handle: "haircare", title: "Haircare", bg: "bg-white" },
   { handle: "skincare", title: "Skincare", bg: "bg-[#FAFAF8]" },
-  { handle: "treatments", title: "Treatments", bg: "bg-white" },
+  { handle: "collagen-masks", title: "Collagen Masks", bg: "bg-white" },
+  { handle: "treatments", title: "Treatments", bg: "bg-[#FAFAF8]" },
 ]
 
 export default function HomePage() {

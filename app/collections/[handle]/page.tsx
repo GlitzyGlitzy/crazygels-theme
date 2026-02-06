@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import Link from 'next/link';
-import { getCollection, getCollectionProducts, getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { getCollection, getCollectionProducts, getCollections, getProducts, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 
 export const revalidate = 300;
@@ -34,6 +34,10 @@ const COLLECTION_SEO: Record<string, { title: string; description: string }> = {
     title: 'Beauty Treatments & Tools | Crazy Gels',
     description: 'Professional beauty treatments and tools. UV lamps, nail prep kits, and application accessories for the perfect at-home salon experience.',
   },
+  'collagen-masks': {
+    title: 'Collagen Masks | Crazy Gels',
+    description: 'Luxurious overnight collagen face masks for radiant, youthful skin. Hydrating, firming, and anti-aging masks crafted with premium ingredients.',
+  },
 }
 
 export async function generateMetadata({
@@ -46,25 +50,31 @@ export async function generateMetadata({
   }
 
   const { handle } = await params;
-  const collection = await getCollection(handle);
 
-  if (!collection) {
+  // Check if it's a virtual collection first
+  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+  const collection = virtualDef ? null : await getCollection(handle);
+
+  if (!collection && !virtualDef) {
     return { title: 'Collection Not Found | Crazy Gels' };
   }
 
   // Use pre-written SEO metadata if available, otherwise generate from collection data
   const seo = COLLECTION_SEO[handle.toLowerCase()]
 
-  const title = seo?.title || collection.seo?.title || `${collection.title} | Crazy Gels`
-  const description = seo?.description || collection.seo?.description || collection.description || `Shop our ${collection.title} collection. Premium beauty products from Crazy Gels.`
+  const collectionTitle = virtualDef?.title || collection?.title || 'Collection';
+  const collectionDesc = virtualDef?.description || collection?.description || '';
+
+  const title = seo?.title || collection?.seo?.title || `${collectionTitle} | Crazy Gels`
+  const description = seo?.description || collection?.seo?.description || collectionDesc || `Shop our ${collectionTitle} collection. Premium beauty products from Crazy Gels.`
 
   return {
     title,
     description,
     openGraph: {
-      title: collection.title,
+      title: collectionTitle,
       description,
-      images: collection.image ? [{ url: collection.image.url }] : [],
+      images: collection?.image ? [{ url: collection.image.url }] : [],
       type: 'website',
     },
     twitter: {
@@ -80,18 +90,33 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   if (!isShopifyConfigured) {
-    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'treatments' }];
+    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'collagen-masks' }, { handle: 'treatments' }];
   }
 
   try {
     const collections = await getCollections();
-    return collections.map((collection) => ({
+    const params = collections.map((collection) => ({
       handle: collection.handle,
     }));
+    // Always include collagen-masks as it's a virtual collection
+    if (!params.some(p => p.handle === 'collagen-masks')) {
+      params.push({ handle: 'collagen-masks' });
+    }
+    return params;
   } catch {
-    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'treatments' }];
+    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'collagen-masks' }, { handle: 'treatments' }];
   }
 }
+
+// Virtual collections: curated sets filtered from the full Shopify catalog
+const VIRTUAL_COLLECTIONS: Record<string, { title: string; description: string; image: string; keywords: string[] }> = {
+  'collagen-masks': {
+    title: 'Collagen Masks',
+    description: 'Luxurious overnight collagen face masks for radiant, youthful skin. Hydrating, firming, and anti-aging masks crafted with premium ingredients.',
+    image: '/images/collagen-masks.jpg',
+    keywords: ['collagen', 'mask', 'face mask', 'overnight mask', 'sleeping mask', 'sheet mask', 'peel off', 'clay mask'],
+  },
+};
 
 export default async function CollectionPage({
   params,
@@ -107,7 +132,23 @@ export default async function CollectionPage({
   const { handle } = await params;
   const { sort, order } = await searchParams;
 
-  const collection = await getCollection(handle);
+  // Check if this is a virtual collection
+  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+
+  let collection;
+  if (virtualDef) {
+    // Build a virtual collection object
+    collection = {
+      handle,
+      title: virtualDef.title,
+      description: virtualDef.description,
+      seo: { title: virtualDef.title, description: virtualDef.description },
+      updatedAt: new Date().toISOString(),
+      image: { url: virtualDef.image, altText: virtualDef.title, width: 1200, height: 800 },
+    };
+  } else {
+    collection = await getCollection(handle);
+  }
 
   if (!collection) {
     notFound();
@@ -215,8 +256,17 @@ async function ProductCount({
   sortKey: string;
   reverse: boolean;
 }) {
-  // Use limited fetch just for count display
-  const products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+  let products;
+  if (virtualDef) {
+    const allProducts = await getProducts({ first: 250, sortKey, reverse });
+    products = allProducts.filter((p) => {
+      const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
+      return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
+    });
+  } else {
+    products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+  }
   return (
     <p className="text-[#2C2C2C]/60">
       <span className="font-semibold text-[#2C2C2C]">{products.length}</span>{' '}
@@ -229,13 +279,25 @@ async function CollectionProducts({
   handle,
   sortKey,
   reverse,
-}: {
+  }: {
   handle: string;
   sortKey: string;
   reverse: boolean;
-}) {
-  // Fetch up to 100 products (reasonable limit for a page)
-  const products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+  }) {
+  let products;
+  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+
+  if (virtualDef) {
+    // For virtual collections, search Shopify products by keywords and filter
+    const allProducts = await getProducts({ first: 250, sortKey, reverse });
+    products = allProducts.filter((p) => {
+      const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
+      return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
+    });
+  } else {
+    // Standard Shopify collection fetch
+    products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+  }
 
   if (products.length === 0) {
     return (
