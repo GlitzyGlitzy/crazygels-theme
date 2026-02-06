@@ -41,6 +41,12 @@ const DEFAULT_COLLECTIONS = [
     gradient: 'from-[#B76E79] to-[#9E6B73]',
   },
   {
+    handle: 'collagen-masks',
+    title: 'Collagen Masks',
+    description: 'Luxurious overnight collagen face masks for radiant, youthful skin',
+    gradient: 'from-[#B76E79] to-[#C9A9A6]',
+  },
+  {
     handle: 'treatments',
     title: 'Treatments',
     description: 'Professional beauty treatments and tools',
@@ -98,15 +104,25 @@ export default async function CollectionsPage() {
   );
 }
 
+// Virtual collection card with custom image
+const VIRTUAL_COLLECTION_CARDS = [
+  {
+    handle: 'collagen-masks',
+    title: 'Collagen Masks',
+    description: 'Luxurious overnight collagen face masks for radiant, youthful skin',
+    image: '/images/collagen-masks.jpg',
+  },
+];
+
 async function CollectionsGrid() {
   let collections: Collection[] = [];
-
+  
   if (isShopifyConfigured) {
-    try {
-      collections = await getCollections();
-    } catch (error) {
-      console.error('Failed to fetch collections:', error);
-    }
+  try {
+  collections = await getCollections();
+  } catch (error) {
+  console.error('Failed to fetch collections:', error);
+  }
   }
 
   // Show default collections if none found or Shopify not configured
@@ -138,13 +154,39 @@ async function CollectionsGrid() {
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-      {collections.map((collection) => {
-        return (
-          <Link
-            key={collection.handle}
-            href={`/collections/${collection.handle}`}
-            className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9] transition-all hover:border-[#B76E79]/50 hover:shadow-xl hover:shadow-[#B76E79]/10"
+  <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  {/* Virtual collection cards with custom images */}
+  {VIRTUAL_COLLECTION_CARDS.map((vc) => (
+    <Link
+      key={vc.handle}
+      href={`/collections/${vc.handle}`}
+      className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9] transition-all hover:border-[#B76E79]/50 hover:shadow-xl hover:shadow-[#B76E79]/10"
+    >
+      <img
+        src={vc.image}
+        alt={vc.title}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/60 to-transparent" />
+      <div className="relative p-8">
+        <h3 className="text-2xl font-medium text-[#2C2C2C] group-hover:text-[#B76E79] transition-colors">
+          {vc.title}
+        </h3>
+        <p className="mt-2 line-clamp-2 text-[#2C2C2C]/60">{vc.description}</p>
+        <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#B76E79]">
+          Shop Now
+          <ChevronLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-1" />
+        </span>
+      </div>
+    </Link>
+  ))}
+  {/* Shopify collection cards */}
+  {collections.map((collection) => {
+  return (
+  <Link
+  key={collection.handle}
+  href={`/collections/${collection.handle}`}
+  className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9] transition-all hover:border-[#B76E79]/50 hover:shadow-xl hover:shadow-[#B76E79]/10"
           >
             {collection.image?.url ? (
               <>
