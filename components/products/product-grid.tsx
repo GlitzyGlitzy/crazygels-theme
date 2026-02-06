@@ -1,8 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/lib/shopify/types';
-import { getOptimizedImageUrl, getImageSizes } from '@/lib/shopify/image';
-
 function formatPrice(amount: string, currencyCode: string = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -16,27 +14,19 @@ export function ProductCard({ product }: { product: Product }) {
   const compareAtPrice = variants.edges[0]?.node.compareAtPrice;
   const hasDiscount = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount);
 
-  // Get optimized image URL for card display (600px for crisp quality on retina)
-  const optimizedImageUrl = featuredImage?.url 
-    ? getOptimizedImageUrl(featuredImage.url, { width: 600, height: 600, crop: 'center' })
-    : null;
-
   return (
     <Link
       href={`/products/${handle}`}
       className="group relative flex flex-col overflow-hidden rounded-xl bg-card transition-all hover:shadow-lg"
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
-        {optimizedImageUrl ? (
+        {featuredImage?.url ? (
           <Image
-            src={optimizedImageUrl}
-            alt={featuredImage?.altText || title}
+            src={featuredImage.url}
+            alt={featuredImage.altText || title}
             fill
-            sizes={getImageSizes('grid')}
+            sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
-            quality={85}
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground">
