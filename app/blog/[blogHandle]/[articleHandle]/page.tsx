@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { notFound } from 'next/navigation';
 import { getArticle, getArticles, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
@@ -92,11 +92,11 @@ async function RelatedArticles({ currentArticleId }: { currentArticleId: string 
             >
               <div className="relative aspect-[16/10]">
                 {article.image ? (
-                  <Image
+                  <img
                     src={article.image.url}
                     alt={article.image.altText || article.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-[#C9A9A6]/10 flex items-center justify-center">
@@ -138,12 +138,10 @@ async function ArticleContent({ blogHandle, articleHandle }: { blogHandle: strin
       {/* Hero Image */}
       {article.image && (
         <div className="relative aspect-[21/9] rounded-2xl overflow-hidden mb-8">
-          <Image
+          <img
             src={article.image.url}
             alt={article.image.altText || article.title}
-            fill
-            className="object-cover"
-            priority
+            className="absolute inset-0 w-full h-full object-cover"
           />
         </div>
       )}

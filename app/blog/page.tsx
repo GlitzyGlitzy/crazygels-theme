@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { getAllArticles, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
@@ -109,12 +109,10 @@ async function BlogArticles() {
             <div className="grid md:grid-cols-2 gap-0">
               <div className="relative aspect-[16/10] md:aspect-auto">
                 {featuredArticle.image ? (
-                  <Image
+                  <img
                     src={featuredArticle.image.url}
                     alt={featuredArticle.image.altText || featuredArticle.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(min-width: 768px) 50vw, 100vw"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#C9A9A6]/20 flex items-center justify-center">
@@ -163,12 +161,11 @@ async function BlogArticles() {
                 >
                   <div className="relative aspect-[16/10]">
                     {article.image?.url ? (
-                      <Image
+                      <img
                         src={article.image.url}
                         alt={article.image.altText || article.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                        className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
                       />
                     ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-[#C9A9A6]/10 flex items-center justify-center">

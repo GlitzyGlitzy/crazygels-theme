@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Product } from '@/lib/shopify/types';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
@@ -39,17 +38,15 @@ export function ProductGallery({ product }: { product: Product }) {
     <div className="space-y-4">
       {/* Main Image */}
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted group">
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={currentImage.url}
           alt={currentImage.altText || product.title}
-          fill
           className={cn(
-            'object-cover transition-transform duration-500',
+            'absolute inset-0 w-full h-full object-cover transition-transform duration-500',
             isZoomed && 'scale-150 cursor-zoom-out'
           )}
           onClick={() => setIsZoomed(!isZoomed)}
-          priority
-          sizes="(max-width: 768px) 100vw, 50vw"
         />
 
         {/* Zoom Hint */}
@@ -109,12 +106,12 @@ export function ProductGallery({ product }: { product: Product }) {
                 aria-label={`View image ${index + 1}`}
                 aria-current={selectedIndex === index ? 'true' : undefined}
               >
-                <Image
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
                   src={image.url}
                   alt={image.altText || `${product.title} - Image ${index + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="80px"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
                 />
               </button>
           ))}

@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, isShopifyConfigured, getProducts } from "@/lib/shopify"
@@ -24,12 +23,11 @@ function ProductCard({ product }: { product: Product }) {
     <Link href={`/products/${product.handle}`} className="group block">
       <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F3EF] mb-3">
         {imageUrl ? (
-          <Image
+          <img
             src={imageUrl}
             alt={product.featuredImage?.altText || product.title}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width: 768px) 50vw, 25vw"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading="lazy"
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-[#9B9B9B] text-sm">
@@ -88,13 +86,10 @@ async function HeroProductImage() {
     const product = products.find((p) => p.featuredImage?.url)
     if (!product?.featuredImage?.url) return null
     return (
-      <Image
+      <img
         src={product.featuredImage.url}
         alt={product.featuredImage.altText || product.title}
-        fill
-        className="object-cover"
-        priority
-        sizes="(max-width: 768px) 100vw, 50vw"
+        className="absolute inset-0 w-full h-full object-cover"
       />
     )
   } catch {
@@ -111,7 +106,7 @@ const HOMEPAGE_COLLECTIONS = [
 ]
 
 export default function HomePage() {
-  console.log("[v0] PAGE_V9_LOADED")
+  console.log("[v0] PAGE_V20_LOADED -- if you see fetchAllProducts in logs, the server is running a DIFFERENT file")
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <div className="bg-[#1A1A1A] py-3">

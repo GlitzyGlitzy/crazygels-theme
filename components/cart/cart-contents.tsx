@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import Image from 'next/image';
+
 import Link from 'next/link';
 import { Cart } from '@/lib/shopify/types';
 import { removeItemFromCart, updateItemQuantity } from '@/lib/shopify/actions';
@@ -36,11 +36,10 @@ function CartLineItem({
         className="relative w-24 h-24 bg-white/5 rounded-lg overflow-hidden flex-shrink-0 group"
       >
         {product.featuredImage ? (
-          <Image
+          <img
             src={product.featuredImage.url}
             alt={product.featuredImage.altText || product.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform"
+            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-white/30">

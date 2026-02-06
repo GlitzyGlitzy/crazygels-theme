@@ -1,4 +1,4 @@
-import Image from 'next/image';
+
 import Link from 'next/link';
 import { Collection } from '@/lib/shopify/types';
 
@@ -11,12 +11,11 @@ export function CollectionCard({ collection }: { collection: Collection }) {
       className="group relative flex aspect-square flex-col justify-end overflow-hidden rounded-xl bg-card"
     >
       {image ? (
-        <Image
+        <img
           src={image.url}
           alt={image.altText || title}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
         />
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20" />

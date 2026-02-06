@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { getCollections, isShopifyConfigured } from '@/lib/shopify';
 export const revalidate = 300;
 import { DynamicHeader } from '@/components/layout/dynamic-header';
@@ -148,12 +148,10 @@ async function CollectionsGrid() {
           >
             {collection.image?.url ? (
               <>
-                <Image
+                <img
                   src={collection.image.url}
                   alt={collection.image.altText || collection.title}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/60 to-transparent" />
               </>
