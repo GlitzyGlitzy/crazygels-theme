@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
-import { getCollectionProducts, isShopifyConfigured, getProducts } from "@/lib/shopify"
+import { getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
@@ -79,23 +79,6 @@ async function CollectionProducts({ handle }: { handle: string }) {
   }
 }
 
-async function HeroProductImage() {
-  if (!isShopifyConfigured) return null
-  try {
-    const products = await getProducts({ first: 1 })
-    const product = products.find((p) => p.featuredImage?.url)
-    if (!product?.featuredImage?.url) return null
-    return (
-      <img
-        src={product.featuredImage.url}
-        alt={product.featuredImage.altText || product.title}
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-    )
-  } catch {
-    return null
-  }
-}
 
 const HOMEPAGE_COLLECTIONS = [
   { handle: "gel-nail-wraps", title: "Gel Nail Wraps", bg: "bg-white" },
@@ -106,7 +89,6 @@ const HOMEPAGE_COLLECTIONS = [
 ]
 
 export default function HomePage() {
-  console.log("[v0] PAGE_V20_LOADED -- if you see fetchAllProducts in logs, the server is running a DIFFERENT file")
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
       <div className="bg-[#1A1A1A] py-3">
@@ -145,9 +127,11 @@ export default function HomePage() {
               </div>
               <div className="order-1 lg:order-2">
                 <div className="relative aspect-[4/5] bg-[#F5F3EF] overflow-hidden">
-                  <Suspense fallback={<div className="absolute inset-0 bg-[#E8E4DC] animate-pulse" />}>
-                    <HeroProductImage />
-                  </Suspense>
+                  <img
+                    src="/images/hero.jpg"
+                    alt="Elegant hands with premium semi-cured gel nails in soft nude tones"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
                 </div>
               </div>
             </div>
