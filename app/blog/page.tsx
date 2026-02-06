@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getAllArticles, isShopifyConfigured } from '@/lib/shopify';
-import { getOptimizedImageUrl } from '@/lib/shopify/image';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
@@ -111,14 +110,11 @@ async function BlogArticles() {
               <div className="relative aspect-[16/10] md:aspect-auto">
                 {featuredArticle.image ? (
                   <Image
-                    src={getOptimizedImageUrl(featuredArticle.image.url, { width: 800, height: 500, crop: 'center' })}
+                    src={featuredArticle.image.url}
                     alt={featuredArticle.image.altText || featuredArticle.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                     sizes="(min-width: 768px) 50vw, 100vw"
-                    quality={85}
-                    placeholder="blur"
-                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
                   />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/20 to-[#C9A9A6]/20 flex items-center justify-center">
@@ -159,28 +155,20 @@ async function BlogArticles() {
         {/* Article Grid */}
         {restArticles.length > 0 && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {restArticles.map((article) => {
-              const articleImageUrl = article.image?.url 
-                ? getOptimizedImageUrl(article.image.url, { width: 600, height: 375, crop: 'center' })
-                : null;
-                
-              return (
+            {restArticles.map((article) => (
                 <Link
                   key={article.id}
                   href={`/blog/${article.blog.handle}/${article.handle}`}
                   className="group bg-[#FFFEF9] border border-[#D4AF37]/20 rounded-2xl overflow-hidden hover:border-[#D4AF37]/50 transition-all"
                 >
                   <div className="relative aspect-[16/10]">
-                    {articleImageUrl ? (
+                    {article.image?.url ? (
                       <Image
-                        src={articleImageUrl}
-                        alt={article.image?.altText || article.title}
+                        src={article.image.url}
+                        alt={article.image.altText || article.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                         sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-                        quality={85}
-                        placeholder="blur"
-                        blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAUH/8QAIhAAAgEEAQQDAAAAAAAAAAAAAQIDAAQFESEGEhMxQVFh/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAZEQACAwEAAAAAAAAAAAAAAAABAgADESH/2gAMAwEAAhEDEEA/ANBw+Vt8fPLLFb26SPpWcRKCwHvZ96rUUq5BzchfS5r/2Q=="
                       />
                     ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-[#C9A9A6]/10 flex items-center justify-center">
@@ -207,8 +195,7 @@ async function BlogArticles() {
                   </p>
                 </div>
               </Link>
-              );
-            })}
+            ))}
           </div>
         )}
       </div>

@@ -9,7 +9,7 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn.shopify.com',
-        pathname: '/s/files/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
