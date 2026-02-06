@@ -20,6 +20,8 @@ export function ProductInfo({ product }: { product: Product }) {
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
   const [isAdded, setIsAdded] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
 
   const hasMultipleVariants = variants.length > 1;
   const isOnSale = selectedVariant.compareAtPrice !== undefined && selectedVariant.compareAtPrice !== null;
@@ -64,6 +66,36 @@ export function ProductInfo({ product }: { product: Product }) {
         console.error('Failed to add to cart:', error);
       }
     });
+  };
+
+  const handleShare = async () => {
+    const url = typeof window !== 'undefined' ? window.location.href : '';
+    const shareData = {
+      title: product.title,
+      text: `Check out ${product.title} at Crazy Gels!`,
+      url,
+    };
+
+    try {
+      if (typeof navigator !== 'undefined' && navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShareMessage('Link copied!');
+        setTimeout(() => setShareMessage(null), 2000);
+      }
+    } catch (err) {
+      // User cancelled the share dialog, or clipboard failed
+      if ((err as Error)?.name !== 'AbortError') {
+        await navigator.clipboard.writeText(url);
+        setShareMessage('Link copied!');
+        setTimeout(() => setShareMessage(null), 2000);
+      }
+    }
+  };
+
+  const handleFavorite = () => {
+    setIsFavorited((prev) => !prev);
   };
 
   const decreaseQuantity = () => {
@@ -223,20 +255,36 @@ export function ProductInfo({ product }: { product: Product }) {
         <Button
           variant="outline"
           size="lg"
-          className="px-4"
-          aria-label="Add to wishlist"
+          onClick={handleFavorite}
+          className={cn(
+            'px-4 transition-all',
+            isFavorited && 'border-[#B76E79] bg-[#B76E79]/10'
+          )}
+          aria-label={isFavorited ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-pressed={isFavorited}
         >
-          <Heart className="h-5 w-5" />
+          <Heart className={cn(
+            'h-5 w-5 transition-colors',
+            isFavorited ? 'fill-[#B76E79] text-[#B76E79]' : ''
+          )} />
         </Button>
 
-        <Button
-          variant="outline"
-          size="lg"
-          className="px-4"
-          aria-label="Share product"
-        >
-          <Share2 className="h-5 w-5" />
-        </Button>
+        <div className="relative">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={handleShare}
+            className="px-4"
+            aria-label="Share product"
+          >
+            <Share2 className="h-5 w-5" />
+          </Button>
+          {shareMessage && (
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-[#1A1A1A] px-2 py-1 text-xs text-white">
+              {shareMessage}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Product Meta */}
