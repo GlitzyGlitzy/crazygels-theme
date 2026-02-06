@@ -65,7 +65,7 @@ export function Footer() {
           </div>
 
           {[
-            { title: "Shop", links: [{ name: "Nails", href: "/collections/nails" }, { name: "Hair", href: "/collections/hair" }, { name: "Skin", href: "/collections/skin" }, { name: "Bundles", href: "/collections/bundles" }, { name: "Sale", href: "/collections/sale" }] },
+            { title: "Shop", links: [{ name: "Gel Nail Wraps", href: "/collections/gel-nail-wraps" }, { name: "French Styles", href: "/collections/french-styles" }, { name: "Haircare", href: "/collections/haircare" }, { name: "Skincare", href: "/collections/skincare" }, { name: "Treatments", href: "/collections/treatments" }] },
             { title: "Help", links: [{ name: "FAQ", href: "/pages/faq" }, { name: "Shipping", href: "/pages/shipping" }, { name: "Returns", href: "/pages/returns" }, { name: "Contact", href: "/pages/contact" }] },
             { title: "Company", links: [{ name: "About", href: "/pages/about" }, { name: "Blog", href: "/blog" }, { name: "Careers", href: "/pages/careers" }, { name: "Press", href: "/pages/press" }] }
           ].map((col) => (
@@ -88,7 +88,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[#FAF7F2]/50 text-xs text-center md:text-left">
-            &copy; {new Date().getFullYear()} Crazy Gels. All rights reserved.
+            &copy; 2025 Crazy Gels. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs text-[#FAF7F2]/70">
             <Link href="/pages/privacy" className="hover:text-[#FAF7F2] transition-colors">Privacy Policy</Link>

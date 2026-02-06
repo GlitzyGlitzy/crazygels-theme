@@ -1,12 +1,16 @@
 import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { getProduct, getProducts, isShopifyConfigured } from '@/lib/shopify';
+import { getProduct, getCollectionProducts, isShopifyConfigured } from '@/lib/shopify';
 import { ProductGallery } from '@/components/products/product-gallery';
+
+export const revalidate = 300;
 import { ProductInfo } from '@/components/products/product-info';
-import { ProductGrid } from '@/components/products/product-grid';
+import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
+import { DynamicHeader } from '@/components/layout/dynamic-header';
+import { Footer } from '@/components/layout/footer';
 import Link from 'next/link';
-import { ChevronLeft, Truck, Shield, RotateCcw, Star } from 'lucide-react';
+import { Truck, Shield, RotateCcw, Star } from 'lucide-react';
 
 export async function generateMetadata({
   params,
@@ -16,43 +20,53 @@ export async function generateMetadata({
   if (!isShopifyConfigured) {
     return { title: 'Product | Crazy Gels' };
   }
-  
+
   const { handle } = await params;
   const product = await getProduct(handle);
 
   if (!product) {
-    return {
-      title: 'Product Not Found',
-    };
+    return { title: 'Product Not Found | Crazy Gels' };
   }
 
+  // Build SEO-optimized title (max 60 chars)
+  const seoTitle = product.seo?.title || `${product.title} | Crazy Gels`
+  const seoDescription = product.seo?.description || product.description?.slice(0, 155) || `Shop ${product.title} at Crazy Gels. Premium beauty products with free shipping over $50.`
+
   return {
-    title: `${product.title} | Crazy Gels`,
-    description: product.seo?.description || product.description,
+    title: seoTitle,
+    description: seoDescription,
     openGraph: {
       title: product.title,
-      description: product.description,
+      description: seoDescription,
+      type: 'website',
       images: product.featuredImage
         ? [
             {
               url: product.featuredImage.url,
               width: product.featuredImage.width,
               height: product.featuredImage.height,
-              alt: product.featuredImage.altText,
+              alt: product.featuredImage.altText || product.title,
             },
           ]
         : [],
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.title,
+      description: seoDescription,
+    },
+    alternates: {
+      canonical: `/products/${handle}`,
+    },
   };
 }
 
-// Generate Product JSON-LD for SEO rich results
 function generateProductJsonLd(product: Awaited<ReturnType<typeof getProduct>>) {
   if (!product) return null;
-  
+
   const price = product.priceRange.minVariantPrice;
   const comparePrice = product.priceRange.maxVariantPrice;
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -63,7 +77,7 @@ function generateProductJsonLd(product: Awaited<ReturnType<typeof getProduct>>) 
       '@type': 'Brand',
       name: product.vendor || 'Crazy Gels',
     },
-    sku: product.variants[0]?.id,
+    sku: product.variants.edges[0]?.node.id,
     offers: {
       '@type': 'AggregateOffer',
       priceCurrency: price.currencyCode,
@@ -76,11 +90,6 @@ function generateProductJsonLd(product: Awaited<ReturnType<typeof getProduct>>) 
         '@type': 'Organization',
         name: 'Crazy Gels',
       },
-    },
-    aggregateRating: {
-      '@type': 'AggregateRating',
-      ratingValue: '4.8',
-      reviewCount: '127',
     },
   };
 }
@@ -101,148 +110,124 @@ export default async function ProductPage({
     notFound();
   }
 
-  // Generate JSON-LD for this product
   const productJsonLd = generateProductJsonLd(product);
 
-  // Get related products
-  const relatedProducts = await getProducts({
-    first: 4,
-    query: product.productType ? `product_type:${product.productType}` : undefined,
-  });
-
-  // Filter out the current product
-  const filteredRelated = relatedProducts.filter((p) => p.handle !== handle).slice(0, 4);
-
   return (
-    <div className="min-h-screen bg-background">
-      {/* Product JSON-LD for SEO */}
+    <div className="min-h-screen bg-[#FAF7F2]">
       {productJsonLd && (
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
         />
       )}
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back to Shop
-          </Link>
-          <Link href="/" className="text-xl font-light tracking-[0.15em]">
-            <span className="text-[#2C2C2C]">CRAZY </span>
-            <span className="font-medium text-[#D4AF37]">GELS</span>
-          </Link>
-          <div className="w-24" />
-        </div>
-      </header>
+
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#D4AF37]/20" />}>
+        <DynamicHeader />
+      </Suspense>
 
       {/* Breadcrumb */}
-      <nav className="mx-auto max-w-7xl px-4 py-4">
-        <ol className="flex items-center gap-2 text-sm text-muted-foreground">
-          <li>
-            <Link href="/" className="transition-colors hover:text-foreground">
-              Home
-            </Link>
-          </li>
-          <li>/</li>
-          <li>
-            <Link href="/collections/all" className="transition-colors hover:text-foreground">
-              Products
-            </Link>
-          </li>
-          <li>/</li>
-          <li className="text-foreground">{product.title}</li>
+      <nav className="mx-auto max-w-7xl px-4 py-4" aria-label="Breadcrumb">
+        <ol className="flex items-center gap-2 text-sm text-[#2C2C2C]/60">
+          <li><Link href="/" className="hover:text-[#D4AF37] transition-colors">Home</Link></li>
+          <li aria-hidden="true">/</li>
+          <li><Link href="/collections" className="hover:text-[#D4AF37] transition-colors">Collections</Link></li>
+          {product.productType && (
+            <>
+              <li aria-hidden="true">/</li>
+              <li>
+                <Link href={`/collections/${product.productType.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-[#D4AF37] transition-colors">
+                  {product.productType}
+                </Link>
+              </li>
+            </>
+          )}
+          <li aria-hidden="true">/</li>
+          <li className="text-[#2C2C2C] line-clamp-1" aria-current="page">{product.title}</li>
         </ol>
       </nav>
 
-      {/* Product Section */}
       <main className="mx-auto max-w-7xl px-4 py-8">
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
-          {/* Product Gallery */}
-          <Suspense
-            fallback={
-              <div className="aspect-square animate-pulse rounded-2xl bg-muted" />
-            }
-          >
-            <ProductGallery product={product} />
-          </Suspense>
-
-          {/* Product Info */}
-          <Suspense
-            fallback={
-              <div className="space-y-4">
-                <div className="h-8 w-3/4 animate-pulse rounded bg-muted" />
-                <div className="h-6 w-1/4 animate-pulse rounded bg-muted" />
-                <div className="h-24 animate-pulse rounded bg-muted" />
-              </div>
-            }
-          >
-            <ProductInfo product={product} />
-          </Suspense>
+          <ProductGallery product={product} />
+          <ProductInfo product={product} />
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-12 grid grid-cols-2 gap-4 border-y border-border py-8 md:grid-cols-4">
+        <div className="mt-12 grid grid-cols-2 gap-4 border-y border-[#D4AF37]/10 py-8 md:grid-cols-4">
           <div className="flex flex-col items-center gap-2 text-center">
             <div className="rounded-full bg-[#D4AF37]/10 p-3">
               <Truck className="h-6 w-6 text-[#D4AF37]" />
             </div>
-            <span className="text-sm font-medium">Free Shipping</span>
-            <span className="text-xs text-muted-foreground">Orders over $50</span>
+            <span className="text-sm font-medium text-[#2C2C2C]">Free Shipping</span>
+            <span className="text-xs text-[#2C2C2C]/60">Orders over $50</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
             <div className="rounded-full bg-[#8B7355]/10 p-3">
               <Shield className="h-6 w-6 text-[#8B7355]" />
             </div>
-            <span className="text-sm font-medium">Secure Payment</span>
-            <span className="text-xs text-muted-foreground">100% Protected</span>
+            <span className="text-sm font-medium text-[#2C2C2C]">Secure Payment</span>
+            <span className="text-xs text-[#2C2C2C]/60">100% Protected</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
             <div className="rounded-full bg-[#D4AF37]/10 p-3">
               <RotateCcw className="h-6 w-6 text-[#D4AF37]" />
             </div>
-            <span className="text-sm font-medium">Easy Returns</span>
-            <span className="text-xs text-muted-foreground">30-Day Policy</span>
+            <span className="text-sm font-medium text-[#2C2C2C]">Easy Returns</span>
+            <span className="text-xs text-[#2C2C2C]/60">14-Day Policy</span>
           </div>
           <div className="flex flex-col items-center gap-2 text-center">
             <div className="rounded-full bg-[#8B7355]/10 p-3">
               <Star className="h-6 w-6 text-[#8B7355]" />
             </div>
-            <span className="text-sm font-medium">Top Rated</span>
-            <span className="text-xs text-muted-foreground">50K+ Reviews</span>
+            <span className="text-sm font-medium text-[#2C2C2C]">Top Rated</span>
+            <span className="text-xs text-[#2C2C2C]/60">Trusted by 50K+</span>
           </div>
         </div>
 
         {/* Product Description */}
         {product.descriptionHtml && (
           <section className="mt-12">
-            <h2 className="mb-4 text-2xl font-bold">Product Details</h2>
+            <h2 className="mb-4 text-2xl font-medium text-[#2C2C2C]">Product Details</h2>
             <div
-              className="prose prose-neutral dark:prose-invert max-w-none"
+              className="prose prose-neutral max-w-none text-[#2C2C2C]/80"
               dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
             />
           </section>
         )}
 
         {/* Related Products */}
-        {filteredRelated.length > 0 && (
-          <section className="mt-16">
-            <h2 className="mb-8 text-2xl font-bold">You May Also Like</h2>
-            <ProductGrid products={filteredRelated} />
-          </section>
-        )}
+        <Suspense fallback={<ProductGridSkeleton count={4} />}>
+          <RelatedProducts handle={handle} productType={product.productType} />
+        </Suspense>
       </main>
 
-      {/* Footer */}
-      <footer className="mt-16 border-t border-border bg-card py-8">
-        <div className="mx-auto max-w-7xl px-4 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} Crazy Gels. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
+}
+
+async function RelatedProducts({ handle, productType }: { handle: string; productType?: string }) {
+  if (!productType) return null
+
+  try {
+    // Fetch related products from the same product type collection
+    const typeHandle = productType.toLowerCase().replace(/\s+/g, '-')
+    const related = await getCollectionProducts({
+      handle: typeHandle,
+      first: 5,
+    })
+
+    const filtered = related.filter((p) => p.handle !== handle).slice(0, 4)
+
+    if (filtered.length === 0) return null
+
+    return (
+      <section className="mt-16">
+        <h2 className="mb-8 text-2xl font-medium text-[#2C2C2C]">You May Also Like</h2>
+        <ProductGrid products={filtered} />
+      </section>
+    )
+  } catch {
+    return null
+  }
 }

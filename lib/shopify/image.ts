@@ -47,36 +47,15 @@ export function getOptimizedImageUrl(
 
   const { width, height, crop = 'center', scale = 1, format } = options;
   
-  // Build the size parameter
-  let sizeParam = '';
-  if (width && height) {
-    sizeParam = `_${width}x${height}`;
-    if (crop) {
-      sizeParam += `_crop_${crop}`;
-    }
-  } else if (width) {
-    sizeParam = `_${width}x`;
-  } else if (height) {
-    sizeParam = `_x${height}`;
-  }
+  // Use Shopify's Image Transform API via query parameters.
+  // Preserve existing query params (especially ?v= cache buster) and add transform params.
+  const urlObj = new URL(url);
+  if (width) urlObj.searchParams.set('width', String(width));
+  if (height) urlObj.searchParams.set('height', String(height));
+  if (crop && width && height) urlObj.searchParams.set('crop', crop);
+  if (format) urlObj.searchParams.set('format', format);
 
-  // Add scale for retina displays
-  if (scale > 1) {
-    sizeParam += `@${scale}x`;
-  }
-
-  // Insert size parameter before the file extension
-  const urlParts = url.split('.');
-  const extension = urlParts.pop();
-  const baseUrl = urlParts.join('.');
-  
-  // Use the specified format or keep original
-  const finalExtension = format || extension;
-  
-  // Remove any existing size parameters
-  const cleanBaseUrl = baseUrl.replace(/_\d+x\d*(_crop_\w+)?(@\d+x)?$/, '');
-  
-  return `${cleanBaseUrl}${sizeParam}.${finalExtension}`;
+  return urlObj.toString();
 }
 
 /**
@@ -182,9 +161,7 @@ export function getImageDimensions(url: string): { width: number; height: number
  */
 export function getWebPUrl(url: string): string {
   if (!url || !url.includes('cdn.shopify.com')) return url;
-  
-  // Replace extension with webp
-  return url.replace(/\.(jpg|jpeg|png|gif)(\?.*)?$/i, '.webp$2');
+  return getOptimizedImageUrl(url, { format: 'webp' });
 }
 
 /**

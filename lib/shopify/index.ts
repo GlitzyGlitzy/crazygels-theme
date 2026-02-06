@@ -55,7 +55,7 @@ async function sleep(ms: number): Promise<void> {
 }
 
 export async function shopifyFetch<T>({
-  cache = 'force-cache',
+  cache,
   headers,
   query,
   tags,
@@ -94,8 +94,10 @@ export async function shopifyFetch<T>({
           ...(query && { query }),
           ...(variables && { variables }),
         }),
-        cache,
-        ...(tags && { next: { tags, revalidate } }),
+        cache: cache ?? 'force-cache',
+        ...(revalidate || tags
+          ? { next: { ...(revalidate && { revalidate }), ...(tags && { tags }) } }
+          : {}),
       });
 
       // Handle rate limiting (429 status)
@@ -232,7 +234,7 @@ const productFragment = /* GraphQL */ `
         currencyCode
       }
     }
-    variants(first: 250) {
+    variants(first: 100) {
       edges {
         node {
           id
@@ -356,7 +358,7 @@ const getCollectionQuery = /* GraphQL */ `
 `;
 
 const getCollectionsQuery = /* GraphQL */ `
-  query getCollections($first: Int = 250, $after: String) {
+  query getCollections($first: Int = 100, $after: String) {
     collections(first: $first, sortKey: TITLE, after: $after) {
       edges {
         node {
@@ -411,15 +413,15 @@ export async function getProducts({
   query,
   reverse,
   sortKey,
-  first = 250,
+  first = 100,
 }: {
   query?: string;
   reverse?: boolean;
   sortKey?: string;
   first?: number;
 } = {}): Promise<Product[]> {
-  // Use Shopify's maximum allowed (250)
-  const safeFirst = Math.min(first, 250);
+  // Keep page size reasonable to avoid exceeding Next.js 2MB cache limit
+  const safeFirst = Math.min(first, 100);
   
   const res = await shopifyFetch<{
     data: { products: Connection<ShopifyProduct> };
@@ -447,7 +449,8 @@ export async function getAllProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  const pageSize = 250; // Shopify max per request
+  // Use smaller page size to keep each response under Next.js 2MB cache limit
+  const pageSize = 50;
 
   while (hasNextPage) {
     const res = await shopifyFetch<{
@@ -455,7 +458,7 @@ export async function getAllProducts({
       variables: { query?: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
     }>({
       query: getProductsQuery,
-      tags: [TAGS.products],
+      cache: 'no-store',
       variables: { 
         query, 
         reverse, 
@@ -463,7 +466,6 @@ export async function getAllProducts({
         first: pageSize,
         ...(cursor && { after: cursor })
       },
-      revalidate: CACHE_TIMES.products,
     });
 
     const products = res.body.data.products;
@@ -493,7 +495,7 @@ export async function getCollections(): Promise<Collection[]> {
   let hasNextPage = true;
   let cursor: string | null = null;
 
-  // Paginate through ALL collections
+  // Paginate through ALL collections with smaller page size
   while (hasNextPage) {
     const res = await shopifyFetch<{ 
       data: { collections: Connection<ShopifyCollection> };
@@ -501,7 +503,7 @@ export async function getCollections(): Promise<Collection[]> {
     }>({
       query: getCollectionsQuery,
       tags: [TAGS.collections],
-      variables: { first: 250, after: cursor },
+      variables: { first: 100, after: cursor },
       revalidate: CACHE_TIMES.collections,
     });
 
@@ -519,15 +521,15 @@ export async function getCollectionProducts({
   handle,
   reverse,
   sortKey,
-  first = 250,
+  first = 100,
 }: {
   handle: string;
   reverse?: boolean;
   sortKey?: string;
   first?: number;
 }): Promise<Product[]> {
-  // Use maximum allowed by Shopify (250)
-  const safeFirst = Math.min(first, 250);
+  // Keep page size reasonable to avoid exceeding Next.js 2MB cache limit
+  const safeFirst = Math.min(first, 100);
   
   const res = await shopifyFetch<{
     data: { collection: { products: Connection<ShopifyProduct> } };
@@ -560,7 +562,8 @@ export async function getAllCollectionProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  const pageSize = 250; // Shopify max per request
+  // Use smaller page size to keep each response under Next.js 2MB cache limit
+  const pageSize = 50;
 
   while (hasNextPage) {
     const res = await shopifyFetch<{
@@ -568,7 +571,7 @@ export async function getAllCollectionProducts({
       variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
     }>({
       query: getCollectionProductsQuery,
-      tags: [TAGS.collections, TAGS.products],
+      cache: 'no-store',
       variables: { 
         handle, 
         reverse, 
@@ -576,7 +579,6 @@ export async function getAllCollectionProducts({
         first: pageSize,
         ...(cursor && { after: cursor })
       },
-      revalidate: CACHE_TIMES.products,
     });
 
     if (!res.body.data.collection) {
@@ -1040,7 +1042,7 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
 
 export async function updateCart(
   cartId: string,
-  lines: { id: string; merchandiseId: string; quantity: number }[]
+  lines: { id: string; merchandiseId?: string; quantity: number }[]
 ): Promise<Cart> {
   const res = await shopifyFetch<{
     data: { cartLinesUpdate: { cart: ShopifyCart } };

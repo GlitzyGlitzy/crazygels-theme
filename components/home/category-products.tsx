@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart, ShoppingBag, ArrowRight } from "lucide-react"
-import { getCollections, getAllCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getCollections, getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
 import { getOptimizedImageUrl } from "@/lib/shopify/image"
 import { Product, Collection } from "@/lib/shopify/types"
 
@@ -237,9 +237,10 @@ export async function CategoryProducts() {
   const collectionsWithProducts = await Promise.all(
     collections.map(async (collection) => {
       try {
-        const products = await getAllCollectionProducts({ 
+        const products = await getCollectionProducts({ 
           handle: collection.handle,
-          sortKey: "BEST_SELLING"
+          sortKey: "BEST_SELLING",
+          first: 20
         })
         return { 
           collection, 
