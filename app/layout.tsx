@@ -107,9 +107,9 @@ const jsonLd = {
   logo: 'https://crazygels.com/logo.png',
   description: 'Premium semi-cured gel nails, hair extensions & skincare products',
   sameAs: [
-    'https://www.instagram.com/crazygels',
+    'https://www.instagram.com/crazy.gels',
     'https://www.facebook.com/crazygels',
-    'https://www.tiktok.com/@crazygels',
+    'https://www.tiktok.com/@cazygels',
   ],
   contactPoint: {
     '@type': 'ContactPoint',
