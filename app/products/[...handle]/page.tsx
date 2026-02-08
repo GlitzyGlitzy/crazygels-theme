@@ -65,7 +65,7 @@ export async function generateMetadata({
       description: seoDescription,
     },
     alternates: {
-      canonical: `/products/${handle}`,
+      canonical: `https://crazygels.com/products/${handle}`,
     },
   };
 }

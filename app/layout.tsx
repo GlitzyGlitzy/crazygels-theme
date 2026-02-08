@@ -28,11 +28,7 @@ export const metadata: Metadata = {
   },
   metadataBase: new URL('https://crazygels.com'),
   alternates: {
-    canonical: '/',
-    languages: {
-      'en-US': '/en-US',
-      'de-DE': '/de-DE',
-    },
+    canonical: 'https://crazygels.com',
   },
   openGraph: {
     title: 'Crazy Gels | Premium Semi-Cured Gel Nails, Hair & Skin Care',
@@ -68,7 +64,8 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code',
+    // Add your Google Search Console verification code here
+    // google: 'your-google-verification-code',
   },
   icons: {
     icon: [
