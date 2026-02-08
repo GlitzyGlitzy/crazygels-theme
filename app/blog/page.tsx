@@ -8,8 +8,19 @@ import { Footer } from '@/components/layout/footer';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Blog | Crazy Gels',
-  description: 'Beauty tips, tutorials, and the latest trends in nails, hair, and skincare.',
+  title: 'Beauty Blog - Nail Art Tips, Hair Care & Skincare Guides | Crazy Gels',
+  description: 'Expert beauty tips, nail art tutorials, hair care routines, and skincare guides from Crazy Gels. Learn DIY gel nail application, trending designs, and more.',
+  keywords: 'beauty blog, nail art tips, gel nail tutorial, hair care tips, skincare routine, DIY nails',
+  alternates: {
+    canonical: '/blog',
+  },
+  openGraph: {
+    title: 'Beauty Blog | Crazy Gels',
+    description: 'Expert beauty tips, nail art tutorials, hair care routines, and skincare guides.',
+    url: 'https://crazygels.com/blog',
+    siteName: 'Crazy Gels',
+    type: 'website',
+  },
 };
 
 function BlogSkeleton() {

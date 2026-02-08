@@ -18,32 +18,71 @@ import { Footer } from '@/components/layout/footer';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { ChevronLeft, Grid3X3, SlidersHorizontal } from 'lucide-react';
 import { CollectionSorting } from '@/components/collections/collection-sorting';
+import { FilteredProductGrid } from '@/components/collections/filtered-product-grid';
+import { extractFilterOptions } from '@/components/collections/product-filters';
+import { getSubcategoryCounts } from '@/lib/subcategories';
 
-// SEO-optimized metadata per collection
-const COLLECTION_SEO: Record<string, { title: string; description: string }> = {
+// SEO-optimized metadata per collection -- keyword-rich titles and descriptions
+const COLLECTION_SEO: Record<string, { title: string; description: string; keywords: string }> = {
   'gel-nail-wraps': {
-    title: 'Premium Semi-Cured Gel Nail Wraps | Crazy Gels',
-    description: 'Shop salon-quality semi-cured gel nail wraps. Easy DIY application, lasts 2+ weeks, zero damage. 285+ designs including French tips, nail art, and solid colors.',
+    title: 'Semi-Cured Gel Nail Wraps - Salon Nails at Home | Crazy Gels',
+    description: 'Shop 285+ semi-cured gel nail wraps at Crazy Gels. Easy DIY application, lasts 2+ weeks, zero damage. French tips, nail art, solid colors and more. Free shipping over $50.',
+    keywords: 'semi-cured gel nails, gel nail wraps, press on nails, nail strips, DIY gel nails, salon nails at home',
   },
   'french-styles': {
-    title: 'French Style Gel Nails | Crazy Gels',
-    description: 'Classic and modern French tip gel nails. Elegant semi-cured gel nail wraps for a timeless manicure look at home.',
+    title: 'French Tip Gel Nails - Classic & Modern Designs | Crazy Gels',
+    description: 'Shop French tip semi-cured gel nail wraps. Classic white tips, ombre French, and modern French nail designs. Easy DIY application at home. Free shipping over $50.',
+    keywords: 'French tip nails, French gel nails, French manicure, French tip nail wraps',
+  },
+  nails: {
+    title: 'Semi-Cured Gel Nails - Press On Nail Strips | Crazy Gels',
+    description: 'Shop premium semi-cured gel nails at Crazy Gels. Salon-quality press on nail strips, easy application, lasts 2+ weeks. 285+ designs. Free shipping over $50.',
+    keywords: 'semi-cured gel nails, gel nail strips, press on nails, nail wraps',
   },
   haircare: {
-    title: 'Premium Hair Care Products | Crazy Gels',
-    description: 'Professional hair care and styling products. Nourishing treatments, shampoos, conditioners and styling tools for healthy, beautiful hair.',
+    title: 'Hair Care Products - Shampoo, Treatments & Styling | Crazy Gels',
+    description: 'Shop premium hair care products at Crazy Gels. Professional shampoos, conditioners, treatments and styling products for healthy, beautiful hair. Free shipping over $50.',
+    keywords: 'hair care products, shampoo, conditioner, hair treatment, hair growth, healthy hair',
+  },
+  'hair-care': {
+    title: 'Hair Care Products - Shampoo, Treatments & Styling | Crazy Gels',
+    description: 'Shop premium hair care products at Crazy Gels. Professional shampoos, conditioners, treatments and styling products for healthy, beautiful hair. Free shipping over $50.',
+    keywords: 'hair care products, shampoo, conditioner, hair treatment, hair growth',
   },
   skincare: {
-    title: 'Luxury Skincare Products | Crazy Gels',
-    description: 'Refined skincare for radiant results. Serums, moisturizers, masks and treatments crafted with premium ingredients.',
+    title: 'Skincare Products - Serums, Moisturizers & Masks | Crazy Gels',
+    description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free shipping over $50.',
+    keywords: 'skincare products, face serum, moisturizer, face mask, anti-aging, skin care',
+  },
+  'skin-care': {
+    title: 'Skincare Products - Serums, Moisturizers & Masks | Crazy Gels',
+    description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free shipping over $50.',
+    keywords: 'skincare products, face serum, moisturizer, face mask, anti-aging',
   },
   treatments: {
-    title: 'Beauty Treatments & Tools | Crazy Gels',
-    description: 'Professional beauty treatments and tools. UV lamps, nail prep kits, and application accessories for the perfect at-home salon experience.',
+    title: 'Beauty Tools & Treatments - UV Lamps & Nail Kits | Crazy Gels',
+    description: 'Shop professional beauty tools and treatments at Crazy Gels. UV lamps, nail prep kits, application tools and accessories for the perfect at-home salon. Free shipping over $50.',
+    keywords: 'beauty tools, UV nail lamp, nail kit, gel nail tools, beauty treatments',
   },
   'collagen-masks': {
-    title: 'Collagen Masks | Crazy Gels',
-    description: 'Luxurious overnight collagen face masks for radiant, youthful skin. Hydrating, firming, and anti-aging masks crafted with premium ingredients.',
+    title: 'Collagen Face Masks - Anti-Aging & Hydrating | Crazy Gels',
+    description: 'Shop collagen face masks at Crazy Gels. Overnight hydrating, firming, and anti-aging face masks crafted with premium ingredients. Free shipping over $50.',
+    keywords: 'collagen mask, face mask, anti-aging mask, hydrating mask, overnight mask',
+  },
+  sets: {
+    title: 'Gel Nail Sets & Bundles - Save More | Crazy Gels',
+    description: 'Shop gel nail sets and bundles at Crazy Gels. Save on curated sets of semi-cured gel nail wraps, tools and accessories. Free shipping over $50.',
+    keywords: 'gel nail sets, nail wrap bundles, nail art kits, gift sets',
+  },
+  'best-sellers': {
+    title: 'Best Selling Gel Nails & Beauty Products | Crazy Gels',
+    description: 'Shop our best selling semi-cured gel nails and beauty products. Top-rated by 50K+ customers. Free shipping on orders over $50.',
+    keywords: 'best selling nails, popular gel nails, top rated beauty products',
+  },
+  'new-arrivals': {
+    title: 'New Arrivals - Latest Gel Nail Designs | Crazy Gels',
+    description: 'Discover the latest semi-cured gel nail designs at Crazy Gels. New arrivals in nail wraps, hair care, and skincare. Free shipping over $50.',
+    keywords: 'new gel nails, new nail designs, latest nail art, new arrivals',
   },
 }
 
@@ -72,15 +111,18 @@ export async function generateMetadata({
   const collectionTitle = virtualDef?.title || collection?.title || 'Collection';
   const collectionDesc = virtualDef?.description || collection?.description || '';
 
-  const title = seo?.title || collection?.seo?.title || `${collectionTitle} | Crazy Gels`
-  const description = seo?.description || collection?.seo?.description || collectionDesc || `Shop our ${collectionTitle} collection. Premium beauty products from Crazy Gels.`
+  const title = seo?.title || collection?.seo?.title || `${collectionTitle} - Shop Online | Crazy Gels`
+  const description = seo?.description || collection?.seo?.description || collectionDesc || `Shop our ${collectionTitle} collection at Crazy Gels. Premium beauty products with free shipping over $50.`
 
   return {
     title,
     description,
+    ...(seo?.keywords && { keywords: seo.keywords }),
     openGraph: {
-      title: collectionTitle,
+      title,
       description,
+      url: `https://crazygels.com/collections/${handle}`,
+      siteName: 'Crazy Gels',
       images: collection?.image ? [{ url: collection.image.url }] : [],
       type: 'website',
     },
@@ -97,7 +139,13 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   if (!isShopifyConfigured) {
-    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'collagen-masks' }, { handle: 'treatments' }];
+    return [
+      { handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'nails' },
+      { handle: 'haircare' }, { handle: 'hair-care' },
+      { handle: 'skincare' }, { handle: 'skin-care' },
+      { handle: 'collagen-masks' }, { handle: 'treatments' },
+      { handle: 'sets' }, { handle: 'best-sellers' }, { handle: 'new-arrivals' },
+    ];
   }
 
   try {
@@ -105,13 +153,20 @@ export async function generateStaticParams() {
     const params = collections.map((collection) => ({
       handle: collection.handle,
     }));
-    // Always include collagen-masks as it's a virtual collection
-    if (!params.some(p => p.handle === 'collagen-masks')) {
-      params.push({ handle: 'collagen-masks' });
+    // Always include virtual collections
+    const virtualHandles = ['collagen-masks', 'sets', 'best-sellers', 'new-arrivals'];
+    for (const vh of virtualHandles) {
+      if (!params.some(p => p.handle === vh)) {
+        params.push({ handle: vh });
+      }
     }
     return params;
   } catch {
-    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'collagen-masks' }, { handle: 'treatments' }];
+    return [
+      { handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'nails' },
+      { handle: 'haircare' }, { handle: 'skincare' },
+      { handle: 'collagen-masks' }, { handle: 'treatments' },
+    ];
   }
 }
 
@@ -359,7 +414,17 @@ async function CollectionProducts({
     );
   }
 
-  return <ProductGrid products={products} />;
+  const filterOptions = extractFilterOptions(products);
+  const subcategoryCounts = getSubcategoryCounts(products, handle);
+
+  return (
+    <FilteredProductGrid
+      products={products}
+      filterOptions={filterOptions}
+      collectionHandle={handle}
+      subcategoryCounts={subcategoryCounts}
+    />
+  );
 }
 
 async function RelatedCollections({ currentHandle }: { currentHandle: string }) {
