@@ -81,7 +81,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="max-w-6xl mx-auto px-4 md:px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-[#FAF7F2]/50 text-xs text-center md:text-left">
-            &copy; 2025 Crazy Gels. All rights reserved.
+            &copy; {new Date().getFullYear()} Crazy Gels. All rights reserved.
           </p>
           <div className="flex items-center gap-4 text-xs text-[#FAF7F2]/70">
             <Link href="/pages/privacy" className="hover:text-[#FAF7F2] transition-colors">Privacy Policy</Link>

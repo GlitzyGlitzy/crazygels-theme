@@ -5,6 +5,7 @@ import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/li
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
+import { NewsletterForm } from "@/components/klaviyo/newsletter-form"
 
 export const revalidate = 300
 
@@ -161,18 +162,18 @@ export default function HomePage() {
         {/* Trust Strip */}
         <section className="border-y border-[#E8E4DC] bg-white">
           <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#E8E4DC]">
-              <div className="flex items-center justify-center gap-4 py-5">
-                <Truck className="w-5 h-5 text-[#9E6B73]" />
-                <span className="text-xs font-medium tracking-[0.15em] text-[#1A1A1A] uppercase">Free Shipping $50+</span>
+            <div className="grid grid-cols-3 divide-x divide-[#E8E4DC]">
+              <div className="flex flex-col md:flex-row items-center justify-center gap-1.5 md:gap-3 py-4 md:py-5">
+                <Truck className="w-4 h-4 md:w-5 md:h-5 text-[#9E6B73]" />
+                <span className="text-[10px] md:text-xs font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#1A1A1A] uppercase text-center">Free Shipping $50+</span>
               </div>
-              <div className="flex items-center justify-center gap-4 py-5">
-                <RefreshCw className="w-5 h-5 text-[#9E6B73]" />
-                <span className="text-xs font-medium tracking-[0.15em] text-[#1A1A1A] uppercase">14-Day Returns</span>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-1.5 md:gap-3 py-4 md:py-5">
+                <RefreshCw className="w-4 h-4 md:w-5 md:h-5 text-[#9E6B73]" />
+                <span className="text-[10px] md:text-xs font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#1A1A1A] uppercase text-center">14-Day Returns</span>
               </div>
-              <div className="flex items-center justify-center gap-4 py-5">
-                <Shield className="w-5 h-5 text-[#9E6B73]" />
-                <span className="text-xs font-medium tracking-[0.15em] text-[#1A1A1A] uppercase">Salon Quality</span>
+              <div className="flex flex-col md:flex-row items-center justify-center gap-1.5 md:gap-3 py-4 md:py-5">
+                <Shield className="w-4 h-4 md:w-5 md:h-5 text-[#9E6B73]" />
+                <span className="text-[10px] md:text-xs font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#1A1A1A] uppercase text-center">Salon Quality</span>
               </div>
             </div>
           </div>
@@ -356,32 +357,18 @@ export default function HomePage() {
         </section>
 
         {/* Newsletter */}
-        <section className="py-10 md:py-16 lg:py-20 bg-[#F5F3EF]">
-          <div className="max-w-xl mx-auto px-4 md:px-6 text-center">
-            <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-1.5 md:mb-2">
-              Newsletter
+        <section className="py-10 md:py-16 lg:py-20 bg-[#1A1A1A]">
+          <div className="max-w-2xl mx-auto px-4 md:px-6 text-center">
+            <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#B76E79] uppercase mb-1.5 md:mb-2">
+              Exclusive Perks
             </p>
-            <h2 className="font-serif text-xl md:text-3xl font-light text-[#1A1A1A] mb-3 md:mb-4">
-              Join the inner circle
+            <h2 className="font-serif text-xl md:text-3xl font-light text-[#FAF7F2] mb-3 md:mb-4">
+              Join the <span className="italic text-[#B76E79]">Inner Circle</span>
             </h2>
-            <p className="text-[#666] mb-5 md:mb-6 text-sm">
-              Subscribe for exclusive offers, early access, and beauty tips.
+            <p className="text-[#FAF7F2]/50 mb-6 md:mb-8 text-sm">
+              Be the first to know about new collections, member-only deals, and beauty secrets.
             </p>
-            <form className="flex flex-col sm:flex-row gap-3">
-              <label htmlFor="newsletter-email" className="sr-only">Email address</label>
-              <input
-                id="newsletter-email"
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 px-6 py-3 bg-white border border-[#E8E4DC] text-[#1A1A1A] placeholder:text-[#9B9B9B] text-sm tracking-wide focus:outline-none focus:border-[#9E6B73]"
-              />
-              <button
-                type="submit"
-                className="px-8 py-3 bg-[#1A1A1A] text-white text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#9E6B73] transition-colors"
-              >
-                Subscribe
-              </button>
-            </form>
+            <NewsletterForm />
           </div>
         </section>
       </main>

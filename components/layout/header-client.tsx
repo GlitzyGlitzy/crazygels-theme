@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingBag, Search, User, ChevronDown } from "lucide-react"
 
 export interface MenuItem {
@@ -20,12 +21,13 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const pathname = usePathname()
 
   // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false)
     setMobileExpandedItem(null)
-  }, [])
+  }, [pathname])
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -129,6 +131,23 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#FFFEF9] border-t border-[#B76E79]/20 max-h-[calc(100vh-4rem)] overflow-y-auto">
           <nav className="px-4 py-4 space-y-1" aria-label="Mobile navigation">
+            {/* Mobile-only Search & Account */}
+            <Link
+              href="/search"
+              className="flex items-center gap-3 py-3 text-base font-medium tracking-wide text-[#2C2C2C]"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <Search className="w-5 h-5 text-[#B76E79]" aria-hidden="true" />
+              Search
+            </Link>
+            <Link
+              href="/account"
+              className="flex items-center gap-3 py-3 text-base font-medium tracking-wide text-[#2C2C2C] border-b border-[#B76E79]/10 mb-2 pb-4"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <User className="w-5 h-5 text-[#B76E79]" aria-hidden="true" />
+              My Account
+            </Link>
             {menuItems.map((item) => (
               <div key={item.label}>
                 <div className="flex items-center justify-between">
