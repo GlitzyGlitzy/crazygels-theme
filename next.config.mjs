@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Crazy Gels Storefront - Production Build
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
