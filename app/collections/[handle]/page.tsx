@@ -19,7 +19,7 @@ import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-
 import { ChevronLeft, Grid3X3, SlidersHorizontal } from 'lucide-react';
 import { CollectionSorting } from '@/components/collections/collection-sorting';
 import { FilteredProductGrid } from '@/components/collections/filtered-product-grid';
-import { extractFilterOptions } from '@/components/collections/product-filters';
+import { extractFilterOptions } from '@/lib/filter-utils';
 import { getSubcategoryCounts } from '@/lib/subcategories';
 
 // SEO-optimized metadata per collection -- keyword-rich titles and descriptions
