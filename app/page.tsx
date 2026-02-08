@@ -5,7 +5,7 @@ import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/li
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
-import { NewsletterForm } from "@/components/klaviyo/newsletter-form"
+
 
 export const revalidate = 300
 
@@ -356,21 +356,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Newsletter */}
-        <section className="py-10 md:py-16 lg:py-20 bg-[#1A1A1A]">
-          <div className="max-w-2xl mx-auto px-4 md:px-6 text-center">
-            <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#B76E79] uppercase mb-1.5 md:mb-2">
-              Exclusive Perks
-            </p>
-            <h2 className="font-serif text-xl md:text-3xl font-light text-[#FAF7F2] mb-3 md:mb-4">
-              Join the <span className="italic text-[#B76E79]">Inner Circle</span>
-            </h2>
-            <p className="text-[#FAF7F2]/50 mb-6 md:mb-8 text-sm">
-              Be the first to know about new collections, member-only deals, and beauty secrets.
-            </p>
-            <NewsletterForm />
-          </div>
-        </section>
+
       </main>
 
       <Footer />
