@@ -3,6 +3,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getOptimizedImageUrl } from "@/lib/shopify/image"
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
@@ -18,7 +19,9 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
 
 function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const price = product.priceRange?.minVariantPrice
-  const imageUrl = product.featuredImage?.url || null
+  const rawUrl = product.featuredImage?.url || null
+  // Use Shopify CDN to serve optimized WebP at appropriate size
+  const imageUrl = rawUrl ? getOptimizedImageUrl(rawUrl, { width: 600, format: 'webp' }) : null
 
   return (
     <Link href={`/products/${product.handle}`} className="group block">

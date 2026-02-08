@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Product } from '@/lib/shopify/types';
 import { shortenProductTitle } from '@/lib/utils';
+import { getOptimizedImageUrl } from '@/lib/shopify/image';
 
 function formatPrice(amount: string, currencyCode: string = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
@@ -24,7 +25,7 @@ export function ProductCard({ product }: { product: Product }) {
       <div className="relative aspect-square overflow-hidden bg-muted">
         {featuredImage?.url ? (
           <Image
-            src={featuredImage.url}
+            src={getOptimizedImageUrl(featuredImage.url, { width: 600, format: 'webp' })}
             alt={featuredImage.altText || title}
             fill
             sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 33vw, 50vw"
