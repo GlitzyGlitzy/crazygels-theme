@@ -1,9 +1,16 @@
-import { Suspense } from 'react';
+import { Suspense, cache } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import Link from 'next/link';
 import { getCollection, getCollectionProducts, getAllCollectionProducts, getCollections, getProducts, getAllProducts, isShopifyConfigured } from '@/lib/shopify';
+
+// Deduplicate getAllProducts calls within a single server render.
+// React cache() ensures ProductCount + CollectionProducts share ONE fetch
+// instead of each making ~16 paginated API calls separately.
+const getCachedAllProducts = cache(async (sortKey: string, reverse: boolean) => {
+  return getAllProducts({ sortKey, reverse });
+});
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 
 export const revalidate = 300;
@@ -293,7 +300,7 @@ async function ProductCount({
   sortKey: string;
   reverse: boolean;
 }) {
-  const allProducts = await getAllProducts({ sortKey, reverse });
+  const allProducts = await getCachedAllProducts(sortKey, reverse);
   const keywords = VIRTUAL_COLLECTIONS[handle]?.keywords || COLLECTION_KEYWORDS[handle];
 
   let products;
@@ -303,7 +310,6 @@ async function ProductCount({
       return keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    // No keyword map for this handle, fall back to Shopify collection
     products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
   return (
@@ -322,18 +328,16 @@ async function CollectionProducts({
   sortKey: string;
   reverse: boolean;
   }) {
-  const allProducts = await getAllProducts({ sortKey, reverse });
+  const allProducts = await getCachedAllProducts(sortKey, reverse);
   const keywords = VIRTUAL_COLLECTIONS[handle]?.keywords || COLLECTION_KEYWORDS[handle];
 
   let products;
   if (keywords) {
-    // Pull from ALL products and filter by keywords
     products = allProducts.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
       return keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    // No keyword map for this handle, fall back to Shopify collection
     products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
 

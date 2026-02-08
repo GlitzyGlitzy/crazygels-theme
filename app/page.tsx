@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
-import { getCollectionProducts, getProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
@@ -71,13 +71,15 @@ async function CollectionProducts({ handle }: { handle: string }) {
   try {
   let fetched
   if (VIRTUAL_KEYWORDS[handle]) {
-    const all = await getProducts({ first: 100 })
+    // Virtual collections: fetch all products and filter by keywords
+    const all = await getAllProducts({})
     fetched = all.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase()
       return VIRTUAL_KEYWORDS[handle].some((kw) => text.includes(kw.toLowerCase()))
     })
   } else {
-    fetched = await getCollectionProducts({ handle, first: 4 })
+    // Real Shopify collections: only fetch 8 (we display 4, but filter out no-image)
+    fetched = await getCollectionProducts({ handle, first: 8 })
   }
   const products = fetched.filter((p) => p.featuredImage?.url).slice(0, 4)
     if (products.length === 0) return null

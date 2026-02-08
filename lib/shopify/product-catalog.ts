@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { getAllProducts, isShopifyConfigured } from './index'
 import type { Product } from './types'
 
@@ -186,7 +187,8 @@ function productToCatalogItem(product: Product, type: 'skin' | 'hair'): CatalogP
 }
 
 // Build the full product catalog from ALL Shopify products, classified for skin and hair consultants
-export async function buildProductCatalog(): Promise<ProductCatalog> {
+// Wrapped in React cache() to deduplicate within a single server render
+export const buildProductCatalog = cache(async function buildProductCatalog(): Promise<ProductCatalog> {
   if (!isShopifyConfigured) {
     return { skinProducts: [], hairProducts: [], allProducts: [] }
   }
@@ -224,7 +226,7 @@ export async function buildProductCatalog(): Promise<ProductCatalog> {
   }
   
   return { skinProducts, hairProducts, allProducts }
-}
+})
 
 // Generate a text-based product catalog for the AI system prompt
 export function catalogToPromptText(products: CatalogProduct[], type: 'skin' | 'hair'): string {
