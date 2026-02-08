@@ -15,13 +15,14 @@ import { Truck, Shield, RotateCcw, Star } from 'lucide-react';
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ handle: string }>;
+  params: Promise<{ handle: string[] }>;
 }): Promise<Metadata> {
   if (!isShopifyConfigured) {
     return { title: 'Product | Crazy Gels' };
   }
 
-  const { handle } = await params;
+  const { handle: segments } = await params;
+  const handle = segments[segments.length - 1];
   const product = await getProduct(handle);
 
   if (!product) {
@@ -97,13 +98,14 @@ function generateProductJsonLd(product: Awaited<ReturnType<typeof getProduct>>) 
 export default async function ProductPage({
   params,
 }: {
-  params: Promise<{ handle: string }>;
+  params: Promise<{ handle: string[] }>;
 }) {
   if (!isShopifyConfigured) {
     notFound();
   }
 
-  const { handle } = await params;
+  const { handle: segments } = await params;
+  const handle = segments[segments.length - 1];
   const product = await getProduct(handle);
 
   if (!product) {
