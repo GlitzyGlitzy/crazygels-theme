@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import Link from 'next/link';
-import { getCollection, getCollectionProducts, getCollections, getProducts, isShopifyConfigured } from '@/lib/shopify';
+import { getCollection, getCollectionProducts, getAllCollectionProducts, getCollections, getProducts, getAllProducts, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 
 export const revalidate = 300;
@@ -117,6 +117,43 @@ const VIRTUAL_COLLECTIONS: Record<string, { title: string; description: string; 
     keywords: ['collagen', 'mask', 'face mask', 'overnight mask', 'sleeping mask', 'sheet mask', 'peel off', 'clay mask'],
   },
 };
+
+// Keyword-based augmentation: catch products not manually assigned to a Shopify collection
+const COLLECTION_KEYWORDS: Record<string, string[]> = {
+  'gel-nail-wraps': [
+    'gel nail', 'nail wrap', 'semi-cured', 'gel strip', 'nail sticker', 'nail art',
+    'nail design', 'gel sticker', 'nail gel', 'gel wrap', 'semi cured', 'nail polish strip',
+    'gel polish strip', 'uv gel nail', 'led nail', 'nail decal', 'manicure',
+  ],
+  'french-styles': [
+    'french tip', 'french style', 'french nail', 'french manicure', 'french gel',
+    'french design', 'french wrap',
+  ],
+  haircare: [
+    'hair', 'shampoo', 'conditioner', 'scalp', 'keratin', 'argan', 'biotin',
+    'hair mask', 'hair oil', 'hair serum', 'hair growth', 'hair treatment',
+    'leave-in', 'heat protect', 'hair care', 'haircare', 'styling',
+    'curl', 'frizz', 'volume', 'extensions', 'wig', 'ponytail', 'clip-in',
+  ],
+  skincare: [
+    'skin', 'face', 'facial', 'serum', 'moisturizer', 'cleanser', 'toner',
+    'retinol', 'vitamin c', 'hyaluronic', 'spf', 'sunscreen', 'anti-aging',
+    'brightening', 'exfoliant', 'cream', 'lotion', 'eye cream', 'oil',
+    'essence', 'mist', 'glow', 'skincare', 'skin care', 'derma',
+  ],
+  treatments: [
+    'treatment', 'uv lamp', 'led lamp', 'nail lamp', 'nail prep', 'base coat',
+    'top coat', 'cuticle', 'nail file', 'buffer', 'remover', 'acetone',
+    'nail tool', 'application kit', 'nail kit', 'beauty tool', 'accessory',
+  ],
+};
+
+function matchesCollectionKeywords(product: { title: string; description: string; tags: string[]; productType: string }, handle: string): boolean {
+  const keywords = COLLECTION_KEYWORDS[handle];
+  if (!keywords) return false;
+  const text = `${product.title} ${product.description} ${product.tags?.join(' ') || ''} ${product.productType || ''}`.toLowerCase();
+  return keywords.some((kw) => text.includes(kw.toLowerCase()));
+}
 
 export default async function CollectionPage({
   params,
@@ -256,21 +293,22 @@ async function ProductCount({
   sortKey: string;
   reverse: boolean;
 }) {
-  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+  const allProducts = await getAllProducts({ sortKey, reverse });
+  const keywords = VIRTUAL_COLLECTIONS[handle]?.keywords || COLLECTION_KEYWORDS[handle];
+
   let products;
-  if (virtualDef) {
-    const allProducts = await getProducts({ first: 250, sortKey, reverse });
+  if (keywords) {
     products = allProducts.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
-      return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
+      return keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+    // No keyword map for this handle, fall back to Shopify collection
+    products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
   return (
     <p className="text-[#2C2C2C]/60">
-      <span className="font-semibold text-[#2C2C2C]">{products.length}</span>{' '}
-      {products.length === 100 ? '+' : ''} products
+      <span className="font-semibold text-[#2C2C2C]">{products.length}</span> products
     </p>
   );
 }
@@ -284,19 +322,19 @@ async function CollectionProducts({
   sortKey: string;
   reverse: boolean;
   }) {
-  let products;
-  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+  const allProducts = await getAllProducts({ sortKey, reverse });
+  const keywords = VIRTUAL_COLLECTIONS[handle]?.keywords || COLLECTION_KEYWORDS[handle];
 
-  if (virtualDef) {
-    // For virtual collections, search Shopify products by keywords and filter
-    const allProducts = await getProducts({ first: 250, sortKey, reverse });
+  let products;
+  if (keywords) {
+    // Pull from ALL products and filter by keywords
     products = allProducts.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
-      return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
+      return keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    // Standard Shopify collection fetch
-    products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+    // No keyword map for this handle, fall back to Shopify collection
+    products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
 
   if (products.length === 0) {

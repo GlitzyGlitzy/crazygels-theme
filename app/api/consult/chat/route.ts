@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     imageUrl: p.imageUrl,
     description: p.description.slice(0, 150),
     concerns: p.concerns,
-    collection: p.collection,
+    subcategories: p.subcategories,
   }));
 
   // Define system prompt based on consultation type

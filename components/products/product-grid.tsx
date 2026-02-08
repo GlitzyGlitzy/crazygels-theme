@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Product } from '@/lib/shopify/types';
+import { shortenProductTitle } from '@/lib/utils';
 function formatPrice(amount: string, currencyCode: string = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -45,8 +46,11 @@ export function ProductCard({ product }: { product: Product }) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <h3 className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-[#B76E79] transition-colors">
-          {title}
+        <h3
+          className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-[#B76E79] transition-colors"
+          title={title}
+        >
+          {shortenProductTitle(title)}
         </h3>
         <div className="mt-2 flex items-center gap-2">
           <span className="text-base font-bold text-foreground">
