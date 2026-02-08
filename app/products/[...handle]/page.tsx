@@ -184,8 +184,8 @@ export default async function ProductPage({
 
         {/* Product Description */}
         {product.descriptionHtml && (
-          <section className="mt-12">
-            <h2 className="mb-4 text-2xl font-medium text-[#2C2C2C]">Product Details</h2>
+          <section className="mt-8 md:mt-12">
+            <h2 className="mb-3 md:mb-4 text-xl md:text-2xl font-medium text-[#2C2C2C]">Product Details</h2>
             <div
               className="prose prose-neutral max-w-none text-[#2C2C2C]/80"
               dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
