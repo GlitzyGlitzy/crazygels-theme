@@ -4,71 +4,11 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useState, useTransition, useCallback, useRef, useEffect } from 'react';
 import { ChevronDown, Check, X, SlidersHorizontal } from 'lucide-react';
 
-export type FilterOptions = {
-  productTypes: string[];
-  priceRanges: { label: string; min: number; max: number }[];
-  colors: string[];
-  hasSets: boolean;
-};
+// Re-export from server-safe utils so existing imports from this file still work
+export { extractFilterOptions, filterProducts, PRICE_RANGES } from '@/lib/filter-utils';
+export type { FilterOptions } from '@/lib/filter-utils';
 
-const PRICE_RANGES = [
-  { label: 'Under $10', min: 0, max: 10 },
-  { label: '$10 - $25', min: 10, max: 25 },
-  { label: '$25 - $50', min: 25, max: 50 },
-  { label: '$50 - $100', min: 50, max: 100 },
-  { label: 'Over $100', min: 100, max: Infinity },
-];
-
-// Extract available filter options from a set of products
-export function extractFilterOptions(products: {
-  productType: string;
-  options: { name: string; values: string[] }[];
-  priceRange: { minVariantPrice: { amount: string } };
-  tags: string[];
-  title: string;
-}[]): FilterOptions {
-  const productTypes = new Set<string>();
-  const colors = new Set<string>();
-  let hasSets = false;
-
-  for (const product of products) {
-    // Product types
-    if (product.productType) {
-      productTypes.add(product.productType);
-    }
-
-    // Colors from variant options
-    const colorOption = product.options?.find(
-      (opt) => opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour'
-    );
-    if (colorOption) {
-      for (const value of colorOption.values) {
-        colors.add(value);
-      }
-    }
-
-    // Check for sets
-    const text = `${product.title} ${product.tags?.join(' ') || ''}`.toLowerCase();
-    if (text.includes('set') || text.includes('bundle') || text.includes('kit') || text.includes('pack')) {
-      hasSets = true;
-    }
-  }
-
-  // Determine which price ranges actually have products
-  const activePriceRanges = PRICE_RANGES.filter((range) =>
-    products.some((p) => {
-      const price = parseFloat(p.priceRange.minVariantPrice.amount);
-      return price >= range.min && price < range.max;
-    })
-  );
-
-  return {
-    productTypes: Array.from(productTypes).sort(),
-    priceRanges: activePriceRanges,
-    colors: Array.from(colors).sort(),
-    hasSets,
-  };
-}
+import type { FilterOptions } from '@/lib/filter-utils';
 
 function FilterDropdown({
   label,
@@ -317,56 +257,4 @@ export function ProductFilters({ filterOptions }: { filterOptions: FilterOptions
   );
 }
 
-// Client-side filtering logic applied to already-fetched products
-export function filterProducts(
-  products: {
-    productType: string;
-    options: { name: string; values: string[] }[];
-    priceRange: { minVariantPrice: { amount: string } };
-    tags: string[];
-    title: string;
-  }[],
-  filters: {
-    types?: string[];
-    priceLabels?: string[];
-    colors?: string[];
-    setsOnly?: boolean;
-  }
-) {
-  return products.filter((product) => {
-    // Filter by product type
-    if (filters.types && filters.types.length > 0) {
-      if (!filters.types.includes(product.productType)) return false;
-    }
 
-    // Filter by price range
-    if (filters.priceLabels && filters.priceLabels.length > 0) {
-      const price = parseFloat(product.priceRange.minVariantPrice.amount);
-      const matchesAnyRange = filters.priceLabels.some((label) => {
-        const range = PRICE_RANGES.find((r) => r.label === label);
-        return range && price >= range.min && price < range.max;
-      });
-      if (!matchesAnyRange) return false;
-    }
-
-    // Filter by color
-    if (filters.colors && filters.colors.length > 0) {
-      const colorOption = product.options?.find(
-        (opt) => opt.name.toLowerCase() === 'color' || opt.name.toLowerCase() === 'colour'
-      );
-      if (!colorOption) return false;
-      const productColors = colorOption.values.map((v) => v);
-      if (!filters.colors.some((c) => productColors.includes(c))) return false;
-    }
-
-    // Filter by sets
-    if (filters.setsOnly) {
-      const text = `${product.title} ${product.tags?.join(' ') || ''}`.toLowerCase();
-      if (!text.includes('set') && !text.includes('bundle') && !text.includes('kit') && !text.includes('pack')) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
