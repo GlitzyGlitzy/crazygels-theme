@@ -21,6 +21,7 @@ import { CollectionSorting } from '@/components/collections/collection-sorting';
 import { FilteredProductGrid } from '@/components/collections/filtered-product-grid';
 import { extractFilterOptions } from '@/lib/filter-utils';
 import { getSubcategoryCounts } from '@/lib/subcategories';
+import { buildCollectionJsonLd } from '@/lib/seo';
 
 // SEO-optimized metadata per collection -- keyword-rich titles and descriptions
 const COLLECTION_SEO: Record<string, { title: string; description: string; keywords: string }> = {
@@ -118,6 +119,9 @@ export async function generateMetadata({
     title,
     description,
     ...(seo?.keywords && { keywords: seo.keywords }),
+    alternates: {
+      canonical: `https://crazygels.com/collections/${handle}`,
+    },
     openGraph: {
       title,
       description,
@@ -256,26 +260,23 @@ export default async function CollectionPage({
   const sortKey = sort?.toUpperCase() || 'BEST_SELLING';
   const reverse = order === 'desc';
 
-  // Generate collection JSON-LD
-  const collectionJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: collection.title,
-    description: collection.description || `Shop our ${collection.title} collection`,
-    url: `https://crazygels.com/collections/${handle}`,
-    ...(collection.image && { image: collection.image.url }),
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'Crazy Gels',
-      url: 'https://crazygels.com',
-    },
-  }
+  // Generate collection JSON-LD with BreadcrumbList and ItemList
+  const { collectionPageLd, breadcrumbLd } = buildCollectionJsonLd({
+    title: collection.title,
+    handle,
+    description: collection.description,
+    image: collection.image,
+  });
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#B76E79]/20" />}>

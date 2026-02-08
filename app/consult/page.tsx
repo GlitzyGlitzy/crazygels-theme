@@ -3,11 +3,38 @@ import Link from 'next/link';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
 import { Sparkles, Droplets, Wind, ArrowRight, Shield, Clock, Star } from 'lucide-react';
+import { buildFaqJsonLd, buildPageBreadcrumbJsonLd } from '@/lib/seo';
 
 export const metadata: Metadata = {
-  title: 'Virtual Beauty Consultant | Crazy Gels',
-  description: 'Get personalized skin and hair recommendations from our AI-powered beauty consultant.',
+  title: 'Free Virtual Beauty Consultant - AI Skin & Hair Analysis | Crazy Gels',
+  description: 'Get free personalized skin and hair care recommendations from our AI-powered beauty consultant. Instant analysis, expert-backed product suggestions, and custom routines.',
+  alternates: {
+    canonical: 'https://crazygels.com/consult',
+  },
 };
+
+const consultFaqs = [
+  {
+    question: 'How does the Crazy Gels virtual beauty consultant work?',
+    answer: 'Our AI-powered beauty consultant analyzes your skin type, concerns, and goals through a simple chat conversation. It then provides personalized product recommendations and routine suggestions based on dermatologist-approved guidelines.',
+  },
+  {
+    question: 'Is the beauty consultation free?',
+    answer: 'Yes, the virtual beauty consultation is completely free. You can get personalized skin and hair care recommendations at any time, with no obligation to purchase.',
+  },
+  {
+    question: 'What types of consultations are available?',
+    answer: 'We offer two types of consultations: Skin Analysis (personalized skincare recommendations based on your skin type and concerns) and Hair Analysis (tailored hair care routines based on your hair type and styling needs).',
+  },
+  {
+    question: 'Is my personal information kept private?',
+    answer: 'Absolutely. Your consultation data is never stored or shared with third parties. We prioritize your privacy and security throughout the entire process.',
+  },
+  {
+    question: 'How accurate are the product recommendations?',
+    answer: 'Our AI uses expert-backed, dermatologist-approved guidelines combined with our product catalog to provide highly relevant recommendations. The more details you share about your concerns, the more tailored the suggestions will be.',
+  },
+];
 
 const consultTypes = [
   {
@@ -52,8 +79,22 @@ const benefits = [
 ];
 
 export default function ConsultPage() {
+  const faqJsonLd = buildFaqJsonLd(consultFaqs);
+  const breadcrumbJsonLd = buildPageBreadcrumbJsonLd([
+    { name: 'Home', url: 'https://crazygels.com' },
+    { name: 'Beauty Consultant', url: 'https://crazygels.com/consult' },
+  ]);
+
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <DynamicHeader />
       
       <main>

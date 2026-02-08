@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: 'Expert beauty tips, nail art tutorials, hair care routines, and skincare guides from Crazy Gels. Learn DIY gel nail application, trending designs, and more.',
   keywords: 'beauty blog, nail art tips, gel nail tutorial, hair care tips, skincare routine, DIY nails',
   alternates: {
-    canonical: '/blog',
+    canonical: 'https://crazygels.com/blog',
   },
   openGraph: {
     title: 'Beauty Blog | Crazy Gels',

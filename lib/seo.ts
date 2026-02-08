@@ -244,3 +244,92 @@ export function buildBreadcrumbJsonLd(
     })),
   };
 }
+
+/**
+ * Generates CollectionPage + BreadcrumbList structured data for collection pages.
+ * Helps Google show rich results for category pages.
+ */
+export function buildCollectionJsonLd(collection: {
+  title: string;
+  handle: string;
+  description?: string;
+  image?: { url: string } | null;
+  products?: { title: string; handle: string; featuredImage?: { url: string } | null; priceRange: { minVariantPrice: { amount: string; currencyCode: string } } }[];
+}) {
+  const url = `https://crazygels.com/collections/${collection.handle}`;
+
+  const collectionPageLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: collection.title,
+    url,
+    ...(collection.description && { description: collection.description.replace(/<[^>]*>/g, '').slice(0, 300) }),
+    ...(collection.image?.url && { image: collection.image.url }),
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Crazy Gels',
+      url: 'https://crazygels.com',
+    },
+  };
+
+  // Add product listing as ItemList if products are provided
+  if (collection.products && collection.products.length > 0) {
+    collectionPageLd.mainEntity = {
+      '@type': 'ItemList',
+      numberOfItems: collection.products.length,
+      itemListElement: collection.products.slice(0, 20).map((product, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: product.title,
+        url: `https://crazygels.com/products/${product.handle}`,
+        ...(product.featuredImage?.url && { image: product.featuredImage.url }),
+      })),
+    };
+  }
+
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://crazygels.com' },
+      { '@type': 'ListItem', position: 2, name: 'Collections', item: 'https://crazygels.com/collections' },
+      { '@type': 'ListItem', position: 3, name: collection.title, item: url },
+    ],
+  };
+
+  return { collectionPageLd, breadcrumbLd };
+}
+
+/**
+ * Generates FAQPage structured data -- Google shows these as expandable FAQ cards in search.
+ */
+export function buildFaqJsonLd(faqs: { question: string; answer: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
+/**
+ * Generates a generic BreadcrumbList for any page path.
+ */
+export function buildPageBreadcrumbJsonLd(crumbs: { name: string; url: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((crumb, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: crumb.name,
+      item: crumb.url,
+    })),
+  };
+}

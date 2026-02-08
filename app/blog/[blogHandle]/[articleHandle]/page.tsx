@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: articleDesc,
     },
     alternates: {
-      canonical: `/blog/${blogHandle}/${articleHandle}`,
+      canonical: `https://crazygels.com/blog/${blogHandle}/${articleHandle}`,
     },
   };
 }
