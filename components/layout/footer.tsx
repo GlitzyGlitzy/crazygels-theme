@@ -6,15 +6,22 @@ export function Footer() {
   return (
     <footer className="bg-[#2C2C2C]" role="contentinfo">
       <div className="border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="text-center lg:text-left">
-              <h2 className="text-xl md:text-2xl font-light tracking-[0.1em] text-[#FAF7F2] mb-2">
-                JOIN OUR <span className="text-[#B76E79]">INNER CIRCLE</span>
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-14 md:py-20">
+          <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+            <div className="text-center lg:text-left shrink-0 lg:max-w-xs">
+              <p className="text-[#B76E79] text-xs font-medium tracking-[0.25em] uppercase mb-3">
+                Exclusive Perks
+              </p>
+              <h2 className="text-2xl md:text-3xl font-light tracking-wide text-[#FAF7F2] leading-snug mb-2">
+                Join the <span className="italic text-[#B76E79]">Inner Circle</span>
               </h2>
-              <p className="text-[#FAF7F2]/70">Receive exclusive offers and beauty insights</p>
+              <p className="text-[#FAF7F2]/50 text-sm leading-relaxed">
+                Be the first to know about new collections, member-only deals, and beauty secrets.
+              </p>
             </div>
-            <NewsletterForm />
+            <div className="flex-1 w-full">
+              <NewsletterForm />
+            </div>
           </div>
         </div>
       </div>
