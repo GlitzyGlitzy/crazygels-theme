@@ -10,8 +10,18 @@ import { ChevronLeft, Sparkles } from 'lucide-react';
 import { Collection } from '@/lib/shopify/types';
 
 export const metadata: Metadata = {
-  title: 'All Collections | Crazy Gels',
-  description: 'Browse our complete collection of premium nail, hair, and skin care products at Crazy Gels',
+  title: 'Shop All Collections - Gel Nails, Hair Care & Skincare | Crazy Gels',
+  description: 'Browse all Crazy Gels collections. Semi-cured gel nail wraps, premium hair care, and luxury skincare products. Easy DIY application, free shipping over $50.',
+  alternates: {
+    canonical: '/collections',
+  },
+  openGraph: {
+    title: 'Shop All Collections | Crazy Gels',
+    description: 'Browse all Crazy Gels collections. Semi-cured gel nail wraps, premium hair care, and luxury skincare products.',
+    url: 'https://crazygels.com/collections',
+    siteName: 'Crazy Gels',
+    type: 'website',
+  },
 };
 
 // Default collections when Shopify is not configured - luxury palette

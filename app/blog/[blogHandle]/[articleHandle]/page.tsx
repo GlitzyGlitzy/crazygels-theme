@@ -30,13 +30,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
   }
 
+  const articleTitle = article.seo?.title || article.title;
+  const articleDesc = article.seo?.description || article.excerpt || article.content.replace(/<[^>]*>/g, '').slice(0, 155);
+
   return {
-    title: `${article.seo?.title || article.title} | Crazy Gels Blog`,
-    description: article.seo?.description || article.excerpt || article.content.slice(0, 160),
+    title: `${articleTitle} | Crazy Gels Blog`,
+    description: articleDesc,
     openGraph: {
-      title: article.title,
-      description: article.excerpt || article.content.slice(0, 160),
-      images: article.image ? [article.image.url] : [],
+      title: articleTitle,
+      description: articleDesc,
+      url: `https://crazygels.com/blog/${blogHandle}/${articleHandle}`,
+      siteName: 'Crazy Gels',
+      type: 'article',
+      publishedTime: article.publishedAt,
+      authors: [article.author?.name || 'Crazy Gels'],
+      images: article.image ? [{ url: article.image.url, alt: article.image.altText || article.title }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: articleTitle,
+      description: articleDesc,
+    },
+    alternates: {
+      canonical: `/blog/${blogHandle}/${articleHandle}`,
     },
   };
 }
