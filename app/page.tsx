@@ -1,9 +1,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
-import { getOptimizedImageUrl } from "@/lib/shopify/image"
 import type { Product } from "@/lib/shopify/types"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
@@ -19,23 +17,18 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
 
 function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const price = product.priceRange?.minVariantPrice
-  const rawUrl = product.featuredImage?.url || null
-  console.log("[v0] ProductCard image debug:", { title: product.title, rawUrl, hasFeaturedImage: !!product.featuredImage })
-  // Use raw Shopify CDN URL directly - no transforms that could break it
-  const imageUrl = rawUrl || null
+  const imageUrl = product.featuredImage?.url || null
 
   return (
     <Link href={`/products/${product.handle}`} className="group block">
       <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F3EF] mb-3">
         {imageUrl ? (
-          <Image
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
             src={imageUrl}
             alt={product.featuredImage?.altText || product.title}
-            fill
-            sizes="(min-width: 768px) 25vw, 50vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            priority={priority}
-            loading={priority ? undefined : "lazy"}
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading={priority ? "eager" : "lazy"}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-[#9B9B9B] text-sm">
@@ -76,14 +69,12 @@ const VIRTUAL_KEYWORDS: Record<string, string[]> = {
 
 async function CollectionProducts({ handle, priority = false }: { handle: string; priority?: boolean }) {
   if (!isShopifyConfigured) {
-    console.log("[v0] Shopify not configured")
     return null
   }
   try {
   let fetched
   if (VIRTUAL_KEYWORDS[handle]) {
     const all = await getAllProducts({})
-    console.log("[v0] Virtual collection", handle, "total products:", all.length)
     fetched = all.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase()
       return VIRTUAL_KEYWORDS[handle].some((kw) => text.includes(kw.toLowerCase()))
@@ -91,9 +82,7 @@ async function CollectionProducts({ handle, priority = false }: { handle: string
   } else {
     fetched = await getCollectionProducts({ handle, first: 8 })
   }
-  console.log("[v0] Collection", handle, "fetched:", fetched.length, "products. First product image:", fetched[0]?.featuredImage?.url || "NO IMAGE")
   const products = fetched.filter((p) => p.featuredImage?.url).slice(0, 4)
-  console.log("[v0] Collection", handle, "after filter:", products.length, "products with images. URLs:", products.map(p => p.featuredImage?.url?.substring(0, 80)))
     if (products.length === 0) return null
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
@@ -157,13 +146,11 @@ export default function HomePage() {
               </div>
               <div className="order-1 lg:order-2">
                 <div className="relative aspect-[4/5] bg-[#F5F3EF] overflow-hidden">
-                  <Image
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
                     src="/images/hero.jpg"
                     alt="Elegant hands with premium semi-cured gel nails in soft nude tones"
-                    fill
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    priority
-                    className="object-cover"
+                    className="absolute inset-0 w-full h-full object-cover"
                   />
                 </div>
               </div>

@@ -1,7 +1,6 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 
 import { getCollections, isShopifyConfigured } from '@/lib/shopify';
 export const revalidate = 300;
@@ -163,12 +162,10 @@ async function CollectionsGrid() {
       href={`/collections/${vc.handle}`}
       className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9] transition-all hover:border-[#B76E79]/50 hover:shadow-xl hover:shadow-[#B76E79]/10"
     >
-      <Image
+      <img
         src={vc.image}
         alt={vc.title}
-        fill
-        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-        className="object-cover transition-transform duration-500 group-hover:scale-105"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/60 to-transparent" />
       <div className="relative p-8">
@@ -193,12 +190,10 @@ async function CollectionsGrid() {
           >
             {collection.image?.url ? (
               <>
-                <Image
+                <img
                   src={collection.image.url}
                   alt={collection.image.altText || collection.title}
-                  fill
-                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/60 to-transparent" />
               </>

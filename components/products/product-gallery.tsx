@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Product } from '@/lib/shopify/types';
-import { getOptimizedImageUrl } from '@/lib/shopify/image';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -59,14 +57,11 @@ export function ProductGallery({ product }: { product: Product }) {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <Image
-          src={getOptimizedImageUrl(currentImage.url, { width: 1000, format: 'webp' })}
+        <img
+          src={currentImage.url}
           alt={currentImage.altText || product.title}
-          fill
-          sizes="(min-width: 1024px) 50vw, 100vw"
-          priority={selectedIndex === 0}
           className={cn(
-            'object-cover transition-transform duration-500',
+            'absolute inset-0 w-full h-full object-cover transition-transform duration-500',
             isZoomed ? 'scale-150 cursor-zoom-out' : 'cursor-zoom-in'
           )}
           onClick={() => setIsZoomed(!isZoomed)}
@@ -148,12 +143,10 @@ export function ProductGallery({ product }: { product: Product }) {
                 aria-label={`View image ${index + 1}`}
                 aria-current={selectedIndex === index ? 'true' : undefined}
               >
-                <Image
-                  src={getOptimizedImageUrl(image.url, { width: 200, format: 'webp' })}
+                <img
+                  src={image.url}
                   alt={image.altText || `${product.title} - Image ${index + 1}`}
-                  fill
-                  sizes="80px"
-                  className="object-cover"
+                  className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
                 />
               </button>
