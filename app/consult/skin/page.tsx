@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, UIMessage } from 'ai';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { ArrowLeft, Send, Loader2, Sparkles, User, RefreshCcw, Droplets, ShoppingBag, ExternalLink } from 'lucide-react';
 
@@ -44,10 +45,12 @@ function ProductRecommendationCard({ product }: { product: RecommendedProduct })
     >
       <div className="aspect-square relative bg-[#F5F3EF] overflow-hidden">
         {product.imageUrl ? (
-          <img
+          <Image
             src={product.imageUrl}
             alt={product.title}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            fill
+            sizes="(min-width: 768px) 33vw, 50vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
           />
         ) : (

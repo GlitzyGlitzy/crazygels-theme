@@ -16,7 +16,7 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
   }).format(parseFloat(amount))
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const price = product.priceRange?.minVariantPrice
   const imageUrl = product.featuredImage?.url || null
 
@@ -30,7 +30,8 @@ function ProductCard({ product }: { product: Product }) {
             fill
             sizes="(min-width: 768px) 25vw, 50vw"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            loading="lazy"
+            priority={priority}
+            loading={priority ? undefined : "lazy"}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-[#9B9B9B] text-sm">
@@ -69,7 +70,7 @@ const VIRTUAL_KEYWORDS: Record<string, string[]> = {
   'collagen-masks': ['collagen', 'mask', 'face mask', 'overnight mask', 'sleeping mask', 'sheet mask'],
 }
 
-async function CollectionProducts({ handle }: { handle: string }) {
+async function CollectionProducts({ handle, priority = false }: { handle: string; priority?: boolean }) {
   if (!isShopifyConfigured) return null
   try {
   let fetched
@@ -89,7 +90,7 @@ async function CollectionProducts({ handle }: { handle: string }) {
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} priority={priority} />
         ))}
       </div>
     )
@@ -183,7 +184,7 @@ export default function HomePage() {
         </section>
 
         {/* Collection Sections */}
-        {HOMEPAGE_COLLECTIONS.map((col) => (
+        {HOMEPAGE_COLLECTIONS.map((col, index) => (
           <section key={col.handle} className={`py-10 md:py-16 lg:py-20 ${col.bg}`}>
             <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12">
               <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 md:gap-4 mb-6 md:mb-10">
@@ -204,7 +205,7 @@ export default function HomePage() {
                 </Link>
               </div>
               <Suspense fallback={<ProductGridSkeleton />}>
-                <CollectionProducts handle={col.handle} />
+                <CollectionProducts handle={col.handle} priority={index === 0} />
               </Suspense>
             </div>
           </section>
