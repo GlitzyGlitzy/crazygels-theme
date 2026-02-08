@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getCollections, getCollectionProducts, getProducts, isShopifyConfigured } from '@/lib/shopify';
+import { getCollections, getAllCollectionProducts, getAllProducts, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
 import { CheckCircle, XCircle, AlertCircle, Package, FolderOpen, ArrowLeft, RefreshCw } from 'lucide-react';
@@ -59,7 +59,7 @@ async function ValidationContent() {
     // Fetch products for each collection
     for (const collection of collections) {
       try {
-        const products = await getCollectionProducts({ handle: collection.handle, first: 100 });
+        const products = await getAllCollectionProducts({ handle: collection.handle });
         stats.collections.push({
           handle: collection.handle,
           title: collection.title,

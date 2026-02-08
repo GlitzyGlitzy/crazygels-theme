@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
 import Link from 'next/link';
-import { getCollection, getCollectionProducts, getCollections, getProducts, isShopifyConfigured } from '@/lib/shopify';
+import { getCollection, getCollectionProducts, getAllCollectionProducts, getCollections, getProducts, getAllProducts, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 
 export const revalidate = 300;
@@ -259,18 +259,17 @@ async function ProductCount({
   const virtualDef = VIRTUAL_COLLECTIONS[handle];
   let products;
   if (virtualDef) {
-    const allProducts = await getProducts({ first: 250, sortKey, reverse });
+    const allProducts = await getAllProducts({ sortKey, reverse });
     products = allProducts.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
       return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+    products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
   return (
     <p className="text-[#2C2C2C]/60">
-      <span className="font-semibold text-[#2C2C2C]">{products.length}</span>{' '}
-      {products.length === 100 ? '+' : ''} products
+      <span className="font-semibold text-[#2C2C2C]">{products.length}</span> products
     </p>
   );
 }
@@ -288,15 +287,15 @@ async function CollectionProducts({
   const virtualDef = VIRTUAL_COLLECTIONS[handle];
 
   if (virtualDef) {
-    // For virtual collections, search Shopify products by keywords and filter
-    const allProducts = await getProducts({ first: 250, sortKey, reverse });
+    // For virtual collections, fetch ALL products and filter by keywords
+    const allProducts = await getAllProducts({ sortKey, reverse });
     products = allProducts.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
       return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    // Standard Shopify collection fetch
-    products = await getCollectionProducts({ handle, sortKey, reverse, first: 100 });
+    // Fetch ALL products in this Shopify collection using cursor-based pagination
+    products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
 
   if (products.length === 0) {
