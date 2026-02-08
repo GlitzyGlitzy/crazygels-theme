@@ -18,6 +18,8 @@ import { Footer } from '@/components/layout/footer';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { ChevronLeft, Grid3X3, SlidersHorizontal } from 'lucide-react';
 import { CollectionSorting } from '@/components/collections/collection-sorting';
+import { FilteredProductGrid } from '@/components/collections/filtered-product-grid';
+import { extractFilterOptions } from '@/components/collections/product-filters';
 
 // SEO-optimized metadata per collection
 const COLLECTION_SEO: Record<string, { title: string; description: string }> = {
@@ -359,7 +361,9 @@ async function CollectionProducts({
     );
   }
 
-  return <ProductGrid products={products} />;
+  const filterOptions = extractFilterOptions(products);
+
+  return <FilteredProductGrid products={products} filterOptions={filterOptions} />;
 }
 
 async function RelatedCollections({ currentHandle }: { currentHandle: string }) {
