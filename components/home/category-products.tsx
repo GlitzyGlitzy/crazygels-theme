@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 
 import Link from "next/link"
+import Image from "next/image"
 import { Heart, ShoppingBag, ArrowRight } from "lucide-react"
 import { getCollections, getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
 
@@ -29,10 +30,12 @@ function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square rounded-xl overflow-hidden bg-[#FAF7F2] border border-[#B76E79]/10 mb-3 shadow-sm">
         {product.featuredImage?.url ? (
-          <img
+          <Image
             src={product.featuredImage.url}
             alt={product.featuredImage.altText || product.title}
-            className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            fill
+            sizes="(min-width: 768px) 280px, 220px"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
           />
         ) : (
