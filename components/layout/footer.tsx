@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Instagram } from 'lucide-react';
+import { NewsletterForm } from '@/components/klaviyo/newsletter-form';
 
 export function Footer() {
   return (
@@ -13,22 +14,7 @@ export function Footer() {
               </h2>
               <p className="text-[#FAF7F2]/70">Receive exclusive offers and beauty insights</p>
             </div>
-            <form className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto" aria-label="Newsletter signup">
-              <label htmlFor="footer-newsletter-email" className="sr-only">Email address</label>
-              <input
-                id="footer-newsletter-email"
-                type="email"
-                placeholder="Enter your email"
-                required
-                className="px-6 py-4 bg-white/5 border border-[#B76E79]/30 rounded-full text-[#FAF7F2] placeholder:text-[#FAF7F2]/40 focus:outline-none focus:border-[#B76E79] focus:ring-2 focus:ring-[#B76E79]/20 transition-colors w-full sm:w-80"
-              />
-              <button
-                type="submit"
-                className="px-8 py-4 bg-[#B76E79] text-[#2C2C2C] font-medium tracking-wide rounded-full hover:bg-[#A15D67] transition-colors focus:outline-none focus:ring-2 focus:ring-[#B76E79]/50"
-              >
-                SUBSCRIBE
-              </button>
-            </form>
+            <NewsletterForm />
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Plus, Minus, ShoppingBag, Heart, Share2, Check } from 'lucide-react';
 import { addItemToCart } from '@/lib/shopify/actions';
+import { trackAddedToCart } from '@/lib/klaviyo-client';
 
 function formatPrice(amount: string, currencyCode: string) {
   return new Intl.NumberFormat('en-US', {
@@ -60,6 +61,23 @@ export function ProductInfo({ product }: { product: Product }) {
     startTransition(async () => {
       try {
         await addItemToCart(selectedVariant.id, quantity);
+
+        // Track "Added to Cart" in Klaviyo
+        trackAddedToCart({
+          productName: product.title,
+          productId: product.id,
+          sku: selectedVariant.id.split('/').pop() || '',
+          imageUrl: product.featuredImage?.url,
+          url: typeof window !== 'undefined' ? window.location.href : '',
+          brand: product.vendor || 'Crazy Gels',
+          price: parseFloat(selectedVariant.price.amount),
+          compareAtPrice: selectedVariant.compareAtPrice
+            ? parseFloat(selectedVariant.compareAtPrice.amount)
+            : undefined,
+          quantity,
+          variantName: selectedVariant.title !== 'Default Title' ? selectedVariant.title : undefined,
+        });
+
         setIsAdded(true);
         setTimeout(() => setIsAdded(false), 2000);
       } catch (error) {

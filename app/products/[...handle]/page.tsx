@@ -5,6 +5,7 @@ import { getProduct, getCollectionProducts, isShopifyConfigured } from '@/lib/sh
 import { ProductGallery } from '@/components/products/product-gallery';
 import { ProductInfo } from '@/components/products/product-info';
 import { buildSeoTitle, buildSeoDescription, buildProductJsonLd, buildBreadcrumbJsonLd } from '@/lib/seo';
+import { ProductViewTracker } from '@/components/klaviyo/product-view-tracker';
 
 export const revalidate = 300;
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
@@ -100,6 +101,22 @@ export default async function ProductPage({
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
+      <ProductViewTracker
+        product={{
+          productName: product.title,
+          productId: product.id,
+          sku: product.variants.edges[0]?.node.id.split('/').pop() || '',
+          imageUrl: product.featuredImage?.url,
+          url: `https://crazygels.com/products/${handle}`,
+          brand: product.vendor || 'Crazy Gels',
+          price: parseFloat(product.priceRange.minVariantPrice.amount),
+          compareAtPrice: product.priceRange.maxVariantPrice
+            ? parseFloat(product.priceRange.maxVariantPrice.amount)
+            : undefined,
+          categories: product.productType ? [product.productType] : undefined,
+        }}
       />
 
       <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#B76E79]/20" />}>
