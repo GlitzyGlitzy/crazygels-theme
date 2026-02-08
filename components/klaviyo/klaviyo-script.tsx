@@ -21,7 +21,7 @@ export function KlaviyoScript() {
     <Script
       id="klaviyo-sdk"
       src={`https://static.klaviyo.com/onsite/js/klaviyo.js?company_id=${publicKey}`}
-      strategy="afterInteractive"
+      strategy="lazyOnload"
     />
   );
 }
