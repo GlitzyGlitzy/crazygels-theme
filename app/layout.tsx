@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { KlaviyoScript } from '@/components/klaviyo/klaviyo-script'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
@@ -150,6 +151,7 @@ export default function RootLayout({
       <body className={`${_geist.variable} ${_geistMono.variable} ${_cormorant.variable} font-sans antialiased`} suppressHydrationWarning>
         {children}
         <Analytics />
+        <KlaviyoScript />
       </body>
     </html>
   )
