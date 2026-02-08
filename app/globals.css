@@ -271,3 +271,12 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(to bottom, var(--luxury-rose-gold), var(--luxury-rose-gold-dark));
 }
+
+/* Hide scrollbar for subcategory nav */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

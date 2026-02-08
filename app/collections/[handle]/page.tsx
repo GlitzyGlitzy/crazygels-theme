@@ -20,6 +20,7 @@ import { ChevronLeft, Grid3X3, SlidersHorizontal } from 'lucide-react';
 import { CollectionSorting } from '@/components/collections/collection-sorting';
 import { FilteredProductGrid } from '@/components/collections/filtered-product-grid';
 import { extractFilterOptions } from '@/components/collections/product-filters';
+import { getSubcategoryCounts } from '@/lib/subcategories';
 
 // SEO-optimized metadata per collection -- keyword-rich titles and descriptions
 const COLLECTION_SEO: Record<string, { title: string; description: string; keywords: string }> = {
@@ -138,7 +139,13 @@ export async function generateMetadata({
 
 export async function generateStaticParams() {
   if (!isShopifyConfigured) {
-    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'collagen-masks' }, { handle: 'treatments' }];
+    return [
+      { handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'nails' },
+      { handle: 'haircare' }, { handle: 'hair-care' },
+      { handle: 'skincare' }, { handle: 'skin-care' },
+      { handle: 'collagen-masks' }, { handle: 'treatments' },
+      { handle: 'sets' }, { handle: 'best-sellers' }, { handle: 'new-arrivals' },
+    ];
   }
 
   try {
@@ -146,13 +153,20 @@ export async function generateStaticParams() {
     const params = collections.map((collection) => ({
       handle: collection.handle,
     }));
-    // Always include collagen-masks as it's a virtual collection
-    if (!params.some(p => p.handle === 'collagen-masks')) {
-      params.push({ handle: 'collagen-masks' });
+    // Always include virtual collections
+    const virtualHandles = ['collagen-masks', 'sets', 'best-sellers', 'new-arrivals'];
+    for (const vh of virtualHandles) {
+      if (!params.some(p => p.handle === vh)) {
+        params.push({ handle: vh });
+      }
     }
     return params;
   } catch {
-    return [{ handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'collagen-masks' }, { handle: 'treatments' }];
+    return [
+      { handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'nails' },
+      { handle: 'haircare' }, { handle: 'skincare' },
+      { handle: 'collagen-masks' }, { handle: 'treatments' },
+    ];
   }
 }
 
@@ -401,8 +415,16 @@ async function CollectionProducts({
   }
 
   const filterOptions = extractFilterOptions(products);
+  const subcategoryCounts = getSubcategoryCounts(products, handle);
 
-  return <FilteredProductGrid products={products} filterOptions={filterOptions} />;
+  return (
+    <FilteredProductGrid
+      products={products}
+      filterOptions={filterOptions}
+      collectionHandle={handle}
+      subcategoryCounts={subcategoryCounts}
+    />
+  );
 }
 
 async function RelatedCollections({ currentHandle }: { currentHandle: string }) {
