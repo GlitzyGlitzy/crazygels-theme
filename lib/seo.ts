@@ -131,18 +131,68 @@ export function buildSeoDescription(
 }
 
 /**
- * Generates complete Product structured data (JSON-LD) for Google rich results.
- * Includes pricing, availability, brand, images, and breadcrumb.
+ * Google product category mappings (GPC taxonomy IDs) for Merchant Centre.
+ * @see https://www.google.com/basepages/producttype/taxonomy-with-ids.en-US.txt
+ */
+const GOOGLE_PRODUCT_CATEGORIES: Record<string, string> = {
+  'gel nail wraps': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
+  'nail wraps': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
+  nails: 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
+  'nail accessories': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Nail Tools',
+  'hair care': 'Health & Beauty > Personal Care > Hair Care',
+  haircare: 'Health & Beauty > Personal Care > Hair Care',
+  'hair extensions': 'Health & Beauty > Personal Care > Hair Care > Hair Extensions',
+  skincare: 'Health & Beauty > Personal Care > Skin Care',
+  'skin care': 'Health & Beauty > Personal Care > Skin Care',
+  treatments: 'Health & Beauty > Personal Care > Skin Care',
+  'collagen masks': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
+};
+
+/**
+ * Condition mapping for product tags.
+ */
+function getProductCondition(tags: string[]): string {
+  const tagStr = tags.join(' ').toLowerCase();
+  if (tagStr.includes('refurbished')) return 'https://schema.org/RefurbishedCondition';
+  if (tagStr.includes('used')) return 'https://schema.org/UsedCondition';
+  return 'https://schema.org/NewCondition';
+}
+
+/**
+ * Extract color, size, or material from variant options for richer structured data.
+ */
+function extractVariantAttributes(selectedOptions: { name: string; value: string }[]) {
+  const attrs: Record<string, string> = {};
+  for (const opt of selectedOptions) {
+    const name = opt.name.toLowerCase();
+    if (name === 'color' || name === 'colour') attrs.color = opt.value;
+    if (name === 'size') attrs.size = opt.value;
+    if (name === 'material') attrs.material = opt.value;
+    if (name === 'style' || name === 'design' || name === 'pattern') attrs.pattern = opt.value;
+  }
+  return attrs;
+}
+
+/**
+ * Generates complete Product structured data (JSON-LD) for Google rich results
+ * and Merchant Centre validation. Includes all recommended and required fields:
+ * - name, description, image, brand, sku, gtin/mpn
+ * - offers with price, currency, availability, condition, shipping
+ * - variant-level offers with color/size attributes
+ * - product category (Google taxonomy)
+ * - return policy, shipping details
  */
 export function buildProductJsonLd(product: {
+  id: string;
   title: string;
   description: string;
   handle: string;
   productType?: string;
   vendor?: string;
+  tags?: string[];
   availableForSale: boolean;
   featuredImage?: { url: string; width?: number; height?: number; altText?: string };
-  images: { edges: { node: { url: string } }[] };
+  images: { edges: { node: { url: string; altText?: string } }[] };
   priceRange: {
     minVariantPrice: { amount: string; currencyCode: string };
     maxVariantPrice: { amount: string; currencyCode: string };
@@ -153,58 +203,160 @@ export function buildProductJsonLd(product: {
         id: string;
         title: string;
         availableForSale: boolean;
+        selectedOptions: { name: string; value: string }[];
         price: { amount: string; currencyCode: string };
         compareAtPrice?: { amount: string; currencyCode: string } | null;
+        image?: { url: string } | null;
       };
     }[];
   };
 }) {
   const price = product.priceRange.minVariantPrice;
-  const comparePrice = product.priceRange.maxVariantPrice;
-  const typeInfo = product.productType ? getProductTypeInfo(product.productType) : null;
+  const typeKey = product.productType?.toLowerCase().trim() || '';
+  const typeInfo = getProductTypeInfo(product.productType || '');
+  const googleCategory = GOOGLE_PRODUCT_CATEGORIES[typeKey];
+  const tags = product.tags || [];
+  const condition = getProductCondition(tags);
 
-  const offers = product.variants.edges.map((edge) => ({
-    '@type': 'Offer' as const,
-    url: `https://crazygels.com/products/${product.handle}`,
-    priceCurrency: edge.node.price.currencyCode,
-    price: edge.node.price.amount,
-    ...(edge.node.compareAtPrice && {
-      priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    }),
-    availability: edge.node.availableForSale
-      ? 'https://schema.org/InStock'
-      : 'https://schema.org/OutOfStock',
-    seller: {
-      '@type': 'Organization' as const,
-      name: 'Crazy Gels',
+  // Clean description: strip HTML, trim to 5000 chars (Google max)
+  const cleanDescription = product.description
+    ?.replace(/<[^>]*>/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 5000) || product.title;
+
+  // Build all product images (Google recommends multiple angles)
+  const imageUrls = product.images.edges.map((img) => img.node.url);
+  if (product.featuredImage?.url && !imageUrls.includes(product.featuredImage.url)) {
+    imageUrls.unshift(product.featuredImage.url);
+  }
+
+  // 30-day price validity for sale items
+  const priceValidUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  // Shared shipping and return policy for all offers
+  const shippingDetails = {
+    '@type': 'OfferShippingDetails',
+    shippingRate: {
+      '@type': 'MonetaryAmount',
+      value: '0',
+      currency: price.currencyCode,
     },
-  }));
+    shippingDestination: {
+      '@type': 'DefinedRegion',
+      addressCountry: 'US',
+    },
+    deliveryTime: {
+      '@type': 'ShippingDeliveryTime',
+      handlingTime: {
+        '@type': 'QuantitativeValue',
+        minValue: 1,
+        maxValue: 3,
+        unitCode: 'DAY',
+      },
+      transitTime: {
+        '@type': 'QuantitativeValue',
+        minValue: 3,
+        maxValue: 7,
+        unitCode: 'DAY',
+      },
+    },
+  };
 
-  return {
+  const returnPolicy = {
+    '@type': 'MerchantReturnPolicy',
+    applicableCountry: 'US',
+    returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+    merchantReturnDays: 14,
+    returnMethod: 'https://schema.org/ReturnByMail',
+    returnFees: 'https://schema.org/FreeReturn',
+  };
+
+  // Build per-variant offers with attributes
+  const offers = product.variants.edges.map((edge) => {
+    const variant = edge.node;
+    const variantId = variant.id.split('/').pop() || variant.id;
+    const attrs = extractVariantAttributes(variant.selectedOptions);
+    const hasDiscount = variant.compareAtPrice && parseFloat(variant.compareAtPrice.amount) > parseFloat(variant.price.amount);
+
+    return {
+      '@type': 'Offer' as const,
+      url: `https://crazygels.com/products/${product.handle}?variant=${variantId}`,
+      priceCurrency: variant.price.currencyCode,
+      price: variant.price.amount,
+      ...(hasDiscount && { priceValidUntil }),
+      availability: variant.availableForSale
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      itemCondition: condition,
+      seller: {
+        '@type': 'Organization' as const,
+        name: 'Crazy Gels',
+        url: 'https://crazygels.com',
+      },
+      shippingDetails,
+      hasMerchantReturnPolicy: returnPolicy,
+      sku: variantId,
+      ...(variant.title !== 'Default Title' && { name: variant.title }),
+      ...(attrs.color && { color: attrs.color }),
+      ...(attrs.size && { size: attrs.size }),
+      ...(variant.image?.url && { image: variant.image.url }),
+    };
+  });
+
+  // Build the main product object
+  const productLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: product.title,
-    description: product.description?.replace(/<[^>]*>/g, '').slice(0, 500),
+    description: cleanDescription,
     url: `https://crazygels.com/products/${product.handle}`,
-    image: product.images.edges.map((img) => img.node.url),
+    image: imageUrls,
     brand: {
       '@type': 'Brand',
       name: product.vendor || 'Crazy Gels',
     },
-    ...(typeInfo && { category: typeInfo.category }),
+    // Use Shopify product ID as MPN (Manufacturer Part Number) since most beauty products lack GTINs
+    mpn: product.id.split('/').pop() || product.id,
     sku: product.variants.edges[0]?.node.id?.split('/').pop(),
+    // Product identifiers
+    ...(typeInfo && { category: typeInfo.category }),
+    ...(googleCategory && { additionalProperty: [
+      {
+        '@type': 'PropertyValue',
+        propertyID: 'google_product_category',
+        value: googleCategory,
+      },
+    ]}),
+    // Color from first variant if available
+    ...(() => {
+      const firstVariant = product.variants.edges[0]?.node;
+      if (firstVariant) {
+        const attrs = extractVariantAttributes(firstVariant.selectedOptions);
+        return {
+          ...(attrs.color && { color: attrs.color }),
+          ...(attrs.size && { size: attrs.size }),
+          ...(attrs.material && { material: attrs.material }),
+          ...(attrs.pattern && { pattern: attrs.pattern }),
+        };
+      }
+      return {};
+    })(),
+    // Offers
     offers:
       offers.length === 1
         ? offers[0]
         : {
-            '@type': 'AggregateOffer',
+            '@type': 'AggregateOffer' as const,
             priceCurrency: price.currencyCode,
             lowPrice: price.amount,
-            highPrice: comparePrice.amount,
+            highPrice: product.priceRange.maxVariantPrice.amount,
             offerCount: offers.length,
             offers,
           },
   };
+
+  return productLd;
 }
 
 /**
