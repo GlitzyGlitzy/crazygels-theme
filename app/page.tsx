@@ -30,6 +30,7 @@ function ProductCard({ product, priority = false }: { product: Product; priority
             alt={product.featuredImage?.altText || product.title}
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             loading={priority ? "eager" : "lazy"}
+            {...(priority ? { fetchPriority: "high" as const } : {})}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-[#9B9B9B] text-sm">
@@ -146,14 +147,16 @@ export default function HomePage() {
                 </Link>
               </div>
               <div className="order-1 lg:order-2">
-                <div className="relative aspect-[4/5] bg-[#F5F3EF] overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/hero.jpg"
-                    alt="Elegant hands with premium semi-cured gel nails in soft nude tones"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
+  <div className="relative aspect-[4/5] bg-[#F5F3EF] overflow-hidden">
+  {/* eslint-disable-next-line @next/next/no-img-element */}
+  <img
+    src="/images/hero.jpg"
+    alt="Elegant hands with premium semi-cured gel nails in soft nude tones"
+    className="absolute inset-0 w-full h-full object-cover"
+    fetchPriority="high"
+    loading="eager"
+  />
+  </div>
               </div>
             </div>
           </div>
