@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Product } from '@/lib/shopify/types';
 import { shortenProductTitle } from '@/lib/utils';
+
 function formatPrice(amount: string, currencyCode: string = 'USD'): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -21,10 +23,12 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
         {featuredImage?.url ? (
-          <img
+          <Image
             src={featuredImage.url}
             alt={featuredImage.altText || title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 768px) 33vw, 50vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
@@ -45,19 +49,19 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
       </div>
-      <div className="flex flex-1 flex-col p-4">
+      <div className="flex flex-1 flex-col p-3 md:p-4">
         <h3
-          className="line-clamp-2 text-sm font-medium text-foreground group-hover:text-[#B76E79] transition-colors"
+          className="line-clamp-2 text-xs md:text-sm font-medium text-foreground group-hover:text-[#B76E79] transition-colors"
           title={title}
         >
           {shortenProductTitle(title)}
         </h3>
-        <div className="mt-2 flex items-center gap-2">
-          <span className="text-base font-bold text-foreground">
+        <div className="mt-1.5 md:mt-2 flex items-center gap-2">
+          <span className="text-sm md:text-base font-bold text-foreground">
             {formatPrice(price.amount, price.currencyCode)}
           </span>
           {hasDiscount && (
-            <span className="text-sm text-muted-foreground line-through">
+            <span className="text-xs md:text-sm text-muted-foreground line-through">
               {formatPrice(compareAtPrice.amount, compareAtPrice.currencyCode)}
             </span>
           )}

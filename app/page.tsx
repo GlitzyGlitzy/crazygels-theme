@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
@@ -23,10 +24,12 @@ function ProductCard({ product }: { product: Product }) {
     <Link href={`/products/${product.handle}`} className="group block">
       <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F3EF] mb-3">
         {imageUrl ? (
-          <img
+          <Image
             src={imageUrl}
             alt={product.featuredImage?.altText || product.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            fill
+            sizes="(min-width: 768px) 25vw, 50vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
             loading="lazy"
           />
         ) : (
@@ -35,11 +38,11 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         )}
       </div>
-      <h3 className="text-sm font-normal text-[#1A1A1A] group-hover:text-[#9E6B73] transition-colors tracking-wide line-clamp-1">
+      <h3 className="text-xs md:text-sm font-normal text-[#1A1A1A] group-hover:text-[#9E6B73] transition-colors tracking-wide line-clamp-1">
         {product.title}
       </h3>
       {price && (
-        <p className="text-sm text-[#1A1A1A] mt-1">
+        <p className="text-xs md:text-sm text-[#1A1A1A] mt-1">
           {formatPrice(price.amount, price.currencyCode)}
         </p>
       )}
@@ -49,7 +52,7 @@ function ProductCard({ product }: { product: Product }) {
 
 function ProductGridSkeleton({ count = 4 }: { count?: number }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="animate-pulse">
           <div className="aspect-[4/5] bg-[#E8E4DC] mb-3" />
@@ -84,7 +87,7 @@ async function CollectionProducts({ handle }: { handle: string }) {
   const products = fetched.filter((p) => p.featuredImage?.url).slice(0, 4)
     if (products.length === 0) return null
     return (
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
@@ -119,25 +122,25 @@ export default function HomePage() {
       <main>
         {/* Hero */}
         <section className="relative">
-          <div className="max-w-[1400px] mx-auto px-6 lg:px-12 py-12 lg:py-20">
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12 py-8 md:py-12 lg:py-20">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
               <div className="order-2 lg:order-1">
-                <p className="text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-4">
+                <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-3 md:mb-4">
                   New Collection
                 </p>
-                <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-light leading-[0.95] tracking-tight text-[#1A1A1A] mb-6 text-balance">
+                <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-light leading-[0.95] tracking-tight text-[#1A1A1A] mb-4 md:mb-6 text-balance">
                   Effortless
                   <br />
                   <span className="italic">elegance</span>
                   <br />
                   at home
                 </h1>
-                <p className="text-base text-[#666] leading-relaxed max-w-md mb-8">
+                <p className="text-sm md:text-base text-[#666] leading-relaxed max-w-md mb-6 md:mb-8">
                   Premium semi-cured gel nails, luxury hair care, and refined skincare crafted for the modern woman.
                 </p>
                 <Link
                   href="/collections"
-                  className="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#1A1A1A] text-white text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#9E6B73] transition-colors duration-300"
+                  className="inline-flex items-center justify-center gap-3 px-6 md:px-8 py-3.5 md:py-4 bg-[#1A1A1A] text-white text-sm font-medium tracking-[0.1em] uppercase hover:bg-[#9E6B73] transition-colors duration-300 w-full md:w-auto"
                 >
                   Shop Now
                   <ArrowRight className="w-4 h-4" />
@@ -145,10 +148,13 @@ export default function HomePage() {
               </div>
               <div className="order-1 lg:order-2">
                 <div className="relative aspect-[4/5] bg-[#F5F3EF] overflow-hidden">
-                  <img
+                  <Image
                     src="/images/hero.jpg"
                     alt="Elegant hands with premium semi-cured gel nails in soft nude tones"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    fill
+                    sizes="(min-width: 1024px) 50vw, 100vw"
+                    priority
+                    className="object-cover"
                   />
                 </div>
               </div>
@@ -178,23 +184,23 @@ export default function HomePage() {
 
         {/* Collection Sections */}
         {HOMEPAGE_COLLECTIONS.map((col) => (
-          <section key={col.handle} className={`py-16 lg:py-20 ${col.bg}`}>
-            <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
+          <section key={col.handle} className={`py-10 md:py-16 lg:py-20 ${col.bg}`}>
+            <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12">
+              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 md:gap-4 mb-6 md:mb-10">
                 <div>
-                  <p className="text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-2">
+                  <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-1.5 md:mb-2">
                     Collection
                   </p>
-                  <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-light tracking-tight text-[#1A1A1A]">
+                  <h2 className="font-serif text-xl md:text-3xl lg:text-4xl font-light tracking-tight text-[#1A1A1A]">
                     {col.title}
                   </h2>
                 </div>
                 <Link
                   href={`/collections/${col.handle}`}
-                  className="inline-flex items-center gap-2 text-sm font-medium tracking-[0.1em] text-[#1A1A1A] uppercase hover:text-[#9E6B73] transition-colors"
+                  className="inline-flex items-center gap-2 text-xs md:text-sm font-medium tracking-[0.1em] text-[#1A1A1A] uppercase hover:text-[#9E6B73] transition-colors"
                 >
                   View All
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4" />
                 </Link>
               </div>
               <Suspense fallback={<ProductGridSkeleton />}>
@@ -205,17 +211,17 @@ export default function HomePage() {
         ))}
 
         {/* Reviews */}
-        <section className="py-16 lg:py-20 bg-[#F5F3EF]">
-          <div className="max-w-[1400px] mx-auto px-6 lg:px-12">
-            <div className="text-center mb-12">
-              <p className="text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-2">
+        <section className="py-10 md:py-16 lg:py-20 bg-[#F5F3EF]">
+          <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12">
+            <div className="text-center mb-8 md:mb-12">
+              <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-1.5 md:mb-2">
                 Reviews
               </p>
-              <h2 className="font-serif text-2xl md:text-3xl lg:text-4xl font-light tracking-tight text-[#1A1A1A]">
+              <h2 className="font-serif text-xl md:text-3xl lg:text-4xl font-light tracking-tight text-[#1A1A1A]">
                 What our clients say
               </h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-6">
               {[
                 { quote: "The quality is absolutely incredible. These gel nails last over two weeks and look salon-fresh.", author: "Sarah M.", location: "Los Angeles" },
                 { quote: "Crazy Gels is hands down the best. The application is foolproof and the results are amazing.", author: "Jessica T.", location: "Miami" },
@@ -241,22 +247,22 @@ export default function HomePage() {
         </section>
 
         {/* AI Beauty Consultant Highlight */}
-        <section className="relative py-20 lg:py-28 bg-[#1A1A1A] overflow-hidden">
+        <section className="relative py-12 md:py-20 lg:py-28 bg-[#1A1A1A] overflow-hidden">
           {/* Subtle gold accent line at top */}
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#B76E79] to-transparent" />
           {/* Ambient glow */}
           <div className="absolute top-0 left-0 w-72 h-72 bg-[#9E6B73]/10 rounded-full blur-[100px] -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-[#B76E79]/[0.08] rounded-full blur-[120px] translate-x-1/3 translate-y-1/3" />
 
-          <div className="relative max-w-[1400px] mx-auto px-6 lg:px-12">
-            <div className="text-center mb-14">
+          <div className="relative max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12">
+            <div className="text-center mb-8 md:mb-14">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 border border-[#B76E79]/30 rounded-full mb-5">
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-[#B76E79]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
                 </svg>
                 <span className="text-[11px] font-medium tracking-[0.2em] text-[#B76E79] uppercase">AI-Powered</span>
               </div>
-              <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-light text-white mb-4 text-balance">
+              <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-light text-white mb-3 md:mb-4 text-balance">
                 Meet Your Personal
                 <br />
                 <span className="text-[#B76E79]">Beauty Consultant</span>
@@ -266,11 +272,11 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 lg:gap-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 lg:gap-8 max-w-4xl mx-auto">
               {/* Skin Analysis Card */}
               <Link
                 href="/consult/skin"
-                className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.03] p-8 lg:p-10 transition-all duration-300 hover:border-[#B76E79]/40 hover:bg-white/[0.06]"
+                className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.03] p-6 md:p-8 lg:p-10 transition-all duration-300 hover:border-[#B76E79]/40 hover:bg-white/[0.06]"
               >
                 <div>
                   <div className="w-14 h-14 flex items-center justify-center rounded-full bg-[#B76E79]/10 border border-[#B76E79]/20 mb-6">
@@ -304,7 +310,7 @@ export default function HomePage() {
               {/* Hair Analysis Card */}
               <Link
                 href="/consult/hair"
-                className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.03] p-8 lg:p-10 transition-all duration-300 hover:border-[#9E6B73]/50 hover:bg-white/[0.06]"
+                className="group relative flex flex-col justify-between border border-white/10 bg-white/[0.03] p-6 md:p-8 lg:p-10 transition-all duration-300 hover:border-[#9E6B73]/50 hover:bg-white/[0.06]"
               >
                 <div>
                   <div className="w-14 h-14 flex items-center justify-center rounded-full bg-[#9E6B73]/15 border border-[#9E6B73]/25 mb-6">
@@ -354,15 +360,15 @@ export default function HomePage() {
         </section>
 
         {/* Newsletter */}
-        <section className="py-16 lg:py-20 bg-[#F5F3EF]">
-          <div className="max-w-xl mx-auto px-6 text-center">
-            <p className="text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-2">
+        <section className="py-10 md:py-16 lg:py-20 bg-[#F5F3EF]">
+          <div className="max-w-xl mx-auto px-4 md:px-6 text-center">
+            <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#9E6B73] uppercase mb-1.5 md:mb-2">
               Newsletter
             </p>
-            <h2 className="font-serif text-2xl md:text-3xl font-light text-[#1A1A1A] mb-4">
+            <h2 className="font-serif text-xl md:text-3xl font-light text-[#1A1A1A] mb-3 md:mb-4">
               Join the inner circle
             </h2>
-            <p className="text-[#666] mb-6 text-sm">
+            <p className="text-[#666] mb-5 md:mb-6 text-sm">
               Subscribe for exclusive offers, early access, and beauty tips.
             </p>
             <form className="flex flex-col sm:flex-row gap-3">

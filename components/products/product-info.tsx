@@ -107,24 +107,24 @@ export function ProductInfo({ product }: { product: Product }) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 md:gap-6">
       {/* Title & Price */}
       <div>
-        <p className="text-sm font-medium text-[#B76E79] uppercase tracking-widest">
+        <p className="text-xs md:text-sm font-medium text-[#B76E79] uppercase tracking-widest">
           {product.vendor || 'Crazy Gels'}
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight lg:text-4xl">
+        <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight lg:text-4xl text-balance">
           {product.title}
         </h1>
         
         {/* Price */}
-        <div className="mt-4 flex items-baseline gap-3">
-          <span className="text-3xl font-semibold text-[#A15D67]">
+        <div className="mt-3 md:mt-4 flex flex-wrap items-baseline gap-2 md:gap-3">
+          <span className="text-2xl md:text-3xl font-semibold text-[#A15D67]">
             {formatPrice(selectedVariant.price.amount, selectedVariant.price.currencyCode)}
           </span>
           {isOnSale && selectedVariant.compareAtPrice && (
             <>
-              <span className="text-lg text-muted-foreground line-through">
+              <span className="text-base md:text-lg text-muted-foreground line-through">
                 {formatPrice(selectedVariant.compareAtPrice.amount, selectedVariant.compareAtPrice.currencyCode)}
               </span>
               <span className="rounded-full bg-[#B76E79]/10 px-2 py-1 text-xs font-medium tracking-wide text-[#A15D67]">
@@ -164,13 +164,13 @@ export function ProductInfo({ product }: { product: Product }) {
                   // Check if this is a color option
                   const isColorOption = optionName.toLowerCase() === 'color' || optionName.toLowerCase() === 'colour';
 
-                  return (
+                    return (
                     <button
                       key={value}
                       onClick={() => handleOptionChange(optionName, value)}
                       disabled={isDisabled}
                       className={cn(
-                        'relative rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all',
+                        'relative rounded-lg border-2 px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-all min-h-[40px]',
                         isSelected
                           ? 'border-[#B76E79] bg-[#B76E79]/10 text-[#A15D67]'
                           : 'border-border hover:border-muted-foreground',
@@ -223,13 +223,13 @@ export function ProductInfo({ product }: { product: Product }) {
       </div>
 
       {/* Add to Cart Button */}
-      <div className="flex gap-3">
+      <div className="flex gap-2 md:gap-3">
         <Button
           onClick={handleAddToCart}
           disabled={isPending || !isAvailable}
           size="lg"
           className={cn(
-            'flex-1 gap-2 text-lg font-medium transition-all',
+            'flex-1 gap-2 text-base md:text-lg font-medium transition-all min-h-[48px]',
             isAdded
               ? 'bg-green-600 hover:bg-green-700'
               : 'bg-[#B76E79] hover:bg-[#A15D67] text-white'
@@ -240,7 +240,7 @@ export function ProductInfo({ product }: { product: Product }) {
           ) : isAdded ? (
             <>
               <Check className="h-5 w-5" />
-              Added to Cart!
+              Added!
             </>
           ) : isAvailable ? (
             <>
@@ -257,7 +257,7 @@ export function ProductInfo({ product }: { product: Product }) {
           size="lg"
           onClick={handleFavorite}
           className={cn(
-            'px-4 transition-all',
+            'px-3 md:px-4 transition-all min-h-[48px]',
             isFavorited && 'border-[#B76E79] bg-[#B76E79]/10'
           )}
           aria-label={isFavorited ? 'Remove from wishlist' : 'Add to wishlist'}
@@ -274,7 +274,7 @@ export function ProductInfo({ product }: { product: Product }) {
             variant="outline"
             size="lg"
             onClick={handleShare}
-            className="px-4"
+            className="px-3 md:px-4 min-h-[48px]"
             aria-label="Share product"
           >
             <Share2 className="h-5 w-5" />

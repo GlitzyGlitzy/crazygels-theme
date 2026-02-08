@@ -3,9 +3,9 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getProduct, getCollectionProducts, isShopifyConfigured } from '@/lib/shopify';
 import { ProductGallery } from '@/components/products/product-gallery';
+import { ProductInfo } from '@/components/products/product-info';
 
 export const revalidate = 300;
-import { ProductInfo } from '@/components/products/product-info';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
@@ -128,8 +128,8 @@ export default async function ProductPage({
       </Suspense>
 
       {/* Breadcrumb */}
-      <nav className="mx-auto max-w-7xl px-4 py-4" aria-label="Breadcrumb">
-        <ol className="flex items-center gap-2 text-sm text-[#2C2C2C]/60">
+      <nav className="mx-auto max-w-7xl px-4 py-3 md:py-4" aria-label="Breadcrumb">
+        <ol className="flex items-center gap-2 text-xs md:text-sm text-[#2C2C2C]/60 overflow-x-auto">
           <li><Link href="/" className="hover:text-[#B76E79] transition-colors">Home</Link></li>
           <li aria-hidden="true">/</li>
           <li><Link href="/collections" className="hover:text-[#B76E79] transition-colors">Collections</Link></li>
@@ -148,41 +148,41 @@ export default async function ProductPage({
         </ol>
       </nav>
 
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+      <main className="mx-auto max-w-7xl px-4 py-4 md:py-8">
+        <div className="grid gap-6 lg:grid-cols-2 lg:gap-12">
           <ProductGallery product={product} />
           <ProductInfo product={product} />
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-12 grid grid-cols-2 gap-4 border-y border-[#B76E79]/10 py-8 md:grid-cols-4">
-          <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#B76E79]/10 p-3">
-              <Truck className="h-6 w-6 text-[#B76E79]" />
+        <div className="mt-8 md:mt-12 grid grid-cols-2 gap-3 md:gap-4 border-y border-[#B76E79]/10 py-6 md:py-8 md:grid-cols-4">
+          <div className="flex flex-col items-center gap-1.5 md:gap-2 text-center">
+            <div className="rounded-full bg-[#B76E79]/10 p-2.5 md:p-3">
+              <Truck className="h-5 w-5 md:h-6 md:w-6 text-[#B76E79]" />
             </div>
-            <span className="text-sm font-medium text-[#2C2C2C]">Free Shipping</span>
-            <span className="text-xs text-[#2C2C2C]/60">Orders over $50</span>
+            <span className="text-xs md:text-sm font-medium text-[#2C2C2C]">Free Shipping</span>
+            <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">Orders over $50</span>
           </div>
-          <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#9E6B73]/10 p-3">
-              <Shield className="h-6 w-6 text-[#9E6B73]" />
+          <div className="flex flex-col items-center gap-1.5 md:gap-2 text-center">
+            <div className="rounded-full bg-[#9E6B73]/10 p-2.5 md:p-3">
+              <Shield className="h-5 w-5 md:h-6 md:w-6 text-[#9E6B73]" />
             </div>
-            <span className="text-sm font-medium text-[#2C2C2C]">Secure Payment</span>
-            <span className="text-xs text-[#2C2C2C]/60">100% Protected</span>
+            <span className="text-xs md:text-sm font-medium text-[#2C2C2C]">Secure Payment</span>
+            <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">100% Protected</span>
           </div>
-          <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#B76E79]/10 p-3">
-              <RotateCcw className="h-6 w-6 text-[#B76E79]" />
+          <div className="flex flex-col items-center gap-1.5 md:gap-2 text-center">
+            <div className="rounded-full bg-[#B76E79]/10 p-2.5 md:p-3">
+              <RotateCcw className="h-5 w-5 md:h-6 md:w-6 text-[#B76E79]" />
             </div>
-            <span className="text-sm font-medium text-[#2C2C2C]">Easy Returns</span>
-            <span className="text-xs text-[#2C2C2C]/60">14-Day Policy</span>
+            <span className="text-xs md:text-sm font-medium text-[#2C2C2C]">Easy Returns</span>
+            <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">14-Day Policy</span>
           </div>
-          <div className="flex flex-col items-center gap-2 text-center">
-            <div className="rounded-full bg-[#9E6B73]/10 p-3">
-              <Star className="h-6 w-6 text-[#9E6B73]" />
+          <div className="flex flex-col items-center gap-1.5 md:gap-2 text-center">
+            <div className="rounded-full bg-[#9E6B73]/10 p-2.5 md:p-3">
+              <Star className="h-5 w-5 md:h-6 md:w-6 text-[#9E6B73]" />
             </div>
-            <span className="text-sm font-medium text-[#2C2C2C]">Top Rated</span>
-            <span className="text-xs text-[#2C2C2C]/60">Trusted by 50K+</span>
+            <span className="text-xs md:text-sm font-medium text-[#2C2C2C]">Top Rated</span>
+            <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">Trusted by 50K+</span>
           </div>
         </div>
 
