@@ -293,24 +293,18 @@ async function ProductCount({
   sortKey: string;
   reverse: boolean;
 }) {
-  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+  const allProducts = await getAllProducts({ sortKey, reverse });
+  const keywords = VIRTUAL_COLLECTIONS[handle]?.keywords || COLLECTION_KEYWORDS[handle];
+
   let products;
-  if (virtualDef) {
-    const allProducts = await getAllProducts({ sortKey, reverse });
+  if (keywords) {
     products = allProducts.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
-      return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
+      return keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    const collectionProducts = await getAllCollectionProducts({ handle, sortKey, reverse });
-    if (COLLECTION_KEYWORDS[handle]) {
-      const seenIds = new Set(collectionProducts.map((p) => p.id));
-      const allProducts = await getAllProducts({ sortKey, reverse });
-      const extra = allProducts.filter((p) => !seenIds.has(p.id) && matchesCollectionKeywords(p, handle));
-      products = [...collectionProducts, ...extra];
-    } else {
-      products = collectionProducts;
-    }
+    // No keyword map for this handle, fall back to Shopify collection
+    products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
   return (
     <p className="text-[#2C2C2C]/60">
@@ -328,31 +322,19 @@ async function CollectionProducts({
   sortKey: string;
   reverse: boolean;
   }) {
-  let products;
-  const virtualDef = VIRTUAL_COLLECTIONS[handle];
+  const allProducts = await getAllProducts({ sortKey, reverse });
+  const keywords = VIRTUAL_COLLECTIONS[handle]?.keywords || COLLECTION_KEYWORDS[handle];
 
-  if (virtualDef) {
-    // For virtual collections, fetch ALL products and filter by keywords
-    const allProducts = await getAllProducts({ sortKey, reverse });
+  let products;
+  if (keywords) {
+    // Pull from ALL products and filter by keywords
     products = allProducts.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
-      return virtualDef.keywords.some((kw) => text.includes(kw.toLowerCase()));
+      return keywords.some((kw) => text.includes(kw.toLowerCase()));
     });
   } else {
-    // Fetch assigned products from the Shopify collection
-    const collectionProducts = await getAllCollectionProducts({ handle, sortKey, reverse });
-    const seenIds = new Set(collectionProducts.map((p) => p.id));
-
-    // Augment with keyword-matched products from the full catalog
-    if (COLLECTION_KEYWORDS[handle]) {
-      const allProducts = await getAllProducts({ sortKey, reverse });
-      const extraProducts = allProducts.filter(
-        (p) => !seenIds.has(p.id) && matchesCollectionKeywords(p, handle)
-      );
-      products = [...collectionProducts, ...extraProducts];
-    } else {
-      products = collectionProducts;
-    }
+    // No keyword map for this handle, fall back to Shopify collection
+    products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
 
   if (products.length === 0) {
