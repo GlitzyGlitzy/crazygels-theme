@@ -449,8 +449,8 @@ export async function getAllProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  // Use smaller page size to keep each response under Next.js 2MB cache limit
-  const pageSize = 50;
+  // Use 250 (Shopify max) to minimise round-trips: 774 products = ~4 requests
+  const pageSize = 250;
 
   while (hasNextPage) {
     const res = await shopifyFetch<{
@@ -458,7 +458,8 @@ export async function getAllProducts({
       variables: { query?: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
     }>({
       query: getProductsQuery,
-      cache: 'no-store',
+      tags: [TAGS.products],
+      revalidate: CACHE_TIMES.products,
       variables: { 
         query, 
         reverse, 
@@ -562,28 +563,28 @@ export async function getAllCollectionProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  // Use smaller page size to keep each response under Next.js 2MB cache limit
-  const pageSize = 50;
-
+  const pageSize = 250;
+  
   while (hasNextPage) {
-    const res = await shopifyFetch<{
-      data: { collection: { products: Connection<ShopifyProduct> } | null };
-      variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
-    }>({
-      query: getCollectionProductsQuery,
-      cache: 'no-store',
-      variables: { 
-        handle, 
-        reverse, 
-        sortKey, 
-        first: pageSize,
-        ...(cursor && { after: cursor })
-      },
-    });
-
-    if (!res.body.data.collection) {
-      return [];
-    }
+  const res = await shopifyFetch<{
+  data: { collection: { products: Connection<ShopifyProduct> } | null };
+  variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+  }>({
+  query: getCollectionProductsQuery,
+  tags: [TAGS.collections, TAGS.products],
+  revalidate: CACHE_TIMES.products,
+  variables: {
+  handle,
+  reverse,
+  sortKey,
+  first: pageSize,
+  ...(cursor && { after: cursor })
+  },
+  });
+  
+  if (!res.body.data.collection) {
+  return [];
+  }
 
     const products = res.body.data.collection.products;
     const pageProducts = removeEdgesAndNodes(products);
