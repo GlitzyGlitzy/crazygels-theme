@@ -88,12 +88,18 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
                 </Link>
 
                 {item.submenu && activeDropdown === item.label && (
-                  <div className="absolute top-full left-0 w-56 bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl shadow-2xl py-2 mt-1 z-50">
-                    {item.submenu.map((subitem) => (
+                  <div className={`absolute top-full left-0 bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl shadow-2xl py-3 mt-1 z-50 ${
+                    item.submenu.length > 6 ? 'w-[28rem] grid grid-cols-2 gap-x-1' : 'w-56'
+                  }`}>
+                    {item.submenu.map((subitem, idx) => (
                       <Link
                         key={subitem.href}
                         href={subitem.href}
-                        className="block px-4 py-2.5 text-sm text-[#2C2C2C]/80 hover:text-[#B76E79] hover:bg-[#B76E79]/5 transition-colors"
+                        className={`block px-4 py-2 text-sm transition-colors ${
+                          idx === 0
+                            ? 'font-medium text-[#B76E79] hover:bg-[#B76E79]/5'
+                            : 'text-[#2C2C2C]/80 hover:text-[#B76E79] hover:bg-[#B76E79]/5'
+                        }`}
                       >
                         {subitem.label}
                       </Link>
