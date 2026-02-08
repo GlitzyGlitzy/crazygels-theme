@@ -1,5 +1,4 @@
 import { Suspense } from "react"
-import Image from "next/image"
 import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
@@ -25,13 +24,13 @@ function ProductCard({ product, priority = false }: { product: Product; priority
     <Link href={`/products/${product.handle}`} className="group block">
       <div className="relative aspect-[4/5] overflow-hidden bg-[#F5F3EF] mb-3">
         {imageUrl ? (
-          <Image
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
             src={imageUrl}
             alt={product.featuredImage?.altText || product.title}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            priority={priority}
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            loading={priority ? "eager" : "lazy"}
+            {...(priority ? { fetchPriority: "high" as const } : {})}
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-[#9B9B9B] text-sm">
@@ -149,13 +148,13 @@ export default function HomePage() {
               </div>
               <div className="order-1 lg:order-2">
   <div className="relative aspect-[4/5] bg-[#F5F3EF] overflow-hidden">
-  <Image
+  {/* eslint-disable-next-line @next/next/no-img-element */}
+  <img
     src="/images/hero.jpg"
     alt="Elegant hands with premium semi-cured gel nails in soft nude tones"
-    fill
-    priority
-    sizes="(max-width: 1024px) 100vw, 50vw"
-    className="object-cover"
+    className="absolute inset-0 w-full h-full object-cover"
+    fetchPriority="high"
+    loading="eager"
   />
   </div>
               </div>
