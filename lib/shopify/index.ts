@@ -211,6 +211,8 @@ const reshapeCollections = (collections: ShopifyCollection[]): Collection[] => {
 };
 
 // GraphQL Fragments
+
+// Full fragment for single product detail pages
 const productFragment = /* GraphQL */ `
   fragment product on Product {
     id
@@ -292,6 +294,85 @@ const productFragment = /* GraphQL */ `
     seo {
       title
       description
+    }
+    tags
+    updatedAt
+    vendor
+    productType
+  }
+`;
+
+// Lightweight fragment for product list/grid views (keeps responses under 2MB)
+const productListFragment = /* GraphQL */ `
+  fragment productList on Product {
+    id
+    handle
+    availableForSale
+    title
+    description
+    options {
+      id
+      name
+      values
+    }
+    priceRange {
+      maxVariantPrice {
+        amount
+        currencyCode
+      }
+      minVariantPrice {
+        amount
+        currencyCode
+      }
+    }
+    variants(first: 10) {
+      edges {
+        node {
+          id
+          title
+          availableForSale
+          selectedOptions {
+            name
+            value
+          }
+          price {
+            amount
+            currencyCode
+          }
+          compareAtPrice {
+            amount
+            currencyCode
+          }
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+    featuredImage {
+      url
+      altText
+      width
+      height
+    }
+    images(first: 1) {
+      edges {
+        node {
+          url
+          altText
+          width
+          height
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
     }
     tags
     updatedAt
@@ -397,6 +478,47 @@ const getCollectionProductsQuery = /* GraphQL */ `
   ${productFragment}
 `;
 
+// Lightweight queries for list views (to stay under 2MB cache limit)
+const getProductsListQuery = /* GraphQL */ `
+  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int, $after: String) {
+    products(sortKey: $sortKey, reverse: $reverse, query: $query, first: $first, after: $after) {
+      edges {
+        node {
+          ...productList
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+  ${productListFragment}
+`;
+
+const getCollectionProductsListQuery = /* GraphQL */ `
+  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int, $after: String) {
+    collection(handle: $handle) {
+      products(sortKey: $sortKey, reverse: $reverse, first: $first, after: $after) {
+        edges {
+          node {
+            ...productList
+          }
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          startCursor
+          endCursor
+        }
+      }
+    }
+  }
+  ${productListFragment}
+`;
+
 // API Functions with proper caching and rate limit awareness
 export async function getProduct(handle: string): Promise<Product | undefined> {
   const res = await shopifyFetch<{ data: { product: ShopifyProduct }; variables: { handle: string } }>({
@@ -420,14 +542,14 @@ export async function getProducts({
   sortKey?: string;
   first?: number;
 } = {}): Promise<Product[]> {
-  // Keep page size reasonable to avoid exceeding Next.js 2MB cache limit
-  const safeFirst = Math.min(first, 100);
+  // Keep page size small to avoid exceeding Next.js 2MB cache limit
+  const safeFirst = Math.min(first, 50);
   
   const res = await shopifyFetch<{
     data: { products: Connection<ShopifyProduct> };
     variables: { query?: string; reverse?: boolean; sortKey?: string; first?: number };
   }>({
-    query: getProductsQuery,
+    query: getProductsListQuery,
     tags: [TAGS.products],
     variables: { query, reverse, sortKey, first: safeFirst },
     revalidate: CACHE_TIMES.products,
@@ -437,6 +559,7 @@ export async function getProducts({
 }
 
 // Fetch ALL products using cursor-based pagination
+// Uses lightweight fragment + smaller page size to stay under 2MB cache limit
 export async function getAllProducts({
   query,
   reverse,
@@ -449,15 +572,15 @@ export async function getAllProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  // Use 250 (Shopify max) to minimise round-trips: 774 products = ~4 requests
-  const pageSize = 250;
+  // Keep page size at 50 to stay well under the 2MB Next.js cache limit
+  const pageSize = 50;
 
   while (hasNextPage) {
     const res = await shopifyFetch<{
       data: { products: Connection<ShopifyProduct> };
       variables: { query?: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
     }>({
-      query: getProductsQuery,
+      query: getProductsListQuery,
       tags: [TAGS.products],
       revalidate: CACHE_TIMES.products,
       variables: { 
@@ -522,21 +645,21 @@ export async function getCollectionProducts({
   handle,
   reverse,
   sortKey,
-  first = 100,
+  first = 50,
 }: {
   handle: string;
   reverse?: boolean;
   sortKey?: string;
   first?: number;
 }): Promise<Product[]> {
-  // Keep page size reasonable to avoid exceeding Next.js 2MB cache limit
-  const safeFirst = Math.min(first, 100);
+  // Keep page size small to avoid exceeding Next.js 2MB cache limit
+  const safeFirst = Math.min(first, 50);
   
   const res = await shopifyFetch<{
     data: { collection: { products: Connection<ShopifyProduct> } };
     variables: { handle: string; reverse?: boolean; sortKey?: string; first?: number };
   }>({
-    query: getCollectionProductsQuery,
+    query: getCollectionProductsListQuery,
     tags: [TAGS.collections, TAGS.products],
     variables: { handle, reverse, sortKey, first: safeFirst },
     revalidate: CACHE_TIMES.products,
@@ -551,6 +674,7 @@ export async function getCollectionProducts({
 }
 
 // Fetch ALL products in a collection using cursor-based pagination
+// Uses lightweight fragment + smaller page size to stay under 2MB cache limit
 export async function getAllCollectionProducts({
   handle,
   reverse,
@@ -563,24 +687,24 @@ export async function getAllCollectionProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  const pageSize = 250;
+  const pageSize = 50;
   
   while (hasNextPage) {
-  const res = await shopifyFetch<{
-  data: { collection: { products: Connection<ShopifyProduct> } | null };
-  variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
-  }>({
-  query: getCollectionProductsQuery,
-  tags: [TAGS.collections, TAGS.products],
-  revalidate: CACHE_TIMES.products,
-  variables: {
-  handle,
-  reverse,
-  sortKey,
-  first: pageSize,
-  ...(cursor && { after: cursor })
-  },
-  });
+    const res = await shopifyFetch<{
+      data: { collection: { products: Connection<ShopifyProduct> } | null };
+      variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+    }>({
+      query: getCollectionProductsListQuery,
+      tags: [TAGS.collections, TAGS.products],
+      revalidate: CACHE_TIMES.products,
+      variables: {
+        handle,
+        reverse,
+        sortKey,
+        first: pageSize,
+        ...(cursor && { after: cursor })
+      },
+    });
   
   if (!res.body.data.collection) {
   return [];
