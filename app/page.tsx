@@ -20,8 +20,9 @@ function formatPrice(amount: string, currencyCode: string = "USD"): string {
 function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const price = product.priceRange?.minVariantPrice
   const rawUrl = product.featuredImage?.url || null
-  // Use Shopify CDN to serve optimized WebP at appropriate size
-  const imageUrl = rawUrl ? getOptimizedImageUrl(rawUrl, { width: 600, format: 'webp' }) : null
+  console.log("[v0] ProductCard image debug:", { title: product.title, rawUrl, hasFeaturedImage: !!product.featuredImage })
+  // Use raw Shopify CDN URL directly - no transforms that could break it
+  const imageUrl = rawUrl || null
 
   return (
     <Link href={`/products/${product.handle}`} className="group block">
@@ -74,21 +75,25 @@ const VIRTUAL_KEYWORDS: Record<string, string[]> = {
 }
 
 async function CollectionProducts({ handle, priority = false }: { handle: string; priority?: boolean }) {
-  if (!isShopifyConfigured) return null
+  if (!isShopifyConfigured) {
+    console.log("[v0] Shopify not configured")
+    return null
+  }
   try {
   let fetched
   if (VIRTUAL_KEYWORDS[handle]) {
-    // Virtual collections: fetch all products and filter by keywords
     const all = await getAllProducts({})
+    console.log("[v0] Virtual collection", handle, "total products:", all.length)
     fetched = all.filter((p) => {
       const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase()
       return VIRTUAL_KEYWORDS[handle].some((kw) => text.includes(kw.toLowerCase()))
     })
   } else {
-    // Real Shopify collections: only fetch 8 (we display 4, but filter out no-image)
     fetched = await getCollectionProducts({ handle, first: 8 })
   }
+  console.log("[v0] Collection", handle, "fetched:", fetched.length, "products. First product image:", fetched[0]?.featuredImage?.url || "NO IMAGE")
   const products = fetched.filter((p) => p.featuredImage?.url).slice(0, 4)
+  console.log("[v0] Collection", handle, "after filter:", products.length, "products with images. URLs:", products.map(p => p.featuredImage?.url?.substring(0, 80)))
     if (products.length === 0) return null
     return (
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
