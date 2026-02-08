@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Product } from '@/lib/shopify/types';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 export function ProductGallery({ product }: { product: Product }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const touchStartX = useRef(0);
 
   const images = product.images.length > 0 
     ? product.images 
@@ -26,25 +27,42 @@ export function ProductGallery({ product }: { product: Product }) {
 
   const currentImage = images[selectedIndex];
 
-  const goToPrevious = () => {
+  const goToPrevious = useCallback(() => {
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setIsZoomed(false);
+  }, [images.length]);
+
+  const goToNext = useCallback(() => {
+    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setIsZoomed(false);
+  }, [images.length]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
   };
 
-  const goToNext = () => {
-    setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) goToNext();
+      else goToPrevious();
+    }
   };
 
   return (
-    <div className="space-y-4">
-      {/* Main Image */}
-      <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted group">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+    <div className="space-y-3 md:space-y-4">
+      {/* Main Image - fixed aspect ratio prevents CLS */}
+      <div 
+        className="relative aspect-square overflow-hidden rounded-2xl bg-muted group"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         <img
           src={currentImage.url}
           alt={currentImage.altText || product.title}
           className={cn(
             'absolute inset-0 w-full h-full object-cover transition-transform duration-500',
-            isZoomed && 'scale-150 cursor-zoom-out'
+            isZoomed ? 'scale-150 cursor-zoom-out' : 'cursor-zoom-in'
           )}
           onClick={() => setIsZoomed(!isZoomed)}
         />
@@ -64,7 +82,7 @@ export function ProductGallery({ product }: { product: Product }) {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100 md:left-4"
               onClick={goToPrevious}
               aria-label="Previous image"
             >
@@ -73,7 +91,7 @@ export function ProductGallery({ product }: { product: Product }) {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full opacity-0 transition-opacity group-hover:opacity-100 md:right-4"
               onClick={goToNext}
               aria-label="Next image"
             >
@@ -84,19 +102,38 @@ export function ProductGallery({ product }: { product: Product }) {
 
         {/* Sale Badge */}
         {product.variants.edges[0]?.node.compareAtPrice && (
-          <div className="absolute left-4 top-4 rounded-full bg-[#A15D67] px-3 py-1.5 text-xs font-medium tracking-wide text-white">
+          <div className="absolute left-3 top-3 rounded-full bg-[#A15D67] px-3 py-1.5 text-xs font-medium tracking-wide text-white md:left-4 md:top-4">
             SALE
+          </div>
+        )}
+
+        {/* Mobile dot indicators */}
+        {images.length > 1 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setSelectedIndex(index)}
+                className={cn(
+                  'h-2 rounded-full transition-all',
+                  selectedIndex === index
+                    ? 'w-6 bg-white'
+                    : 'w-2 bg-white/50'
+                )}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
           </div>
         )}
       </div>
 
-      {/* Thumbnail Grid */}
+      {/* Thumbnail Grid - hidden on mobile, show dots instead */}
       {images.length > 1 && (
-        <div className="flex gap-3 overflow-x-auto pb-2">
+        <div className="hidden md:flex gap-3 overflow-x-auto pb-2">
           {images.map((image, index) => (
               <button
                 key={index}
-                onClick={() => setSelectedIndex(index)}
+                onClick={() => { setSelectedIndex(index); setIsZoomed(false); }}
                 className={cn(
                   'relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all',
                   selectedIndex === index
@@ -106,7 +143,6 @@ export function ProductGallery({ product }: { product: Product }) {
                 aria-label={`View image ${index + 1}`}
                 aria-current={selectedIndex === index ? 'true' : undefined}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={image.url}
                   alt={image.altText || `${product.title} - Image ${index + 1}`}
@@ -116,13 +152,6 @@ export function ProductGallery({ product }: { product: Product }) {
               </button>
           ))}
         </div>
-      )}
-
-      {/* Image Counter */}
-      {images.length > 1 && (
-        <p className="text-center text-sm text-muted-foreground">
-          {selectedIndex + 1} / {images.length}
-        </p>
       )}
     </div>
   );

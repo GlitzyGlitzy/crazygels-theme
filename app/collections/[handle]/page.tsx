@@ -232,11 +232,11 @@ export default async function CollectionPage({
         <section className="relative overflow-hidden">
           {collection.image ? (
             <div className="absolute inset-0">
-              <img
-                src={collection.image.url}
-                alt={collection.image.altText || collection.title}
-                className="absolute inset-0 w-full h-full object-cover opacity-20"
-              />
+            <img
+              src={collection.image.url}
+              alt={collection.image.altText || collection.title}
+              className="absolute inset-0 w-full h-full object-cover opacity-20"
+            />
               <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/60 via-[#FAF7F2]/80 to-[#FAF7F2]" />
             </div>
           ) : (

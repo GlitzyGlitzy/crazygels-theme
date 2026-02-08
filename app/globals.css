@@ -224,9 +224,28 @@
   animation: gradient-shift 3s ease infinite;
 }
 
+/* Prevent layout shift from images */
+img {
+  height: auto;
+  max-width: 100%;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Better touch targets on mobile */
+@media (max-width: 768px) {
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Fix iOS input zoom */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
 }
 
 /* Selection color */
