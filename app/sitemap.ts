@@ -28,13 +28,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const { isShopifyConfigured, getAllProducts, getCollections, getBlogs, getAllBlogArticles } =
       await import('@/lib/shopify');
 
-    if (!isShopifyConfigured()) {
+    if (!isShopifyConfigured) {
       return staticPages;
     }
 
     // Products
     try {
       const products = await getAllProducts({});
+      console.log('[v0] Sitemap: found', (products || []).length, 'products');
       productPages = (products || []).map((product) => ({
         url: `${BASE_URL}/products/${product.handle}`,
         lastModified: product.updatedAt ? new Date(product.updatedAt) : now,
@@ -48,6 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Collections
     try {
       const collections = await getCollections();
+      console.log('[v0] Sitemap: found', (collections || []).length, 'collections');
       collectionPages = (collections || []).map((collection) => ({
         url: `${BASE_URL}/collections/${collection.handle}`,
         lastModified: collection.updatedAt ? new Date(collection.updatedAt) : now,
@@ -61,6 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Blog articles
     try {
       const blogs = await getBlogs();
+      console.log('[v0] Sitemap: found', (blogs || []).length, 'blogs');
       for (const blog of blogs || []) {
         try {
           const articles = await getAllBlogArticles(blog.handle);
@@ -84,5 +87,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return staticPages;
   }
 
-  return [...staticPages, ...collectionPages, ...productPages, ...blogPages];
+  const allPages = [...staticPages, ...collectionPages, ...productPages, ...blogPages];
+  console.log('[v0] Sitemap: total URLs generated:', allPages.length);
+  return allPages;
 }
