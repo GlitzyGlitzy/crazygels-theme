@@ -69,8 +69,15 @@ export function Header() {
           </button>
 
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
-            <span className="text-2xl md:text-3xl font-light tracking-[0.2em] text-[#2C2C2C]">
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2 md:gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/icon-original.png"
+              alt=""
+              className="w-8 h-8 md:w-10 md:h-10 rounded-full"
+              aria-hidden="true"
+            />
+            <span className="text-xl md:text-2xl font-light tracking-[0.2em] text-[#2C2C2C]">
               CRAZY <span className="font-medium text-[#B76E79]">GELS</span>
             </span>
           </Link>
