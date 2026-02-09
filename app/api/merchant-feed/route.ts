@@ -166,9 +166,15 @@ export async function GET() {
         // Item group ID (same for all variants of one product)
         const itemGroupId = `shopify_${mpn}`;
 
+        // Skip products with no price (causes "Missing product price" error)
+        if (!price || price === '0.00') continue;
+
         // Unique ID per variant
         const uniqueId =
           variants.length > 1 ? `shopify_${mpn}_${variantId}` : `shopify_${mpn}`;
+
+        // For sale_price: only include if compareAtPrice is HIGHER than the current price
+        const hasSale = compareAtPrice && parseFloat(compareAtPrice) > parseFloat(price);
 
         let item = `    <item>
       <g:id>${escapeXml(uniqueId)}</g:id>
@@ -178,8 +184,8 @@ export async function GET() {
       <g:image_link>${escapeXml(variantImage)}</g:image_link>
 ${additionalImages.map((img: string) => `      <g:additional_image_link>${escapeXml(img)}</g:additional_image_link>`).join('\n')}
       <g:availability>${isAvailable ? 'in_stock' : 'out_of_stock'}</g:availability>
-      <g:price>${price} ${currency}</g:price>
-${compareAtPrice ? `      <g:sale_price>${price} ${currency}</g:sale_price>\n` : ''}      <g:brand>${escapeXml(p.vendor || 'Crazy Gels')}</g:brand>
+${hasSale ? `      <g:price>${compareAtPrice} EUR</g:price>\n      <g:sale_price>${price} EUR</g:sale_price>` : `      <g:price>${price} EUR</g:price>`}
+      <g:brand>${escapeXml(p.vendor || 'Crazy Gels')}</g:brand>
       <g:mpn>${escapeXml(mpn)}</g:mpn>
       <g:condition>new</g:condition>
       <g:google_product_category>${escapeXml(googleCategory)}</g:google_product_category>
@@ -189,11 +195,79 @@ ${color ? `      <g:color>${escapeXml(color)}</g:color>\n` : ''}${size ? `      
 ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:item_group_id>\n` : ''}      <g:identifier_exists>false</g:identifier_exists>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:price>0 ${currency}</g:price>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>AT</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CH</g:country>
+        <g:price>0 CHF</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>FR</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>NL</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>BE</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>IT</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>ES</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>PL</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>IE</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>PT</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>GR</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>FI</g:country>
+        <g:price>0 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SE</g:country>
+        <g:price>0 SEK</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>DK</g:country>
+        <g:price>0 DKK</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>US</g:country>
-        <g:price>0 ${currency}</g:price>
+        <g:price>0 USD</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:price>0 CAD</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>GB</g:country>
+        <g:price>0 GBP</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>AU</g:country>
+        <g:price>0 AUD</g:price>
       </g:shipping>
       <g:tax>
         <g:country>DE</g:country>
