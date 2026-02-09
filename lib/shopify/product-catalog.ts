@@ -173,7 +173,7 @@ function productToCatalogItem(product: Product, type: 'skin' | 'hair'): CatalogP
     title: product.title,
     description: product.description,
     price: formatPrice(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode),
-    compareAtPrice: product.variants.edges[0]?.node.compareAtPrice
+    compareAtPrice: product.variants?.edges?.[0]?.node.compareAtPrice
       ? formatPrice(product.variants.edges[0].node.compareAtPrice.amount, product.variants.edges[0].node.compareAtPrice.currencyCode)
       : undefined,
     imageUrl: product.featuredImage?.url,

@@ -163,7 +163,7 @@ export function CartContents({ cart }: { cart: Cart }) {
 
   return (
     <div className="divide-y divide-white/5">
-      {cart.lines.edges.map((edge) => (
+      {(cart.lines?.edges ?? []).map((edge) => (
         <CartLineItem
           key={edge.node.id}
           item={edge.node}

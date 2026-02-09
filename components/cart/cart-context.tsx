@@ -57,7 +57,7 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart | undefi
           ...state,
           lines: {
             ...state.lines,
-            edges: state.lines.edges.map((edge) =>
+            edges: (state.lines?.edges ?? []).map((edge) =>
               edge.node.merchandise.id === variant.id
                 ? { ...edge, node: { ...edge.node, quantity: edge.node.quantity + 1 } }
                 : edge
