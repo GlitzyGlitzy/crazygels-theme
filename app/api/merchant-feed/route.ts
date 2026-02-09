@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAllProducts, getProduct } from '@/lib/shopify';
+import { getAllProducts } from '@/lib/shopify';
 import { buildSeoTitle, buildSeoDescription } from '@/lib/seo';
 
 /**
@@ -19,8 +19,11 @@ import { buildSeoTitle, buildSeoDescription } from '@/lib/seo';
  * 5. Set time zone and save
  */
 
-// Revalidate every 6 hours
-export const revalidate = 21600;
+// Force dynamic rendering -- this feed fetches all products from Shopify
+// and would time out during static build. Caching is handled via Cache-Control headers.
+export const dynamic = 'force-dynamic';
+// Allow up to 5 minutes for the feed to generate (many Shopify API calls)
+export const maxDuration = 300;
 
 const BASE_URL = 'https://crazygels.com';
 
@@ -112,14 +115,7 @@ export async function GET() {
     const items: string[] = [];
 
     for (const product of products) {
-      // Fetch full product data for descriptionHtml
-      let fullProduct;
-      try {
-        fullProduct = await getProduct(product.handle);
-      } catch {
-        fullProduct = product;
-      }
-      const p = fullProduct || product;
+      const p = product;
 
       const googleCategory = getGoogleCategory(p.productType || '', p.title);
       const description = stripHtml(p.description || p.title).slice(0, 5000);
