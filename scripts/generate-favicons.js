@@ -1,5 +1,5 @@
-import sharp from 'sharp';
-import { readFileSync, writeFileSync } from 'fs';
+const sharp = require('sharp');
+const { readFileSync } = require('fs');
 
 const svgContent = readFileSync('public/icon.svg', 'utf-8');
 
