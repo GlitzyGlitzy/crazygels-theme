@@ -148,7 +148,7 @@ export async function shopifyFetch<T>({
 }
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
-  return array.edges.map((edge) => edge.node);
+  return (array?.edges ?? []).map((edge) => edge.node);
 };
 
 const reshapeImages = (images: Connection<Image>, productTitle: string): Image[] => {

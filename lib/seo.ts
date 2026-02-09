@@ -273,7 +273,7 @@ export function buildProductJsonLd(product: {
   };
 
   // Build per-variant offers with attributes
-  const offers = product.variants.edges.map((edge) => {
+  const offers = (product.variants?.edges ?? []).map((edge: { node: Record<string, unknown> }) => {
     const variant = edge.node;
     const variantId = variant.id.split('/').pop() || variant.id;
     const attrs = extractVariantAttributes(variant.selectedOptions);
@@ -318,7 +318,7 @@ export function buildProductJsonLd(product: {
     },
     // Use Shopify product ID as MPN (Manufacturer Part Number) since most beauty products lack GTINs
     mpn: product.id.split('/').pop() || product.id,
-    sku: product.variants.edges[0]?.node.id?.split('/').pop(),
+    sku: product.variants?.edges?.[0]?.node.id?.split('/').pop(),
     // Product identifiers
     ...(typeInfo && { category: typeInfo.category }),
     ...(googleCategory && { additionalProperty: [
@@ -330,7 +330,7 @@ export function buildProductJsonLd(product: {
     ]}),
     // Color from first variant if available
     ...(() => {
-      const firstVariant = product.variants.edges[0]?.node;
+      const firstVariant = product.variants?.edges?.[0]?.node;
       if (firstVariant) {
         const attrs = extractVariantAttributes(firstVariant.selectedOptions);
         return {

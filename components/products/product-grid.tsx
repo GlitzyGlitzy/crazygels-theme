@@ -12,7 +12,7 @@ function formatPrice(amount: string, currencyCode: string = 'USD'): string {
 export function ProductCard({ product }: { product: Product }) {
   const { handle, title, featuredImage, priceRange, variants, availableForSale } = product;
   const price = priceRange.minVariantPrice;
-  const compareAtPrice = variants.edges[0]?.node.compareAtPrice;
+  const compareAtPrice = variants?.edges?.[0]?.node.compareAtPrice;
   const hasDiscount = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount);
 
   return (

@@ -107,7 +107,7 @@ export default async function ProductPage({
         product={{
           productName: product.title,
           productId: product.id,
-          sku: product.variants.edges[0]?.node.id.split('/').pop() || '',
+          sku: product.variants?.edges?.[0]?.node.id?.split('/').pop() || '',
           imageUrl: product.featuredImage?.url,
           url: `https://crazygels.com/products/${handle}`,
           brand: product.vendor || 'Crazy Gels',

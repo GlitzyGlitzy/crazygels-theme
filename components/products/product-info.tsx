@@ -16,7 +16,7 @@ function formatPrice(amount: string, currencyCode: string) {
 }
 
 export function ProductInfo({ product }: { product: Product }) {
-  const variants = product.variants.edges.map((edge) => edge.node);
+  const variants = (product.variants?.edges ?? []).map((edge) => edge.node);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(variants[0]);
   const [quantity, setQuantity] = useState(1);
   const [isPending, startTransition] = useTransition();
