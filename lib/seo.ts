@@ -226,7 +226,7 @@ export function buildProductJsonLd(product: {
     .slice(0, 5000) || product.title;
 
   // Build all product images (Google recommends multiple angles)
-  const imageUrls = product.images.edges.map((img) => img.node.url);
+  const imageUrls = (product.images?.edges ?? []).map((img: { node: { url: string } }) => img.node.url);
   if (product.featuredImage?.url && !imageUrls.includes(product.featuredImage.url)) {
     imageUrls.unshift(product.featuredImage.url);
   }
