@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingBag, Search, User, ChevronDown } from "lucide-react"
+import { CrazyGelsLogo } from "@/components/ui/crazy-gels-logo"
 
 export interface MenuItem {
   label: string
@@ -66,9 +67,7 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
           {/* Logo */}
           <Link href="/" className="flex-shrink-0">
-            <span className="text-2xl md:text-3xl font-light tracking-[0.2em] text-[#2C2C2C]">
-              CRAZY <span className="font-medium text-[#B76E79]">GELS</span>
-            </span>
+            <CrazyGelsLogo />
           </Link>
 
           {/* Desktop Navigation */}
