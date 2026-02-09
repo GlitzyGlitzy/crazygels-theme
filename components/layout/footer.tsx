@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Instagram } from 'lucide-react';
 import { NewsletterForm } from '@/components/klaviyo/newsletter-form';
+import { CrazyGelsIcon } from '@/components/ui/crazy-gels-logo';
 
 export function Footer() {
   return (
@@ -30,7 +31,8 @@ export function Footer() {
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-12 md:py-16">
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="inline-block">
+            <Link href="/" className="inline-flex items-center gap-2">
+              <CrazyGelsIcon className="w-8 h-8 md:w-9 md:h-9 brightness-150" />
               <span className="text-xl md:text-2xl font-light tracking-[0.2em] text-[#FAF7F2]">
                 CRAZY <span className="text-[#B76E79]">GELS</span>
               </span>
