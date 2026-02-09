@@ -29,6 +29,11 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://crazygels.com'),
   alternates: {
     canonical: 'https://crazygels.com',
+    languages: {
+      'de-DE': 'https://crazygels.com',
+      'en': 'https://crazygels.com',
+      'x-default': 'https://crazygels.com',
+    },
   },
   openGraph: {
     title: 'Crazy Gels | Premium Semi-Cured Gel Nails, Hair & Skin Care',
@@ -43,7 +48,7 @@ export const metadata: Metadata = {
         alt: 'Crazy Gels - Premium Beauty Products',
       },
     ],
-    locale: 'en_US',
+    locale: 'de_DE',
     type: 'website',
   },
   twitter: {
@@ -134,7 +139,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="de">
       <head>
         <script
           type="application/ld+json"
