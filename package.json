@@ -72,6 +72,9 @@
     "ios_saf >= 14.5",
     "samsung >= 14"
   ],
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp"]
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
     "@types/node": "^22",
