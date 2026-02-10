@@ -5,6 +5,7 @@ import { getProduct, getCollectionProducts, isShopifyConfigured } from '@/lib/sh
 import { ProductGallery } from '@/components/products/product-gallery';
 import { ProductInfo } from '@/components/products/product-info';
 import { buildSeoTitle, buildSeoDescription, buildProductJsonLd, buildBreadcrumbJsonLd } from '@/lib/seo';
+import { formatPrice } from '@/lib/utils';
 import { ProductViewTracker } from '@/components/klaviyo/product-view-tracker';
 
 export const revalidate = 300;
@@ -32,7 +33,7 @@ export async function generateMetadata({
   }
 
   const price = product.priceRange?.minVariantPrice?.amount
-    ? new Intl.NumberFormat('en-US', { style: 'currency', currency: product.priceRange.minVariantPrice.currencyCode }).format(parseFloat(product.priceRange.minVariantPrice.amount))
+    ? formatPrice(product.priceRange.minVariantPrice.amount, product.priceRange.minVariantPrice.currencyCode)
     : undefined;
 
   // Use Shopify SEO fields if set, otherwise generate optimized ones
