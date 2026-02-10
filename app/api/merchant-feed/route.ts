@@ -28,21 +28,53 @@ export const maxDuration = 300;
 const BASE_URL = 'https://crazygels.com';
 
 // Google Product Category mappings
+// Aligned to Google Merchant Center trending search topics for Crazy Gels:
+// Skincare (85), Fragrances (54), Shampoo & Conditioner (19), Nail Polish (9),
+// Moisturizing Creams (5), Artificial Nails (3), Toners (2), Conditioners (2)
 const GOOGLE_CATEGORIES: Record<string, string> = {
+  // Nails
   'gel nail wraps': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
   'nail wraps': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
   nails: 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
   'nail accessories': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Manicure & Pedicure Tools',
+  'nail polish': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Nail Polish',
   'uv lamp': 'Health & Beauty > Personal Care > Cosmetics > Cosmetic Tools > Nail Tools',
   'uv light': 'Health & Beauty > Personal Care > Cosmetics > Cosmetic Tools > Nail Tools',
   'nail lamp': 'Health & Beauty > Personal Care > Cosmetics > Cosmetic Tools > Nail Tools',
+  // Hair — Shampoo & Conditioner trending +3.7%
   'hair care': 'Health & Beauty > Personal Care > Hair Care',
   haircare: 'Health & Beauty > Personal Care > Hair Care',
+  shampoo: 'Health & Beauty > Personal Care > Hair Care > Shampoo & Conditioner',
+  conditioner: 'Health & Beauty > Personal Care > Hair Care > Shampoo & Conditioner',
   'hair extensions': 'Health & Beauty > Personal Care > Hair Care > Hair Extensions',
+  'hair mask': 'Health & Beauty > Personal Care > Hair Care > Hair Treatments',
+  // Skincare — trending +1.1%, highest volume
   skincare: 'Health & Beauty > Personal Care > Skin Care',
   'skin care': 'Health & Beauty > Personal Care > Skin Care',
-  treatments: 'Health & Beauty > Personal Care > Skin Care',
+  // Moisturizing creams — trending +5.4%
+  'face cream': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  'moisturizer': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  'moisturizing cream': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  'night cream': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  'day cream': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  'jelly cream': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  // Toners & Essences — trending +5.9%
+  toner: 'Health & Beauty > Personal Care > Skin Care > Toners & Astringents',
+  essence: 'Health & Beauty > Personal Care > Skin Care > Toners & Astringents',
+  'facial toner': 'Health & Beauty > Personal Care > Skin Care > Toners & Astringents',
+  // Face masks
   'collagen masks': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
+  'face mask': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
+  'sheet mask': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
+  // Fragrances — #2 search volume (54 searches)
+  fragrance: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  fragrances: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  perfume: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  parfum: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  'body mist': 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  // Treatments & tools
+  treatments: 'Health & Beauty > Personal Care > Skin Care',
+  serum: 'Health & Beauty > Personal Care > Skin Care > Facial Serums',
   accessories: 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Nail Art Kits & Accessories',
 };
 
