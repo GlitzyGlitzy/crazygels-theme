@@ -3,15 +3,8 @@ import { Suspense } from "react"
 import Link from "next/link"
 import { Heart, ShoppingBag, ArrowRight } from "lucide-react"
 import { getCollections, getCollectionProducts, isShopifyConfigured } from "@/lib/shopify"
-
+import { formatPrice } from "@/lib/utils"
 import { Product, Collection } from "@/lib/shopify/types"
-
-function formatPrice(amount: string, currencyCode: string = "USD"): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode,
-  }).format(parseFloat(amount))
-}
 
 // Product Card Component
 function ProductCard({ product }: { product: Product }) {

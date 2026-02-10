@@ -6,6 +6,18 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Format a price using the Shopify presentment currency.
+ * Uses de-DE locale by default so prices render as "12,99 €" for European customers.
+ * The currencyCode comes directly from the Storefront API response (presentment currency).
+ */
+export function formatPrice(amount: string, currencyCode: string = 'EUR'): string {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: currencyCode,
+  }).format(parseFloat(amount));
+}
+
+/**
  * Intelligently shorten a Shopify product title by removing redundant brand
  * prefixes, filler category words, and excessive separators while keeping the
  * core product name meaningful and readable.

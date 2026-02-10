@@ -3,17 +3,10 @@
 import { useState, useTransition } from 'react';
 import { Product, ProductVariant } from '@/lib/shopify/types';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { Plus, Minus, ShoppingBag, Heart, Share2, Check } from 'lucide-react';
 import { addItemToCart } from '@/lib/shopify/actions';
 import { trackAddedToCart } from '@/lib/klaviyo-client';
-
-function formatPrice(amount: string, currencyCode: string) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(parseFloat(amount));
-}
 
 export function ProductInfo({ product }: { product: Product }) {
   const variants = (product.variants?.edges ?? []).map((edge) => edge.node);
