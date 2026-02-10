@@ -92,13 +92,22 @@ async function CollectionProducts({ handle, priority = false }: { handle: string
   }
 }
 
+// Ordered by Google Merchant Center search volume & trending data:
+// 1. Skincare (85 searches, +1.1%) — highest volume
+// 2. Fragrances (54 searches) — #2 volume, needs dedicated section
+// 3. Shampoo & Conditioner (19 searches, +3.7%) — trending up
+// 4. Gel Nail Wraps — core product category
+// 5. Moisturizing Creams (5 searches, +5.4%) — trending up fast
+// 6. Collagen Masks — existing strong category
+// 7. Toners & Essences (2 searches, +5.9%) — fastest trending
+// 8. Treatments — existing category
 const HOMEPAGE_COLLECTIONS = [
-  { handle: "gel-nail-wraps", title: "Gel Nail Wraps", bg: "bg-white" },
-  { handle: "french-styles", title: "French Styles", bg: "bg-[#FAFAF8]" },
-  { handle: "haircare", title: "Haircare", bg: "bg-white" },
-  { handle: "skincare", title: "Skincare", bg: "bg-[#FAFAF8]" },
-  { handle: "collagen-masks", title: "Collagen Masks", bg: "bg-white" },
-  { handle: "treatments", title: "Treatments", bg: "bg-[#FAFAF8]" },
+  { handle: "skincare", title: "Skincare", bg: "bg-white" },
+  { handle: "fragrances", title: "Fragrances & Perfumes", bg: "bg-[#FAFAF8]" },
+  { handle: "haircare", title: "Shampoo, Conditioner & Hair Care", bg: "bg-white" },
+  { handle: "gel-nail-wraps", title: "Gel Nail Wraps", bg: "bg-[#FAFAF8]" },
+  { handle: "collagen-masks", title: "Moisturizing Creams & Face Masks", bg: "bg-white" },
+  { handle: "treatments", title: "Treatments & Tools", bg: "bg-[#FAFAF8]" },
 ]
 
 export default function HomePage() {
