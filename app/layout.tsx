@@ -120,7 +120,7 @@ const websiteJsonLd = {
   url: 'https://crazygels.com',
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://crazygels.com/search?q={search_term_string}',
+    target: 'https://crazygels.com/collections?q={search_term_string}',
     'query-input': 'required name=search_term_string',
   },
 };

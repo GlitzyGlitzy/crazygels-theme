@@ -12,39 +12,8 @@ const nextConfig = {
   async redirects() {
     return [
       // ── Locale prefixes ──────────────────────────────────────
-      // Old Shopify locale prefix URLs (e.g. /en, /en/products/...)
-      {
-        source: '/en',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/en/:path*',
-        destination: '/:path*',
-        permanent: true,
-      },
-      // German locale prefix
-      {
-        source: '/de',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/de/:path*',
-        destination: '/:path*',
-        permanent: true,
-      },
-      // French locale prefix
-      {
-        source: '/fr',
-        destination: '/',
-        permanent: true,
-      },
-      {
-        source: '/fr/:path*',
-        destination: '/:path*',
-        permanent: true,
-      },
+      // ALL old Shopify locale prefix URLs (/en, /de, /fr, /fi, /it, /es, etc.)
+      // are handled by middleware.ts — no individual rules needed here.
 
       // ── Shopify "all products" collection ────────────────────
       // /collections/all is Shopify's default "show everything" page

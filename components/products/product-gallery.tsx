@@ -59,7 +59,7 @@ export function ProductGallery({ product }: { product: Product }) {
       >
         <img
           src={currentImage.url}
-          alt={currentImage.altText || product.title}
+          alt={currentImage.altText || `${product.title} - ${product.productType || 'Beauty Product'} | Crazy Gels`}
           className={cn(
             'absolute inset-0 w-full h-full object-cover transition-transform duration-500',
             isZoomed ? 'scale-150 cursor-zoom-out' : 'cursor-zoom-in'
@@ -145,7 +145,7 @@ export function ProductGallery({ product }: { product: Product }) {
               >
                 <img
                   src={image.url}
-                  alt={image.altText || `${product.title} - Image ${index + 1}`}
+                  alt={image.altText || `${product.title} - ${product.productType || 'Beauty Product'} view ${index + 1}`}
                   className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
                 />
