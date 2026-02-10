@@ -9,6 +9,31 @@ const nextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async redirects() {
+    return [
+      // Old Shopify URLs indexed by Google
+      {
+        source: '/all',
+        destination: '/collections',
+        permanent: true,
+      },
+      {
+        source: '/blogs/:blogHandle',
+        destination: '/blog',
+        permanent: true,
+      },
+      {
+        source: '/blogs/:blogHandle/:articleHandle',
+        destination: '/blog/:blogHandle/:articleHandle',
+        permanent: true,
+      },
+      {
+        source: '/pages/:slug',
+        destination: '/',
+        permanent: true,
+      },
+    ]
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
