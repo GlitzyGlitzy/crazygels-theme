@@ -20,6 +20,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Note: /search is not listed here because it redirects to /collections
   ];
 
+  // Subcategory landing pages matching top Google Merchant Center search topics.
+  // These filtered views help Google discover and index our best-performing categories.
+  const subcategoryPages: MetadataRoute.Sitemap = [
+    // Skincare subcategories (85 searches, trending +1.1%)
+    { url: `${BASE_URL}/collections/skincare?subcategory=face-cream`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/collections/skincare?subcategory=toners`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/collections/skincare?subcategory=serums`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/collections/skincare?subcategory=face-masks`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/collections/skincare?subcategory=wash-gels`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE_URL}/collections/skincare?subcategory=body-care`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    // Haircare subcategories (Shampoo & Conditioner: 19 searches, trending +3.7%)
+    { url: `${BASE_URL}/collections/haircare?subcategory=shampoo`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/collections/haircare?subcategory=conditioner`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${BASE_URL}/collections/haircare?subcategory=hair-masks`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE_URL}/collections/haircare?subcategory=oils-serums`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    // Nails subcategories (Nail Polish: 9 searches, Artificial Nails: 3 searches)
+    { url: `${BASE_URL}/collections/gel-nail-wraps?subcategory=french-tips`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE_URL}/collections/gel-nail-wraps?subcategory=solid-colors`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+  ];
+
   if (!isShopifyConfigured) {
     return staticPages;
   }
@@ -76,5 +96,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Sitemap: blogs fetch failed', e);
   }
 
-  return [...staticPages, ...collectionPages, ...productPages, ...blogPages];
+  return [...staticPages, ...subcategoryPages, ...collectionPages, ...productPages, ...blogPages];
 }

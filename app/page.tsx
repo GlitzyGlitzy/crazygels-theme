@@ -60,7 +60,8 @@ function ProductGridSkeleton({ count = 4 }: { count?: number }) {
 
 // Keywords for virtual collections that don't exist as Shopify collections
 const VIRTUAL_KEYWORDS: Record<string, string[]> = {
-  'collagen-masks': ['collagen', 'mask', 'face mask', 'overnight mask', 'sleeping mask', 'sheet mask'],
+  'collagen-masks': ['collagen', 'mask', 'face mask', 'overnight mask', 'sleeping mask', 'sheet mask', 'moisturizing cream', 'moisturizer', 'face cream', 'night cream', 'day cream'],
+  'fragrances': ['fragrance', 'perfume', 'parfum', 'eau de', 'body mist', 'scent', 'cologne', 'duft'],
 }
 
 async function CollectionProducts({ handle, priority = false }: { handle: string; priority?: boolean }) {

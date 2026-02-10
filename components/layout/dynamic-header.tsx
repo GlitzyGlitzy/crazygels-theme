@@ -49,6 +49,16 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
+    label: "Fragrances",
+    href: "/collections/fragrances",
+    submenu: [
+      { label: "All Fragrances", href: "/collections/fragrances" },
+      { label: "Perfumes", href: "/collections/fragrances?subcategory=perfumes" },
+      { label: "Body Mists", href: "/collections/fragrances?subcategory=body-mists" },
+      { label: "Gift Sets", href: "/collections/fragrances?subcategory=gift-sets" },
+    ],
+  },
+  {
     label: "Treatments",
     href: "/collections/treatments",
     submenu: [

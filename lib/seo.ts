@@ -6,7 +6,11 @@
  */
 
 // Keyword mappings by product type for SEO-rich titles
+// Aligned to Google Merchant Center trending categories:
+// Skincare (85), Fragrances (54), Shampoo & Conditioner (19), Nail Polish (9),
+// Moisturizing Creams (5), Artificial Nails (3), Toners (2), Conditioners (2)
 const PRODUCT_TYPE_KEYWORDS: Record<string, { suffix: string; category: string; keywords: string[] }> = {
+  // -- Nails --
   'gel nail wraps': {
     suffix: 'Semi-Cured Gel Nail Strips',
     category: 'Nails',
@@ -27,6 +31,12 @@ const PRODUCT_TYPE_KEYWORDS: Record<string, { suffix: string; category: string; 
     category: 'Nails',
     keywords: ['nail tools', 'nail art accessories', 'gel nail kit', 'UV lamp'],
   },
+  'nail polish': {
+    suffix: 'Nail Polish',
+    category: 'Nails',
+    keywords: ['nail polish', 'nail lacquer', 'gel polish', 'nail color'],
+  },
+  // -- Hair (Shampoo & Conditioner trending +3.7%) --
   'hair care': {
     suffix: 'Premium Hair Care',
     category: 'Hair',
@@ -37,11 +47,22 @@ const PRODUCT_TYPE_KEYWORDS: Record<string, { suffix: string; category: string; 
     category: 'Hair',
     keywords: ['hair care', 'hair treatment', 'healthy hair', 'hair products'],
   },
+  shampoo: {
+    suffix: 'Premium Shampoo',
+    category: 'Hair',
+    keywords: ['shampoo', 'hair wash', 'hair cleansing', 'sulfate-free shampoo'],
+  },
+  conditioner: {
+    suffix: 'Premium Conditioner',
+    category: 'Hair',
+    keywords: ['conditioner', 'hair conditioner', 'deep conditioner', 'moisturizing conditioner'],
+  },
   'hair extensions': {
     suffix: 'Natural Hair Extensions',
     category: 'Hair',
     keywords: ['hair extensions', 'clip in extensions', 'real hair extensions'],
   },
+  // -- Skincare (highest volume: 85 searches) --
   skincare: {
     suffix: 'Luxury Skincare',
     category: 'Skin',
@@ -52,10 +73,54 @@ const PRODUCT_TYPE_KEYWORDS: Record<string, { suffix: string; category: string; 
     category: 'Skin',
     keywords: ['skincare', 'face treatment', 'skin treatment', 'beauty products'],
   },
+  // -- Moisturizing Creams (trending +5.4%) --
+  'face cream': {
+    suffix: 'Moisturizing Face Cream',
+    category: 'Skin',
+    keywords: ['face cream', 'moisturizer', 'moisturizing cream', 'hydrating cream', 'anti-aging cream'],
+  },
+  'jelly cream': {
+    suffix: 'Collagen Jelly Cream',
+    category: 'Skin',
+    keywords: ['jelly cream', 'collagen cream', 'moisturizing cream', 'face cream', 'lightweight moisturizer'],
+  },
+  // -- Toners & Essences (fastest trending +5.9%) --
+  toner: {
+    suffix: 'Facial Toner',
+    category: 'Skin',
+    keywords: ['toner', 'facial toner', 'face toner', 'skin toner', 'essence'],
+  },
+  essence: {
+    suffix: 'Facial Essence',
+    category: 'Skin',
+    keywords: ['essence', 'facial essence', 'skin essence', 'hydrating essence'],
+  },
+  // -- Fragrances (#2 search volume: 54 searches) --
+  fragrance: {
+    suffix: 'Premium Fragrance',
+    category: 'Fragrances',
+    keywords: ['fragrance', 'perfume', 'scent', 'eau de parfum', 'body mist'],
+  },
+  fragrances: {
+    suffix: 'Premium Fragrance',
+    category: 'Fragrances',
+    keywords: ['fragrances', 'perfume', 'perfumes', 'scent', 'eau de toilette'],
+  },
+  perfume: {
+    suffix: 'Luxury Perfume',
+    category: 'Fragrances',
+    keywords: ['perfume', 'fragrance', 'eau de parfum', 'luxury perfume'],
+  },
+  // -- Treatments & Others --
   treatments: {
     suffix: 'Beauty Treatment',
     category: 'Treatments',
     keywords: ['beauty treatment', 'spa treatment', 'professional beauty tools'],
+  },
+  serum: {
+    suffix: 'Facial Serum',
+    category: 'Skin',
+    keywords: ['serum', 'face serum', 'facial serum', 'anti-aging serum', 'vitamin C serum'],
   },
   'collagen masks': {
     suffix: 'Collagen Face Mask',
@@ -118,6 +183,10 @@ export function buildSeoDescription(
       const desc = `Shop ${title} at Crazy Gels.${priceStr} Luxury skincare crafted with premium ingredients for radiant results. Free shipping over $50.`;
       if (desc.length <= 160) return desc;
     }
+    if (category === 'fragrances') {
+      const desc = `Shop ${title} at Crazy Gels.${priceStr} Premium fragrances and perfumes for every occasion. Free shipping on orders over $50.`;
+      if (desc.length <= 160) return desc;
+    }
   }
 
   // Fallback: use product description trimmed to 155 chars + CTA
@@ -135,17 +204,35 @@ export function buildSeoDescription(
  * @see https://www.google.com/basepages/producttype/taxonomy-with-ids.en-US.txt
  */
 const GOOGLE_PRODUCT_CATEGORIES: Record<string, string> = {
+  // Nails
   'gel nail wraps': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
   'nail wraps': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
   nails: 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Artificial Nails & Accessories',
   'nail accessories': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Nail Tools',
+  'nail polish': 'Health & Beauty > Personal Care > Cosmetics > Nail Care > Nail Polish',
+  // Hair
   'hair care': 'Health & Beauty > Personal Care > Hair Care',
   haircare: 'Health & Beauty > Personal Care > Hair Care',
+  shampoo: 'Health & Beauty > Personal Care > Hair Care > Shampoo & Conditioner',
+  conditioner: 'Health & Beauty > Personal Care > Hair Care > Shampoo & Conditioner',
   'hair extensions': 'Health & Beauty > Personal Care > Hair Care > Hair Extensions',
+  // Skincare
   skincare: 'Health & Beauty > Personal Care > Skin Care',
   'skin care': 'Health & Beauty > Personal Care > Skin Care',
-  treatments: 'Health & Beauty > Personal Care > Skin Care',
+  'face cream': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  'jelly cream': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  'moisturizer': 'Health & Beauty > Personal Care > Skin Care > Facial Moisturizers',
+  toner: 'Health & Beauty > Personal Care > Skin Care > Toners & Astringents',
+  essence: 'Health & Beauty > Personal Care > Skin Care > Toners & Astringents',
+  serum: 'Health & Beauty > Personal Care > Skin Care > Facial Serums',
   'collagen masks': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
+  'face mask': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
+  // Fragrances
+  fragrance: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  fragrances: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  perfume: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
+  // Treatments
+  treatments: 'Health & Beauty > Personal Care > Skin Care',
 };
 
 /**
