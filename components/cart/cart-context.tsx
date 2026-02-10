@@ -71,7 +71,7 @@ function cartReducer(state: Cart | undefined, action: CartAction): Cart | undefi
         id: `temp-${Date.now()}`,
         quantity: 1,
         cost: {
-          totalAmount: { amount: '0', currencyCode: 'USD' },
+          totalAmount: { amount: '0', currencyCode: 'EUR' },
         },
         merchandise: {
           ...variant,

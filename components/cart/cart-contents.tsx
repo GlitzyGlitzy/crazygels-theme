@@ -5,14 +5,8 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Cart } from '@/lib/shopify/types';
 import { removeItemFromCart, updateItemQuantity } from '@/lib/shopify/actions';
+import { formatPrice } from '@/lib/utils';
 import { Plus, Minus, Trash2, Loader2 } from 'lucide-react';
-
-function formatPrice(amount: string, currencyCode: string = 'USD') {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(parseFloat(amount));
-}
 
 function CartLineItem({ 
   item, 

@@ -121,8 +121,8 @@ export interface ProductCatalog {
   allProducts: CatalogProduct[]
 }
 
-function formatPrice(amount: string, currencyCode: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
+function formatPrice(amount: string, currencyCode: string = 'EUR'): string {
+  return new Intl.NumberFormat('de-DE', {
     style: 'currency',
     currency: currencyCode,
   }).format(parseFloat(amount))

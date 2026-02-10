@@ -1,13 +1,6 @@
 import Link from 'next/link';
 import { Product } from '@/lib/shopify/types';
-import { shortenProductTitle } from '@/lib/utils';
-
-function formatPrice(amount: string, currencyCode: string = 'USD'): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(parseFloat(amount));
-}
+import { shortenProductTitle, formatPrice } from '@/lib/utils';
 
 export function ProductCard({ product }: { product: Product }) {
   const { handle, title, featuredImage, priceRange, variants, availableForSale } = product;

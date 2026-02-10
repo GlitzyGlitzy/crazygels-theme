@@ -3,18 +3,12 @@ import Link from "next/link"
 import { Star, ArrowRight, Truck, Shield, RefreshCw } from "lucide-react"
 import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
+import { formatPrice } from "@/lib/utils"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
 
 
 export const revalidate = 300
-
-function formatPrice(amount: string, currencyCode: string = "USD"): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: currencyCode,
-  }).format(parseFloat(amount))
-}
 
 function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
   const price = product.priceRange?.minVariantPrice

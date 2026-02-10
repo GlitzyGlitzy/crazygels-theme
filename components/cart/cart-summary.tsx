@@ -3,14 +3,8 @@
 import { useState } from 'react';
 import { Cart } from '@/lib/shopify/types';
 import { Button } from '@/components/ui/button';
+import { formatPrice } from '@/lib/utils';
 import { Tag, ChevronRight, CreditCard, Shield } from 'lucide-react';
-
-function formatPrice(amount: string, currencyCode: string = 'USD') {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currencyCode,
-  }).format(parseFloat(amount));
-}
 
 export function CartSummary({ cart }: { cart: Cart }) {
   const [promoCode, setPromoCode] = useState('');
