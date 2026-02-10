@@ -11,12 +11,24 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      // Old Shopify URLs indexed by Google
+      // Old Shopify locale prefix URLs (e.g. /en, /en/products/...)
       {
-        source: '/all',
-        destination: '/collections',
+        source: '/en',
+        destination: '/',
         permanent: true,
       },
+      {
+        source: '/en/:path*',
+        destination: '/:path*',
+        permanent: true,
+      },
+      // Old Shopify /all products page
+      {
+        source: '/all',
+        destination: '/',
+        permanent: true,
+      },
+      // Old Shopify blog URLs
       {
         source: '/blogs/:blogHandle',
         destination: '/blog',
@@ -27,6 +39,7 @@ const nextConfig = {
         destination: '/blog/:blogHandle/:articleHandle',
         permanent: true,
       },
+      // Old Shopify pages
       {
         source: '/pages/:slug',
         destination: '/',
