@@ -117,6 +117,9 @@ export async function GET() {
     for (const product of products) {
       const p = product;
 
+      // Skip products without a valid handle or title (causes "Product page unavailable")
+      if (!p.handle || !p.title) continue;
+
       const googleCategory = getGoogleCategory(p.productType || '', p.title);
       const description = stripHtml(p.description || p.title).slice(0, 5000);
       const seoTitle = buildSeoTitle(p.title, p.productType);
@@ -195,79 +198,98 @@ ${color ? `      <g:color>${escapeXml(color)}</g:color>\n` : ''}${size ? `      
 ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:item_group_id>\n` : ''}      <g:identifier_exists>false</g:identifier_exists>
       <g:shipping>
         <g:country>DE</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>AT</g:country>
-        <g:price>0 EUR</g:price>
-      </g:shipping>
-      <g:shipping>
-        <g:country>CH</g:country>
-        <g:price>0 CHF</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>FR</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>NL</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>BE</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>IT</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>ES</g:country>
-        <g:price>0 EUR</g:price>
-      </g:shipping>
-      <g:shipping>
-        <g:country>PL</g:country>
-        <g:price>0 EUR</g:price>
-      </g:shipping>
-      <g:shipping>
-        <g:country>IE</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>PT</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>GR</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
         <g:country>FI</g:country>
-        <g:price>0 EUR</g:price>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
-        <g:country>SE</g:country>
-        <g:price>0 SEK</g:price>
+        <g:country>IE</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
-        <g:country>DK</g:country>
-        <g:price>0 DKK</g:price>
+        <g:country>LU</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
-        <g:country>US</g:country>
-        <g:price>0 USD</g:price>
+        <g:country>SK</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
-        <g:country>CA</g:country>
-        <g:price>0 CAD</g:price>
+        <g:country>SI</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
-        <g:country>GB</g:country>
-        <g:price>0 GBP</g:price>
+        <g:country>EE</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:shipping>
-        <g:country>AU</g:country>
-        <g:price>0 AUD</g:price>
+        <g:country>LV</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>LT</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>MT</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CY</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
       </g:shipping>
       <g:tax>
         <g:country>DE</g:country>
