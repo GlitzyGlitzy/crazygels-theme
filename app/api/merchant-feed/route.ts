@@ -291,6 +291,76 @@ ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:ite
         <g:service>Standard</g:service>
         <g:price>0.00 EUR</g:price>
       </g:shipping>
+      <g:shipping>
+        <g:country>US</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>GB</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CH</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>SE</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>DK</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>PL</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CZ</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>HU</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>RO</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>BG</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>HR</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>CA</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>AU</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>NO</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
       <g:tax>
         <g:country>DE</g:country>
         <g:tax_ship>yes</g:tax_ship>
