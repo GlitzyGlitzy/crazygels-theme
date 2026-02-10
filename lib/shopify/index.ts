@@ -14,17 +14,20 @@ import {
   ShopifyBlogArticle,
 } from './types';
 
-// Get env vars - check they exist and aren't 'undefined' string
+// Default country for @inContext directive (Germany = primary market)
+// Shopify returns presentment prices for this country's market
+const DEFAULT_COUNTRY = 'DE';
+
 const rawDomain = process.env.SHOPIFY_STORE_DOMAIN || process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const rawToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 
-// Validate that values are real (not undefined, not empty, not 'undefined' string)
-const domain = rawDomain && rawDomain !== 'undefined' && rawDomain.trim().length > 0 
-  ? rawDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '') // Remove protocol and trailing slash
-  : '';
-const storefrontAccessToken = rawToken && rawToken !== 'undefined' && rawToken.trim().length > 0 ? rawToken.trim() : '';
+const domain =
+  rawDomain && rawDomain !== 'undefined' && rawDomain.trim().length > 0
+    ? rawDomain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '')
+    : '';
+const storefrontAccessToken =
+  rawToken && rawToken !== 'undefined' && rawToken.trim().length > 0 ? rawToken.trim() : '';
 
-// Check if Shopify is configured - must have both domain and token with actual valid values
 const hasValidDomain = domain.includes('myshopify.com');
 const hasValidToken = storefrontAccessToken.length > 20;
 
@@ -34,16 +37,16 @@ const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_E
 
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
-// Simple in-memory rate limiter
 let lastRequestTime = 0;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const requestQueue: (() => void)[] = [];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let isProcessingQueue = false;
 
 async function waitForRateLimit(): Promise<void> {
   const now = Date.now();
   const timeSinceLastRequest = now - lastRequestTime;
   const minInterval = 1000 / RATE_LIMIT.MAX_REQUESTS_PER_SECOND;
-
   if (timeSinceLastRequest < minInterval) {
     await new Promise((resolve) => setTimeout(resolve, minInterval - timeSinceLastRequest));
   }
@@ -69,7 +72,6 @@ export async function shopifyFetch<T>({
   variables?: ExtractVariables<T>;
   revalidate?: number;
 }): Promise<{ status: number; body: T } | never> {
-  // Check if Shopify is configured
   if (!isShopifyConfigured) {
     throw new Error(
       'Shopify is not configured. Please add SHOPIFY_STORE_DOMAIN and SHOPIFY_STOREFRONT_ACCESS_TOKEN environment variables.'
@@ -80,7 +82,6 @@ export async function shopifyFetch<T>({
 
   for (let attempt = 0; attempt < RATE_LIMIT.MAX_RETRIES; attempt++) {
     try {
-      // Wait for rate limit before making request
       await waitForRateLimit();
 
       const result = await fetch(endpoint, {
@@ -100,10 +101,11 @@ export async function shopifyFetch<T>({
           : {}),
       });
 
-      // Handle rate limiting (429 status)
       if (result.status === 429) {
         const retryAfter = result.headers.get('Retry-After');
-        const waitTime = retryAfter ? parseInt(retryAfter, 10) * 1000 : RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1);
+        const waitTime = retryAfter
+          ? parseInt(retryAfter, 10) * 1000
+          : RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1);
         console.warn(`Shopify rate limited. Waiting ${waitTime}ms before retry...`);
         await sleep(waitTime);
         continue;
@@ -112,9 +114,8 @@ export async function shopifyFetch<T>({
       const body = await result.json();
 
       if (body.errors) {
-        // Check if it's a throttling error
-        const throttleError = body.errors.find((e: { message?: string }) => 
-          e.message?.toLowerCase().includes('throttled')
+        const throttleError = body.errors.find(
+          (e: { message?: string }) => e.message?.toLowerCase().includes('throttled')
         );
         if (throttleError) {
           await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
@@ -123,28 +124,20 @@ export async function shopifyFetch<T>({
         throw body.errors[0];
       }
 
-      return {
-        status: result.status,
-        body,
-      };
+      return { status: result.status, body };
     } catch (e) {
       lastError = e as Error;
-      
       if (attempt < RATE_LIMIT.MAX_RETRIES - 1) {
         await sleep(RATE_LIMIT.RETRY_DELAY_MS * (attempt + 1));
       }
     }
   }
 
-  // Don't throw loud errors when Shopify isn't configured
   if (!isShopifyConfigured) {
     throw new Error('Shopify not configured');
   }
 
-  throw {
-    error: lastError,
-    query,
-  };
+  throw { error: lastError, query };
 }
 
 const removeEdgesAndNodes = <T>(array: Connection<T>): T[] => {
@@ -159,60 +152,48 @@ const reshapeImages = (images: Connection<Image>, productTitle: string): Image[]
   }));
 };
 
-const reshapeProduct = (product: ShopifyProduct, filterHiddenProducts: boolean = true): Product | undefined => {
+const reshapeProduct = (
+  product: ShopifyProduct,
+  filterHiddenProducts: boolean = true
+): Product | undefined => {
   if (!product) return undefined;
-  
-  // Safely check tags - might be undefined or not an array
   const tags = product.tags || [];
   if (filterHiddenProducts && Array.isArray(tags) && tags.includes('nextjs-frontend-hidden')) {
     return undefined;
   }
-
   const { images, variants, ...rest } = product;
-
   return {
     ...rest,
     images: reshapeImages(images, product.title),
-    variants: {
-      ...variants,
-      edges: variants.edges,
-      pageInfo: variants.pageInfo,
-    },
+    variants: { ...variants, edges: variants.edges, pageInfo: variants.pageInfo },
   };
 };
 
 const reshapeProducts = (products: ShopifyProduct[]): Product[] => {
-  const reshapedProducts = [];
+  const reshapedProducts: Product[] = [];
   for (const product of products) {
     const reshapedProduct = reshapeProduct(product);
-    if (reshapedProduct) {
-      reshapedProducts.push(reshapedProduct);
-    }
+    if (reshapedProduct) reshapedProducts.push(reshapedProduct);
   }
   return reshapedProducts;
 };
 
 const reshapeCollection = (collection: ShopifyCollection): Collection | undefined => {
   if (!collection) return undefined;
-  return {
-    ...collection,
-  };
+  return { ...collection };
 };
 
 const reshapeCollections = (collections: ShopifyCollection[]): Collection[] => {
-  const reshapedCollections = [];
+  const reshapedCollections: Collection[] = [];
   for (const collection of collections) {
-    const reshapedCollection = reshapeCollection(collection);
-    if (reshapedCollection) {
-      reshapedCollections.push(reshapedCollection);
-    }
+    const rc = reshapeCollection(collection);
+    if (rc) reshapedCollections.push(rc);
   }
   return reshapedCollections;
 };
 
-// GraphQL Fragments
+/* ─── GraphQL Fragments ─── */
 
-// Full fragment for single product detail pages
 const productFragment = /* GraphQL */ `
   fragment product on Product {
     id
@@ -302,7 +283,6 @@ const productFragment = /* GraphQL */ `
   }
 `;
 
-// Lightweight fragment for product list/grid views (keeps responses under 2MB)
 const productListFragment = /* GraphQL */ `
   fragment productList on Product {
     id
@@ -400,9 +380,10 @@ const collectionFragment = /* GraphQL */ `
   }
 `;
 
-// Queries
+/* ─── Queries — all use @inContext(country:) for presentment currency ─── */
+
 const getProductQuery = /* GraphQL */ `
-  query getProduct($handle: String!) {
+  query getProduct($handle: String!, $country: CountryCode) @inContext(country: $country) {
     product(handle: $handle) {
       ...product
     }
@@ -411,7 +392,7 @@ const getProductQuery = /* GraphQL */ `
 `;
 
 const getProductsQuery = /* GraphQL */ `
-  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int, $after: String) {
+  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int, $after: String, $country: CountryCode) @inContext(country: $country) {
     products(sortKey: $sortKey, reverse: $reverse, query: $query, first: $first, after: $after) {
       edges {
         node {
@@ -430,7 +411,7 @@ const getProductsQuery = /* GraphQL */ `
 `;
 
 const getCollectionQuery = /* GraphQL */ `
-  query getCollection($handle: String!) {
+  query getCollection($handle: String!, $country: CountryCode) @inContext(country: $country) {
     collection(handle: $handle) {
       ...collection
     }
@@ -439,7 +420,7 @@ const getCollectionQuery = /* GraphQL */ `
 `;
 
 const getCollectionsQuery = /* GraphQL */ `
-  query getCollections($first: Int = 100, $after: String) {
+  query getCollections($first: Int = 100, $after: String, $country: CountryCode) @inContext(country: $country) {
     collections(first: $first, sortKey: TITLE, after: $after) {
       edges {
         node {
@@ -458,7 +439,7 @@ const getCollectionsQuery = /* GraphQL */ `
 `;
 
 const getCollectionProductsQuery = /* GraphQL */ `
-  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int, $after: String) {
+  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int, $after: String, $country: CountryCode) @inContext(country: $country) {
     collection(handle: $handle) {
       products(sortKey: $sortKey, reverse: $reverse, first: $first, after: $after) {
         edges {
@@ -478,9 +459,8 @@ const getCollectionProductsQuery = /* GraphQL */ `
   ${productFragment}
 `;
 
-// Lightweight queries for list views (to stay under 2MB cache limit)
 const getProductsListQuery = /* GraphQL */ `
-  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int, $after: String) {
+  query getProductsList($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $first: Int, $after: String, $country: CountryCode) @inContext(country: $country) {
     products(sortKey: $sortKey, reverse: $reverse, query: $query, first: $first, after: $after) {
       edges {
         node {
@@ -499,7 +479,7 @@ const getProductsListQuery = /* GraphQL */ `
 `;
 
 const getCollectionProductsListQuery = /* GraphQL */ `
-  query getCollectionProducts($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int, $after: String) {
+  query getCollectionProductsList($handle: String!, $sortKey: ProductCollectionSortKeys, $reverse: Boolean, $first: Int, $after: String, $country: CountryCode) @inContext(country: $country) {
     collection(handle: $handle) {
       products(sortKey: $sortKey, reverse: $reverse, first: $first, after: $after) {
         edges {
@@ -519,12 +499,16 @@ const getCollectionProductsListQuery = /* GraphQL */ `
   ${productListFragment}
 `;
 
-// API Functions with proper caching and rate limit awareness
+/* ─── API Functions ─── */
+
 export async function getProduct(handle: string): Promise<Product | undefined> {
-  const res = await shopifyFetch<{ data: { product: ShopifyProduct }; variables: { handle: string } }>({
+  const res = await shopifyFetch<{
+    data: { product: ShopifyProduct };
+    variables: { handle: string; country: string };
+  }>({
     query: getProductQuery,
     tags: [TAGS.products],
-    variables: { handle },
+    variables: { handle, country: DEFAULT_COUNTRY },
     revalidate: CACHE_TIMES.products,
   });
 
@@ -542,24 +526,26 @@ export async function getProducts({
   sortKey?: string;
   first?: number;
 } = {}): Promise<Product[]> {
-  // Keep page size small to avoid exceeding Next.js 2MB cache limit
   const safeFirst = Math.min(first, 50);
-  
   const res = await shopifyFetch<{
     data: { products: Connection<ShopifyProduct> };
-    variables: { query?: string; reverse?: boolean; sortKey?: string; first?: number };
+    variables: {
+      query?: string;
+      reverse?: boolean;
+      sortKey?: string;
+      first?: number;
+      country: string;
+    };
   }>({
     query: getProductsListQuery,
     tags: [TAGS.products],
-    variables: { query, reverse, sortKey, first: safeFirst },
+    variables: { query, reverse, sortKey, first: safeFirst, country: DEFAULT_COUNTRY },
     revalidate: CACHE_TIMES.products,
   });
 
   return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
 }
 
-// Fetch ALL products using cursor-based pagination
-// Uses lightweight fragment + smaller page size to stay under 2MB cache limit
 export async function getAllProducts({
   query,
   reverse,
@@ -572,30 +558,35 @@ export async function getAllProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  // Keep page size at 50 to stay well under the 2MB Next.js cache limit
   const pageSize = 50;
 
   while (hasNextPage) {
     const res = await shopifyFetch<{
       data: { products: Connection<ShopifyProduct> };
-      variables: { query?: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+      variables: {
+        query?: string;
+        reverse?: boolean;
+        sortKey?: string;
+        first: number;
+        after?: string;
+        country: string;
+      };
     }>({
       query: getProductsListQuery,
       tags: [TAGS.products],
       revalidate: CACHE_TIMES.products,
-      variables: { 
-        query, 
-        reverse, 
-        sortKey, 
+      variables: {
+        query,
+        reverse,
+        sortKey,
         first: pageSize,
-        ...(cursor && { after: cursor })
+        country: DEFAULT_COUNTRY,
+        ...(cursor && { after: cursor }),
       },
     });
 
     const products = res.body.data.products;
-    const pageProducts = removeEdgesAndNodes(products);
-    allProducts.push(...pageProducts);
-    
+    allProducts.push(...removeEdgesAndNodes(products));
     hasNextPage = products.pageInfo.hasNextPage;
     cursor = products.pageInfo.endCursor;
   }
@@ -604,10 +595,13 @@ export async function getAllProducts({
 }
 
 export async function getCollection(handle: string): Promise<Collection | undefined> {
-  const res = await shopifyFetch<{ data: { collection: ShopifyCollection }; variables: { handle: string } }>({
+  const res = await shopifyFetch<{
+    data: { collection: ShopifyCollection };
+    variables: { handle: string; country: string };
+  }>({
     query: getCollectionQuery,
     tags: [TAGS.collections],
-    variables: { handle },
+    variables: { handle, country: DEFAULT_COUNTRY },
     revalidate: CACHE_TIMES.collections,
   });
 
@@ -619,21 +613,19 @@ export async function getCollections(): Promise<Collection[]> {
   let hasNextPage = true;
   let cursor: string | null = null;
 
-  // Paginate through ALL collections with smaller page size
   while (hasNextPage) {
-    const res = await shopifyFetch<{ 
+    const res = await shopifyFetch<{
       data: { collections: Connection<ShopifyCollection> };
-      variables: { first: number; after: string | null };
+      variables: { first: number; after: string | null; country: string };
     }>({
       query: getCollectionsQuery,
       tags: [TAGS.collections],
-      variables: { first: 100, after: cursor },
+      variables: { first: 100, after: cursor, country: DEFAULT_COUNTRY },
       revalidate: CACHE_TIMES.collections,
     });
 
     const collections = res.body.data.collections;
     allCollections = allCollections.concat(removeEdgesAndNodes(collections));
-    
     hasNextPage = collections.pageInfo.hasNextPage;
     cursor = collections.pageInfo.endCursor;
   }
@@ -652,16 +644,20 @@ export async function getCollectionProducts({
   sortKey?: string;
   first?: number;
 }): Promise<Product[]> {
-  // Keep page size small to avoid exceeding Next.js 2MB cache limit
   const safeFirst = Math.min(first, 50);
-  
   const res = await shopifyFetch<{
     data: { collection: { products: Connection<ShopifyProduct> } };
-    variables: { handle: string; reverse?: boolean; sortKey?: string; first?: number };
+    variables: {
+      handle: string;
+      reverse?: boolean;
+      sortKey?: string;
+      first?: number;
+      country: string;
+    };
   }>({
     query: getCollectionProductsListQuery,
     tags: [TAGS.collections, TAGS.products],
-    variables: { handle, reverse, sortKey, first: safeFirst },
+    variables: { handle, reverse, sortKey, first: safeFirst, country: DEFAULT_COUNTRY },
     revalidate: CACHE_TIMES.products,
   });
 
@@ -673,8 +669,6 @@ export async function getCollectionProducts({
   return reshapeProducts(removeEdgesAndNodes(res.body.data.collection.products));
 }
 
-// Fetch ALL products in a collection using cursor-based pagination
-// Uses lightweight fragment + smaller page size to stay under 2MB cache limit
 export async function getAllCollectionProducts({
   handle,
   reverse,
@@ -688,11 +682,18 @@ export async function getAllCollectionProducts({
   let hasNextPage = true;
   let cursor: string | null = null;
   const pageSize = 50;
-  
+
   while (hasNextPage) {
     const res = await shopifyFetch<{
       data: { collection: { products: Connection<ShopifyProduct> } | null };
-      variables: { handle: string; reverse?: boolean; sortKey?: string; first: number; after?: string };
+      variables: {
+        handle: string;
+        reverse?: boolean;
+        sortKey?: string;
+        first: number;
+        after?: string;
+        country: string;
+      };
     }>({
       query: getCollectionProductsListQuery,
       tags: [TAGS.collections, TAGS.products],
@@ -702,18 +703,14 @@ export async function getAllCollectionProducts({
         reverse,
         sortKey,
         first: pageSize,
-        ...(cursor && { after: cursor })
+        country: DEFAULT_COUNTRY,
+        ...(cursor && { after: cursor }),
       },
     });
-  
-  if (!res.body.data.collection) {
-  return [];
-  }
 
+    if (!res.body.data.collection) return [];
     const products = res.body.data.collection.products;
-    const pageProducts = removeEdgesAndNodes(products);
-    allProducts.push(...pageProducts);
-    
+    allProducts.push(...removeEdgesAndNodes(products));
     hasNextPage = products.pageInfo.hasNextPage;
     cursor = products.pageInfo.endCursor;
   }
@@ -721,7 +718,8 @@ export async function getAllCollectionProducts({
   return reshapeProducts(allProducts);
 }
 
-// Blog Operations
+/* ─── Blog Operations ─── */
+
 const articleFragment = /* GraphQL */ `
   fragment article on Article {
     id
@@ -837,17 +835,13 @@ const getBlogQuery = /* GraphQL */ `
 `;
 
 function reshapeArticle(article: ShopifyBlogArticle): BlogArticle {
-  return {
-    ...article,
-    author: article.author || { name: 'Unknown' },
-  };
+  return { ...article, author: article.author || { name: 'Unknown' } };
 }
 
 function reshapeArticles(articles: ShopifyBlogArticle[]): BlogArticle[] {
   return articles.map(reshapeArticle);
 }
 
-// Get all articles with pagination
 export async function getArticles({
   first = 20,
   query,
@@ -872,7 +866,6 @@ export async function getArticles({
   return reshapeArticles(removeEdgesAndNodes(res.body.data.articles));
 }
 
-// Get ALL articles with cursor-based pagination
 export async function getAllArticles({
   query,
   sortKey = 'PUBLISHED_AT',
@@ -890,23 +883,28 @@ export async function getAllArticles({
   while (hasNextPage) {
     const res = await shopifyFetch<{
       data: { articles: Connection<ShopifyBlogArticle> };
-      variables: { first: number; query?: string; sortKey?: string; reverse?: boolean; after?: string };
+      variables: {
+        first: number;
+        query?: string;
+        sortKey?: string;
+        reverse?: boolean;
+        after?: string;
+      };
     }>({
       query: getArticlesQuery,
       tags: [TAGS.collections],
-      variables: { 
-        first: pageSize, 
-        query, 
-        sortKey, 
+      variables: {
+        first: pageSize,
+        query,
+        sortKey,
         reverse,
-        ...(cursor && { after: cursor })
+        ...(cursor && { after: cursor }),
       },
       revalidate: CACHE_TIMES.products,
     });
 
     const articles = res.body.data.articles;
     allArticles.push(...removeEdgesAndNodes(articles));
-    
     hasNextPage = articles.pageInfo.hasNextPage;
     cursor = articles.pageInfo.endCursor;
   }
@@ -914,8 +912,10 @@ export async function getAllArticles({
   return reshapeArticles(allArticles);
 }
 
-// Get single article by handle
-export async function getArticle(blogHandle: string, articleHandle: string): Promise<BlogArticle | null> {
+export async function getArticle(
+  blogHandle: string,
+  articleHandle: string
+): Promise<BlogArticle | null> {
   const res = await shopifyFetch<{
     data: { blog: { articleByHandle: ShopifyBlogArticle | null } | null };
     variables: { blogHandle: string; articleHandle: string };
@@ -926,14 +926,10 @@ export async function getArticle(blogHandle: string, articleHandle: string): Pro
     revalidate: CACHE_TIMES.products,
   });
 
-  if (!res.body.data.blog?.articleByHandle) {
-    return null;
-  }
-
+  if (!res.body.data.blog?.articleByHandle) return null;
   return reshapeArticle(res.body.data.blog.articleByHandle);
 }
 
-// Get all blogs
 export async function getBlogs(first = 10): Promise<Blog[]> {
   const res = await shopifyFetch<{
     data: { blogs: Connection<ShopifyBlog> };
@@ -948,7 +944,6 @@ export async function getBlogs(first = 10): Promise<Blog[]> {
   return removeEdgesAndNodes(res.body.data.blogs);
 }
 
-// Get blog with articles
 export async function getBlog(handle: string, articleCount = 20): Promise<Blog | null> {
   const res = await shopifyFetch<{
     data: { blog: ShopifyBlog | null };
@@ -963,7 +958,6 @@ export async function getBlog(handle: string, articleCount = 20): Promise<Blog |
   return res.body.data.blog;
 }
 
-// Get ALL articles from a specific blog with pagination
 export async function getAllBlogArticles(handle: string): Promise<BlogArticle[]> {
   const allArticles: ShopifyBlogArticle[] = [];
   let hasNextPage = true;
@@ -977,21 +971,13 @@ export async function getAllBlogArticles(handle: string): Promise<BlogArticle[]>
     }>({
       query: getBlogQuery,
       tags: [TAGS.collections],
-      variables: { 
-        handle, 
-        first: pageSize,
-        ...(cursor && { after: cursor })
-      },
+      variables: { handle, first: pageSize, ...(cursor && { after: cursor }) },
       revalidate: CACHE_TIMES.products,
     });
 
-    if (!res.body.data.blog) {
-      return [];
-    }
-
+    if (!res.body.data.blog) return [];
     const articles = res.body.data.blog.articles;
     allArticles.push(...removeEdgesAndNodes(articles));
-    
     hasNextPage = articles.pageInfo.hasNextPage;
     cursor = articles.pageInfo.endCursor;
   }
@@ -999,7 +985,8 @@ export async function getAllBlogArticles(handle: string): Promise<BlogArticle[]>
   return reshapeArticles(allArticles);
 }
 
-// Cart Operations
+/* ─── Cart Operations ─── */
+
 const cartFragment = /* GraphQL */ `
   fragment cart on Cart {
     id
@@ -1120,14 +1107,10 @@ const reshapeCart = (cart: ShopifyCart): Cart => {
   if (!cart.cost?.totalTaxAmount) {
     cart.cost.totalTaxAmount = {
       amount: '0.0',
-      currencyCode: 'USD',
+      currencyCode: 'EUR',
     };
   }
-
-  return {
-    ...cart,
-    lines: cart.lines,
-  };
+  return { ...cart, lines: cart.lines };
 };
 
 export async function createCart(): Promise<Cart> {
@@ -1135,11 +1118,13 @@ export async function createCart(): Promise<Cart> {
     query: createCartMutation,
     cache: 'no-store',
   });
-
   return reshapeCart(res.body.data.cartCreate.cart);
 }
 
-export async function addToCart(cartId: string, lines: { merchandiseId: string; quantity: number }[]): Promise<Cart> {
+export async function addToCart(
+  cartId: string,
+  lines: { merchandiseId: string; quantity: number }[]
+): Promise<Cart> {
   const res = await shopifyFetch<{
     data: { cartLinesAdd: { cart: ShopifyCart } };
     variables: { cartId: string; lines: { merchandiseId: string; quantity: number }[] };
@@ -1148,7 +1133,6 @@ export async function addToCart(cartId: string, lines: { merchandiseId: string; 
     variables: { cartId, lines },
     cache: 'no-store',
   });
-
   return reshapeCart(res.body.data.cartLinesAdd.cart);
 }
 
@@ -1161,7 +1145,6 @@ export async function removeFromCart(cartId: string, lineIds: string[]): Promise
     variables: { cartId, lineIds },
     cache: 'no-store',
   });
-
   return reshapeCart(res.body.data.cartLinesRemove.cart);
 }
 
@@ -1171,30 +1154,30 @@ export async function updateCart(
 ): Promise<Cart> {
   const res = await shopifyFetch<{
     data: { cartLinesUpdate: { cart: ShopifyCart } };
-    variables: { cartId: string; lines: { id: string; merchandiseId: string; quantity: number }[] };
+    variables: {
+      cartId: string;
+      lines: { id: string; merchandiseId: string; quantity: number }[];
+    };
   }>({
     query: updateCartMutation,
     variables: { cartId, lines },
     cache: 'no-store',
   });
-
   return reshapeCart(res.body.data.cartLinesUpdate.cart);
 }
 
 export async function getCart(cartId: string): Promise<Cart | undefined> {
-  const res = await shopifyFetch<{ data: { cart: ShopifyCart }; variables: { cartId: string } }>({
+  const res = await shopifyFetch<{
+    data: { cart: ShopifyCart };
+    variables: { cartId: string };
+  }>({
     query: getCartQuery,
     variables: { cartId },
     tags: [TAGS.cart],
     cache: 'no-store',
   });
-
-  if (!res.body.data.cart) {
-    return undefined;
-  }
-
+  if (!res.body.data.cart) return undefined;
   return reshapeCart(res.body.data.cart);
 }
 
-// Re-export image utilities for convenience
 export * from './image';
