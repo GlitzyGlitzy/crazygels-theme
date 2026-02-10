@@ -24,7 +24,7 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
   'es-mx', 'es-ar', 'en-au', 'en-ca', 'en-nz', 'en-ie', 'en-sg',
 ]);
 
-export function proxy(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Match paths starting with a potential locale prefix: /xx or /xx-xx
