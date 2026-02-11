@@ -310,9 +310,17 @@ export default function SkinConsultPage() {
               )}
             </button>
           </form>
-          <p className="text-center text-[#9B9B9B] text-[11px] mt-3">
-            AI-powered recommendations from your CrazyGels product catalog
-          </p>
+          <div className="flex items-center justify-center gap-4 mt-3">
+            <p className="text-[#9B9B9B] text-[11px]">
+              AI-powered recommendations from your CrazyGels product catalog
+            </p>
+            <Link
+              href="/recommendations"
+              className="text-[11px] text-[#9E6B73] hover:underline whitespace-nowrap"
+            >
+              Browse All Matches
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
