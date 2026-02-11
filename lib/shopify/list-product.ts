@@ -1,4 +1,4 @@
-import pool from "@/lib/db";
+import sql from "@/lib/db";
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN?.replace(
   /^https?:\/\//,
@@ -6,7 +6,6 @@ const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN?.replace(
 ).replace(/\/$/, "");
 const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
 
-// Admin API version - use stable release
 const ADMIN_API_VERSION = "2024-01";
 
 interface CatalogProduct {
@@ -30,7 +29,6 @@ interface SourceIntelligence {
   lead_time_days: number | null;
 }
 
-// Price tier -> retail markup multipliers
 const MARGIN_MAP: Record<string, number> = {
   budget: 2.8,
   mid: 2.5,
@@ -43,7 +41,6 @@ function calculateRetailPrice(
   priceTier: string
 ): string {
   if (!wholesalePrice) {
-    // Default pricing by tier when wholesale is unknown
     const defaults: Record<string, string> = {
       budget: "14.99",
       mid: "24.99",
@@ -54,7 +51,6 @@ function calculateRetailPrice(
   }
   const multiplier = MARGIN_MAP[priceTier] || 2.5;
   const retail = wholesalePrice * multiplier;
-  // Round to .99 pricing
   return (Math.ceil(retail) - 0.01).toFixed(2);
 }
 
@@ -125,32 +121,28 @@ async function shopifyAdminFetch<T>(
 export async function getProductFromCatalog(
   productHash: string
 ): Promise<CatalogProduct> {
-  const result = await pool.query(
-    `SELECT product_hash, display_name, category, product_type, price_tier,
-            efficacy_score, key_actives, suitable_for, contraindications,
-            image_url, description_generated
-     FROM product_catalog WHERE product_hash = $1`,
-    [productHash]
-  );
+  const result = await sql<CatalogProduct[]>`
+    SELECT product_hash, display_name, category, product_type, price_tier,
+           efficacy_score, key_actives, suitable_for, contraindications,
+           image_url, description_generated
+    FROM product_catalog WHERE product_hash = ${productHash}`;
 
-  if (result.rows.length === 0) {
+  if (result.length === 0) {
     throw new Error(`Product not found in catalog: ${productHash}`);
   }
 
-  return result.rows[0] as CatalogProduct;
+  return result[0];
 }
 
 export async function getSourceIntelligence(
   productHash: string
 ): Promise<SourceIntelligence | null> {
-  const result = await pool.query(
-    `SELECT acquisition_lead, wholesale_price, moq, lead_time_days
-     FROM source_intelligence WHERE product_hash = $1
-     ORDER BY created_at DESC LIMIT 1`,
-    [productHash]
-  );
+  const result = await sql<SourceIntelligence[]>`
+    SELECT acquisition_lead, wholesale_price, moq, lead_time_days
+    FROM source_intelligence WHERE product_hash = ${productHash}
+    ORDER BY created_at DESC LIMIT 1`;
 
-  return result.rows.length > 0 ? (result.rows[0] as SourceIntelligence) : null;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function listProduct(productHash: string) {
@@ -162,7 +154,6 @@ export async function listProduct(productHash: string) {
     product.price_tier
   );
 
-  // Create the product via Shopify Admin API
   const shopifyResponse = await shopifyAdminFetch<{
     product: { id: number; handle: string; variants: Array<{ id: number }> };
   }>("/products.json", "POST", {
@@ -179,7 +170,7 @@ export async function listProduct(productHash: string) {
         product.price_tier,
         ...product.suitable_for.map((s) => `skin-${s}`),
       ].join(", "),
-      status: "draft", // Start as draft for review
+      status: "draft",
       variants: [
         {
           price: retailPrice,
@@ -223,24 +214,18 @@ export async function listProduct(productHash: string) {
 
   const shopifyId = String(shopifyResponse.product.id);
 
-  // Update source_intelligence with the Shopify product ID
-  await pool.query(
-    `UPDATE source_intelligence
-     SET listed_on_shopify = TRUE,
-         shopify_product_id = $1,
-         updated_at = NOW()
-     WHERE product_hash = $2`,
-    [shopifyId, productHash]
-  );
+  await sql`
+    UPDATE source_intelligence
+    SET listed_on_shopify = TRUE,
+        shopify_product_id = ${shopifyId},
+        updated_at = NOW()
+    WHERE product_hash = ${productHash}`;
 
-  // Update product_catalog status to 'listed'
-  await pool.query(
-    `UPDATE product_catalog
-     SET status = 'listed',
-         updated_at = NOW()
-     WHERE product_hash = $1`,
-    [productHash]
-  );
+  await sql`
+    UPDATE product_catalog
+    SET status = 'listed',
+        updated_at = NOW()
+    WHERE product_hash = ${productHash}`;
 
   return {
     shopify_product_id: shopifyId,
@@ -254,7 +239,6 @@ export async function updateInventory(
   shopifyProductId: string,
   quantity: number
 ) {
-  // Get the inventory item ID from the variant
   const product = await shopifyAdminFetch<{
     product: {
       variants: Array<{ id: number; inventory_item_id: number }>;
@@ -264,7 +248,6 @@ export async function updateInventory(
   const inventoryItemId = product.product.variants[0]?.inventory_item_id;
   if (!inventoryItemId) throw new Error("No variant found");
 
-  // Get location ID (first active location)
   const locations = await shopifyAdminFetch<{
     locations: Array<{ id: number; active: boolean }>;
   }>("/locations.json");
@@ -272,7 +255,6 @@ export async function updateInventory(
   const activeLocation = locations.locations.find((l) => l.active);
   if (!activeLocation) throw new Error("No active location found");
 
-  // Set inventory level
   await shopifyAdminFetch(
     "/inventory_levels/set.json",
     "POST",
@@ -283,7 +265,6 @@ export async function updateInventory(
     }
   );
 
-  // If quantity > 0, activate the product (publish from draft)
   if (quantity > 0) {
     await shopifyAdminFetch(`/products/${shopifyProductId}.json`, "PUT", {
       product: { id: Number(shopifyProductId), status: "active" },
