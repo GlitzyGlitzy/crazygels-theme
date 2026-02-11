@@ -98,11 +98,11 @@ async function CollectionProducts({
 }
 
 const HOMEPAGE_COLLECTIONS = [
-  { handle: "skincare", title: "Skin Optimization", subtitle: "Barrier repair & cellular renewal" },
-  { handle: "haircare", title: "Scalp & Hair System", subtitle: "Follicle health & growth support" },
-  { handle: "gel-nail-wraps", title: "Nail Intelligence", subtitle: "Keratin quality & structural support" },
-  { handle: "collagen-masks", title: "Collagen Protocols", subtitle: "Deep hydration & protein synthesis" },
-  { handle: "treatments", title: "Bio-Tools & Treatments", subtitle: "Advanced delivery systems" },
+  { handle: "skincare", title: "Skin Optimization", subtitle: "Barrier repair & cellular renewal", image: "/images/categories/skincare.jpg" },
+  { handle: "haircare", title: "Scalp & Hair System", subtitle: "Follicle health & growth support", image: "/images/categories/haircare.jpg" },
+  { handle: "gel-nail-wraps", title: "Nail Intelligence", subtitle: "Keratin quality & structural support", image: "/images/categories/nails.jpg" },
+  { handle: "collagen-masks", title: "Collagen Protocols", subtitle: "Deep hydration & protein synthesis", image: "/images/categories/collagen.jpg" },
+  { handle: "treatments", title: "Bio-Tools & Treatments", subtitle: "Advanced delivery systems", image: "/images/categories/treatments.jpg" },
 ]
 
 export function BioProductsSection() {
@@ -123,15 +123,30 @@ export function BioProductsSection() {
         <div className="space-y-16 md:space-y-24">
           {HOMEPAGE_COLLECTIONS.map((col, index) => (
             <div key={col.handle}>
-              <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-3 mb-6 md:mb-10">
-                <div>
-                  <p className="text-[10px] font-mono tracking-[0.2em] text-[var(--bio-teal)] uppercase mb-1.5">
+              {/* Category banner image */}
+              <Link href={`/collections/${col.handle}`} className="block relative aspect-[3/1] overflow-hidden mb-6 md:mb-8 group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={col.image}
+                  alt={`${col.title} collection`}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  loading={index === 0 ? "eager" : "lazy"}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--bio-dark)] via-[var(--bio-dark)]/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
+                  <p className="text-[10px] font-mono tracking-[0.2em] text-[var(--bio-teal)] uppercase mb-1">
                     {col.subtitle}
                   </p>
                   <h3 className="font-serif text-xl md:text-3xl font-light text-[var(--bio-text)]">
                     {col.title}
                   </h3>
                 </div>
+              </Link>
+
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-[10px] font-mono tracking-[0.15em] text-[var(--bio-text-muted)] uppercase">
+                  Featured Products
+                </p>
                 <Link
                   href={`/collections/${col.handle}`}
                   className="inline-flex items-center gap-2 text-xs font-medium tracking-[0.1em] text-[var(--bio-teal)] uppercase hover:text-[var(--bio-text)] transition-colors"
