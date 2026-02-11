@@ -1,15 +1,15 @@
-import { Pool } from "pg";
+import postgres from "postgres";
 
-const pool = new Pool({
+const sql = postgres({
   host: process.env.RDS_HOST,
   port: parseInt(process.env.RDS_PORT || "5432"),
   database: process.env.RDS_DATABASE || "crazygels",
-  user: process.env.RDS_USER || "scraper_admin",
+  username: process.env.RDS_USER || "admin_crazygels",
   password: process.env.RDS_PASSWORD,
-  ssl: process.env.RDS_SSL === "false" ? false : { rejectUnauthorized: false },
+  ssl: process.env.RDS_SSL === "false" ? false : "require",
   max: 5,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  idle_timeout: 30,
+  connect_timeout: 10,
 });
 
-export default pool;
+export default sql;

@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "@/lib/db";
-
-/**
- * GET /api/admin/demand-signals
- *
- * Returns products from product_catalog ranked by demand signals:
- * - recommendation_count (how often the product appears in recommendations)
- * - vote_count (community votes from the RecommendationGrid)
- * - efficacy_score (our computed score from scraped review data)
- *
- * Protected by ADMIN_TOKEN header.
- */
+import sql from "@/lib/db";
 
 function verifyAdmin(req: NextRequest): boolean {
   const token = req.headers.get("authorization")?.replace("Bearer ", "");
@@ -22,22 +11,21 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const client = await pool.connect();
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status") || "research";
     const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
     const sortBy = searchParams.get("sort") || "efficacy";
 
-    const orderClause =
+    const orderSql =
       sortBy === "votes"
-        ? "COALESCE(pc.vote_count, 0) DESC"
+        ? sql`COALESCE(pc.vote_count, 0) DESC`
         : sortBy === "recommendations"
-          ? "COALESCE(pc.recommendation_count, 0) DESC"
-          : "pc.efficacy_score DESC NULLS LAST";
+          ? sql`COALESCE(pc.recommendation_count, 0) DESC`
+          : sql`pc.efficacy_score DESC NULLS LAST`;
 
-    const result = await client.query(
-      `SELECT
+    const rows = await sql`
+      SELECT
         pc.product_hash,
         pc.display_name,
         pc.category,
@@ -69,22 +57,18 @@ export async function GET(req: NextRequest) {
         si.margin_actual
       FROM product_catalog pc
       LEFT JOIN source_intelligence si ON si.product_hash = pc.product_hash
-      WHERE pc.status = $1
-      ORDER BY ${orderClause}
-      LIMIT $2`,
-      [status, limit]
-    );
+      WHERE pc.status = ${status}
+      ORDER BY ${orderSql}
+      LIMIT ${limit}`;
 
-    // Compute aggregate stats
-    const rows = result.rows;
     const stats = {
       total: rows.length,
-      with_source: rows.filter((r: { has_source: boolean }) => r.has_source).length,
-      high_demand: rows.filter((r: { demand_tier: string }) => r.demand_tier === "high").length,
+      with_source: rows.filter((r: Record<string, unknown>) => r.has_source).length,
+      high_demand: rows.filter((r: Record<string, unknown>) => r.demand_tier === "high").length,
       avg_efficacy:
         rows.length > 0
           ? (
-              rows.reduce((sum: number, r: { efficacy_score: number | null }) => sum + (r.efficacy_score || 0), 0) /
+              rows.reduce((sum: number, r: Record<string, unknown>) => sum + (Number(r.efficacy_score) || 0), 0) /
               rows.length
             ).toFixed(2)
           : 0,
@@ -97,7 +81,5 @@ export async function GET(req: NextRequest) {
       { error: "Failed to fetch demand signals" },
       { status: 500 }
     );
-  } finally {
-    client.release();
   }
 }

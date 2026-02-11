@@ -1,23 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import pool from "@/lib/db";
+import sql from "@/lib/db";
 
-/**
- * POST /api/recommendations
- *
- * Accepts a skin profile and returns blended product recommendations:
- *  - primary:   products listed on Shopify (in stock, fulfillment ready)
- *  - secondary: products being sampled (coming soon, notify-me)
- *  - research:  scraped intelligence matches (vote to fast-track)
- *
- * Body: {
- *   skinProfile: {
- *     concerns: string[]       e.g. ["acne", "dehydration", "aging"]
- *     sensitivities: string[]  e.g. ["fungal_acne", "pregnancy"]
- *     priceTier?: string       e.g. "mid" | "premium"
- *     category?: string        e.g. "serum" | "moisturizer"
- *   }
- * }
- */
 export async function POST(req: NextRequest) {
   try {
     const { skinProfile } = await req.json();
@@ -67,64 +50,92 @@ interface CatalogProduct {
 async function findMatches(
   skinProfile: SkinProfile
 ): Promise<CatalogProduct[]> {
-  const client = await pool.connect();
+  const concerns = skinProfile.concerns;
+  const sensitivities = skinProfile.sensitivities || [];
+  const priceTier = skinProfile.priceTier;
+  const category = skinProfile.category;
 
-  try {
-    const params: (string[] | string)[] = [
-      skinProfile.concerns,
-      skinProfile.sensitivities || [],
-    ];
+  let result: CatalogProduct[];
 
-    let whereExtra = "";
-    let paramIndex = 3;
-
-    if (skinProfile.priceTier) {
-      whereExtra += ` AND price_tier = $${paramIndex}`;
-      params.push(skinProfile.priceTier);
-      paramIndex++;
-    }
-
-    if (skinProfile.category) {
-      whereExtra += ` AND product_type = $${paramIndex}`;
-      params.push(skinProfile.category);
-      paramIndex++;
-    }
-
-    const result = await client.query<CatalogProduct>(
-      `SELECT
-          product_hash,
-          display_name,
-          category,
-          product_type,
-          price_tier,
-          efficacy_score,
-          review_signals,
-          key_actives,
-          suitable_for,
-          image_url,
-          description_generated,
-          status
-        FROM product_catalog
-        WHERE suitable_for && $1
-          AND status IN ('listed', 'sampled', 'research')
-          AND NOT (contraindications && $2)
-          ${whereExtra}
-        ORDER BY
-          CASE
-            WHEN status = 'listed' THEN 1
-            WHEN status = 'sampled' THEN 2
-            ELSE 3
-          END,
-          efficacy_score DESC NULLS LAST,
-          random()
-        LIMIT 20`,
-      params
-    );
-
-    return result.rows;
-  } finally {
-    client.release();
+  if (priceTier && category) {
+    result = await sql<CatalogProduct[]>`
+      SELECT product_hash, display_name, category, product_type, price_tier,
+             efficacy_score, review_signals, key_actives, suitable_for,
+             image_url, description_generated, status
+      FROM product_catalog
+      WHERE suitable_for && ${concerns}
+        AND status IN ('listed', 'sampled', 'research')
+        AND NOT (contraindications && ${sensitivities})
+        AND price_tier = ${priceTier}
+        AND product_type = ${category}
+      ORDER BY
+        CASE
+          WHEN status = 'listed' THEN 1
+          WHEN status = 'sampled' THEN 2
+          ELSE 3
+        END,
+        efficacy_score DESC NULLS LAST,
+        random()
+      LIMIT 20`;
+  } else if (priceTier) {
+    result = await sql<CatalogProduct[]>`
+      SELECT product_hash, display_name, category, product_type, price_tier,
+             efficacy_score, review_signals, key_actives, suitable_for,
+             image_url, description_generated, status
+      FROM product_catalog
+      WHERE suitable_for && ${concerns}
+        AND status IN ('listed', 'sampled', 'research')
+        AND NOT (contraindications && ${sensitivities})
+        AND price_tier = ${priceTier}
+      ORDER BY
+        CASE
+          WHEN status = 'listed' THEN 1
+          WHEN status = 'sampled' THEN 2
+          ELSE 3
+        END,
+        efficacy_score DESC NULLS LAST,
+        random()
+      LIMIT 20`;
+  } else if (category) {
+    result = await sql<CatalogProduct[]>`
+      SELECT product_hash, display_name, category, product_type, price_tier,
+             efficacy_score, review_signals, key_actives, suitable_for,
+             image_url, description_generated, status
+      FROM product_catalog
+      WHERE suitable_for && ${concerns}
+        AND status IN ('listed', 'sampled', 'research')
+        AND NOT (contraindications && ${sensitivities})
+        AND product_type = ${category}
+      ORDER BY
+        CASE
+          WHEN status = 'listed' THEN 1
+          WHEN status = 'sampled' THEN 2
+          ELSE 3
+        END,
+        efficacy_score DESC NULLS LAST,
+        random()
+      LIMIT 20`;
+  } else {
+    result = await sql<CatalogProduct[]>`
+      SELECT product_hash, display_name, category, product_type, price_tier,
+             efficacy_score, review_signals, key_actives, suitable_for,
+             image_url, description_generated, status
+      FROM product_catalog
+      WHERE suitable_for && ${concerns}
+        AND status IN ('listed', 'sampled', 'research')
+        AND NOT (contraindications && ${sensitivities})
+      ORDER BY
+        CASE
+          WHEN status = 'listed' THEN 1
+          WHEN status = 'sampled' THEN 2
+          ELSE 3
+        END,
+        efficacy_score DESC NULLS LAST,
+        random()
+      LIMIT 20`;
   }
+
+  return result;
 }
 
 function blendRecommendations(matches: CatalogProduct[]) {
