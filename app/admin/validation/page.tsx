@@ -258,13 +258,15 @@ export default function ValidationPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#B76E79] transition-colors mb-4"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Home
-          </Link>
+          <div className="flex items-center gap-4 mb-4">
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-2 text-[#2C2C2C]/60 hover:text-[#B76E79] transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              All Admin Tools
+            </Link>
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl md:text-3xl font-light tracking-[0.1em] text-[#2C2C2C]">

@@ -101,10 +101,13 @@ export default function ExportPage() {
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-[#E8E4DE]">
-          <Link href="/" className="text-sm text-[#B76E79] hover:underline">
-            {"<- Back to site"}
-           </Link>
+        <div className="mt-6 pt-4 border-t border-[#E8E4DE] flex items-center justify-between">
+          <Link href="/admin" className="text-sm text-[#B76E79] hover:underline">
+            All Admin Tools
+          </Link>
+          <Link href="/" className="text-sm text-[#6B5B4F] hover:underline">
+            Back to site
+          </Link>
         </div>
       </div>
     </div>

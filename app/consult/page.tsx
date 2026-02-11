@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
-import { Sparkles, Droplets, Wind, ArrowRight, Shield, Clock, Star } from 'lucide-react';
+import { Sparkles, Droplets, Wind, ArrowRight, Shield, Clock, Star, FlaskConical } from 'lucide-react';
 import { buildFaqJsonLd, buildPageBreadcrumbJsonLd } from '@/lib/seo';
 
 export const metadata: Metadata = {
@@ -170,6 +170,31 @@ export default function ConsultPage() {
                 </Link>
               ))}
             </div>
+          </div>
+        </section>
+
+        {/* Browse Recommendations CTA */}
+        <section className="py-12 md:py-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/recommendations"
+              className="group block bg-[#FFFEF9] border border-[#B76E79]/20 rounded-3xl p-8 md:p-10 hover:border-[#B76E79]/50 transition-all duration-300 shadow-sm text-center"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#9E6B73] to-[#6B5B4F] flex items-center justify-center mx-auto mb-6">
+                <FlaskConical className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-medium text-[#2C2C2C] mb-3 group-hover:text-[#B76E79] transition-colors">
+                Browse Product Matches
+              </h2>
+              <p className="text-[#2C2C2C]/60 max-w-lg mx-auto mb-6">
+                Skip the chat and go directly to our product intelligence engine. Select your concerns and see
+                in-stock, coming soon, and community-voted research picks matched to your biology.
+              </p>
+              <span className="inline-flex items-center gap-2 text-[#B76E79] font-medium">
+                Explore Recommendations
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </Link>
           </div>
         </section>
 
