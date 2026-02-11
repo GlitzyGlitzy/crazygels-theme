@@ -104,7 +104,7 @@ export default function ExportPage() {
         <div className="mt-6 pt-4 border-t border-[#E8E4DE]">
           <Link href="/" className="text-sm text-[#B76E79] hover:underline">
             {"<- Back to site"}
-          </Link>
+           </Link>
         </div>
       </div>
     </div>
