@@ -15,9 +15,9 @@ const _cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: 'Crazy Gels | Premium Semi-Cured Gel Nails, Hair & Skin Care',
-  description: 'Shop salon-quality semi-cured gel nails, premium hair extensions & skincare products. Easy DIY application, lasts 2+ weeks, zero damage. Free shipping on orders over $50. Trusted by 50K+ customers.',
-  keywords: 'semi-cured gel nails, press on nails, gel nail strips, hair extensions, hair care, skincare, beauty products, nail art, French tips, DIY nails, salon nails at home',
+  title: 'Crazy Gels | Biohacking Beauty — AI-Powered Skin, Hair & Nail Optimization',
+  description: 'The first biohacking platform that treats skin, hair, and nails as one interconnected system. AI-powered bio-analysis, precision formulations, and biological optimization. Start your free scan today.',
+  keywords: 'biohacking beauty, AI skin analysis, hair analysis, nail health, biological optimization, personalized skincare, bio-score, precision formulations, collagen, keratin',
   authors: [{ name: 'Crazy Gels' }],
   creator: 'Crazy Gels',
   publisher: 'Crazy Gels',
@@ -36,8 +36,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'Crazy Gels | Premium Semi-Cured Gel Nails, Hair & Skin Care',
-    description: 'Shop salon-quality semi-cured gel nails, premium hair extensions & skincare products. Easy DIY application, lasts 2+ weeks, zero damage.',
+    title: 'Crazy Gels | Biohacking Beauty — AI-Powered Skin, Hair & Nail Optimization',
+    description: 'The first biohacking platform that treats skin, hair, and nails as one interconnected system. AI-powered bio-analysis and precision formulations.',
     url: 'https://crazygels.com',
     siteName: 'Crazy Gels',
     images: [
@@ -53,8 +53,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Crazy Gels | Premium Semi-Cured Gel Nails, Hair & Skin Care',
-    description: 'Shop salon-quality semi-cured gel nails, premium hair extensions & skincare products. Easy DIY application, lasts 2+ weeks.',
+    title: 'Crazy Gels | Biohacking Beauty — AI-Powered Optimization',
+    description: 'The first biohacking platform treating skin, hair, and nails as one interconnected system. Start your free bio-analysis.',
     images: ['/og-image.jpg'],
   },
   robots: {
@@ -86,8 +86,8 @@ export const metadata: Metadata = {
 
 export const viewport = {
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#FAF7F2' },
-    { media: '(prefers-color-scheme: dark)', color: '#2C2C2C' },
+    { media: '(prefers-color-scheme: light)', color: '#0A0A0A' },
+    { media: '(prefers-color-scheme: dark)', color: '#0A0A0A' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -100,7 +100,7 @@ const jsonLd = {
   name: 'Crazy Gels',
   url: 'https://crazygels.com',
   logo: 'https://crazygels.com/logo.png',
-  description: 'Premium semi-cured gel nails, hair extensions & skincare products',
+  description: 'Biohacking beauty platform — AI-powered skin, hair & nail biological optimization',
   sameAs: [
     'https://www.instagram.com/crazy.gels',
     'https://www.facebook.com/crazygels',
