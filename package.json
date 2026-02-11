@@ -75,7 +75,7 @@
     "samsung >= 14"
   ],
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp"]
+    "onlyBuiltDependencies": ["sharp", "pg-native"]
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
