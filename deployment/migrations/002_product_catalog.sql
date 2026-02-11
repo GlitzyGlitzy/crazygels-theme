@@ -96,3 +96,8 @@ DROP TRIGGER IF EXISTS source_updated_at ON source_intelligence;
 CREATE TRIGGER source_updated_at
     BEFORE UPDATE ON source_intelligence
     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ── MIGRATION LOG ───────────────────────────────────────────────
+INSERT INTO schema_migrations (version, description)
+VALUES ('002', 'Product catalog and source intelligence tables')
+ON CONFLICT (version) DO NOTHING;
