@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, Download, CheckCircle, ArrowRight } from 'lucide-react';
+import { BarChart3, Download, CheckCircle, ArrowRight, Database } from 'lucide-react';
 
 const adminTools = [
   {
@@ -25,6 +25,14 @@ const adminTools = [
     href: '/admin/validation',
     icon: CheckCircle,
     accent: '#4A7C59',
+  },
+  {
+    title: 'Scraper DB Test',
+    description:
+      'Test the scraper-to-database pipeline. Setup tables, import scraped JSON, and verify products in the catalog.',
+    href: '/admin/scraper-test',
+    icon: Database,
+    accent: '#5B7E9E',
   },
 ];
 
