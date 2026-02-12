@@ -11,6 +11,8 @@ import {
   XCircle,
   Loader2,
   FileJson,
+  Stethoscope,
+  AlertTriangle,
 } from "lucide-react";
 
 interface DBStatus {
@@ -58,6 +60,13 @@ interface CatalogStats {
   message?: string;
 }
 
+interface DiagnoseStep {
+  step: string;
+  status: "pass" | "fail" | "skip";
+  detail: string;
+  ms?: number;
+}
+
 type LogEntry = {
   time: string;
   level: "info" | "success" | "error" | "warning";
@@ -67,6 +76,7 @@ type LogEntry = {
 export default function ScraperTestPage() {
   const [dbStatus, setDbStatus] = useState<DBStatus | null>(null);
   const [healthResult, setHealthResult] = useState<HealthResult | null>(null);
+  const [diagnoseSteps, setDiagnoseSteps] = useState<DiagnoseStep[] | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [catalogStats, setCatalogStats] = useState<CatalogStats | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -147,6 +157,30 @@ export default function ScraperTestPage() {
       }
     } catch (e) {
       addLog("error", `Stats error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+    setLoading(null);
+  };
+
+  const runDiagnose = async () => {
+    setLoading("diagnose");
+    setDiagnoseSteps(null);
+    addLog("info", "Running deep connection diagnostics (DNS -> TCP -> Postgres)...");
+    try {
+      const res = await fetch("/api/db-diagnose");
+      const data = await res.json();
+      setDiagnoseSteps(data.steps || []);
+      const failed = (data.steps || []).filter((s: DiagnoseStep) => s.status === "fail");
+      const passed = (data.steps || []).filter((s: DiagnoseStep) => s.status === "pass");
+      if (failed.length === 0) {
+        addLog("success", `All ${passed.length} diagnostic steps passed!`);
+      } else {
+        addLog("error", `${failed.length} step(s) failed: ${failed.map((s: DiagnoseStep) => s.step).join(", ")}`);
+        for (const s of failed) {
+          addLog("warning", `[${s.step}] ${s.detail.split("\n")[0]}`);
+        }
+      }
+    } catch (e) {
+      addLog("error", `Diagnose error: ${e instanceof Error ? e.message : String(e)}`);
     }
     setLoading(null);
   };
@@ -330,6 +364,18 @@ export default function ScraperTestPage() {
             )}
             Load Stats
           </button>
+          <button
+            onClick={runDiagnose}
+            disabled={loading !== null}
+            className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-5 py-2.5 text-sm font-medium text-amber-800 transition-all hover:border-amber-400 hover:bg-amber-100 disabled:opacity-50"
+          >
+            {loading === "diagnose" ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Stethoscope className="h-4 w-4" />
+            )}
+            Diagnose Connection
+          </button>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
@@ -457,6 +503,69 @@ export default function ScraperTestPage() {
 
           {/* Right Column: Status + Products */}
           <div className="flex flex-col gap-6">
+            {/* Deep Diagnostics */}
+            {diagnoseSteps && (
+              <section className="rounded-2xl border border-amber-200 bg-amber-50/30 p-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <Stethoscope className="h-5 w-5 text-amber-700" />
+                  <h2 className="text-lg font-medium text-[#1A1A1A]">
+                    Connection Diagnostics
+                  </h2>
+                </div>
+                <div className="flex flex-col gap-3">
+                  {diagnoseSteps.map((step, i) => (
+                    <div
+                      key={i}
+                      className={`rounded-xl border p-4 ${
+                        step.status === "pass"
+                          ? "border-emerald-200 bg-emerald-50/50"
+                          : step.status === "fail"
+                          ? "border-red-200 bg-red-50/50"
+                          : "border-[#E8E4DC] bg-[#F5F3EE]"
+                      }`}
+                    >
+                      <div className="mb-1 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {step.status === "pass" ? (
+                            <CheckCircle className="h-4 w-4 text-emerald-600" />
+                          ) : step.status === "fail" ? (
+                            <XCircle className="h-4 w-4 text-red-600" />
+                          ) : (
+                            <AlertTriangle className="h-4 w-4 text-[#999999]" />
+                          )}
+                          <span
+                            className={`text-sm font-medium ${
+                              step.status === "pass"
+                                ? "text-emerald-800"
+                                : step.status === "fail"
+                                ? "text-red-800"
+                                : "text-[#6B5B4F]"
+                            }`}
+                          >
+                            {step.step}
+                          </span>
+                        </div>
+                        {step.ms !== undefined && (
+                          <span className="text-xs text-[#999999]">{step.ms}ms</span>
+                        )}
+                      </div>
+                      <p
+                        className={`text-xs leading-relaxed whitespace-pre-wrap ${
+                          step.status === "pass"
+                            ? "text-emerald-700"
+                            : step.status === "fail"
+                            ? "text-red-700"
+                            : "text-[#6B5B4F]"
+                        }`}
+                      >
+                        {step.detail}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
             {/* DB Status */}
             {dbStatus && (
               <section className="rounded-2xl border border-[#E8E4DC] bg-[#FAFAF8] p-6">
