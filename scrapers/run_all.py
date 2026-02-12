@@ -56,7 +56,7 @@ def run_scraper(
 
     try:
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=600
+            cmd, capture_output=True, text=True, timeout=900
         )
 
         # Log output
@@ -81,7 +81,7 @@ def run_scraper(
         return source, 0, False
 
     except subprocess.TimeoutExpired:
-        logger.error(f"{source} scraper timed out after 600s")
+        logger.error(f"{source} scraper timed out after 900s")
         return source, 0, False
     except Exception as e:
         logger.error(f"{source} scraper failed: {e}")

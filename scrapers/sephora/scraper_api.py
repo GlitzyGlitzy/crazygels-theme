@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Sephora DE product scraper.
 
@@ -72,9 +74,9 @@ class SephoraScraper(BaseScraper):
         super().__init__(
             source=Source.SEPHORA,
             max_concurrent=2,
-            request_delay=(2.0, 5.0),
+            request_delay=(3.0, 7.0),
             max_retries=3,
-            timeout=45,
+            timeout=60,
             **kwargs,
         )
         self.pages_per_category = pages_per_category
@@ -263,29 +265,47 @@ class SephoraScraper(BaseScraper):
         product_urls: list[str] = []
 
         # Phase 1: Collect product URLs from listing pages (use JS rendering)
-        for cat_url in category_urls:
-            html = await self._fetch_js(cat_url, wait_selector=".product-tile, [data-comp='ProductTile'], a[href*='/produkte/']")
+        for i, cat_url in enumerate(category_urls, 1):
+            logger.info(f"[{self.source.value}] Fetching category page {i}/{len(category_urls)}: {cat_url}")
+            html = await self._fetch_js(
+                cat_url,
+                wait_selector="a[href*='/produkte/'], .product-tile, [data-comp='ProductTile'], .product-grid",
+                timeout_ms=60000,
+            )
             if html:
                 total_pages += 1
+                # Save first listing HTML for debugging
+                if i == 1:
+                    os.makedirs("data", exist_ok=True)
+                    with open("data/_debug_listing.html", "w") as f:
+                        f.write(html)
+                    logger.info(f"[{self.source.value}] Saved debug listing HTML ({len(html)} chars)")
                 try:
                     urls = await self.parse_listing(html, cat_url)
                     product_urls.extend(urls)
                 except Exception as e:
                     errors.append(f"Listing parse error ({cat_url}): {e}")
+            else:
+                logger.warning(f"[{self.source.value}] No HTML returned for {cat_url}")
+                errors.append(f"No HTML returned for {cat_url}")
 
         # Deduplicate
         product_urls = list(set(product_urls))
         logger.info(f"[{self.source.value}] Found {len(product_urls)} unique product URLs")
 
         # Phase 2: Scrape individual product pages
-        for url in product_urls:
-            html = await self._fetch_js(url, wait_selector="h1, .product-name")
+        for i, url in enumerate(product_urls, 1):
+            logger.info(f"[{self.source.value}] Scraping product {i}/{len(product_urls)}: {url}")
+            html = await self._fetch_js(url, wait_selector="h1, .product-name", timeout_ms=45000)
             if html:
                 total_pages += 1
                 try:
                     product = await self.parse_product(html, url)
                     if product:
                         products.append(product)
+                        logger.info(f"[{self.source.value}]   -> {product.brand} - {product.name} ({product.price.price} EUR)")
+                    else:
+                        logger.warning(f"[{self.source.value}]   -> Could not parse product from {url}")
                 except Exception as e:
                     errors.append(f"Product parse error ({url}): {e}")
 

@@ -1,5 +1,7 @@
 """Base scraper class with shared logic for all competitor scrapers."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import random
@@ -25,7 +27,7 @@ class BaseScraper(ABC):
         self,
         source: Source,
         max_concurrent: int = 3,
-        request_delay: tuple[float, float] = (1.0, 3.0),
+        request_delay: tuple = (1.0, 3.0),
         max_retries: int = 3,
         timeout: int = 30,
         proxy_manager: Optional[StealthProxyManager] = None,
@@ -40,6 +42,12 @@ class BaseScraper(ABC):
         self.session: Optional[aiohttp.ClientSession] = None
         self._ua = UserAgent(browsers=["chrome", "firefox", "edge"])
 
+        # Persistent browser session for JS rendering (created on first use)
+        self._browser_mgr = None
+        self._browser = None
+        self._browser_page_count = 0
+        self._max_pages_per_browser = 15  # Rotate browser after N pages
+
     async def __aenter__(self):
         self.session = aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=self.timeout),
@@ -50,20 +58,56 @@ class BaseScraper(ABC):
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         if self.session:
             await self.session.close()
+        await self._close_browser()
 
-    def _default_headers(self) -> dict[str, str]:
+    async def _close_browser(self):
+        """Cleanly shut down the persistent browser."""
+        if self._browser:
+            try:
+                await self._browser.close()
+            except Exception:
+                pass
+            self._browser = None
+        if self._browser_mgr:
+            try:
+                await self._browser_mgr.stop()
+            except Exception:
+                pass
+            self._browser_mgr = None
+        self._browser_page_count = 0
+
+    async def _get_browser(self):
+        """Get or create a persistent browser instance.
+
+        Rotates the browser every N pages to avoid detection from
+        long-lived sessions while still avoiding the per-request
+        browser creation that triggers bot detection.
+        """
+        if self._browser_page_count >= self._max_pages_per_browser:
+            logger.info(f"[{self.source.value}] Rotating browser after {self._browser_page_count} pages")
+            await self._close_browser()
+
+        if not self._browser_mgr:
+            from scrapers.common.stealth_browser import StealthBrowserAsync
+
+            self._browser_mgr = StealthBrowserAsync(self.proxy_manager)
+            await self._browser_mgr.start()
+            self._browser = await self._browser_mgr.new_browser()
+            self._browser_page_count = 0
+
+        return self._browser_mgr, self._browser
+
+    def _default_headers(self) -> dict:
         """Use stealth proxy manager headers for realistic browser fingerprinting."""
         return self.proxy_manager.get_headers()
 
     async def _fetch(self, url: str, retry: int = 0) -> Optional[str]:
         """Fetch a URL with retry logic, rate limiting, and random delays."""
         async with self.rate_limiter:
-            # Random delay between requests to avoid detection
             delay = random.uniform(*self.request_delay)
             await asyncio.sleep(delay)
 
             try:
-                # Get fresh stealth headers and proxy for each request
                 headers = self.proxy_manager.get_headers()
                 proxy_url = self.proxy_manager.get_proxy_url()
                 kwargs = {"headers": headers}
@@ -76,7 +120,6 @@ class BaseScraper(ABC):
                             self.proxy_manager.report_success(proxy_url)
                         return await response.text()
                     elif response.status == 429:
-                        # Rate limited — exponential backoff
                         wait = (2**retry) * 5 + random.uniform(1, 5)
                         logger.warning(
                             f"[{self.source.value}] Rate limited on {url}, "
@@ -88,16 +131,12 @@ class BaseScraper(ABC):
                     elif response.status == 403:
                         if proxy_url:
                             self.proxy_manager.report_failure(proxy_url)
-                        logger.warning(
-                            f"[{self.source.value}] Blocked (403) on {url}"
-                        )
+                        logger.warning(f"[{self.source.value}] Blocked (403) on {url}")
                         if retry < self.max_retries:
                             await asyncio.sleep(random.uniform(10, 30))
                             return await self._fetch(url, retry + 1)
                     else:
-                        logger.error(
-                            f"[{self.source.value}] HTTP {response.status} on {url}"
-                        )
+                        logger.error(f"[{self.source.value}] HTTP {response.status} on {url}")
             except asyncio.TimeoutError:
                 logger.error(f"[{self.source.value}] Timeout on {url}")
                 if retry < self.max_retries:
@@ -109,66 +148,123 @@ class BaseScraper(ABC):
 
         return None
 
-    async def _fetch_js(self, url: str, wait_selector: str = "body", timeout_ms: int = 30000) -> Optional[str]:
-        """Fetch a URL using Playwright for JS-rendered pages.
+    async def _dismiss_cookie_banner(self, page) -> None:
+        """Attempt to dismiss common cookie consent banners."""
+        cookie_selectors = [
+            # Common cookie banner buttons (DE/EN)
+            "button:has-text('Alle akzeptieren')",
+            "button:has-text('Alle Cookies akzeptieren')",
+            "button:has-text('Accept All')",
+            "button:has-text('Accept all cookies')",
+            "button:has-text('Akzeptieren')",
+            "button:has-text('Zustimmen')",
+            "#onetrust-accept-btn-handler",
+            "[data-testid='cookie-accept']",
+            ".cookie-consent-accept",
+            "button.accept-all",
+            "#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll",
+        ]
+        for selector in cookie_selectors:
+            try:
+                btn = await page.query_selector(selector)
+                if btn and await btn.is_visible():
+                    await btn.click()
+                    logger.info(f"[{self.source.value}] Dismissed cookie banner via '{selector}'")
+                    await asyncio.sleep(random.uniform(0.5, 1.5))
+                    return
+            except Exception:
+                continue
 
-        Use this for sites with heavy anti-bot JS (Sephora, Amazon).
-        Falls back to aiohttp _fetch() if Playwright is unavailable.
+    async def _human_scroll(self, page, scrolls: int = 3) -> None:
+        """Simulate realistic human scrolling behaviour."""
+        for _ in range(scrolls):
+            await page.evaluate(
+                """() => {
+                    window.scrollBy(0, window.innerHeight * (0.3 + Math.random() * 0.5));
+                }"""
+            )
+            await asyncio.sleep(random.uniform(0.8, 2.5))
+
+    async def _fetch_js(
+        self,
+        url: str,
+        wait_selector: str = "body",
+        timeout_ms: int = 45000,
+        retry: int = 0,
+    ) -> Optional[str]:
+        """Fetch a URL using a persistent Playwright browser session.
+
+        Reuses a single browser across multiple pages (rotated every N pages)
+        to mimic a real user browsing session rather than a bot spawning
+        one browser per request.
         """
         try:
-            from scrapers.common.stealth_browser import StealthBrowserAsync
+            browser_mgr, browser = await self._get_browser()
+            page = await browser_mgr.new_page(browser)
+            self._browser_page_count += 1
 
-            async with StealthBrowserAsync(self.proxy_manager) as browser_mgr:
-                browser = await browser_mgr.new_browser()
+            try:
+                # Random pre-navigation delay to look human
+                await asyncio.sleep(random.uniform(1.0, 3.0))
+
+                # Navigate
+                response = await page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+
+                if response and response.status >= 400:
+                    logger.warning(f"[{self.source.value}] HTTP {response.status} on {url}")
+                    if retry < self.max_retries and response.status in (403, 429):
+                        await page.close()
+                        wait = random.uniform(10, 30) * (retry + 1)
+                        logger.info(f"[{self.source.value}] Retrying in {wait:.0f}s...")
+                        await asyncio.sleep(wait)
+                        # Force browser rotation on 403
+                        if response.status == 403:
+                            await self._close_browser()
+                        return await self._fetch_js(url, wait_selector, timeout_ms, retry + 1)
+
+                # Dismiss cookie consent if present
+                await self._dismiss_cookie_banner(page)
+
+                # Wait for target content
                 try:
-                    page = await browser_mgr.new_page(browser)
+                    await page.wait_for_selector(wait_selector, timeout=15000)
+                except Exception:
+                    logger.warning(f"[{self.source.value}] Selector '{wait_selector}' not found on {url}, continuing...")
 
-                    # Random pre-navigation delay
-                    await asyncio.sleep(random.uniform(0.5, 2.0))
+                # Simulate human browsing behaviour
+                await self._human_scroll(page)
 
-                    await page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms)
+                # Let lazy-loaded content render
+                await asyncio.sleep(random.uniform(1.5, 4.0))
 
-                    # Wait for target content
-                    try:
-                        await page.wait_for_selector(wait_selector, timeout=timeout_ms)
-                    except Exception:
-                        logger.warning(f"[{self.source.value}] Selector '{wait_selector}' not found on {url}")
+                html = await page.content()
+                return html
 
-                    # Simulate human-like scroll behavior
-                    await page.evaluate(
-                        """async () => {
-                        const delay = ms => new Promise(r => setTimeout(r, ms));
-                        for (let i = 0; i < 3; i++) {
-                            window.scrollBy(0, window.innerHeight * (0.3 + Math.random() * 0.5));
-                            await delay(500 + Math.random() * 1500);
-                        }
-                    }"""
-                    )
-
-                    # Small delay to let lazy-loaded content render
-                    await asyncio.sleep(random.uniform(1.0, 3.0))
-
-                    html = await page.content()
-                    return html
-                finally:
-                    await browser.close()
+            finally:
+                try:
+                    await page.close()
+                except Exception:
+                    pass
 
         except ImportError:
-            logger.warning(
-                f"[{self.source.value}] Playwright not installed, falling back to aiohttp for {url}"
-            )
+            logger.warning(f"[{self.source.value}] Playwright not installed, falling back to aiohttp for {url}")
             return await self._fetch(url)
         except Exception as e:
             logger.error(f"[{self.source.value}] Playwright error on {url}: {e}")
+            # On error, close browser so next request gets a fresh one
+            await self._close_browser()
+            if retry < self.max_retries:
+                await asyncio.sleep(random.uniform(5, 15))
+                return await self._fetch_js(url, wait_selector, timeout_ms, retry + 1)
             return None
 
     @abstractmethod
-    async def get_category_urls(self) -> list[str]:
+    async def get_category_urls(self) -> list:
         """Return the list of category/listing page URLs to scrape."""
         ...
 
     @abstractmethod
-    async def parse_listing(self, html: str, url: str) -> list[str]:
+    async def parse_listing(self, html: str, url: str) -> list:
         """Parse a listing page and return product URLs."""
         ...
 
@@ -180,14 +276,14 @@ class BaseScraper(ABC):
     async def scrape(self) -> ScraperResult:
         """Run the full scraping pipeline."""
         started_at = datetime.utcnow()
-        products: list[Product] = []
-        errors: list[str] = []
+        products = []
+        errors = []
         total_pages = 0
 
         logger.info(f"[{self.source.value}] Starting scrape...")
 
         category_urls = await self.get_category_urls()
-        product_urls: list[str] = []
+        product_urls = []
 
         # Phase 1: Collect product URLs from listing pages
         for cat_url in category_urls:
@@ -202,9 +298,7 @@ class BaseScraper(ABC):
 
         # Deduplicate
         product_urls = list(set(product_urls))
-        logger.info(
-            f"[{self.source.value}] Found {len(product_urls)} product URLs"
-        )
+        logger.info(f"[{self.source.value}] Found {len(product_urls)} product URLs")
 
         # Phase 2: Scrape individual product pages
         for url in product_urls:
