@@ -65,11 +65,12 @@ def run_scraper(
                 logger.info(f"  [{source}] {line}")
         if result.stderr:
             for line in result.stderr.strip().split("\n"):
-                if "[ERROR]" in line or "[WARNING]" in line:
-                    logger.warning(f"  [{source}] {line}")
+                logger.warning(f"  [{source}] {line}")
 
         if result.returncode != 0:
             logger.error(f"{source} scraper exited with code {result.returncode}")
+            if result.stderr:
+                logger.error(f"  [{source}] STDERR:\n{result.stderr}")
             return source, 0, False
 
         # Count products in output
