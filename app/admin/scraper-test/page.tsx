@@ -22,6 +22,14 @@ interface DBStatus {
   message?: string;
 }
 
+interface HealthResult {
+  status: string;
+  product_count?: number;
+  diagnostics?: Record<string, unknown>;
+  message?: string;
+  hint?: string;
+}
+
 interface ImportResult {
   status: string;
   product_catalog?: { inserted: number; updated: number; errors: number };
@@ -58,6 +66,7 @@ type LogEntry = {
 
 export default function ScraperTestPage() {
   const [dbStatus, setDbStatus] = useState<DBStatus | null>(null);
+  const [healthResult, setHealthResult] = useState<HealthResult | null>(null);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [catalogStats, setCatalogStats] = useState<CatalogStats | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -101,11 +110,23 @@ export default function ScraperTestPage() {
     addLog("info", "Checking database health...");
     try {
       const res = await fetch("/api/db-health");
-      const data = await res.json();
-      addLog(
-        data.status === "connected" ? "success" : "error",
-        `DB health: ${data.status}, ${data.product_count ?? 0} products in catalog`
-      );
+      const data: HealthResult = await res.json();
+      setHealthResult(data);
+      if (data.status === "connected") {
+        addLog("success", `DB connected. ${data.product_count ?? 0} products in catalog. Latency: ${data.diagnostics?.latency_ms}ms`);
+        if (data.diagnostics?.tables) {
+          addLog("info", `Tables found: ${(data.diagnostics.tables as string[]).join(", ") || "none"}`);
+        }
+      } else {
+        addLog("error", `DB health: ${data.message}`);
+        if (data.hint) {
+          addLog("warning", `Hint: ${data.hint}`);
+        }
+        if (data.diagnostics) {
+          const d = data.diagnostics;
+          addLog("info", `Config: host=${d.rds_host}, db=${d.rds_database}, user=${d.rds_user}, password=${d.rds_password}, ssl=${d.rds_ssl}`);
+        }
+      }
     } catch (e) {
       addLog("error", `Health check error: ${e instanceof Error ? e.message : String(e)}`);
     }
@@ -469,6 +490,56 @@ export default function ScraperTestPage() {
                         {dbStatus.tables.anonymised_products.rows}
                         <span className="ml-1 text-xs font-normal text-[#999999]">rows</span>
                       </p>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Health Diagnostics */}
+            {healthResult && (
+              <section className="rounded-2xl border border-[#E8E4DC] bg-[#FAFAF8] p-6">
+                <h2 className="mb-4 text-lg font-medium text-[#1A1A1A]">
+                  Connection Diagnostics
+                </h2>
+                <div className="flex items-center gap-2 mb-4">
+                  {healthResult.status === "connected" ? (
+                    <CheckCircle className="h-5 w-5 text-emerald-600" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-red-600" />
+                  )}
+                  <span
+                    className={`text-sm font-medium ${healthResult.status === "connected" ? "text-emerald-700" : "text-red-700"}`}
+                  >
+                    {healthResult.status === "connected"
+                      ? `Connected - ${healthResult.product_count} products`
+                      : healthResult.message}
+                  </span>
+                </div>
+                {healthResult.hint && (
+                  <div className="mb-4 rounded-xl bg-amber-50 border border-amber-200 p-4">
+                    <p className="text-xs font-medium text-amber-800 mb-1">Troubleshooting Hint</p>
+                    <p className="text-xs leading-relaxed text-amber-700">{healthResult.hint}</p>
+                  </div>
+                )}
+                {healthResult.diagnostics && (
+                  <div className="rounded-xl bg-[#F5F3EE] p-4">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wider text-[#999999]">
+                      Environment
+                    </p>
+                    <div className="flex flex-col gap-1.5">
+                      {Object.entries(healthResult.diagnostics).map(([key, value]) => (
+                        <div key={key} className="flex items-start justify-between gap-2 text-xs">
+                          <span className="font-mono text-[#6B5B4F] shrink-0">{key}</span>
+                          <span className="font-mono text-[#1A1A1A] text-right break-all">
+                            {typeof value === "object"
+                              ? Array.isArray(value)
+                                ? (value as string[]).join(", ") || "none"
+                                : JSON.stringify(value)
+                              : String(value ?? "null")}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
