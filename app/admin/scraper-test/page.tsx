@@ -102,12 +102,27 @@ export default function ScraperTestPage() {
     addLog("info", "Setting up database tables...");
     try {
       const res = await fetch("/api/db-setup", { method: "POST" });
-      const data: DBStatus = await res.json();
+      const data = await res.json();
       setDbStatus(data);
       if (data.status === "success") {
-        addLog("success", `Tables created. product_catalog: ${data.tables?.product_catalog.rows} rows, anonymised_products: ${data.tables?.anonymised_products.rows} rows`);
+        // Show migration log entries
+        if (data.log) {
+          for (const entry of data.log as string[]) {
+            addLog("info", entry);
+          }
+        }
+        const t = data.tables;
+        addLog(
+          "success",
+          `Tables ready. catalog: ${t?.product_catalog?.rows ?? "?"} rows, anon: ${t?.anonymised_products?.rows ?? "?"} rows, enrichment: ${t?.product_enrichment?.rows ?? "?"} rows`
+        );
       } else {
         addLog("error", `DB setup failed: ${data.message}`);
+        if (data.log) {
+          for (const entry of data.log as string[]) {
+            addLog("warning", entry);
+          }
+        }
       }
     } catch (e) {
       addLog("error", `DB setup error: ${e instanceof Error ? e.message : String(e)}`);
