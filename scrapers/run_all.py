@@ -10,6 +10,8 @@ Run:
     python scrapers/run_all.py --pages 2 --postgres   # insert into RDS
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
