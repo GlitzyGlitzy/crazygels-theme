@@ -1,5 +1,7 @@
 """Playwright-based stealth browser with anti-detection for JS-heavy sites."""
 
+from __future__ import annotations
+
 import logging
 import random
 from typing import Optional
@@ -14,24 +16,6 @@ class StealthBrowser:
 
     Use for sites that require JS rendering (Sephora, Amazon).
     Falls back gracefully if Playwright is not installed.
-
-    Usage (sync):
-        browser_mgr = StealthBrowser(proxy_manager)
-        browser = browser_mgr.new_browser()
-        page = browser_mgr.new_page(browser)
-        page.goto("https://example.com")
-        html = page.content()
-        browser.close()
-
-    Usage (async):
-        browser_mgr = StealthBrowserAsync(proxy_manager)
-        await browser_mgr.start()
-        browser = await browser_mgr.new_browser()
-        page = await browser_mgr.new_page(browser)
-        await page.goto("https://example.com")
-        html = await page.content()
-        await browser.close()
-        await browser_mgr.stop()
     """
 
     VIEWPORTS = [
@@ -40,53 +24,116 @@ class StealthBrowser:
         (1440, 900),
         (1536, 864),
         (1280, 720),
+        (1600, 900),
+        (2560, 1440),
     ]
 
-    LOCALES = ["en-US", "en-GB", "de-DE", "fr-FR"]
+    LOCALES = ["de-DE", "en-US", "en-GB", "fr-FR"]
     TIMEZONES = [
+        "Europe/Berlin",
+        "Europe/Paris",
+        "Europe/London",
         "America/New_York",
         "America/Chicago",
         "America/Los_Angeles",
-        "Europe/London",
-        "Europe/Berlin",
-        "Europe/Paris",
     ]
 
+    # Comprehensive stealth injection that passes common bot detectors
     STEALTH_SCRIPT = """
-        // Remove webdriver flag
+        // ── 1. Remove webdriver flag ──
         Object.defineProperty(navigator, 'webdriver', {
             get: () => undefined
         });
+        // Also delete from prototype
+        delete navigator.__proto__.webdriver;
 
-        // Fake plugins array
+        // ── 2. Fake plugins (matching real Chrome) ──
         Object.defineProperty(navigator, 'plugins', {
-            get: () => [1, 2, 3, 4, 5]
+            get: () => {
+                const plugins = [
+                    { name: 'Chrome PDF Plugin', filename: 'internal-pdf-viewer', description: 'Portable Document Format' },
+                    { name: 'Chrome PDF Viewer', filename: 'mhjfbmdgcfjbbpaeojofohoefgiehjai', description: '' },
+                    { name: 'Native Client', filename: 'internal-nacl-plugin', description: '' },
+                ];
+                plugins.length = 3;
+                return plugins;
+            }
         });
 
-        // Fake Chrome runtime
-        window.chrome = { runtime: {} };
+        // ── 3. Fake mimeTypes ──
+        Object.defineProperty(navigator, 'mimeTypes', {
+            get: () => {
+                const mimes = [
+                    { type: 'application/pdf', suffixes: 'pdf', description: 'Portable Document Format' },
+                ];
+                mimes.length = 1;
+                return mimes;
+            }
+        });
 
-        // Override permissions query
-        const originalQuery = window.navigator.permissions.query;
+        // ── 4. Fake Chrome runtime ──
+        window.chrome = {
+            runtime: {
+                onMessage: { addListener: () => {}, removeListener: () => {} },
+                sendMessage: () => {},
+                connect: () => ({ onMessage: { addListener: () => {} }, postMessage: () => {} }),
+            },
+            loadTimes: () => ({}),
+            csi: () => ({}),
+        };
+
+        // ── 5. Override permissions query ──
+        const origQuery = window.navigator.permissions.query;
         window.navigator.permissions.query = (parameters) =>
             parameters.name === 'notifications'
                 ? Promise.resolve({ state: Notification.permission })
-                : originalQuery(parameters);
+                : origQuery(parameters);
 
-        // Fake languages
+        // ── 6. Fake languages ──
         Object.defineProperty(navigator, 'languages', {
-            get: () => ['en-US', 'en', 'de']
+            get: () => ['de-DE', 'de', 'en-US', 'en']
         });
 
-        // Fake hardware concurrency (random 4-16)
+        // ── 7. Hardware concurrency (realistic range) ──
         Object.defineProperty(navigator, 'hardwareConcurrency', {
-            get: () => Math.floor(Math.random() * 12) + 4
+            get: () => [4, 8, 12, 16][Math.floor(Math.random() * 4)]
         });
 
-        // Fake device memory
+        // ── 8. Device memory ──
         Object.defineProperty(navigator, 'deviceMemory', {
             get: () => [4, 8, 16][Math.floor(Math.random() * 3)]
         });
+
+        // ── 9. WebGL vendor/renderer spoofing ──
+        const getParameter = WebGLRenderingContext.prototype.getParameter;
+        WebGLRenderingContext.prototype.getParameter = function(parameter) {
+            if (parameter === 37445) return 'Google Inc. (NVIDIA)';
+            if (parameter === 37446) return 'ANGLE (NVIDIA, NVIDIA GeForce GTX 1650 Direct3D11 vs_5_0 ps_5_0, D3D11)';
+            return getParameter.call(this, parameter);
+        };
+
+        // ── 10. Canvas fingerprint noise ──
+        const origToDataURL = HTMLCanvasElement.prototype.toDataURL;
+        HTMLCanvasElement.prototype.toDataURL = function(type) {
+            if (type === 'image/png' && this.width > 16) {
+                const ctx = this.getContext('2d');
+                if (ctx) {
+                    const imageData = ctx.getImageData(0, 0, 1, 1);
+                    imageData.data[0] = imageData.data[0] ^ (Math.random() * 2 | 0);
+                    ctx.putImageData(imageData, 0, 0);
+                }
+            }
+            return origToDataURL.apply(this, arguments);
+        };
+
+        // ── 11. Prevent iframe detection ──
+        Object.defineProperty(window, 'outerHeight', { get: () => window.innerHeight });
+        Object.defineProperty(window, 'outerWidth', { get: () => window.innerWidth });
+
+        // ── 12. Fake connection info ──
+        if (navigator.connection) {
+            Object.defineProperty(navigator.connection, 'rtt', { get: () => 50 });
+        }
     """
 
     def __init__(self, proxy_manager: StealthProxyManager):
@@ -94,15 +141,12 @@ class StealthBrowser:
         self._playwright = None
 
     def start(self):
-        """Start the sync Playwright instance."""
         from playwright.sync_api import sync_playwright
-
         self._pw_context = sync_playwright().start()
         self._playwright = self._pw_context
         return self
 
     def stop(self):
-        """Stop the sync Playwright instance."""
         if self._playwright:
             self._playwright.stop()
             self._playwright = None
@@ -113,8 +157,7 @@ class StealthBrowser:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop()
 
-    def _get_launch_args(self) -> list[str]:
-        """Chromium args for anti-detection."""
+    def _get_launch_args(self) -> list:
         width, height = random.choice(self.VIEWPORTS)
         return [
             "--disable-blink-features=AutomationControlled",
@@ -124,17 +167,19 @@ class StealthBrowser:
             "--disable-background-networking",
             "--disable-dev-shm-usage",
             "--no-first-run",
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-accelerated-2d-canvas",
+            "--disable-gpu",
             f"--window-size={width},{height}",
         ]
 
     def _get_proxy_config(self) -> Optional[dict]:
-        """Build Playwright proxy config from proxy manager."""
         proxy = self.proxy_manager.get_proxy()
         if not proxy:
             return None
 
         from urllib.parse import urlparse
-
         parsed = urlparse(proxy["http"])
         config = {"server": f"{parsed.scheme}://{parsed.hostname}:{parsed.port}"}
         if parsed.username:
@@ -144,7 +189,6 @@ class StealthBrowser:
         return config
 
     def new_browser(self):
-        """Launch a new browser instance with stealth config and proxy."""
         if not self._playwright:
             raise RuntimeError("Call .start() or use as context manager first.")
 
@@ -161,7 +205,6 @@ class StealthBrowser:
         return browser
 
     def new_page(self, browser):
-        """Create a new page with randomized fingerprint and stealth scripts."""
         width = random.randint(1200, 1920)
         height = random.randint(800, 1080)
 
@@ -171,31 +214,33 @@ class StealthBrowser:
             locale=random.choice(self.LOCALES),
             timezone_id=random.choice(self.TIMEZONES),
             geolocation={
-                "latitude": round(random.uniform(25, 60), 4),
-                "longitude": round(random.uniform(-130, 30), 4),
+                "latitude": round(random.uniform(47, 55), 4),  # Germany lat range
+                "longitude": round(random.uniform(6, 15), 4),  # Germany lon range
             },
             permissions=["geolocation"],
             color_scheme=random.choice(["light", "dark", "no-preference"]),
             java_script_enabled=True,
             bypass_csp=True,
+            extra_http_headers={
+                "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+            },
         )
 
-        # Inject stealth scripts before any page loads
         context.add_init_script(self.STEALTH_SCRIPT)
-
         page = context.new_page()
 
-        # Add realistic mouse movement simulation
+        # Realistic mouse movement simulation
         page.evaluate(
             """() => {
-            let lastX = 0, lastY = 0;
+            let lastX = Math.random() * window.innerWidth;
+            let lastY = Math.random() * window.innerHeight;
             const move = () => {
                 lastX += (Math.random() - 0.5) * 100;
                 lastY += (Math.random() - 0.5) * 100;
                 lastX = Math.max(0, Math.min(window.innerWidth, lastX));
                 lastY = Math.max(0, Math.min(window.innerHeight, lastY));
                 window.dispatchEvent(new MouseEvent('mousemove', {
-                    clientX: lastX, clientY: lastY
+                    clientX: lastX, clientY: lastY, bubbles: true
                 }));
                 setTimeout(move, Math.random() * 3000 + 1000);
             };
@@ -215,15 +260,12 @@ class StealthBrowserAsync:
         self._sync_helper = StealthBrowser(proxy_manager)
 
     async def start(self):
-        """Start the async Playwright instance."""
         from playwright.async_api import async_playwright
-
         self._pw_context = async_playwright()
         self._playwright = await self._pw_context.start()
         return self
 
     async def stop(self):
-        """Stop the async Playwright instance."""
         if self._playwright:
             await self._playwright.stop()
             self._playwright = None
@@ -235,7 +277,6 @@ class StealthBrowserAsync:
         await self.stop()
 
     async def new_browser(self):
-        """Launch a new browser instance with stealth config and proxy."""
         if not self._playwright:
             raise RuntimeError("Call .start() or use as async context manager first.")
 
@@ -252,7 +293,6 @@ class StealthBrowserAsync:
         return browser
 
     async def new_page(self, browser):
-        """Create a new page with randomized fingerprint and stealth scripts."""
         width = random.randint(1200, 1920)
         height = random.randint(800, 1080)
 
@@ -262,29 +302,32 @@ class StealthBrowserAsync:
             locale=random.choice(StealthBrowser.LOCALES),
             timezone_id=random.choice(StealthBrowser.TIMEZONES),
             geolocation={
-                "latitude": round(random.uniform(25, 60), 4),
-                "longitude": round(random.uniform(-130, 30), 4),
+                "latitude": round(random.uniform(47, 55), 4),
+                "longitude": round(random.uniform(6, 15), 4),
             },
             permissions=["geolocation"],
             color_scheme=random.choice(["light", "dark", "no-preference"]),
             java_script_enabled=True,
             bypass_csp=True,
+            extra_http_headers={
+                "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+            },
         )
 
         context.add_init_script(StealthBrowser.STEALTH_SCRIPT)
-
         page = await context.new_page()
 
         await page.evaluate(
             """() => {
-            let lastX = 0, lastY = 0;
+            let lastX = Math.random() * window.innerWidth;
+            let lastY = Math.random() * window.innerHeight;
             const move = () => {
                 lastX += (Math.random() - 0.5) * 100;
                 lastY += (Math.random() - 0.5) * 100;
                 lastX = Math.max(0, Math.min(window.innerWidth, lastX));
                 lastY = Math.max(0, Math.min(window.innerHeight, lastY));
                 window.dispatchEvent(new MouseEvent('mousemove', {
-                    clientX: lastX, clientY: lastY
+                    clientX: lastX, clientY: lastY, bubbles: true
                 }));
                 setTimeout(move, Math.random() * 3000 + 1000);
             };

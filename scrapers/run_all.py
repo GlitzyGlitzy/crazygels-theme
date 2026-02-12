@@ -10,6 +10,8 @@ Run:
     python scrapers/run_all.py --pages 2 --postgres   # insert into RDS
 """
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
@@ -54,7 +56,7 @@ def run_scraper(
 
     try:
         result = subprocess.run(
-            cmd, capture_output=True, text=True, timeout=600
+            cmd, capture_output=True, text=True, timeout=900
         )
 
         # Log output
@@ -63,11 +65,12 @@ def run_scraper(
                 logger.info(f"  [{source}] {line}")
         if result.stderr:
             for line in result.stderr.strip().split("\n"):
-                if "[ERROR]" in line or "[WARNING]" in line:
-                    logger.warning(f"  [{source}] {line}")
+                logger.warning(f"  [{source}] {line}")
 
         if result.returncode != 0:
             logger.error(f"{source} scraper exited with code {result.returncode}")
+            if result.stderr:
+                logger.error(f"  [{source}] STDERR:\n{result.stderr}")
             return source, 0, False
 
         # Count products in output
@@ -79,7 +82,7 @@ def run_scraper(
         return source, 0, False
 
     except subprocess.TimeoutExpired:
-        logger.error(f"{source} scraper timed out after 600s")
+        logger.error(f"{source} scraper timed out after 900s")
         return source, 0, False
     except Exception as e:
         logger.error(f"{source} scraper failed: {e}")
