@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, Download, CheckCircle, ArrowRight, Database } from 'lucide-react';
+import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles } from 'lucide-react';
 
 const adminTools = [
   {
@@ -25,6 +25,14 @@ const adminTools = [
     href: '/admin/validation',
     icon: CheckCircle,
     accent: '#4A7C59',
+  },
+  {
+    title: 'Product Enrichment',
+    description:
+      'Smart-match Shopify products to scraped intelligence. Fuzzy name + ingredient + price tier matching with confidence scoring.',
+    href: '/admin/enrichment',
+    icon: Sparkles,
+    accent: '#C4963C',
   },
   {
     title: 'Scraper DB Test',
