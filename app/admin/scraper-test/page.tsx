@@ -348,11 +348,13 @@ export default function ScraperTestPage() {
             disabled={loading !== null}
             className="inline-flex items-center gap-2 rounded-full border border-[#E8E4DC] bg-[#FAFAF8] px-5 py-2.5 text-sm font-medium text-[#1A1A1A] transition-all hover:border-[#9E6B73] hover:text-[#9E6B73] disabled:opacity-50"
           >
-            {loading === "setup" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Database className="h-4 w-4" />
-            )}
+            <span className="h-4 w-4">
+              {loading === "setup" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Database className="h-4 w-4" />
+              )}
+            </span>
             Setup Tables
           </button>
           <button
@@ -360,11 +362,13 @@ export default function ScraperTestPage() {
             disabled={loading !== null}
             className="inline-flex items-center gap-2 rounded-full border border-[#E8E4DC] bg-[#FAFAF8] px-5 py-2.5 text-sm font-medium text-[#1A1A1A] transition-all hover:border-[#9E6B73] hover:text-[#9E6B73] disabled:opacity-50"
           >
-            {loading === "health" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
+            <span className="h-4 w-4">
+              {loading === "health" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </span>
             Check Health
           </button>
           <button
@@ -372,11 +376,13 @@ export default function ScraperTestPage() {
             disabled={loading !== null}
             className="inline-flex items-center gap-2 rounded-full border border-[#E8E4DC] bg-[#FAFAF8] px-5 py-2.5 text-sm font-medium text-[#1A1A1A] transition-all hover:border-[#9E6B73] hover:text-[#9E6B73] disabled:opacity-50"
           >
-            {loading === "stats" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
+            <span className="h-4 w-4">
+              {loading === "stats" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </span>
             Load Stats
           </button>
           <button
@@ -384,11 +390,13 @@ export default function ScraperTestPage() {
             disabled={loading !== null}
             className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-5 py-2.5 text-sm font-medium text-amber-800 transition-all hover:border-amber-400 hover:bg-amber-100 disabled:opacity-50"
           >
-            {loading === "diagnose" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Stethoscope className="h-4 w-4" />
-            )}
+            <span className="h-4 w-4">
+              {loading === "diagnose" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Stethoscope className="h-4 w-4" />
+              )}
+            </span>
             Diagnose Connection
           </button>
         </div>
@@ -445,11 +453,13 @@ export default function ScraperTestPage() {
                 disabled={loading !== null || !jsonInput.trim()}
                 className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#9E6B73] px-5 py-3 text-sm font-medium text-white transition-all hover:bg-[#8A5A62] disabled:opacity-50"
               >
-                {loading === "import" ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4" />
-                )}
+                <span className="h-4 w-4">
+                  {loading === "import" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                </span>
                 Import to Database
               </button>
             </section>
