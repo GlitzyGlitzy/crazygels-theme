@@ -1,16 +1,81 @@
 import { streamText, convertToModelMessages, tool } from 'ai';
 import { z } from 'zod';
 import { buildProductCatalog, catalogToPromptText } from '@/lib/shopify/product-catalog';
+import sql from '@/lib/db';
+
+// Fetch stocked products from product_catalog DB that are approved for sale
+async function getStockedIntelligenceProducts(consultType: string) {
+  try {
+    const rows = await sql`
+      SELECT
+        pc.product_hash,
+        pc.display_name,
+        pc.category,
+        pc.product_type,
+        pc.price_tier,
+        pc.efficacy_score,
+        pc.key_actives,
+        pc.suitable_for,
+        pc.contraindications,
+        sd.retail_price,
+        sd.fulfillment_method
+      FROM stocking_decisions sd
+      JOIN product_catalog pc ON sd.product_hash = pc.product_hash
+      WHERE sd.decision = 'stock'
+      ORDER BY pc.efficacy_score DESC NULLS LAST
+      LIMIT 100
+    `;
+    // Filter by consult type based on category
+    const skinKeywords = ['skincare', 'skin', 'face', 'serum', 'moisturizer', 'cleanser', 'sunscreen', 'mask'];
+    const hairKeywords = ['hair', 'shampoo', 'conditioner', 'scalp', 'styling'];
+    const keywords = consultType === 'skin' ? skinKeywords : hairKeywords;
+
+    return rows.filter((r: Record<string, unknown>) => {
+      const cat = ((r.category as string) || '').toLowerCase();
+      const type = ((r.product_type as string) || '').toLowerCase();
+      return keywords.some(kw => cat.includes(kw) || type.includes(kw));
+    });
+  } catch {
+    return [];
+  }
+}
+
+function stockedToPromptText(products: Record<string, unknown>[]): string {
+  if (products.length === 0) return '';
+  const lines = products.map((p, i) => {
+    const parts = [
+      `${i + 1}. "${p.display_name}"`,
+      `   Category: ${p.category} (${p.product_type || 'general'})`,
+      `   Price Tier: ${p.price_tier}${p.retail_price ? ` | Retail: ${p.retail_price} EUR` : ''}`,
+      `   Efficacy Score: ${p.efficacy_score != null ? `${Math.round(Number(p.efficacy_score) * 100)}%` : 'N/A'}`,
+    ];
+    if (p.key_actives && (p.key_actives as string[]).length > 0) {
+      parts.push(`   Key Actives: ${(p.key_actives as string[]).join(', ')}`);
+    }
+    if (p.suitable_for && (p.suitable_for as string[]).length > 0) {
+      parts.push(`   Best For: ${(p.suitable_for as string[]).join(', ')}`);
+    }
+    if (p.contraindications && (p.contraindications as string[]).length > 0) {
+      parts.push(`   Avoid If: ${(p.contraindications as string[]).join(', ')}`);
+    }
+    return parts.join('\n');
+  });
+  return lines.join('\n\n');
+}
 
 export async function POST(req: Request) {
   const { messages, consultType } = await req.json();
 
-  // Fetch real product catalog from Shopify
-  const catalog = await buildProductCatalog();
+  // Fetch real product catalog from Shopify + stocked intelligence products
+  const [catalog, stockedProducts] = await Promise.all([
+    buildProductCatalog(),
+    getStockedIntelligenceProducts(consultType),
+  ]);
   const relevantProducts = consultType === 'skin' ? catalog.skinProducts : catalog.hairProducts;
   const productCatalogText = catalogToPromptText(relevantProducts, consultType);
+  const stockedText = stockedToPromptText(stockedProducts);
   
-  console.log(`[v0] Consult ${consultType}: ${relevantProducts.length} products found. Skin: ${catalog.skinProducts.length}, Hair: ${catalog.hairProducts.length}, All: ${catalog.allProducts.length}`);
+  console.log(`[v0] Consult ${consultType}: ${relevantProducts.length} Shopify + ${stockedProducts.length} stocked intelligence products`);
   
   const productListForTool = relevantProducts.map(p => ({
     handle: p.handle,
@@ -49,7 +114,13 @@ Key concerns: acne, aging, hyperpigmentation, dryness, sensitivity, uneven textu
 
 ===== CRAZYGELS SKINCARE PRODUCT CATALOG =====
 ${productCatalogText}
-===== END CATALOG =====`
+===== END CATALOG =====${stockedText ? `
+
+===== COMING SOON - INTELLIGENCE-BACKED PRODUCTS =====
+These products have been vetted by our research team with proven efficacy scores.
+They may not yet be in the store but can be mentioned as "coming soon" if highly relevant.
+${stockedText}
+===== END INTELLIGENCE PRODUCTS =====` : ''}`
     : `You are a friendly and knowledgeable virtual beauty consultant specializing in hair care.
 Your name is "Glow" and you work for CrazyGels beauty store.
 
@@ -74,7 +145,13 @@ Key concerns: damage, dryness, frizz, thinning, color-treated, scalp issues, lac
 
 ===== CRAZYGELS HAIRCARE PRODUCT CATALOG =====
 ${productCatalogText}
-===== END CATALOG =====`;
+===== END CATALOG =====${stockedText ? `
+
+===== COMING SOON - INTELLIGENCE-BACKED PRODUCTS =====
+These products have been vetted by our research team with proven efficacy scores.
+They may not yet be in the store but can be mentioned as "coming soon" if highly relevant.
+${stockedText}
+===== END INTELLIGENCE PRODUCTS =====` : ''}`;
 
   // Define tools for product recommendations
   const tools = {
