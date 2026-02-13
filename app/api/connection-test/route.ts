@@ -1,21 +1,15 @@
 import { NextResponse } from "next/server";
-import { neon } from "@neondatabase/serverless";
+import sql from "@/lib/db";
 
 export async function GET() {
   const results: Record<string, { status: string; detail?: string }> = {};
 
-  // 1. Neon / DATABASE_URL
+  // 1. Database (Neon / RDS)
   try {
-    const dbUrl = process.env.DATABASE_URL;
-    if (!dbUrl) {
-      results.neon = { status: "MISSING", detail: "DATABASE_URL not set" };
-    } else {
-      const sql = neon(dbUrl);
-      const rows = await sql`SELECT NOW() AS ts`;
-      results.neon = { status: "OK", detail: `Connected — server time ${rows[0].ts}` };
-    }
+    const rows = await sql`SELECT NOW() AS ts`;
+    results.database = { status: "OK", detail: `Connected — server time ${rows[0].ts}` };
   } catch (e: unknown) {
-    results.neon = { status: "ERROR", detail: e instanceof Error ? e.message : String(e) };
+    results.database = { status: "ERROR", detail: e instanceof Error ? e.message : String(e) };
   }
 
   // 2. Shopify Storefront API
