@@ -19,6 +19,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!process.env.SHOPIFY_STORE_DOMAIN || !process.env.SHOPIFY_ADMIN_TOKEN) {
+      return NextResponse.json(
+        { error: "Shopify Admin API not configured. Set SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_TOKEN environment variables." },
+        { status: 503 }
+      );
+    }
+
     if (action === "update_inventory") {
       // Update inventory for an already-listed product
       const { shopify_product_id } = body;
