@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   BarChart3,
@@ -153,13 +152,11 @@ function StatusPill({ status }: { status: string }) {
 function SourceModal({
   source,
   onClose,
-  container,
 }: {
   source: SourceDetail;
   onClose: () => void;
-  container: HTMLElement;
 }) {
-  return createPortal(
+  return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-sm">
       <div className="relative mx-4 w-full max-w-lg rounded-2xl border border-[#E8E4DC] bg-[#FAFAF8] shadow-2xl">
         {/* Header */}
@@ -284,8 +281,7 @@ function SourceModal({
           )}
         </div>
       </div>
-    </div>,
-    container
+    </div>
   );
 }
 
@@ -312,9 +308,6 @@ export default function IntelligenceDashboard() {
   const [listingProduct, setListingProduct] = useState<DemandSignal | null>(null);
   const [listingLoading, setListingLoading] = useState(false);
   const [listingResult, setListingResult] = useState<{ success: boolean; message: string; handle?: string } | null>(null);
-
-  // Portal container ref to avoid insertBefore errors with document.body
-  const portalRef = useRef<HTMLDivElement>(null);
 
   // Read token in useEffect to avoid hydration mismatch
   const [adminToken, setAdminToken] = useState<string | null>(null);
@@ -703,20 +696,16 @@ export default function IntelligenceDashboard() {
         )}
       </main>
 
-      {/* Portal container for modals */}
-      <div ref={portalRef} />
-
       {/* Source detail modal */}
-      {selectedSource && portalRef.current && (
+      {selectedSource && (
         <SourceModal
           source={selectedSource}
           onClose={() => setSelectedSource(null)}
-          container={portalRef.current}
         />
       )}
 
       {/* Shopify listing confirmation modal */}
-      {listingProduct && portalRef.current && createPortal(
+      {listingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-sm">
           <div className="relative mx-4 w-full max-w-md rounded-2xl border border-[#E8E4DC] bg-[#FAFAF8] shadow-2xl">
             <div className="flex items-start justify-between border-b border-[#E8E4DC] p-6">
@@ -842,8 +831,7 @@ export default function IntelligenceDashboard() {
               </p>
             </div>
           </div>
-        </div>,
-        portalRef.current
+        </div>
       )}
     </div>
   );
