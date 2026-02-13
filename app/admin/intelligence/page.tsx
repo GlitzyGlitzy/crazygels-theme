@@ -306,12 +306,18 @@ export default function IntelligenceDashboard() {
   );
   const [revealLoading, setRevealLoading] = useState<string | null>(null);
 
-  const adminToken =
-    typeof window !== "undefined"
-      ? localStorage.getItem("cg_admin_token") || ""
-      : "";
+  // Read token in useEffect to avoid hydration mismatch
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [tokenReady, setTokenReady] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("cg_admin_token") || "";
+    setAdminToken(stored);
+    setTokenReady(true);
+  }, []);
 
   const fetchSignals = useCallback(async () => {
+    if (!adminToken) return;
     setLoading(true);
     setError(null);
     try {
@@ -334,9 +340,10 @@ export default function IntelligenceDashboard() {
   }, [statusFilter, sortBy, adminToken]);
 
   useEffect(() => {
+    if (!tokenReady) return;
     if (adminToken) fetchSignals();
     else setLoading(false);
-  }, [fetchSignals, adminToken]);
+  }, [fetchSignals, adminToken, tokenReady]);
 
   const handleReveal = async (acquisitionLead: string) => {
     setRevealLoading(acquisitionLead);
@@ -369,9 +376,18 @@ export default function IntelligenceDashboard() {
     );
   });
 
+  /* ----- Wait for token check ----- */
+  if (!tokenReady) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E8E4DC] border-t-[#9E6B73]" />
+      </div>
+    );
+  }
+
   /* ----- Auth gate ----- */
   if (!adminToken) {
-    return <AdminTokenGate />;
+    return <AdminTokenGate onLogin={(t) => { localStorage.setItem("cg_admin_token", t); setAdminToken(t); }} />;
   }
 
   return (
@@ -666,14 +682,13 @@ export default function IntelligenceDashboard() {
 /*  Admin Token Gate                                                    */
 /* ------------------------------------------------------------------ */
 
-function AdminTokenGate() {
+function AdminTokenGate({ onLogin }: { onLogin: (token: string) => void }) {
   const [token, setToken] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (token.trim()) {
-      localStorage.setItem("cg_admin_token", token.trim());
-      window.location.reload();
+      onLogin(token.trim());
     }
   };
 
