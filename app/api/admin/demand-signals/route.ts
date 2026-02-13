@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status") || "research";
-    const limit = Math.min(parseInt(searchParams.get("limit") || "200"), 500);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "600"), 1000);
     const sortBy = searchParams.get("sort") || "efficacy";
 
     const orderSql =
@@ -41,8 +41,8 @@ export async function GET(req: NextRequest) {
         pc.source,
         pc.image_url,
         CASE
-          WHEN pc.efficacy_score >= 0.8 THEN 'high'
-          WHEN pc.efficacy_score >= 0.6 THEN 'medium'
+          WHEN pc.efficacy_score >= 0.3 THEN 'high'
+          WHEN pc.efficacy_score >= 0.15 THEN 'medium'
           ELSE 'low'
         END as demand_tier,
         CASE WHEN pc.acquisition_lead IS NOT NULL THEN true ELSE false END as has_source
