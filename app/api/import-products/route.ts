@@ -70,6 +70,29 @@ const TYPE_DEFAULTS: Record<string, string[]> = {
   fragrance: ["general_fragrance"],
 };
 
+// Raw format from http_scraper.py
+interface ScrapedProduct {
+  product_hash: string;
+  name?: string;
+  brand?: string;
+  source?: string;
+  category?: string;
+  product_type?: string;
+  price?: number;
+  price_tier?: string;
+  rating?: number | null;
+  review_count?: number;
+  ingredients?: string | null;
+  image_url?: string | null;
+  url?: string | null;
+  actives?: string[];
+  concerns?: string[];
+  efficacy_score?: number;
+  description?: string;
+  scraped_at?: string;
+}
+
+// Anonymised format from promote_to_catalog.py
 interface AnonymisedProduct {
   product_hash: string;
   source?: string;
@@ -91,6 +114,39 @@ interface AnonymisedProduct {
   last_updated?: string;
 }
 
+// Unified internal format
+type ImportProduct = AnonymisedProduct & ScrapedProduct;
+
+/**
+ * Normalise a scraped product (http_scraper.py raw format)
+ * into the anonymised format the promoteProduct() function expects.
+ */
+function normaliseScrapedProduct(raw: ImportProduct): AnonymisedProduct {
+  // If it already has name_clean, it's already in anonymised format
+  if (raw.name_clean) return raw;
+
+  return {
+    product_hash: raw.product_hash,
+    source: raw.source,
+    category: raw.category,
+    name_clean: raw.name || raw.brand || "",
+    brand_type: raw.brand || "unknown",
+    price_tier: raw.price_tier || "unknown",
+    efficacy_signals: {
+      rating: raw.efficacy_score ?? raw.rating ?? null,
+      review_count: raw.review_count ?? 0,
+      has_ingredients: !!raw.ingredients,
+    },
+    ingredient_profile: {
+      actives: raw.actives || [],
+      notable: [],
+    },
+    market_signals: {},
+    acquisition_lead: raw.url || null,
+    last_updated: raw.scraped_at,
+  };
+}
+
 function promoteProduct(anon: AnonymisedProduct) {
   const name = anon.name_clean || "";
   const category = (anon.category || "").replace(/_/g, "-");
@@ -109,11 +165,23 @@ function promoteProduct(anon: AnonymisedProduct) {
     emollients: 0,
   };
 
+  // Also check ingredient_profile.actives from the normalised data
+  const profileActives = anon.ingredient_profile?.actives || [];
+  const searchText = `${nameLower} ${profileActives.join(" ").toLowerCase()}`;
+
   for (const [active, info] of Object.entries(ACTIVE_CONCERN_MAP)) {
-    if (nameLower.includes(active)) {
+    if (searchText.includes(active)) {
       keyActives.push(active.replace(/ /g, "_"));
       info.concerns.forEach((c) => suitableFor.add(c));
       ingredientSummary[info.group] = (ingredientSummary[info.group] || 0) + 1;
+    }
+  }
+
+  // Also add any actives from the profile that weren't matched above
+  for (const a of profileActives) {
+    const normalised = a.replace(/ /g, "_").toLowerCase();
+    if (!keyActives.includes(normalised)) {
+      keyActives.push(normalised);
     }
   }
 
@@ -134,7 +202,7 @@ function promoteProduct(anon: AnonymisedProduct) {
       ? Number(efficacy.rating)
       : null;
 
-  return {
+    return {
     product_hash: anon.product_hash,
     display_name: (name || `Unknown ${productType}`).slice(0, 255),
     category,
@@ -149,6 +217,7 @@ function promoteProduct(anon: AnonymisedProduct) {
     status: "research",
     acquisition_lead: anon.acquisition_lead || null,
     source: anon.source || "unknown",
+    image_url: (anon as ImportProduct).image_url || null,
   };
 }
 
@@ -157,9 +226,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Accept either { products: [...] } or [...] directly
-    const rawProducts: AnonymisedProduct[] = Array.isArray(body)
+    const rawInput: ImportProduct[] = Array.isArray(body)
       ? body
       : body.products || [];
+
+    // Normalise: convert http_scraper raw format to anonymised format
+    const rawProducts: AnonymisedProduct[] = rawInput.map(normaliseScrapedProduct);
 
     if (rawProducts.length === 0) {
       return NextResponse.json(
@@ -192,7 +264,7 @@ export async function POST(request: NextRequest) {
             product_hash, display_name, category, product_type, price_tier,
             efficacy_score, review_signals, key_actives, ingredient_summary,
             suitable_for, contraindications, status, acquisition_lead, source,
-            created_at, updated_at
+            image_url, created_at, updated_at
           ) VALUES (
             ${entry.product_hash},
             ${entry.display_name},
@@ -208,10 +280,12 @@ export async function POST(request: NextRequest) {
             ${entry.status},
             ${entry.acquisition_lead},
             ${entry.source},
+            ${entry.image_url},
             NOW(),
             NOW()
           )
           ON CONFLICT (product_hash) DO UPDATE SET
+            display_name = EXCLUDED.display_name,
             efficacy_score = COALESCE(EXCLUDED.efficacy_score, product_catalog.efficacy_score),
             price_tier = CASE
               WHEN EXCLUDED.price_tier != 'unknown' THEN EXCLUDED.price_tier
@@ -219,6 +293,8 @@ export async function POST(request: NextRequest) {
             END,
             key_actives = COALESCE(EXCLUDED.key_actives, product_catalog.key_actives),
             suitable_for = COALESCE(EXCLUDED.suitable_for, product_catalog.suitable_for),
+            image_url = COALESCE(EXCLUDED.image_url, product_catalog.image_url),
+            source = EXCLUDED.source,
             updated_at = NOW()
           RETURNING (xmax = 0) as is_insert
         `;
