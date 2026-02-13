@@ -197,10 +197,12 @@ function promoteProduct(anon: AnonymisedProduct) {
   }
 
   const efficacy = anon.efficacy_signals || {};
-  const efficacyScore =
-    efficacy.rating != null && String(efficacy.rating) !== "null"
-      ? Number(efficacy.rating)
-      : null;
+  let efficacyScore: number | null = null;
+  if (efficacy.rating != null && String(efficacy.rating) !== "null") {
+    const raw = Number(efficacy.rating);
+    // The scraper computes efficacy on a 0-10 scale; normalise to 0.0-1.0
+    efficacyScore = raw > 1.0 ? Math.min(raw / 10.0, 1.0) : raw;
+  }
 
     return {
     product_hash: anon.product_hash,

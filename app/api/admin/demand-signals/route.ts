@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status") || "research";
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "200"), 500);
     const sortBy = searchParams.get("sort") || "efficacy";
 
     const orderSql =
