@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   BarChart3,
@@ -156,7 +157,7 @@ function SourceModal({
   source: SourceDetail;
   onClose: () => void;
 }) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-sm">
       <div className="relative mx-4 w-full max-w-lg rounded-2xl border border-[#E8E4DC] bg-[#FAFAF8] shadow-2xl">
         {/* Header */}
@@ -281,7 +282,8 @@ function SourceModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -705,7 +707,7 @@ export default function IntelligenceDashboard() {
       )}
 
       {/* Shopify listing confirmation modal */}
-      {listingProduct && (
+      {listingProduct && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-sm">
           <div className="relative mx-4 w-full max-w-md rounded-2xl border border-[#E8E4DC] bg-[#FAFAF8] shadow-2xl">
             <div className="flex items-start justify-between border-b border-[#E8E4DC] p-6">
@@ -831,7 +833,8 @@ export default function IntelligenceDashboard() {
               </p>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
