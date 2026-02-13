@@ -4,6 +4,7 @@ import Script from 'next/script'
 import { Geist, Geist_Mono, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { KlaviyoScript } from '@/components/klaviyo/klaviyo-script'
+import { GtmNoscript } from '@/components/gtm-noscript'
 import './globals.css'
 
 const GTM_ID = 'GTM-W7NQG2QL'
@@ -157,14 +158,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         />
       </head>
       <body className={`${_geist.variable} ${_geistMono.variable} ${_cormorant.variable} font-sans antialiased`} suppressHydrationWarning>
-        <noscript>
-          <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-            height="0"
-            width="0"
-            style={{ display: 'none', visibility: 'hidden' }}
-          />
-        </noscript>
+        <GtmNoscript gtmId={GTM_ID} />
         {children}
         <Analytics />
         <KlaviyoScript />
