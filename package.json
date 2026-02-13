@@ -12,6 +12,7 @@
   "dependencies": {
     "@ai-sdk/react": "^3.0.72",
     "@hookform/resolvers": "^3.10.0",
+    "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",
     "@radix-ui/react-aspect-ratio": "1.1.1",
@@ -75,7 +76,9 @@
     "samsung >= 14"
   ],
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp"]
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.9",
