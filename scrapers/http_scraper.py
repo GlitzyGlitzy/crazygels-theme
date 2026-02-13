@@ -164,31 +164,56 @@ def _compute_efficacy(actives: list[dict], rating: float, review_count: int) -> 
 # Source: Open Beauty Facts (guaranteed API)
 # ============================================
 async def scrape_open_beauty_facts(session: aiohttp.ClientSession, pages: int = 2) -> list[dict]:
-    """Scrape from Open Beauty Facts API -- free, no anti-bot, always works."""
+    """Scrape from Open Beauty Facts API v2 -- free, no anti-bot, always works."""
     products = []
+    # Use multiple category tags per logical category for broader coverage
     categories = [
         ("moisturizers", "en:moisturizers"),
+        ("face creams", "en:face-creams"),
         ("serums", "en:face-serums"),
         ("cleansers", "en:face-cleansers"),
         ("shampoos", "en:shampoos"),
+        ("conditioners", "en:hair-conditioners"),
         ("sunscreens", "en:sunscreen"),
         ("lip care", "en:lip-balms"),
         ("body lotions", "en:body-milks"),
         ("face masks", "en:face-masks"),
     ]
 
+    # Fields to request from the API
+    api_fields = "code,product_name,brands,ingredients_text,image_url,categories_tags"
+
     for cat_name, cat_tag in categories:
         for page in range(1, pages + 1):
-            url = f"https://world.openbeautyfacts.org/cgi/search.pl?tagtype_0=categories&tag_contains_0=contains&tag_0={cat_tag}&page_size=50&page={page}&json=1"
+            # Use the v2 API endpoint which reliably returns JSON
+            url = (
+                f"https://world.openbeautyfacts.org/api/v2/search"
+                f"?categories_tags={cat_tag}"
+                f"&page_size=50&page={page}"
+                f"&fields={api_fields}"
+            )
             try:
                 logger.info(f"  [OpenBeautyFacts] Fetching {cat_name} page {page}...")
-                async with session.get(url, headers={"User-Agent": HEADERS["User-Agent"]}, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                api_headers = {
+                    "User-Agent": HEADERS["User-Agent"],
+                    "Accept": "application/json",
+                }
+                async with session.get(url, headers=api_headers, timeout=aiohttp.ClientTimeout(total=30)) as resp:
                     if resp.status != 200:
                         logger.warning(f"  [OpenBeautyFacts] {cat_name} page {page}: HTTP {resp.status}")
                         continue
-                    data = await resp.json(content_type=None)
+                    # Read as text first, then parse JSON to handle edge cases
+                    text = await resp.text()
+                    if not text or not text.strip().startswith("{"):
+                        logger.warning(f"  [OpenBeautyFacts] {cat_name} page {page}: non-JSON response (len={len(text)})")
+                        continue
+                    data = json.loads(text)
 
-                for item in data.get("products", []):
+                page_products = data.get("products", [])
+                total_available = data.get("count", 0)
+                page_count = data.get("page_count", 0)
+
+                for item in page_products:
                     name = item.get("product_name", "").strip()
                     brand = item.get("brands", "").strip()
                     if not name or len(name) < 3:
@@ -244,8 +269,12 @@ async def scrape_open_beauty_facts(session: aiohttp.ClientSession, pages: int = 
                         "scraped_at": datetime.now(timezone.utc).isoformat(),
                     })
 
-                logger.info(f"  [OpenBeautyFacts] {cat_name} page {page}: {len(data.get('products', []))} raw -> {len(products)} total")
+                logger.info(f"  [OpenBeautyFacts] {cat_name} page {page}/{page_count}: {len(page_products)} raw ({total_available} available) -> {len(products)} total")
                 await asyncio.sleep(1)  # Be polite
+
+                # Stop fetching if we've reached the last available page
+                if page >= page_count:
+                    break
 
             except Exception as e:
                 logger.error(f"  [OpenBeautyFacts] {cat_name} page {page} error: {e}")
@@ -383,7 +412,7 @@ async def scrape_amazon_http(session: aiohttp.ClientSession, pages: int = 1) -> 
 # ============================================
 async def run(pages: int = 1, source: str = "all"):
     products = []
-    connector = aiohttp.TCPConnector(limit=3, ssl=False)
+    connector = aiohttp.TCPConnector(limit=3)
     async with aiohttp.ClientSession(connector=connector) as session:
         if source in ("all", "openfacts"):
             logger.info("--- Open Beauty Facts ---")
