@@ -11,11 +11,14 @@ import {
   TrendingUp,
   FlaskConical,
   ShoppingBag,
+  ShoppingCart,
   CheckCircle,
   Clock,
   AlertCircle,
   X,
   ChevronDown,
+  ExternalLink,
+  Loader2,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -34,18 +37,13 @@ interface DemandSignal {
   suitable_for: string[] | null;
   contraindications: string[] | null;
   status: string;
-  recommendation_count: number;
-  vote_count: number;
   demand_tier: string;
   acquisition_lead: string | null;
   has_source: boolean;
-  sample_ordered: boolean | null;
-  sample_status: string | null;
-  listed_on_shopify: boolean | null;
-  wholesale_price: number | null;
-  moq: number | null;
-  lead_time_days: number | null;
-  margin_actual: number | null;
+  source: string | null;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 interface Stats {
@@ -306,6 +304,11 @@ export default function IntelligenceDashboard() {
   );
   const [revealLoading, setRevealLoading] = useState<string | null>(null);
 
+  // Shopify listing state
+  const [listingProduct, setListingProduct] = useState<DemandSignal | null>(null);
+  const [listingLoading, setListingLoading] = useState(false);
+  const [listingResult, setListingResult] = useState<{ success: boolean; message: string; handle?: string } | null>(null);
+
   // Read token in useEffect to avoid hydration mismatch
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(false);
@@ -322,7 +325,7 @@ export default function IntelligenceDashboard() {
     setError(null);
     try {
       const res = await fetch(
-        `/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=200`,
+        `/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=600`,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       if (!res.ok) {
@@ -363,6 +366,37 @@ export default function IntelligenceDashboard() {
       console.error("Reveal failed:", err);
     } finally {
       setRevealLoading(null);
+    }
+  };
+
+  const handleListOnShopify = async (product: DemandSignal) => {
+    setListingLoading(true);
+    setListingResult(null);
+    try {
+      const res = await fetch("/api/admin/list-product", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": adminToken || "",
+        },
+        body: JSON.stringify({ product_hash: product.product_hash }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to list product");
+      setListingResult({
+        success: true,
+        message: `Listed as draft on Shopify at $${data.price}`,
+        handle: data.handle,
+      });
+      // Refresh the list to show updated status
+      fetchSignals();
+    } catch (err) {
+      setListingResult({
+        success: false,
+        message: err instanceof Error ? err.message : "Unknown error",
+      });
+    } finally {
+      setListingLoading(false);
     }
   };
 
@@ -533,10 +567,7 @@ export default function IntelligenceDashboard() {
                     Demand
                   </th>
                   <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] lg:table-cell">
-                    Votes
-                  </th>
-                  <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] lg:table-cell">
-                    Wholesale
+                    Source
                   </th>
                   <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] md:table-cell">
                     Status
@@ -594,19 +625,10 @@ export default function IntelligenceDashboard() {
                       <DemandBadge tier={signal.demand_tier} />
                     </td>
 
-                    {/* Votes */}
+                    {/* Source */}
                     <td className="hidden px-4 py-3.5 lg:table-cell">
-                      <span className="text-sm tabular-nums text-[#1A1A1A]">
-                        {signal.vote_count}
-                      </span>
-                    </td>
-
-                    {/* Wholesale */}
-                    <td className="hidden px-4 py-3.5 lg:table-cell">
-                      <span className="text-sm tabular-nums text-[#1A1A1A]">
-                        {signal.wholesale_price
-                          ? `$${signal.wholesale_price.toFixed(2)}`
-                          : "--"}
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-[#9B9B9B]">
+                        {(signal.source || "unknown").replace(/_/g, " ")}
                       </span>
                     </td>
 
@@ -617,28 +639,36 @@ export default function IntelligenceDashboard() {
 
                     {/* Action */}
                     <td className="px-4 py-3.5">
-                      {signal.has_source && signal.acquisition_lead ? (
-                        <button
-                          onClick={() =>
-                            handleReveal(signal.acquisition_lead!)
-                          }
-                          disabled={
-                            revealLoading === signal.acquisition_lead
-                          }
-                          className="inline-flex items-center gap-1.5 rounded-full border border-[#9E6B73] px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#9E6B73] transition-all hover:bg-[#9E6B73] hover:text-white disabled:opacity-50"
-                        >
-                          {revealLoading === signal.acquisition_lead ? (
-                            <div className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />
-                          ) : (
-                            <Eye className="h-3 w-3" />
-                          )}
-                          Reveal Source
-                        </button>
-                      ) : (
-                        <span className="text-[10px] uppercase tracking-wider text-[#9B9B9B]">
-                          No source
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {signal.status === "listed" ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-[#4A7C59]">
+                            <CheckCircle className="h-3 w-3" />
+                            Listed
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setListingProduct(signal)}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-[#9E6B73] px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#9E6B73] transition-all hover:bg-[#9E6B73] hover:text-white"
+                          >
+                            <ShoppingCart className="h-3 w-3" />
+                            List on Shop
+                          </button>
+                        )}
+                        {signal.acquisition_lead && (
+                          <button
+                            onClick={() => handleReveal(signal.acquisition_lead!)}
+                            disabled={revealLoading === signal.acquisition_lead}
+                            className="inline-flex items-center gap-1 rounded-full border border-[#E8E4DC] px-2.5 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#6B5B4F] transition-all hover:border-[#9E6B73] hover:text-[#9E6B73] disabled:opacity-50"
+                            title="View source details"
+                          >
+                            {revealLoading === signal.acquisition_lead ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Eye className="h-3 w-3" />
+                            )}
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -646,7 +676,7 @@ export default function IntelligenceDashboard() {
                 {filtered.length === 0 && (
                   <tr>
                     <td
-                      colSpan={7}
+                      colSpan={6}
                       className="py-12 text-center text-sm text-[#9B9B9B]"
                     >
                       No products found matching your criteria.
@@ -672,6 +702,136 @@ export default function IntelligenceDashboard() {
           source={selectedSource}
           onClose={() => setSelectedSource(null)}
         />
+      )}
+
+      {/* Shopify listing confirmation modal */}
+      {listingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-sm">
+          <div className="relative mx-4 w-full max-w-md rounded-2xl border border-[#E8E4DC] bg-[#FAFAF8] shadow-2xl">
+            <div className="flex items-start justify-between border-b border-[#E8E4DC] p-6">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9E6B73]">
+                  List on Shopify
+                </p>
+                <h3 className="mt-1 text-lg font-semibold text-[#1A1A1A]">
+                  {listingProduct.display_name}
+                </h3>
+                <p className="mt-0.5 text-xs text-[#9B9B9B]">
+                  {listingProduct.category} &middot; {listingProduct.price_tier}
+                </p>
+              </div>
+              <button
+                onClick={() => { setListingProduct(null); setListingResult(null); }}
+                className="rounded-lg p-1.5 text-[#9B9B9B] transition-colors hover:bg-[#E8E4DC] hover:text-[#1A1A1A]"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4 p-6">
+              {/* Product info */}
+              <div className="rounded-lg bg-[#F5F3EF] p-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-[#6B5B4F]">Efficacy Score</span>
+                  <span className="text-sm font-semibold text-[#1A1A1A]">
+                    {Math.round((listingProduct.efficacy_score || 0) * 100)}%
+                  </span>
+                </div>
+                {listingProduct.key_actives && listingProduct.key_actives.length > 0 && (
+                  <div className="mt-3">
+                    <span className="text-[10px] font-medium uppercase tracking-wider text-[#9B9B9B]">
+                      Key Actives
+                    </span>
+                    <div className="mt-1.5 flex flex-wrap gap-1">
+                      {listingProduct.key_actives.map((a) => (
+                        <span
+                          key={a}
+                          className="rounded-full bg-white px-2 py-0.5 text-[9px] font-medium uppercase tracking-wider text-[#6B5B4F]"
+                        >
+                          {a}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Result message */}
+              {listingResult && (
+                <div
+                  className={`flex items-start gap-3 rounded-lg border p-4 ${
+                    listingResult.success
+                      ? "border-[#4A7C59]/30 bg-[#4A7C59]/5"
+                      : "border-[#B76E79]/30 bg-[#B76E79]/5"
+                  }`}
+                >
+                  {listingResult.success ? (
+                    <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#4A7C59]" />
+                  ) : (
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#B76E79]" />
+                  )}
+                  <div>
+                    <p className={`text-sm ${listingResult.success ? "text-[#4A7C59]" : "text-[#B76E79]"}`}>
+                      {listingResult.message}
+                    </p>
+                    {listingResult.handle && (
+                      <a
+                        href={`https://${process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN || "crazygels.myshopify.com"}/admin/products`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-flex items-center gap-1 text-xs text-[#9E6B73] underline"
+                      >
+                        View in Shopify Admin <ExternalLink className="h-3 w-3" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Actions */}
+              {!listingResult?.success && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { setListingProduct(null); setListingResult(null); }}
+                    className="flex-1 rounded-full border border-[#E8E4DC] py-2.5 text-xs font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#9E6B73]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleListOnShopify(listingProduct)}
+                    disabled={listingLoading}
+                    className="flex-1 inline-flex items-center justify-center gap-2 rounded-full bg-[#1A1A1A] py-2.5 text-xs font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#9E6B73] disabled:opacity-50"
+                  >
+                    {listingLoading ? (
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Listing...
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="h-3 w-3" />
+                        List as Draft
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {listingResult?.success && (
+                <button
+                  onClick={() => { setListingProduct(null); setListingResult(null); }}
+                  className="w-full rounded-full bg-[#1A1A1A] py-2.5 text-xs font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#9E6B73]"
+                >
+                  Done
+                </button>
+              )}
+
+              <p className="text-center text-[10px] text-[#9B9B9B]">
+                Product will be created as a draft in Shopify. You can edit pricing and details before publishing.
+              </p>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
