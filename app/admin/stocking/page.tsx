@@ -470,12 +470,18 @@ export default function StockingPage() {
         },
         body: JSON.stringify(data),
       });
-      if (!res.ok) throw new Error("Failed to save");
+      if (!res.ok) {
+        const errorBody = await res.json().catch(() => ({}));
+        console.error("[v0] Save failed - status:", res.status, "body:", errorBody);
+        alert(`Save failed (${res.status}): ${errorBody.error || "Unknown error"}`);
+        return;
+      }
       setEditingProduct(null);
       setEditingExisting(undefined);
       fetchDecisions();
     } catch (err) {
-      console.error("Save failed:", err);
+      console.error("[v0] Save failed:", err);
+      alert(`Save failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setSaving(false);
     }
