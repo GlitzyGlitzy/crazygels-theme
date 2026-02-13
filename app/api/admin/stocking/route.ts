@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
+    console.log("[v0] stocking POST body:", JSON.stringify(body));
     const {
       product_hash,
       decision = "pending",
@@ -94,6 +95,8 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    console.log("[v0] stocking upsert:", { product_hash, decision, retail_price, initial_quantity, fulfillment_method, priority });
 
     // Upsert: insert or update if already exists
     const rows = await sql`
@@ -128,8 +131,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, decision: rows[0] });
   } catch (error) {
     console.error("[stocking] POST error:", error);
+    const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
-      { error: "Failed to save stocking decision" },
+      { error: `Failed to save stocking decision: ${message}` },
       { status: 500 }
     );
   }
