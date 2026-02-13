@@ -18,11 +18,9 @@ export async function GET(req: NextRequest) {
     const sortBy = searchParams.get("sort") || "efficacy";
 
     const orderSql =
-      sortBy === "votes"
-        ? sql`COALESCE(pc.vote_count, 0) DESC`
-        : sortBy === "recommendations"
-          ? sql`COALESCE(pc.recommendation_count, 0) DESC`
-          : sql`pc.efficacy_score DESC NULLS LAST`;
+      sortBy === "efficacy"
+        ? sql`pc.efficacy_score DESC NULLS LAST`
+        : sql`pc.updated_at DESC NULLS LAST`;
 
     const rows = await sql`
       SELECT
@@ -39,24 +37,16 @@ export async function GET(req: NextRequest) {
         pc.status,
         pc.created_at,
         pc.updated_at,
-        COALESCE(pc.recommendation_count, 0) as recommendation_count,
-        COALESCE(pc.vote_count, 0) as vote_count,
+        pc.acquisition_lead,
+        pc.source,
+        pc.image_url,
         CASE
           WHEN pc.efficacy_score >= 0.8 THEN 'high'
           WHEN pc.efficacy_score >= 0.6 THEN 'medium'
           ELSE 'low'
         END as demand_tier,
-        si.acquisition_lead,
-        CASE WHEN si.acquisition_lead IS NOT NULL THEN true ELSE false END as has_source,
-        si.sample_ordered,
-        si.sample_status,
-        si.listed_on_shopify,
-        si.wholesale_price,
-        si.moq,
-        si.lead_time_days,
-        si.margin_actual
+        CASE WHEN pc.acquisition_lead IS NOT NULL THEN true ELSE false END as has_source
       FROM product_catalog pc
-      LEFT JOIN source_intelligence si ON si.product_hash = pc.product_hash
       WHERE pc.status = ${status}
       ORDER BY ${orderSql}
       LIMIT ${limit}`;
