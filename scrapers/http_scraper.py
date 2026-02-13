@@ -161,12 +161,38 @@ def _compute_efficacy(actives: list[dict], rating: float, review_count: int) -> 
 
 
 # ============================================
-# Source: Open Beauty Facts (guaranteed API)
+# Source: Open Beauty Facts (guaranteed API v2)
 # ============================================
+def _fetch_obf_url_sync(url: str) -> Optional[dict]:
+    """Fetch a single Open Beauty Facts API URL using urllib (stdlib).
+    Falls back to this if aiohttp has issues with the API."""
+    import urllib.request
+    import urllib.error
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "CrazyGels-Scraper/1.0 (contact: hello@crazygels.com)",
+        "Accept": "application/json",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            raw = resp.read()
+            text = raw.decode("utf-8", errors="replace")
+            if text and text.strip().startswith(("{", "[")):
+                return json.loads(text)
+            else:
+                logger.warning(f"  [OBF-sync] Non-JSON response (len={len(text)}): {text[:120]}")
+                return None
+    except (urllib.error.URLError, urllib.error.HTTPError, json.JSONDecodeError) as e:
+        logger.error(f"  [OBF-sync] Request failed: {e}")
+        return None
+
+
 async def scrape_open_beauty_facts(session: aiohttp.ClientSession, pages: int = 2) -> list[dict]:
-    """Scrape from Open Beauty Facts API v2 -- free, no anti-bot, always works."""
+    """Scrape from Open Beauty Facts API v2 -- free, no anti-bot, always works.
+
+    Uses the v2 search endpoint which returns proper JSON.
+    Has a sync fallback using urllib if aiohttp gets non-JSON responses.
+    """
     products = []
-    # Use multiple category tags per logical category for broader coverage
     categories = [
         ("moisturizers", "en:moisturizers"),
         ("face creams", "en:face-creams"),
@@ -180,104 +206,124 @@ async def scrape_open_beauty_facts(session: aiohttp.ClientSession, pages: int = 
         ("face masks", "en:face-masks"),
     ]
 
-    # Fields to request from the API
     api_fields = "code,product_name,brands,ingredients_text,image_url,categories_tags"
+    use_sync_fallback = False  # Switch to urllib if aiohttp fails repeatedly
 
     for cat_name, cat_tag in categories:
         for page in range(1, pages + 1):
-            # Use the v2 API endpoint which reliably returns JSON
             url = (
                 f"https://world.openbeautyfacts.org/api/v2/search"
                 f"?categories_tags={cat_tag}"
                 f"&page_size=50&page={page}"
                 f"&fields={api_fields}"
             )
+
+            data = None
             try:
-                logger.info(f"  [OpenBeautyFacts] Fetching {cat_name} page {page}...")
-                api_headers = {
-                    "User-Agent": HEADERS["User-Agent"],
-                    "Accept": "application/json",
-                }
-                async with session.get(url, headers=api_headers, timeout=aiohttp.ClientTimeout(total=30)) as resp:
-                    if resp.status != 200:
-                        logger.warning(f"  [OpenBeautyFacts] {cat_name} page {page}: HTTP {resp.status}")
-                        continue
-                    # Read as text first, then parse JSON to handle edge cases
-                    text = await resp.text()
-                    if not text or not text.strip().startswith("{"):
-                        logger.warning(f"  [OpenBeautyFacts] {cat_name} page {page}: non-JSON response (len={len(text)})")
-                        continue
-                    data = json.loads(text)
-
-                page_products = data.get("products", [])
-                total_available = data.get("count", 0)
-                page_count = data.get("page_count", 0)
-
-                for item in page_products:
-                    name = item.get("product_name", "").strip()
-                    brand = item.get("brands", "").strip()
-                    if not name or len(name) < 3:
-                        continue
-
-                    # Build description from available fields
-                    ingredients_text = item.get("ingredients_text", "") or ""
-                    description = ingredients_text[:500] if ingredients_text else name
-
-                    # Detect actives
-                    search_text = f"{name} {brand} {ingredients_text}"
-                    actives = _detect_actives(search_text)
-
-                    # Classify
-                    product_type = _classify_product_type(name)
-                    category = _classify_category(product_type)
-
-                    # Price estimation based on brand type
-                    brand_lower = brand.lower()
-                    if any(b in brand_lower for b in ["la mer", "chanel", "dior", "estée", "lancôme", "sisley"]):
-                        est_price = 85.0
-                    elif any(b in brand_lower for b in ["clinique", "origins", "shiseido", "biotherm", "clarins"]):
-                        est_price = 42.0
-                    elif any(b in brand_lower for b in ["cerave", "neutrogena", "nivea", "garnier", "l'oréal"]):
-                        est_price = 14.0
-                    elif any(b in brand_lower for b in ["the ordinary", "inkey", "revolution"]):
-                        est_price = 9.0
-                    else:
-                        est_price = 22.0
-
-                    efficacy = _compute_efficacy(actives, 0, 0)
-                    product_hash = _hash_product(name, brand, "openfacts")
-
-                    products.append({
-                        "product_hash": product_hash,
-                        "name": name,
-                        "brand": brand,
-                        "source": "open_beauty_facts",
-                        "category": category,
-                        "product_type": product_type,
-                        "price": est_price,
-                        "currency": "EUR",
-                        "price_tier": _classify_price_tier(est_price),
-                        "rating": None,
-                        "review_count": 0,
-                        "ingredients": ingredients_text[:1000] if ingredients_text else None,
-                        "image_url": item.get("image_url"),
-                        "url": f"https://world.openbeautyfacts.org/product/{item.get('code', '')}",
-                        "actives": [a["name"] for a in actives],
-                        "concerns": list(set(c for a in actives for c in a.get("concerns", []))),
-                        "efficacy_score": efficacy,
-                        "description": description[:500],
-                        "scraped_at": datetime.now(timezone.utc).isoformat(),
-                    })
-
-                logger.info(f"  [OpenBeautyFacts] {cat_name} page {page}/{page_count}: {len(page_products)} raw ({total_available} available) -> {len(products)} total")
-                await asyncio.sleep(1)  # Be polite
-
-                # Stop fetching if we've reached the last available page
-                if page >= page_count:
-                    break
-
+                if use_sync_fallback:
+                    # Use synchronous urllib fallback
+                    logger.info(f"  [OpenBeautyFacts] Fetching {cat_name} page {page} (sync fallback)...")
+                    data = await asyncio.get_event_loop().run_in_executor(
+                        None, _fetch_obf_url_sync, url
+                    )
+                else:
+                    # Try aiohttp first
+                    logger.info(f"  [OpenBeautyFacts] Fetching {cat_name} page {page}...")
+                    api_headers = {
+                        "User-Agent": "CrazyGels-Scraper/1.0 (contact: hello@crazygels.com)",
+                        "Accept": "application/json",
+                    }
+                    async with session.get(url, headers=api_headers, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                        if resp.status != 200:
+                            logger.warning(f"  [OpenBeautyFacts] {cat_name} page {page}: HTTP {resp.status}")
+                            continue
+                        raw_bytes = await resp.read()
+                        text = raw_bytes.decode("utf-8", errors="replace")
+                        if not text or not text.strip().startswith(("{", "[")):
+                            logger.warning(f"  [OpenBeautyFacts] {cat_name} page {page}: non-JSON from aiohttp (len={len(text)}), switching to sync fallback")
+                            logger.warning(f"  [OpenBeautyFacts] Response starts with: {text[:200]}")
+                            use_sync_fallback = True
+                            # Retry this page with sync fallback
+                            data = await asyncio.get_event_loop().run_in_executor(
+                                None, _fetch_obf_url_sync, url
+                            )
+                        else:
+                            data = json.loads(text)
             except Exception as e:
-                logger.error(f"  [OpenBeautyFacts] {cat_name} page {page} error: {e}")
+                logger.error(f"  [OpenBeautyFacts] {cat_name} page {page} aiohttp error: {e}, trying sync fallback...")
+                use_sync_fallback = True
+                try:
+                    data = await asyncio.get_event_loop().run_in_executor(
+                        None, _fetch_obf_url_sync, url
+                    )
+                except Exception as e2:
+                    logger.error(f"  [OpenBeautyFacts] {cat_name} page {page} sync also failed: {e2}")
+
+            if not data:
+                continue
+
+            page_products = data.get("products", [])
+            total_available = data.get("count", 0)
+            page_count = data.get("page_count", pages)
+
+            for item in page_products:
+                name = item.get("product_name", "").strip()
+                brand = item.get("brands", "").strip()
+                if not name or len(name) < 3:
+                    continue
+
+                ingredients_text = item.get("ingredients_text", "") or ""
+                description = ingredients_text[:500] if ingredients_text else name
+
+                search_text = f"{name} {brand} {ingredients_text}"
+                actives = _detect_actives(search_text)
+
+                product_type = _classify_product_type(name)
+                category = _classify_category(product_type)
+
+                brand_lower = brand.lower()
+                if any(b in brand_lower for b in ["la mer", "chanel", "dior", "estée", "lancôme", "sisley"]):
+                    est_price = 85.0
+                elif any(b in brand_lower for b in ["clinique", "origins", "shiseido", "biotherm", "clarins"]):
+                    est_price = 42.0
+                elif any(b in brand_lower for b in ["cerave", "neutrogena", "nivea", "garnier", "l'oréal"]):
+                    est_price = 14.0
+                elif any(b in brand_lower for b in ["the ordinary", "inkey", "revolution"]):
+                    est_price = 9.0
+                else:
+                    est_price = 22.0
+
+                efficacy = _compute_efficacy(actives, 0, 0)
+                product_hash = _hash_product(name, brand, "openfacts")
+
+                products.append({
+                    "product_hash": product_hash,
+                    "name": name,
+                    "brand": brand,
+                    "source": "open_beauty_facts",
+                    "category": category,
+                    "product_type": product_type,
+                    "price": est_price,
+                    "currency": "EUR",
+                    "price_tier": _classify_price_tier(est_price),
+                    "rating": None,
+                    "review_count": 0,
+                    "ingredients": ingredients_text[:1000] if ingredients_text else None,
+                    "image_url": item.get("image_url"),
+                    "url": f"https://world.openbeautyfacts.org/product/{item.get('code', '')}",
+                    "actives": [a["name"] for a in actives],
+                    "concerns": list(set(c for a in actives for c in a.get("concerns", []))),
+                    "efficacy_score": efficacy,
+                    "description": description[:500],
+                    "scraped_at": datetime.now(timezone.utc).isoformat(),
+                })
+
+            logger.info(f"  [OpenBeautyFacts] {cat_name} page {page}/{page_count}: {len(page_products)} raw ({total_available} available) -> {len(products)} total")
+            await asyncio.sleep(1)  # Be polite
+
+            # Stop fetching if we've reached the last available page
+            if page >= page_count:
+                break
 
     logger.info(f"  [OpenBeautyFacts] Total: {len(products)} products")
     return products
