@@ -166,27 +166,38 @@ def _compute_efficacy(actives: list[dict], rating: float, review_count: int) -> 
 async def scrape_open_beauty_facts(session: aiohttp.ClientSession, pages: int = 2) -> list[dict]:
     """Scrape from Open Beauty Facts API -- free, no anti-bot, always works."""
     products = []
+    # Use the direct category JSON endpoint format
     categories = [
-        ("moisturizers", "en:moisturizers"),
-        ("serums", "en:face-serums"),
-        ("cleansers", "en:face-cleansers"),
-        ("shampoos", "en:shampoos"),
-        ("sunscreens", "en:sunscreen"),
-        ("lip care", "en:lip-balms"),
-        ("body lotions", "en:body-milks"),
-        ("face masks", "en:face-masks"),
+        ("moisturizers", "moisturizers"),
+        ("serums", "face-serums"),
+        ("cleansers", "face-cleansers"),
+        ("shampoos", "shampoos"),
+        ("sunscreens", "sunscreens"),
+        ("lip care", "lip-balms"),
+        ("body lotions", "body-lotions"),
+        ("face masks", "face-masks"),
+        ("hair care", "hair-care"),
+        ("skincare", "skin-care"),
+        ("face creams", "face-creams"),
+        ("body care", "body-care"),
     ]
 
-    for cat_name, cat_tag in categories:
+    for cat_name, cat_slug in categories:
         for page in range(1, pages + 1):
-            url = f"https://world.openbeautyfacts.org/cgi/search.pl?tagtype_0=categories&tag_contains_0=contains&tag_0={cat_tag}&page_size=50&page={page}&json=1"
+            # Use the correct REST API: /category/{slug}/{page}.json
+            url = f"https://world.openbeautyfacts.org/category/{cat_slug}/{page}.json"
             try:
-                logger.info(f"  [OpenBeautyFacts] Fetching {cat_name} page {page}...")
+                logger.info(f"  [OpenBeautyFacts] Fetching {cat_name} page {page}... ({url})")
                 async with session.get(url, headers={"User-Agent": HEADERS["User-Agent"]}, timeout=aiohttp.ClientTimeout(total=30)) as resp:
                     if resp.status != 200:
                         logger.warning(f"  [OpenBeautyFacts] {cat_name} page {page}: HTTP {resp.status}")
                         continue
-                    data = await resp.json(content_type=None)
+                    text = await resp.text()
+                    try:
+                        data = json.loads(text)
+                    except json.JSONDecodeError:
+                        logger.error(f"  [OpenBeautyFacts] {cat_name} page {page}: not valid JSON (got {len(text)} chars)")
+                        continue
 
                 for item in data.get("products", []):
                     name = item.get("product_name", "").strip()
@@ -249,6 +260,74 @@ async def scrape_open_beauty_facts(session: aiohttp.ClientSession, pages: int = 
 
             except Exception as e:
                 logger.error(f"  [OpenBeautyFacts] {cat_name} page {page} error: {e}")
+
+    # Fallback: if category search returned nothing, try keyword search
+    if len(products) == 0:
+        logger.info("  [OpenBeautyFacts] Category search returned 0, trying keyword search...")
+        search_terms = ["cream", "serum", "shampoo", "moisturizer", "cleanser", "sunscreen", "lotion", "mask", "oil", "gel"]
+        for term in search_terms:
+            for page in range(1, pages + 1):
+                url = f"https://world.openbeautyfacts.org/cgi/search.pl?search_terms={term}&search_simple=1&action=process&page_size=50&page={page}&json=true"
+                try:
+                    logger.info(f"  [OpenBeautyFacts] Search '{term}' page {page}...")
+                    async with session.get(url, headers={"User-Agent": HEADERS["User-Agent"]}, timeout=aiohttp.ClientTimeout(total=30)) as resp:
+                        if resp.status != 200:
+                            continue
+                        text = await resp.text()
+                        try:
+                            data = json.loads(text)
+                        except json.JSONDecodeError:
+                            logger.error(f"  [OpenBeautyFacts] Search '{term}' page {page}: not valid JSON")
+                            continue
+
+                    for item in data.get("products", []):
+                        name = item.get("product_name", "").strip()
+                        brand = item.get("brands", "").strip()
+                        if not name or len(name) < 3:
+                            continue
+                        ingredients_text = item.get("ingredients_text", "") or ""
+                        description = ingredients_text[:500] if ingredients_text else name
+                        search_text = f"{name} {brand} {ingredients_text}"
+                        actives = _detect_actives(search_text)
+                        product_type = _classify_product_type(name)
+                        category = _classify_category(product_type)
+                        brand_lower = brand.lower()
+                        if any(b in brand_lower for b in ["la mer", "chanel", "dior", "estée", "lancôme", "sisley"]):
+                            est_price = 85.0
+                        elif any(b in brand_lower for b in ["clinique", "origins", "shiseido", "biotherm", "clarins"]):
+                            est_price = 42.0
+                        elif any(b in brand_lower for b in ["cerave", "neutrogena", "nivea", "garnier", "l'oréal"]):
+                            est_price = 14.0
+                        elif any(b in brand_lower for b in ["the ordinary", "inkey", "revolution"]):
+                            est_price = 9.0
+                        else:
+                            est_price = 22.0
+                        efficacy = _compute_efficacy(actives, 0, 0)
+                        product_hash = _hash_product(name, brand, "openfacts")
+                        products.append({
+                            "product_hash": product_hash,
+                            "name": name,
+                            "brand": brand,
+                            "source": "open_beauty_facts",
+                            "category": category,
+                            "product_type": product_type,
+                            "price": est_price,
+                            "currency": "EUR",
+                            "price_tier": _classify_price_tier(est_price),
+                            "rating": None,
+                            "review_count": 0,
+                            "ingredients": ingredients_text[:1000] if ingredients_text else None,
+                            "image_url": item.get("image_url"),
+                            "url": f"https://world.openbeautyfacts.org/product/{item.get('code', '')}",
+                            "actives": [a["name"] for a in actives],
+                            "concerns": list(set(c for a in actives for c in a.get("concerns", []))),
+                            "efficacy_score": efficacy,
+                            "description": description[:500],
+                            "scraped_at": datetime.now(timezone.utc).isoformat(),
+                        })
+                    await asyncio.sleep(1)
+                except Exception as e:
+                    logger.error(f"  [OpenBeautyFacts] Search '{term}' page {page} error: {e}")
 
     logger.info(f"  [OpenBeautyFacts] Total: {len(products)} products")
     return products
