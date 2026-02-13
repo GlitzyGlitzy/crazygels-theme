@@ -322,7 +322,7 @@ export default function IntelligenceDashboard() {
     setError(null);
     try {
       const res = await fetch(
-        `/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=50`,
+        `/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=200`,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       if (!res.ok) {
@@ -490,8 +490,7 @@ export default function IntelligenceDashboard() {
                 className="h-9 appearance-none rounded-full border border-[#E8E4DC] bg-[#FAFAF8] pl-4 pr-8 text-xs text-[#6B5B4F] focus:border-[#9E6B73] focus:outline-none"
               >
                 <option value="efficacy">By Efficacy</option>
-                <option value="votes">By Votes</option>
-                <option value="recommendations">By Recommendations</option>
+                <option value="recent">By Recent</option>
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3 w-3 -translate-y-1/2 text-[#9B9B9B]" />
             </div>
