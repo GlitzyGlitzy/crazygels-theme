@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles } from 'lucide-react';
+import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package } from 'lucide-react';
 
 const adminTools = [
   {
@@ -9,6 +9,14 @@ const adminTools = [
     href: '/admin/intelligence',
     icon: BarChart3,
     accent: '#9E6B73',
+  },
+  {
+    title: 'Stocking Decisions',
+    description:
+      'Decide which intelligence products to stock. Set pricing, quantity, fulfillment method, and priority. Stocked products feed into live consult recommendations.',
+    href: '/admin/stocking',
+    icon: Package,
+    accent: '#4A7C59',
   },
   {
     title: 'Export Products',

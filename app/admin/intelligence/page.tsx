@@ -643,16 +643,20 @@ export default function IntelligenceDashboard() {
                         {signal.status === "listed" ? (
                           <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-[#4A7C59]">
                             <CheckCircle className="h-3 w-3" />
-                            Listed
+                            Stocked
                           </span>
                         ) : (
-                          <button
-                            onClick={() => setListingProduct(signal)}
+                          <Link
+                            href="/admin/stocking"
+                            onClick={() => {
+                              // Store product hash so stocking page can auto-open it
+                              sessionStorage.setItem("stock_product", signal.product_hash);
+                            }}
                             className="inline-flex items-center gap-1.5 rounded-full border border-[#9E6B73] px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#9E6B73] transition-all hover:bg-[#9E6B73] hover:text-white"
                           >
-                            <ShoppingCart className="h-3 w-3" />
-                            List on Shop
-                          </button>
+                            <Package className="h-3 w-3" />
+                            Stock
+                          </Link>
                         )}
                         {signal.acquisition_lead && (
                           <button
