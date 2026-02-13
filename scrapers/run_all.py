@@ -246,7 +246,7 @@ def _insert_to_postgres(combined_path: str):
         except ImportError:
             raise RuntimeError(
                 "boto3 is required for AWS Secrets Manager auth. "
-                "Install it with: pip install boto3\n"
+                "Install it with:  pip install boto3\n"
                 "Or set RDS_HOST, RDS_PORT, RDS_DATABASE, RDS_USERNAME, "
                 "RDS_PASSWORD environment variables instead."
             )
