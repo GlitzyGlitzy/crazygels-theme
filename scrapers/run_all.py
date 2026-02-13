@@ -240,8 +240,16 @@ def _insert_to_postgres(combined_path: str):
             password=os.getenv("RDS_PASSWORD"),
         )
     else:
-        # Try Secrets Manager
-        import boto3
+        # Try Secrets Manager (requires: pip install boto3)
+        try:
+            import boto3  # type: ignore[import-untyped]
+        except ImportError:
+            raise RuntimeError(
+                "boto3 is required for AWS Secrets Manager auth. "
+                "Install it with: pip install boto3\n"
+                "Or set RDS_HOST, RDS_PORT, RDS_DATABASE, RDS_USERNAME, "
+                "RDS_PASSWORD environment variables instead."
+            )
         sm = boto3.client("secretsmanager")
         secret = json.loads(
             sm.get_secret_value(SecretId=os.environ["DB_SECRET_ARN"])["SecretString"]
