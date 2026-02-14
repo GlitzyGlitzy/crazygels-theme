@@ -685,6 +685,40 @@ export async function PATCH(request: NextRequest) {
         );
       }
 
+      // First test if token has write access
+      const testUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/products.json?limit=1&fields=id,variants`;
+      const testRes = await fetch(testUrl, {
+        headers: { "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN },
+      });
+      if (!testRes.ok) {
+        return NextResponse.json({
+          status: "error",
+          message: `Admin API not accessible (HTTP ${testRes.status}). Check SHOPIFY_ADMIN_TOKEN has read_products scope.`,
+        }, { status: 400 });
+      }
+      const testData = await testRes.json();
+      const testProduct = testData?.products?.[0];
+      if (testProduct) {
+        // Try a no-op write to check write_products scope
+        const writeTestUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/products/${testProduct.id}.json`;
+        const writeRes = await fetch(writeTestUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+          },
+          body: JSON.stringify({
+            product: { id: testProduct.id },
+          }),
+        });
+        if (writeRes.status === 403) {
+          return NextResponse.json({
+            status: "error",
+            message: "SHOPIFY_ADMIN_TOKEN does not have write_products permission. Go to Shopify Admin > Settings > Apps and sales channels > Develop apps, select your app, and add the write_products scope.",
+          }, { status: 403 });
+        }
+      }
+
       // ids is optional -- if provided, only adjust those; otherwise adjust all overpriced
       const { ids, strategy } = body as {
         ids?: number[];
@@ -817,26 +851,34 @@ export async function PATCH(request: NextRequest) {
             continue;
           }
 
-          // Update price on all variants
-          let variantUpdated = false;
-          for (const variant of variants) {
-            const variantUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/variants/${variant.id}.json`;
-            const varRes = await fetch(variantUrl, {
-              method: "PUT",
-              headers: {
-                "Content-Type": "application/json",
-                "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+          // Update price via product endpoint (sets all variants at once)
+          const updateUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/products/${numericId}.json`;
+          const updatedVariants = variants.map((v: { id: number }) => ({
+            id: v.id,
+            price: String(newPrice),
+            compare_at_price: String(currentPrice),
+          }));
+          const updateRes = await fetch(updateUrl, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+            },
+            body: JSON.stringify({
+              product: {
+                id: Number(numericId),
+                variants: updatedVariants,
               },
-              body: JSON.stringify({
-                variant: {
-                  id: variant.id,
-                  price: String(newPrice),
-                  compare_at_price: String(currentPrice), // Show original as "was" price
-                },
-              }),
-            });
-            if (varRes.ok) variantUpdated = true;
+            }),
+          });
+          const variantUpdated = updateRes.ok;
+          if (!variantUpdated) {
+            const errBody = await updateRes.text();
+            console.log("[v0] Price update failed:", updateRes.status, errBody.slice(0, 200));
           }
+
+          // Rate limit: wait 500ms between Shopify API calls to avoid 429
+          await new Promise((resolve) => setTimeout(resolve, 500));
 
           if (variantUpdated) {
             adjusted++;

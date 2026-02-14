@@ -788,6 +788,11 @@ export default function EnrichmentDashboard() {
           progress.done += batchIds.length;
           progress.failed += batchIds.length;
           addLog("error", `Batch failed: ${data.message}`);
+          // If it's a permission error, stop all batches
+          if (data.message?.includes("write_products") || data.message?.includes("403")) {
+            addLog("error", "Your SHOPIFY_ADMIN_TOKEN needs write_products scope. Go to Shopify Admin > Settings > Apps and sales channels > Develop apps > your app > API scopes, and enable write_products. Then update the token in your environment variables.");
+            break;
+          }
         }
       } catch (e) {
         progress.done += batchIds.length;
