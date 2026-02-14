@@ -729,12 +729,22 @@ export async function PATCH(request: NextRequest) {
       }> = [];
       const errors: string[] = [];
 
+      console.log("[v0] Price adjust starting. Store:", SHOPIFY_STORE, "Token set:", !!SHOPIFY_ADMIN_TOKEN, "Rows:", rows.length);
+
       for (const row of rows) {
         try {
-          const shopifyId = row.shopify_product_id.replace(
+          const shopifyId = row.shopify_product_id?.replace(
             "gid://shopify/Product/",
             ""
           );
+
+          console.log("[v0] Processing:", row.shopify_title, "ID:", row.shopify_product_id, "->", shopifyId);
+
+          if (!shopifyId || shopifyId === row.shopify_product_id) {
+            // ID wasn't a GID format, try using it directly
+            console.log("[v0] ID not in GID format, using raw:", row.shopify_product_id);
+          }
+
           const currentPrice = Number(row.shopify_price);
           const competitorAvg = Number(row.competitor_price_avg);
 
@@ -767,23 +777,42 @@ export async function PATCH(request: NextRequest) {
             continue;
           }
 
+          // Use the numeric ID (strip GID prefix if present)
+          const numericId = shopifyId || row.shopify_product_id;
+
           // First get the product's variants to find variant IDs
-          const productUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/products/${shopifyId}.json?fields=id,variants`;
+          const productUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/products/${numericId}.json?fields=id,variants`;
+          console.log("[v0] Fetching product:", productUrl);
           const productRes = await fetch(productUrl, {
             headers: { "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN },
           });
 
           if (!productRes.ok) {
+            const errBody = await productRes.text();
+            console.log("[v0] Product fetch failed:", productRes.status, errBody.slice(0, 200));
             failed++;
-            errors.push(`${row.shopify_title}: Failed to fetch product (${productRes.status})`);
+            results.push({
+              title: row.shopify_title,
+              old_price: currentPrice,
+              new_price: newPrice,
+              status: `error_${productRes.status}`,
+            });
+            errors.push(`${row.shopify_title}: HTTP ${productRes.status} - ${errBody.slice(0, 100)}`);
             continue;
           }
 
           const productData = await productRes.json();
           const variants = productData?.product?.variants || [];
+          console.log("[v0] Found", variants.length, "variants for", row.shopify_title);
 
           if (variants.length === 0) {
             failed++;
+            results.push({
+              title: row.shopify_title,
+              old_price: currentPrice,
+              new_price: newPrice,
+              status: "no_variants",
+            });
             errors.push(`${row.shopify_title}: No variants found`);
             continue;
           }
