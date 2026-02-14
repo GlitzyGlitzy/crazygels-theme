@@ -94,6 +94,72 @@ class UltaScraper(BaseScraper):
                 urls.append(url)
         return urls
 
+    async def scrape(self):
+        """Override base scrape to use Playwright for Ulta (anti-bot protection)."""
+        from datetime import datetime
+        from scrapers.common.models import ScraperResult
+
+        started_at = datetime.utcnow()
+        products = []
+        errors = []
+        total_pages = 0
+
+        logger.info(f"[{self.source.value}] Starting scrape...")
+
+        category_urls = await self.get_category_urls()
+        product_urls = []
+
+        # Phase 1: Collect product URLs from listing pages using Playwright
+        for cat_url in category_urls:
+            html = await self._fetch_js(
+                cat_url,
+                wait_selector="a[href*='/p/'], .ProductCard, [data-testid='product-card']",
+                timeout_ms=45000,
+            )
+            if html:
+                total_pages += 1
+                try:
+                    urls = await self.parse_listing(html, cat_url)
+                    product_urls.extend(urls)
+                except Exception as e:
+                    errors.append(f"Listing parse error ({cat_url}): {e}")
+
+        # Deduplicate
+        product_urls = list(set(product_urls))
+        logger.info(f"[{self.source.value}] Found {len(product_urls)} product URLs")
+
+        # Phase 2: Scrape individual product pages using Playwright
+        for url in product_urls:
+            html = await self._fetch_js(
+                url,
+                wait_selector="h1, [itemprop='name']",
+                timeout_ms=45000,
+            )
+            if html:
+                total_pages += 1
+                try:
+                    product = await self.parse_product(html, url)
+                    if product:
+                        products.append(product)
+                except Exception as e:
+                    errors.append(f"Product parse error ({url}): {e}")
+
+        finished_at = datetime.utcnow()
+        result = ScraperResult(
+            source=self.source,
+            products=products,
+            started_at=started_at,
+            finished_at=finished_at,
+            total_pages=total_pages,
+            errors=errors,
+        )
+        logger.info(
+            f"[{self.source.value}] Scrape complete: "
+            f"{len(products)} products, {len(errors)} errors, "
+            f"{result.duration_seconds:.1f}s"
+        )
+        return result
+
     async def parse_listing(self, html: str, url: str) -> list[str]:
         """Extract product URLs from an Ulta listing page."""
         soup = BeautifulSoup(html, "html.parser")
