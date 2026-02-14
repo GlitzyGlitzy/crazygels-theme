@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Script from 'next/script';
 
 /**
@@ -18,33 +18,35 @@ import Script from 'next/script';
  */
 export function KlaviyoScript() {
   const publicKey = process.env.NEXT_PUBLIC_KLAVIYO_PUBLIC_KEY;
+  const [shouldLoad, setShouldLoad] = useState(false);
 
-  // Suppress unhandled rejections from Klaviyo's third-party script
+  // Always run: suppress unhandled rejections from Klaviyo's third-party
+  // script AND determine whether we're on a production domain.
   useEffect(() => {
+    // Catch Klaviyo "validation failed" rejections in all environments
     function handleRejection(event: PromiseRejectionEvent) {
+      const reason = event.reason;
       if (
-        event.reason instanceof Error &&
-        event.reason.message === 'validation failed' &&
-        event.reason.stack?.includes('klaviyo')
+        reason instanceof Error &&
+        reason.message === 'validation failed' &&
+        reason.stack?.includes('klaviyo')
       ) {
         event.preventDefault();
       }
     }
 
     window.addEventListener('unhandledrejection', handleRejection);
+
+    // Only load the onsite SDK on the real production domain
+    const host = window.location.hostname;
+    if (host === 'crazygels.com' || host === 'www.crazygels.com') {
+      setShouldLoad(true);
+    }
+
     return () => window.removeEventListener('unhandledrejection', handleRejection);
   }, []);
 
-  if (!publicKey) return null;
-
-  // Skip loading the Klaviyo onsite SDK in non-production environments
-  // to prevent "validation failed" errors from their form/popup system.
-  const isProduction =
-    typeof window !== 'undefined' &&
-    (window.location.hostname === 'crazygels.com' ||
-      window.location.hostname === 'www.crazygels.com');
-
-  if (!isProduction) return null;
+  if (!publicKey || !shouldLoad) return null;
 
   return (
     <Script
