@@ -526,37 +526,46 @@ export default function EnrichmentDashboard() {
             onClick={runAutoMatch}
             disabled={loading !== null}
             className="inline-flex items-center gap-2 rounded-full bg-[#1A1A1A] px-6 py-2.5 text-sm font-medium text-[#FAFAF8] transition-all hover:bg-[#333] disabled:opacity-50"
+            suppressHydrationWarning
           >
-            {loading === "match" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Zap className="h-4 w-4" />
-            )}
-            Auto-Match Shopify Products
+            <span className="inline-flex h-4 w-4 items-center justify-center">
+              {loading === "match" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Zap className="h-4 w-4" />
+              )}
+            </span>
+            <span>Auto-Match Shopify Products</span>
           </button>
           <button
             onClick={loadEnrichments}
             disabled={loading !== null}
             className="inline-flex items-center gap-2 rounded-full border border-[#E8E4DC] bg-[#FAFAF8] px-5 py-2.5 text-sm font-medium text-[#1A1A1A] transition-all hover:border-[#9E6B73] hover:text-[#9E6B73] disabled:opacity-50"
+            suppressHydrationWarning
           >
-            {loading === "load" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            Load Results
+            <span className="inline-flex h-4 w-4 items-center justify-center">
+              {loading === "load" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </span>
+            <span>Load Results</span>
           </button>
           <button
             onClick={computeBenchmarks}
             disabled={loading !== null}
             className="inline-flex items-center gap-2 rounded-full border border-[#E8E4DC] bg-[#FAFAF8] px-5 py-2.5 text-sm font-medium text-[#1A1A1A] transition-all hover:border-[#9E6B73] hover:text-[#9E6B73] disabled:opacity-50"
+            suppressHydrationWarning
           >
-            {loading === "benchmark" ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <BarChart3 className="h-4 w-4" />
-            )}
-            Compute Benchmarks
+            <span className="inline-flex h-4 w-4 items-center justify-center">
+              {loading === "benchmark" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <BarChart3 className="h-4 w-4" />
+              )}
+            </span>
+            <span>Compute Benchmarks</span>
           </button>
         </div>
 
