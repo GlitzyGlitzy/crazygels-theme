@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     if (category && withPriceOnly) {
       products = await sql`
         SELECT product_hash, display_name, category, product_type, price_tier,
-               retail_price, price_currency, price_source_url
+               retail_price, currency, source_url
         FROM product_catalog
         WHERE category = ${category} AND retail_price IS NOT NULL
         ORDER BY retail_price DESC
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     } else if (category) {
       products = await sql`
         SELECT product_hash, display_name, category, product_type, price_tier,
-               retail_price, price_currency, price_source_url
+               retail_price, currency, source_url
         FROM product_catalog
         WHERE category = ${category}
         ORDER BY retail_price DESC NULLS LAST
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     } else if (withPriceOnly) {
       products = await sql`
         SELECT product_hash, display_name, category, product_type, price_tier,
-               retail_price, price_currency, price_source_url
+               retail_price, currency, source_url
         FROM product_catalog
         WHERE retail_price IS NOT NULL
         ORDER BY retail_price DESC
@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
     } else {
       products = await sql`
         SELECT product_hash, display_name, category, product_type, price_tier,
-               retail_price, price_currency, price_source_url
+               retail_price, currency, source_url
         FROM product_catalog
         ORDER BY display_name
         LIMIT ${limit}
@@ -140,8 +140,8 @@ export async function POST(request: NextRequest) {
         const result = await sql`
           UPDATE product_catalog
           SET retail_price = ${entry.retail_price},
-              price_currency = ${entry.currency || 'EUR'},
-              price_source_url = ${entry.source_url || null},
+              currency = ${entry.currency || 'EUR'},
+              source_url = ${entry.source_url || null},
               updated_at = NOW()
           WHERE product_hash = ${entry.product_hash}
         `;
