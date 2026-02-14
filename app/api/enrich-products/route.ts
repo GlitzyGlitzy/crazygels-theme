@@ -183,47 +183,149 @@ function computeCompositeScore(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Price analysis                                                     */
+/*  Price analysis  – queries REAL competitor prices from DB            */
 /* ------------------------------------------------------------------ */
 
-function analyzePricePosition(
+/**
+ * Look up real competitor prices from the product_catalog table.
+ *
+ * Strategy (cascading, most specific → broadest):
+ *  1. Exact match: retail_price on the matched catalog product itself
+ *  2. Vendor average: AVG(retail_price) from same vendor + category
+ *  3. Category + tier average: AVG(retail_price) from same category + price_tier
+ *  4. Category average: AVG(retail_price) from same category
+ *  5. Global tier average: AVG(retail_price) from same price_tier
+ *  6. market_benchmarks table (aggregated benchmark data)
+ *  7. Fallback: null (no hardcoded values)
+ */
+async function lookupCompetitorPrice(
+  catalogHash: string | null,
+  catalogCategory: string | null,
+  catalogProductType: string | null,
+  catalogPriceTier: string | null,
+  catalogVendorName: string | null,
+): Promise<{ avg: number | null; source: string; count: number }> {
+  // 1. Exact match: retail_price on the matched catalog product
+  if (catalogHash) {
+    const [direct] = await sql`
+      SELECT retail_price FROM product_catalog
+      WHERE product_hash = ${catalogHash} AND retail_price IS NOT NULL AND retail_price > 0
+    `;
+    if (direct?.retail_price) {
+      return { avg: Number(direct.retail_price), source: 'exact_match', count: 1 };
+    }
+  }
+
+  // 2. Vendor average: find all products from the same vendor/brand with prices
+  if (catalogVendorName) {
+    const vendorPattern = `%${catalogVendorName.split(' ')[0]}%`;
+    const [vendorAvg] = await sql`
+      SELECT AVG(retail_price) as avg_price, COUNT(*) as cnt
+      FROM product_catalog
+      WHERE display_name ILIKE ${vendorPattern}
+        AND retail_price IS NOT NULL AND retail_price > 0
+        ${catalogCategory ? sql`AND category = ${catalogCategory}` : sql``}
+    `;
+    if (vendorAvg?.avg_price && Number(vendorAvg.cnt) >= 2) {
+      return { avg: Math.round(Number(vendorAvg.avg_price) * 100) / 100, source: 'vendor_avg', count: Number(vendorAvg.cnt) };
+    }
+  }
+
+  // 3. Category + tier average
+  if (catalogCategory && catalogPriceTier) {
+    const [catTierAvg] = await sql`
+      SELECT AVG(retail_price) as avg_price, COUNT(*) as cnt
+      FROM product_catalog
+      WHERE category = ${catalogCategory}
+        AND price_tier = ${catalogPriceTier}
+        AND retail_price IS NOT NULL AND retail_price > 0
+    `;
+    if (catTierAvg?.avg_price && Number(catTierAvg.cnt) >= 3) {
+      return { avg: Math.round(Number(catTierAvg.avg_price) * 100) / 100, source: 'category_tier_avg', count: Number(catTierAvg.cnt) };
+    }
+  }
+
+  // 4. Category average (any tier)
+  if (catalogCategory) {
+    const [catAvg] = await sql`
+      SELECT AVG(retail_price) as avg_price, COUNT(*) as cnt
+      FROM product_catalog
+      WHERE category = ${catalogCategory}
+        AND retail_price IS NOT NULL AND retail_price > 0
+    `;
+    if (catAvg?.avg_price && Number(catAvg.cnt) >= 3) {
+      return { avg: Math.round(Number(catAvg.avg_price) * 100) / 100, source: 'category_avg', count: Number(catAvg.cnt) };
+    }
+  }
+
+  // 5. Global tier average
+  if (catalogPriceTier) {
+    const [tierAvg] = await sql`
+      SELECT AVG(retail_price) as avg_price, COUNT(*) as cnt
+      FROM product_catalog
+      WHERE price_tier = ${catalogPriceTier}
+        AND retail_price IS NOT NULL AND retail_price > 0
+    `;
+    if (tierAvg?.avg_price && Number(tierAvg.cnt) >= 3) {
+      return { avg: Math.round(Number(tierAvg.avg_price) * 100) / 100, source: 'tier_avg', count: Number(tierAvg.cnt) };
+    }
+  }
+
+  // 6. market_benchmarks table
+  if (catalogProductType && catalogPriceTier) {
+    const [benchmark] = await sql`
+      SELECT avg_price FROM market_benchmarks
+      WHERE product_type = ${catalogProductType}
+        AND price_tier = ${catalogPriceTier}
+        AND avg_price IS NOT NULL AND avg_price > 0
+    `;
+    if (benchmark?.avg_price) {
+      return { avg: Number(benchmark.avg_price), source: 'market_benchmark', count: 0 };
+    }
+  }
+
+  // 7. No data available
+  return { avg: null, source: 'none', count: 0 };
+}
+
+async function analyzePricePosition(
   shopifyPrice: number | undefined,
-  catalogPriceTier: string,
-  efficacyScore: number | null
-): { position: string | null; competitorAvg: number | null; marginOpp: number | null } {
-  if (!shopifyPrice) return { position: null, competitorAvg: null, marginOpp: null };
+  match: CatalogMatch | null,
+): Promise<{ position: string | null; competitorAvg: number | null; marginOpp: number | null; priceSource: string }> {
+  if (!shopifyPrice || !match) {
+    return { position: null, competitorAvg: null, marginOpp: null, priceSource: 'none' };
+  }
 
-  // Estimated competitor retail by tier (EUR, approximate from scraped data)
-  const tierPriceRanges: Record<string, { low: number; mid: number; high: number }> = {
-    budget: { low: 5, mid: 12, high: 20 },
-    mid: { low: 15, mid: 28, high: 45 },
-    premium: { low: 35, mid: 55, high: 85 },
-    luxury: { low: 70, mid: 120, high: 200 },
-  };
+  // Extract vendor name from the catalog display_name (usually "Brand Product Name")
+  const vendorName = match.display_name?.split(' ')[0] || null;
 
-  const range = tierPriceRanges[catalogPriceTier];
-  if (!range) return { position: null, competitorAvg: null, marginOpp: null };
+  const { avg: competitorAvg, source: priceSource } = await lookupCompetitorPrice(
+    match.product_hash,
+    match.category,
+    match.product_type,
+    match.price_tier,
+    vendorName,
+  );
 
-  const competitorAvg = range.mid;
+  if (!competitorAvg) {
+    return { position: null, competitorAvg: null, marginOpp: null, priceSource };
+  }
 
+  // Determine price position with +-15% tolerance band
   let position: string;
-  if (shopifyPrice < range.low) {
-    position = "underpriced";
-  } else if (shopifyPrice > range.high) {
-    position = "overpriced";
-  } else if (shopifyPrice < range.mid * 0.85) {
-    position = "underpriced";
-  } else if (shopifyPrice > range.mid * 1.15) {
-    position = "overpriced";
+  if (shopifyPrice < competitorAvg * 0.85) {
+    position = 'underpriced';
+  } else if (shopifyPrice > competitorAvg * 1.15) {
+    position = 'overpriced';
   } else {
-    position = "fair";
+    position = 'fair';
   }
 
   // If product has high efficacy and is underpriced, bigger opportunity
-  const efficacyBonus = efficacyScore && efficacyScore > 4.0 ? 1.15 : 1.0;
+  const efficacyBonus = match.efficacy_score && match.efficacy_score > 4.0 ? 1.15 : 1.0;
   const marginOpp = Math.round((competitorAvg * efficacyBonus - shopifyPrice) * 100) / 100;
 
-  return { position, competitorAvg, marginOpp };
+  return { position, competitorAvg, marginOpp, priceSource };
 }
 
 /* ------------------------------------------------------------------ */
@@ -366,10 +468,10 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Price analysis
-      const priceAnalysis = bestMatch
-        ? analyzePricePosition(sp.price, bestMatch.price_tier, bestMatch.efficacy_score)
-        : { position: null, competitorAvg: null, marginOpp: null };
+      // Price analysis -- now async, queries real competitor prices
+      const priceAnalysis = bestMatch && bestScore > 0.25
+        ? await analyzePricePosition(sp.price, bestMatch)
+        : { position: null, competitorAvg: null, marginOpp: null, priceSource: 'none' };
 
       // Store in product_enrichment table if we have a match above threshold
       if (bestMatch && bestScore > 0.25) {
