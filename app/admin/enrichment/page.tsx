@@ -764,6 +764,11 @@ export default function EnrichmentDashboard() {
           if (data.results) {
             progress.results.push(...data.results);
           }
+          if (data.errors?.length) {
+            for (const err of data.errors) {
+              addLog("error", err);
+            }
+          }
           // Update enrichments locally for adjusted items
           if (data.results?.length) {
             const adjustedTitles = new Set(
@@ -1043,7 +1048,15 @@ export default function EnrichmentDashboard() {
                                   : "bg-[#B76E79]/10 text-[#B76E79]"
                             }`}
                           >
-                            {r.status === "adjusted" ? "Done" : r.status === "skipped_minimal_change" ? "Skipped" : "Failed"}
+                            {r.status === "adjusted"
+                              ? "Done"
+                              : r.status === "skipped_minimal_change"
+                                ? "Skipped"
+                                : r.status.startsWith("error_")
+                                  ? `HTTP ${r.status.replace("error_", "")}`
+                                  : r.status === "no_variants"
+                                    ? "No Variants"
+                                    : "Failed"}
                           </span>
                         </td>
                       </tr>
