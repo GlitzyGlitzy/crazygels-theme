@@ -685,15 +685,24 @@ export async function PATCH(request: NextRequest) {
         );
       }
 
-      // First test if token has write access
+      console.log("[v0] Price adjust - SHOPIFY_STORE:", SHOPIFY_STORE);
+      console.log("[v0] Price adjust - Token length:", SHOPIFY_ADMIN_TOKEN.length, "starts with:", SHOPIFY_ADMIN_TOKEN.slice(0, 6));
+
+      // First test if token has read access - use same pattern as connection-test
+      // connection-test uses the raw SHOPIFY_STORE_DOMAIN which may include the protocol
+      const rawDomain = process.env.SHOPIFY_STORE_DOMAIN || "";
       const testUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/products.json?limit=1&fields=id,variants`;
+      console.log("[v0] Price adjust test URL:", testUrl);
       const testRes = await fetch(testUrl, {
         headers: { "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN },
       });
+      console.log("[v0] Price adjust test response:", testRes.status);
       if (!testRes.ok) {
+        const errBody = await testRes.text();
+        console.log("[v0] Price adjust test error body:", errBody.slice(0, 300));
         return NextResponse.json({
           status: "error",
-          message: `Admin API not accessible (HTTP ${testRes.status}). Check SHOPIFY_ADMIN_TOKEN has read_products scope.`,
+          message: `Admin API not accessible (HTTP ${testRes.status}). Store: ${SHOPIFY_STORE}, Raw domain: ${rawDomain}, Token starts: ${SHOPIFY_ADMIN_TOKEN.slice(0, 6)}..., Response: ${errBody.slice(0, 150)}`,
         }, { status: 400 });
       }
       const testData = await testRes.json();
