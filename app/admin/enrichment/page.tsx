@@ -14,6 +14,7 @@ import {
   XCircle,
   Loader2,
   Upload,
+  DollarSign,
   Search,
   ChevronDown,
   Eye,
@@ -134,10 +135,12 @@ function EnrichmentDetail({
   row,
   onClose,
   onStatusChange,
+  onAdjustPrice,
 }: {
   row: EnrichmentRow;
   onClose: () => void;
   onStatusChange: (id: number, status: string) => void;
+  onAdjustPrice: (id: number) => void;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1A1A1A]/40 backdrop-blur-sm">
@@ -334,6 +337,42 @@ function EnrichmentDetail({
               </div>
             </div>
           )}
+
+          {/* Price adjustment */}
+          {row.price_position === "overpriced" &&
+            row.competitor_price_avg != null &&
+            row.shopify_price != null && (
+              <div className="rounded-xl border border-[#C4963C]/30 bg-[#C4963C]/5 p-4">
+                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#C4963C]">
+                  Price Adjustment Available
+                </p>
+                <p className="mt-1 text-sm text-[#6B5B4F]">
+                  Your price:{" "}
+                  <span className="font-semibold text-[#B76E79]">
+                    EUR {Number(row.shopify_price).toFixed(2)}
+                  </span>{" "}
+                  &rarr; Benchmark:{" "}
+                  <span className="font-semibold text-[#4A7C59]">
+                    EUR {Number(row.competitor_price_avg).toFixed(2)}
+                  </span>{" "}
+                  <span className="text-xs text-[#9B9B9B]">
+                    (save EUR{" "}
+                    {(
+                      Number(row.shopify_price) -
+                      Number(row.competitor_price_avg)
+                    ).toFixed(2)}
+                    )
+                  </span>
+                </p>
+                <button
+                  onClick={() => onAdjustPrice(row.id)}
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#C4963C] px-4 py-2 text-[10px] font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#B38734]"
+                >
+                  <DollarSign className="h-3 w-3" />
+                  Adjust to Benchmark Price
+                </button>
+              </div>
+            )}
 
           {/* Action buttons */}
           <div className="flex gap-3 border-t border-[#E8E4DC] pt-5">
@@ -619,6 +658,102 @@ export default function EnrichmentDashboard() {
     setLoading(null);
   };
 
+  const handleAdjustPrice = async (id: number) => {
+    const row = enrichments.find((e) => e.id === id);
+    if (!row) return;
+    const confirmMsg = `Adjust "${row.shopify_title}" from EUR ${Number(row.shopify_price).toFixed(2)} to EUR ${Number(row.competitor_price_avg).toFixed(2)}?`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoading("price");
+    addLog("info", `Adjusting price for ${row.shopify_title}...`);
+
+    try {
+      const res = await fetch("/api/enrich-products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "adjust_prices",
+          ids: [id],
+          strategy: "match_avg",
+        }),
+      });
+      const data = await res.json();
+      if (data.status === "success" && data.adjusted > 0) {
+        addLog("success", `Price adjusted: EUR ${Number(row.shopify_price).toFixed(2)} -> EUR ${Number(row.competitor_price_avg).toFixed(2)}`);
+        setEnrichments((prev) =>
+          prev.map((e) =>
+            e.id === id
+              ? { ...e, shopify_price: row.competitor_price_avg, price_position: "fair" }
+              : e
+          )
+        );
+        setSelectedRow(null);
+      } else {
+        addLog("error", `Price adjust failed: ${data.errors?.[0] || data.message || "Unknown error"}`);
+      }
+    } catch (e) {
+      addLog("error", `Price error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+    setLoading(null);
+  };
+
+  const handleBulkAdjustPrices = async (strategy: "match_avg" | "undercut_5" | "undercut_10") => {
+    const overpriced = enrichments.filter(
+      (e) =>
+        e.price_position === "overpriced" &&
+        e.competitor_price_avg != null &&
+        e.shopify_price != null &&
+        (e.status === "approved" || e.status === "applied")
+    );
+    if (overpriced.length === 0) {
+      addLog("warning", "No overpriced approved products to adjust");
+      return;
+    }
+    const strategyLabel =
+      strategy === "match_avg"
+        ? "match competitor average"
+        : strategy === "undercut_5"
+          ? "undercut by 5%"
+          : "undercut by 10%";
+    const confirmMsg = `Adjust prices for ${overpriced.length} overpriced products to ${strategyLabel}? Original prices will be shown as "compare at" price.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoading("bulk_price");
+    addLog("info", `Bulk adjusting ${overpriced.length} prices (${strategyLabel})...`);
+
+    try {
+      const res = await fetch("/api/enrich-products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "adjust_prices",
+          strategy,
+        }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        addLog(
+          "success",
+          `Prices adjusted: ${data.adjusted} updated, ${data.skipped} skipped, ${data.failed} failed`
+        );
+        if (data.results?.length) {
+          for (const r of data.results.slice(0, 5)) {
+            if (r.status === "adjusted") {
+              addLog("info", `  ${r.title}: EUR ${r.old_price.toFixed(2)} -> EUR ${r.new_price.toFixed(2)}`);
+            }
+          }
+        }
+        // Reload enrichments to reflect new prices
+        loadEnrichments();
+      } else {
+        addLog("error", `Bulk price adjust failed: ${data.message}`);
+      }
+    } catch (e) {
+      addLog("error", `Bulk price error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+    setLoading(null);
+  };
+
   const filtered = enrichments.filter((e) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -744,6 +879,41 @@ export default function EnrichmentDashboard() {
               </span>
               <span>Push to Shopify ({enrichments.filter((e) => e.status === "approved").length})</span>
             </button>
+          )}
+          {enrichments.some(
+            (e) =>
+              e.price_position === "overpriced" &&
+              e.competitor_price_avg != null &&
+              (e.status === "approved" || e.status === "applied")
+          ) && (
+            <div className="relative group">
+              <button
+                onClick={() => handleBulkAdjustPrices("match_avg")}
+                disabled={loading !== null}
+                className="inline-flex items-center gap-2 rounded-full bg-[#C4963C] px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#B38734] disabled:opacity-50"
+                suppressHydrationWarning
+              >
+                <span className="inline-flex h-4 w-4 items-center justify-center">
+                  {loading === "bulk_price" ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <DollarSign className="h-4 w-4" />
+                  )}
+                </span>
+                <span>
+                  Adjust Overpriced (
+                  {
+                    enrichments.filter(
+                      (e) =>
+                        e.price_position === "overpriced" &&
+                        e.competitor_price_avg != null &&
+                        (e.status === "approved" || e.status === "applied")
+                    ).length
+                  }
+                  )
+                </span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -1040,10 +1210,11 @@ export default function EnrichmentDashboard() {
 
       {/* Detail modal */}
       {selectedRow && (
-        <EnrichmentDetail
-          row={selectedRow}
-          onClose={() => setSelectedRow(null)}
-          onStatusChange={handleStatusChange}
+ <EnrichmentDetail
+  row={selectedRow}
+  onClose={() => setSelectedRow(null)}
+  onStatusChange={handleStatusChange}
+  onAdjustPrice={handleAdjustPrice}
         />
       )}
     </div>
