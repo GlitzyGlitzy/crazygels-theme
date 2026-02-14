@@ -18,6 +18,7 @@ import {
   Star,
   ArrowUpDown,
   X,
+  Download,
 } from "lucide-react";
 
 /* ── Types ── */
@@ -531,20 +532,51 @@ export default function StockingPage() {
               Stocking Decisions
             </h1>
           </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/admin"
-              className="rounded-full border border-[#E8E4DC] px-4 py-2 text-xs font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#9E6B73] hover:text-[#9E6B73]"
-            >
-              All Tools
-            </Link>
-            <button
-              onClick={() => setShowAdd(true)}
-              className="rounded-full bg-[#1A1A1A] px-4 py-2 text-xs font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#9E6B73]"
-            >
-              + Add Product
-            </button>
-          </div>
+  <div className="flex items-center gap-3">
+  <Link
+  href="/admin"
+  className="rounded-full border border-[#E8E4DC] px-4 py-2 text-xs font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#9E6B73] hover:text-[#9E6B73]"
+  >
+  All Tools
+  </Link>
+  <button
+  onClick={async () => {
+    try {
+      const res = await fetch("/api/admin/stocking/export-csv", {
+        headers: { "x-admin-token": adminToken },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || `Export failed (${res.status})`);
+        return;
+      }
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const disposition = res.headers.get("Content-Disposition") || "";
+      const match = disposition.match(/filename="?([^"]+)"?/);
+      a.download = match?.[1] || `crazygels-stocked-${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (e) {
+      alert(`Export failed: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }}
+  className="inline-flex items-center gap-1.5 rounded-full border border-[#4A7C59] px-4 py-2 text-xs font-medium uppercase tracking-wider text-[#4A7C59] transition-colors hover:bg-[#4A7C59] hover:text-white"
+  >
+  <Download className="h-3.5 w-3.5" />
+  Export CSV
+  </button>
+  <button
+  onClick={() => setShowAdd(true)}
+  className="rounded-full bg-[#1A1A1A] px-4 py-2 text-xs font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#9E6B73]"
+  >
+  + Add Product
+  </button>
+  </div>
         </div>
       </header>
 
