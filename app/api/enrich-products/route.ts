@@ -458,7 +458,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const confidence = searchParams.get("confidence"); // high, medium, low
     const status = searchParams.get("status"); // pending, approved, rejected, applied
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 200);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "500"), 2000);
 
     let enrichments;
     if (confidence && status) {
@@ -618,6 +618,245 @@ async function fetchShopifyProducts(): Promise<ShopifyInput[]> {
   }
 
   return allProducts;
+}
+
+/* ------------------------------------------------------------------ */
+/*  PATCH /api/enrich-products                                         */
+/*  Update enrichment status (approve/reject) + optionally push to     */
+/*  Shopify via Admin API (metafields + price)                         */
+/* ------------------------------------------------------------------ */
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { action } = body;
+
+    // --- Bulk status update ---
+    if (action === "bulk_status") {
+      const { ids, status: newStatus } = body as {
+        ids: number[];
+        status: string;
+      };
+      if (!ids?.length || !newStatus) {
+        return NextResponse.json(
+          { status: "error", message: "ids[] and status required" },
+          { status: 400 }
+        );
+      }
+      await sql`
+        UPDATE product_enrichment
+        SET status = ${newStatus}, updated_at = NOW()
+        WHERE id = ANY(${ids})
+      `;
+      return NextResponse.json({
+        status: "success",
+        updated: ids.length,
+        new_status: newStatus,
+      });
+    }
+
+    // --- Single status update ---
+    if (action === "update_status") {
+      const { id, status: newStatus } = body as {
+        id: number;
+        status: string;
+      };
+      await sql`
+        UPDATE product_enrichment
+        SET status = ${newStatus}, updated_at = NOW()
+        WHERE id = ${id}
+      `;
+      return NextResponse.json({ status: "success", id, new_status: newStatus });
+    }
+
+    // --- Push approved enrichments to Shopify ---
+    if (action === "push_to_shopify") {
+      const SHOPIFY_STORE =
+        process.env.SHOPIFY_STORE_DOMAIN?.replace(/^https?:\/\//, "").replace(
+          /\/$/,
+          ""
+        );
+      const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
+
+      if (!SHOPIFY_STORE || !SHOPIFY_ADMIN_TOKEN) {
+        return NextResponse.json(
+          {
+            status: "error",
+            message:
+              "SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_TOKEN required for push",
+          },
+          { status: 400 }
+        );
+      }
+
+      // Get all approved enrichments that haven't been applied yet
+      const approved = await sql`
+        SELECT * FROM product_enrichment
+        WHERE status = 'approved'
+        ORDER BY similarity_score DESC
+      `;
+
+      if (approved.length === 0) {
+        return NextResponse.json({
+          status: "success",
+          message: "No approved enrichments to push",
+          pushed: 0,
+        });
+      }
+
+      let pushed = 0;
+      let failed = 0;
+      const errors: string[] = [];
+
+      for (const row of approved) {
+        try {
+          // Extract Shopify numeric ID from GID
+          const shopifyId = row.shopify_product_id.replace(
+            "gid://shopify/Product/",
+            ""
+          );
+
+          // Build metafields for enrichment data
+          const metafields: Array<{
+            namespace: string;
+            key: string;
+            value: string;
+            type: string;
+          }> = [];
+
+          if (row.efficacy_score != null) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "efficacy_score",
+              value: String(row.efficacy_score),
+              type: "number_decimal",
+            });
+          }
+          if (row.key_actives?.length) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "key_actives",
+              value: JSON.stringify(row.key_actives),
+              type: "json",
+            });
+          }
+          if (row.suitable_for?.length) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "suitable_for",
+              value: JSON.stringify(row.suitable_for),
+              type: "json",
+            });
+          }
+          if (row.contraindications?.length) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "contraindications",
+              value: JSON.stringify(row.contraindications),
+              type: "json",
+            });
+          }
+          if (row.catalog_product_hash) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "catalog_match",
+              value: row.catalog_product_hash,
+              type: "single_line_text_field",
+            });
+          }
+          if (row.confidence) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "match_confidence",
+              value: row.confidence,
+              type: "single_line_text_field",
+            });
+          }
+          if (row.price_position) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "price_position",
+              value: row.price_position,
+              type: "single_line_text_field",
+            });
+          }
+          if (row.competitor_price_avg != null) {
+            metafields.push({
+              namespace: "crazygels",
+              key: "competitor_price_avg",
+              value: String(row.competitor_price_avg),
+              type: "number_decimal",
+            });
+          }
+
+          // Push metafields to Shopify Admin API
+          const url = `https://${SHOPIFY_STORE}/admin/api/2024-01/products/${shopifyId}.json`;
+          const res = await fetch(url, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+            },
+            body: JSON.stringify({
+              product: {
+                id: Number(shopifyId),
+                metafields,
+                // Add enrichment tags
+                tags: row.key_actives?.length
+                  ? [
+                      "bio-enriched",
+                      ...row.key_actives.slice(0, 5),
+                    ].join(", ")
+                  : "bio-enriched",
+              },
+            }),
+          });
+
+          if (res.ok) {
+            pushed++;
+            // Mark as applied in DB
+            await sql`
+              UPDATE product_enrichment
+              SET status = 'applied', updated_at = NOW()
+              WHERE id = ${row.id}
+            `;
+          } else {
+            failed++;
+            const errText = await res.text();
+            errors.push(
+              `${row.shopify_title}: ${res.status} - ${errText.slice(0, 100)}`
+            );
+          }
+        } catch (e) {
+          failed++;
+          errors.push(
+            `${row.shopify_title}: ${e instanceof Error ? e.message : String(e)}`
+          );
+        }
+      }
+
+      return NextResponse.json({
+        status: "success",
+        total_approved: approved.length,
+        pushed,
+        failed,
+        errors: errors.slice(0, 10),
+      });
+    }
+
+    return NextResponse.json(
+      { status: "error", message: `Unknown action: ${action}` },
+      { status: 400 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      {
+        status: "error",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 /* ------------------------------------------------------------------ */

@@ -13,6 +13,7 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  Upload,
   Search,
   ChevronDown,
   Eye,
@@ -431,7 +432,7 @@ export default function EnrichmentDashboard() {
     setLoading("load");
     addLog("info", "Loading enrichment results...");
     try {
-      const params = new URLSearchParams({ limit: "100" });
+      const params = new URLSearchParams({ limit: "500" });
       if (confidenceFilter !== "all") params.set("confidence", confidenceFilter);
       const res = await fetch(`/api/enrich-products?${params}`);
       const data = await res.json();
@@ -456,14 +457,40 @@ export default function EnrichmentDashboard() {
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      // Update locally
+      // Update locally first for instant UI feedback
       setEnrichments((prev) =>
         prev.map((e) => (e.id === id ? { ...e, status: newStatus } : e))
       );
       setSelectedRow(null);
-      addLog("success", `Match #${id} ${newStatus}`);
+
+      // Persist to database
+      const res = await fetch("/api/enrich-products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "update_status", id, status: newStatus }),
+      });
+      if (!res.ok) {
+        addLog("error", `Failed to persist status for #${id}`);
+      } else {
+        addLog("success", `Match #${id} ${newStatus}`);
+      }
     } catch (e) {
       addLog("error", `Status update error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  };
+
+  const bulkUpdateStatus = async (ids: number[], newStatus: string) => {
+    try {
+      const res = await fetch("/api/enrich-products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "bulk_status", ids, status: newStatus }),
+      });
+      if (!res.ok) {
+        addLog("error", `Failed to persist bulk ${newStatus}`);
+      }
+    } catch (e) {
+      addLog("error", `Bulk persist error: ${e instanceof Error ? e.message : String(e)}`);
     }
   };
 
@@ -481,7 +508,7 @@ export default function EnrichmentDashboard() {
     setLoading("approve_all");
     addLog("info", `Approving ${pending.length} matches...`);
 
-    let approved = 0;
+    const ids = pending.map((e) => e.id);
     setEnrichments((prev) =>
       prev.map((e) =>
         e.status !== "approved" && e.status !== "rejected"
@@ -489,9 +516,8 @@ export default function EnrichmentDashboard() {
           : e
       )
     );
-    approved = pending.length;
-
-    addLog("success", `Approved ${approved} matches`);
+    await bulkUpdateStatus(ids, "approved");
+    addLog("success", `Approved ${pending.length} matches`);
     setLoading(null);
   };
 
@@ -509,6 +535,7 @@ export default function EnrichmentDashboard() {
     setLoading("reject_all");
     addLog("info", `Rejecting ${pending.length} matches...`);
 
+    const ids = pending.map((e) => e.id);
     setEnrichments((prev) =>
       prev.map((e) =>
         e.status !== "approved" && e.status !== "rejected"
@@ -516,7 +543,7 @@ export default function EnrichmentDashboard() {
           : e
       )
     );
-
+    await bulkUpdateStatus(ids, "rejected");
     addLog("success", `Rejected ${pending.length} matches`);
     setLoading(null);
   };
@@ -532,11 +559,63 @@ export default function EnrichmentDashboard() {
     const confirmMsg = `Approve ${toApprove.length} ${confidenceFilter === "all" ? "" : confidenceFilter + " confidence "}matches?`;
     if (!window.confirm(confirmMsg)) return;
 
-    const ids = new Set(toApprove.map((e) => e.id));
+    const ids = toApprove.map((e) => e.id);
     setEnrichments((prev) =>
       prev.map((e) => (ids.has(e.id) ? { ...e, status: "approved" } : e))
     );
+    await bulkUpdateStatus(ids, "approved");
     addLog("success", `Approved ${toApprove.length} matches`);
+  };
+
+  const handlePushToShopify = async () => {
+    const approvedCount = enrichments.filter(
+      (e) => e.status === "approved"
+    ).length;
+    if (approvedCount === 0) {
+      addLog("warning", "No approved matches to push. Approve matches first.");
+      return;
+    }
+    const confirmMsg = `Push ${approvedCount} approved enrichments to Shopify? This will add metafields (ingredients, efficacy, skin concerns) and enrichment tags to your live products.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoading("push");
+    addLog("info", `Pushing ${approvedCount} enrichments to Shopify...`);
+
+    try {
+      const res = await fetch("/api/enrich-products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "push_to_shopify" }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        addLog(
+          "success",
+          `Pushed ${data.pushed} enrichments to Shopify (${data.failed} failed)`
+        );
+        if (data.pushed > 0) {
+          // Update local state to reflect "applied" status
+          setEnrichments((prev) =>
+            prev.map((e) =>
+              e.status === "approved" ? { ...e, status: "applied" } : e
+            )
+          );
+        }
+        if (data.errors?.length) {
+          for (const err of data.errors.slice(0, 5)) {
+            addLog("error", err);
+          }
+        }
+      } else {
+        addLog("error", `Push failed: ${data.message}`);
+      }
+    } catch (e) {
+      addLog(
+        "error",
+        `Push error: ${e instanceof Error ? e.message : String(e)}`
+      );
+    }
+    setLoading(null);
   };
 
   const filtered = enrichments.filter((e) => {
@@ -648,6 +727,23 @@ export default function EnrichmentDashboard() {
             </span>
             <span>Compute Benchmarks</span>
           </button>
+          {enrichments.some((e) => e.status === "approved") && (
+            <button
+              onClick={handlePushToShopify}
+              disabled={loading !== null}
+              className="inline-flex items-center gap-2 rounded-full bg-[#4A7C59] px-6 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#3D6A4A] disabled:opacity-50"
+              suppressHydrationWarning
+            >
+              <span className="inline-flex h-4 w-4 items-center justify-center">
+                {loading === "push" ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+              </span>
+              <span>Push to Shopify ({enrichments.filter((e) => e.status === "approved").length})</span>
+            </button>
+          )}
         </div>
 
         {/* Match result banner */}
