@@ -424,14 +424,14 @@ export default function StockingPage() {
     try {
       // Fetch research + sampled products not yet in stocking_decisions
       const res = await fetch(
-        `/api/admin/demand-signals?status=research&sort=efficacy&limit=600`,
+        `/api/admin/demand-signals?status=research&sort=efficacy&limit=2000`,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       if (!res.ok) return;
       const data = await res.json();
       // Also fetch sampled
       const res2 = await fetch(
-        `/api/admin/demand-signals?status=sampled&sort=efficacy&limit=600`,
+        `/api/admin/demand-signals?status=sampled&sort=efficacy&limit=2000`,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       const data2 = res2.ok ? await res2.json() : { signals: [] };
