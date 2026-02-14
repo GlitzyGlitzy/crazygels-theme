@@ -697,6 +697,15 @@ export default function EnrichmentDashboard() {
     setLoading(null);
   };
 
+  const [priceProgress, setPriceProgress] = useState<{
+    total: number;
+    done: number;
+    adjusted: number;
+    failed: number;
+    skipped: number;
+    results: Array<{ title: string; old_price: number; new_price: number; status: string }>;
+  } | null>(null);
+
   const handleBulkAdjustPrices = async (strategy: "match_avg" | "undercut_5" | "undercut_10") => {
     const overpriced = enrichments.filter(
       (e) =>
@@ -715,42 +724,82 @@ export default function EnrichmentDashboard() {
         : strategy === "undercut_5"
           ? "undercut by 5%"
           : "undercut by 10%";
-    const confirmMsg = `Adjust prices for ${overpriced.length} overpriced products to ${strategyLabel}? Original prices will be shown as "compare at" price.`;
+    const confirmMsg = `Adjust prices for ${overpriced.length} overpriced products to ${strategyLabel}? Original prices will be shown as "compare at" price on Shopify.`;
     if (!window.confirm(confirmMsg)) return;
 
     setLoading("bulk_price");
+    const progress = {
+      total: overpriced.length,
+      done: 0,
+      adjusted: 0,
+      failed: 0,
+      skipped: 0,
+      results: [] as Array<{ title: string; old_price: number; new_price: number; status: string }>,
+    };
+    setPriceProgress({ ...progress });
     addLog("info", `Bulk adjusting ${overpriced.length} prices (${strategyLabel})...`);
 
-    try {
-      const res = await fetch("/api/enrich-products", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "adjust_prices",
-          strategy,
-        }),
-      });
-      const data = await res.json();
-      if (data.status === "success") {
-        addLog(
-          "success",
-          `Prices adjusted: ${data.adjusted} updated, ${data.skipped} skipped, ${data.failed} failed`
-        );
-        if (data.results?.length) {
-          for (const r of data.results.slice(0, 5)) {
-            if (r.status === "adjusted") {
-              addLog("info", `  ${r.title}: EUR ${r.old_price.toFixed(2)} -> EUR ${r.new_price.toFixed(2)}`);
-            }
+    // Process in batches of 5 to avoid timeout
+    const BATCH_SIZE = 5;
+    const ids = overpriced.map((e) => e.id);
+
+    for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+      const batchIds = ids.slice(i, i + BATCH_SIZE);
+      try {
+        const res = await fetch("/api/enrich-products", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "adjust_prices",
+            ids: batchIds,
+            strategy,
+          }),
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          progress.done += batchIds.length;
+          progress.adjusted += data.adjusted || 0;
+          progress.failed += data.failed || 0;
+          progress.skipped += data.skipped || 0;
+          if (data.results) {
+            progress.results.push(...data.results);
           }
+          // Update enrichments locally for adjusted items
+          if (data.results?.length) {
+            const adjustedTitles = new Set(
+              data.results
+                .filter((r: { status: string }) => r.status === "adjusted")
+                .map((r: { title: string }) => r.title)
+            );
+            setEnrichments((prev) =>
+              prev.map((e) =>
+                adjustedTitles.has(e.shopify_title)
+                  ? { ...e, price_position: "fair" }
+                  : e
+              )
+            );
+          }
+        } else {
+          progress.done += batchIds.length;
+          progress.failed += batchIds.length;
+          addLog("error", `Batch failed: ${data.message}`);
         }
-        // Reload enrichments to reflect new prices
-        loadEnrichments();
-      } else {
-        addLog("error", `Bulk price adjust failed: ${data.message}`);
+      } catch (e) {
+        progress.done += batchIds.length;
+        progress.failed += batchIds.length;
+        addLog("error", `Batch error: ${e instanceof Error ? e.message : String(e)}`);
       }
-    } catch (e) {
-      addLog("error", `Bulk price error: ${e instanceof Error ? e.message : String(e)}`);
+      setPriceProgress({ ...progress });
+      addLog(
+        "info",
+        `Progress: ${progress.done}/${progress.total} (${progress.adjusted} adjusted, ${progress.failed} failed)`
+      );
     }
+
+    addLog(
+      "success",
+      `Price adjustment complete: ${progress.adjusted} adjusted, ${progress.skipped} skipped, ${progress.failed} failed`
+    );
     setLoading(null);
   };
 
@@ -916,6 +965,95 @@ export default function EnrichmentDashboard() {
             </div>
           )}
         </div>
+
+        {/* Price adjustment progress / results */}
+        {priceProgress && (
+          <div className="rounded-xl border border-[#C4963C]/30 bg-[#C4963C]/5 p-5">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[#1A1A1A]">
+                {loading === "bulk_price"
+                  ? "Adjusting Prices..."
+                  : "Price Adjustment Results"}
+              </h3>
+              {loading !== "bulk_price" && (
+                <button
+                  onClick={() => setPriceProgress(null)}
+                  className="text-[10px] font-medium uppercase tracking-wider text-[#9B9B9B] hover:text-[#6B5B4F]"
+                >
+                  Dismiss
+                </button>
+              )}
+            </div>
+
+            {/* Progress bar */}
+            <div className="mb-3 h-2 overflow-hidden rounded-full bg-[#E8E4DC]">
+              <div
+                className="h-full rounded-full bg-[#C4963C] transition-all duration-300"
+                style={{
+                  width: `${priceProgress.total > 0 ? (priceProgress.done / priceProgress.total) * 100 : 0}%`,
+                }}
+              />
+            </div>
+
+            {/* Stats */}
+            <div className="mb-3 grid grid-cols-4 gap-3">
+              <div className="rounded-lg bg-white/60 p-2 text-center">
+                <p className="text-lg font-bold text-[#1A1A1A]">{priceProgress.done}/{priceProgress.total}</p>
+                <p className="text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Processed</p>
+              </div>
+              <div className="rounded-lg bg-white/60 p-2 text-center">
+                <p className="text-lg font-bold text-[#4A7C59]">{priceProgress.adjusted}</p>
+                <p className="text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Adjusted</p>
+              </div>
+              <div className="rounded-lg bg-white/60 p-2 text-center">
+                <p className="text-lg font-bold text-[#9B9B9B]">{priceProgress.skipped}</p>
+                <p className="text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Skipped</p>
+              </div>
+              <div className="rounded-lg bg-white/60 p-2 text-center">
+                <p className="text-lg font-bold text-[#B76E79]">{priceProgress.failed}</p>
+                <p className="text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Failed</p>
+              </div>
+            </div>
+
+            {/* Results list */}
+            {priceProgress.results.length > 0 && (
+              <div className="max-h-48 overflow-y-auto rounded-lg border border-[#E8E4DC] bg-white">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-[#E8E4DC] bg-[#F5F3EF]">
+                      <th className="px-3 py-1.5 text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Product</th>
+                      <th className="px-3 py-1.5 text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Old Price</th>
+                      <th className="px-3 py-1.5 text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">New Price</th>
+                      <th className="px-3 py-1.5 text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {priceProgress.results.map((r, i) => (
+                      <tr key={i} className="border-b border-[#E8E4DC]/50 last:border-0">
+                        <td className="max-w-[200px] truncate px-3 py-1.5 text-[#1A1A1A]">{r.title}</td>
+                        <td className="px-3 py-1.5 text-[#B76E79] line-through">EUR {r.old_price.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 font-medium text-[#4A7C59]">EUR {r.new_price.toFixed(2)}</td>
+                        <td className="px-3 py-1.5">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-[9px] font-medium uppercase ${
+                              r.status === "adjusted"
+                                ? "bg-[#4A7C59]/10 text-[#4A7C59]"
+                                : r.status.startsWith("skipped")
+                                  ? "bg-[#9B9B9B]/10 text-[#9B9B9B]"
+                                  : "bg-[#B76E79]/10 text-[#B76E79]"
+                            }`}
+                          >
+                            {r.status === "adjusted" ? "Done" : r.status === "skipped_minimal_change" ? "Skipped" : "Failed"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Match result banner */}
         {matchResult && matchResult.status === "success" && (
