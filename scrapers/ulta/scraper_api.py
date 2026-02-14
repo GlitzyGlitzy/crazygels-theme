@@ -37,21 +37,24 @@ logger = logging.getLogger(__name__)
 BASE_URL = "https://www.ulta.com"
 
 # Category slug -> (URL path, Category enum)
+# Updated Feb 2026: Ulta now uses /shop/ URL structure
 CATEGORY_MAP = {
-    "skincare_serums": ("/skin-care/serums?N=1z12lx1Z1z12uvl", Category.SERUMS),
-    "skincare_moisturizers": ("/skin-care/moisturizers?N=1z12lx1Z1z12um0", Category.MOISTURIZERS),
-    "skincare_toners": ("/skin-care/toners?N=1z12lx1Z1z12uks", Category.TONERS),
-    "skincare_masks": ("/skin-care/face-masks?N=1z12lx1Z1z12ula", Category.FACE_MASKS),
-    "fragrances": ("/fragrance?N=26vy", Category.FRAGRANCES),
-    "haircare_shampoo": ("/hair-care/shampoo-conditioner?N=1z12lx0Z1z141bl", Category.SHAMPOO_CONDITIONER),
-    "haircare": ("/hair-care?N=1z12lx0", Category.HAIRCARE),
-    "nail_care": ("/nails?N=1z12uzn", Category.NAIL_CARE),
+    "skincare_serums": ("/shop/skin-care/treatment-serums/face-serums", Category.SERUMS),
+    "skincare_moisturizers": ("/shop/skin-care/moisturizers/face-moisturizers", Category.MOISTURIZERS),
+    "skincare_toners": ("/shop/skin-care/toners", Category.TONERS),
+    "skincare_masks": ("/shop/skin-care/masks-peels/face-masks", Category.FACE_MASKS),
+    "skincare_cleansers": ("/shop/skin-care/cleansers/face-wash", Category.SKINCARE),
+    "skincare_sunscreen": ("/shop/skin-care/sunscreen/face-sunscreen", Category.SKINCARE),
+    "fragrances": ("/shop/fragrance/womens-fragrance/perfume", Category.FRAGRANCES),
+    "haircare_shampoo": ("/shop/hair-care/shampoo-conditioner/shampoo", Category.SHAMPOO_CONDITIONER),
+    "haircare_treatments": ("/shop/hair-care/hair-treatments/hair-masks", Category.HAIRCARE),
+    "nail_care": ("/shop/nails/nail-polish", Category.NAIL_CARE),
 }
 
 DEFAULT_CATEGORIES = [
     "skincare_serums",
     "skincare_moisturizers",
-    "fragrances",
+    "skincare_sunscreen",
     "haircare_shampoo",
 ]
 
@@ -87,9 +90,75 @@ class UltaScraper(BaseScraper):
         for cat_key, (path, _) in self._categories.items():
             for page in range(1, self.pages_per_category + 1):
                 separator = "&" if "?" in path else "?"
-                url = f"{BASE_URL}{path}{separator}No={page * 48 - 48}&Nrpp=48"
+                url = f"{BASE_URL}{path}{separator}page={page}"
                 urls.append(url)
         return urls
+
+    async def scrape(self):
+        """Override base scrape to use Playwright for Ulta (anti-bot protection)."""
+        from datetime import datetime
+        from scrapers.common.models import ScraperResult
+
+        started_at = datetime.utcnow()
+        products = []
+        errors = []
+        total_pages = 0
+
+        logger.info(f"[{self.source.value}] Starting scrape...")
+
+        category_urls = await self.get_category_urls()
+        product_urls = []
+
+        # Phase 1: Collect product URLs from listing pages using Playwright
+        for cat_url in category_urls:
+            html = await self._fetch_js(
+                cat_url,
+                wait_selector="a[href*='/p/'], .ProductCard, [data-testid='product-card']",
+                timeout_ms=45000,
+            )
+            if html:
+                total_pages += 1
+                try:
+                    urls = await self.parse_listing(html, cat_url)
+                    product_urls.extend(urls)
+                except Exception as e:
+                    errors.append(f"Listing parse error ({cat_url}): {e}")
+
+        # Deduplicate
+        product_urls = list(set(product_urls))
+        logger.info(f"[{self.source.value}] Found {len(product_urls)} product URLs")
+
+        # Phase 2: Scrape individual product pages using Playwright
+        for url in product_urls:
+            html = await self._fetch_js(
+                url,
+                wait_selector="h1, [itemprop='name']",
+                timeout_ms=45000,
+            )
+            if html:
+                total_pages += 1
+                try:
+                    product = await self.parse_product(html, url)
+                    if product:
+                        products.append(product)
+                except Exception as e:
+                    errors.append(f"Product parse error ({url}): {e}")
+
+        finished_at = datetime.utcnow()
+        result = ScraperResult(
+            source=self.source,
+            products=products,
+            started_at=started_at,
+            finished_at=finished_at,
+            total_pages=total_pages,
+            errors=errors,
+        )
+        logger.info(
+            f"[{self.source.value}] Scrape complete: "
+            f"{len(products)} products, {len(errors)} errors, "
+            f"{result.duration_seconds:.1f}s"
+        )
+        return result
 
     async def parse_listing(self, html: str, url: str) -> list[str]:
         """Extract product URLs from an Ulta listing page."""
@@ -97,13 +166,19 @@ class UltaScraper(BaseScraper):
         product_urls = []
         seen = set()
 
-        # Ulta product listing selectors
+        # Modern Ulta product listing selectors (updated Feb 2026)
         selectors = [
-            ".productQDLink a",
+            # Product card links on /shop/ pages
+            "a[href*='/p/']",
+            "a[href*='productId']",
+            "[data-testid='product-card'] a",
+            ".ProductCard a",
+            ".product-card a",
             "a.ProductCard",
-            ".product-listing a[href*='/ulta/']",
-            "a[href*='/productdetail']",
-            ".product a[href*='productId']",
+            # Grid item links
+            ".ProductListingResults a[href*='/p/']",
+            "[class*='ProductGrid'] a[href*='/p/']",
+            "[class*='product-grid'] a[href*='/p/']",
         ]
 
         for selector in selectors:
@@ -113,20 +188,19 @@ class UltaScraper(BaseScraper):
                 if not href:
                     continue
                 full_url = urljoin(BASE_URL, href)
-                if "productId" in full_url or "/ulta/" in full_url:
-                    if full_url not in seen:
-                        seen.add(full_url)
-                        product_urls.append(full_url)
+                # Accept /p/ product URLs and productId URLs
+                if ("/p/" in full_url or "productId" in full_url) and full_url not in seen:
+                    seen.add(full_url)
+                    product_urls.append(full_url)
 
         # Fallback: any links that look like product pages
         if not product_urls:
             for a in soup.find_all("a", href=True):
                 href = a["href"]
                 full_url = urljoin(BASE_URL, href)
-                if re.search(r"productId=\w+", full_url):
-                    if full_url not in seen:
-                        seen.add(full_url)
-                        product_urls.append(full_url)
+                if re.search(r"(/p/|productId=)\w+", full_url) and full_url not in seen:
+                    seen.add(full_url)
+                    product_urls.append(full_url)
 
         logger.info(f"[ulta] Found {len(product_urls)} product links on {url}")
         return product_urls
