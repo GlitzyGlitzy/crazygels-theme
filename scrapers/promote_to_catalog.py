@@ -149,17 +149,26 @@ def load_scraped_data(paths: list[str]) -> list[dict]:
     return all_products
 
 
-def insert_postgres(catalog_entries: list[dict]):
-    """Insert catalog entries into local PostgreSQL."""
+def insert_postgres(catalog_entries: list[dict], use_neon: bool = False):
+    """Insert catalog entries into PostgreSQL (RDS or Neon)."""
     import psycopg2
 
-    conn = psycopg2.connect(
-        host=os.getenv("RDS_HOST", "localhost"),
-        port=os.getenv("RDS_PORT", "5432"),
-        dbname=os.getenv("RDS_DATABASE", "crazygels"),
-        user=os.getenv("RDS_USER", "scraper_admin"),
-        password=os.getenv("RDS_PASSWORD", ""),
-    )
+    if use_neon:
+        db_url = os.getenv("DATABASE_URL")
+        if not db_url:
+            logger.error("DATABASE_URL not set. Add it to .env.local or export it.")
+            return
+        logger.info("Connecting to Neon database...")
+        conn = psycopg2.connect(db_url)
+    else:
+        logger.info("Connecting to RDS database...")
+        conn = psycopg2.connect(
+            host=os.getenv("RDS_HOST", "localhost"),
+            port=os.getenv("RDS_PORT", "5432"),
+            dbname=os.getenv("RDS_DATABASE", "crazygels"),
+            user=os.getenv("RDS_USER", "scraper_admin"),
+            password=os.getenv("RDS_PASSWORD", ""),
+        )
     cur = conn.cursor()
 
     inserted = 0
@@ -205,8 +214,19 @@ def main():
     pa = argparse.ArgumentParser(description="Promote scraped products to product_catalog")
     pa.add_argument("--input", nargs="*", help="Input JSON files (default: all data/*.json)")
     pa.add_argument("--output", default="data/product_catalog.json", help="Output JSON file")
-    pa.add_argument("--postgres", action="store_true", help="Insert into PostgreSQL instead of JSON")
+    pa.add_argument("--postgres", action="store_true", help="Insert into RDS PostgreSQL instead of JSON")
+    pa.add_argument("--neon", action="store_true", help="Insert into Neon database (uses DATABASE_URL from .env.local)")
     args = pa.parse_args()
+
+    # Load env vars from .env.local if it exists
+    env_file = os.path.join(os.path.dirname(__file__), "..", ".env.local")
+    if os.path.exists(env_file):
+        with open(env_file) as ef:
+            for line in ef:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    key, val = line.split("=", 1)
+                    os.environ.setdefault(key.strip(), val.strip())
 
     # Find input files
     if args.input:
@@ -253,8 +273,10 @@ def main():
         logger.info(f"  {k}: {v} products")
 
     # Output
-    if args.postgres:
-        insert_postgres(catalog)
+    if args.neon:
+        insert_postgres(catalog, use_neon=True)
+    elif args.postgres:
+        insert_postgres(catalog, use_neon=False)
     else:
         os.makedirs(os.path.dirname(args.output) or ".", exist_ok=True)
         with open(args.output, "w") as f:
