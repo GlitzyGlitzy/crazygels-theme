@@ -14,7 +14,12 @@ export async function GET() {
   }
 
   // The callback URL must match what's configured in the Shopify app
-  const redirectUri = `${process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"}/api/shopify-auth/callback`;
+  // Build the redirect URI from the deployment URL
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : null)
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+    || "http://localhost:3000";
+  const redirectUri = `${baseUrl}/api/shopify-auth/callback`;
 
   // Generate a random nonce for security
   const nonce = crypto.randomBytes(16).toString("hex");
