@@ -20,6 +20,7 @@ import {
   Eye,
   FlaskConical,
   Sparkles,
+  Download,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
@@ -697,6 +698,84 @@ export default function EnrichmentDashboard() {
     setLoading(null);
   };
 
+  /* ------------------------------------------------------------------ */
+  /*  CSV Export for Shopify Price Updates                               */
+  /* ------------------------------------------------------------------ */
+  const handleExportPriceCSV = (strategy: "match_avg" | "undercut_5" | "undercut_10") => {
+    const overpriced = enrichments.filter(
+      (e) =>
+        e.price_position === "overpriced" &&
+        e.competitor_price_avg != null &&
+        e.shopify_price != null &&
+        e.shopify_handle != null &&
+        (e.status === "approved" || e.status === "applied")
+    );
+    if (overpriced.length === 0) {
+      addLog("warning", "No overpriced products with handles to export");
+      return;
+    }
+
+    // Shopify CSV header - minimal columns for price-only update
+    const headers = [
+      "Handle",
+      "Title",
+      "Option1 Name",
+      "Option1 Value",
+      "Variant Price",
+      "Variant Compare At Price",
+    ];
+
+    const rows = overpriced.map((e) => {
+      const currentPrice = Number(e.shopify_price);
+      const competitorAvg = Number(e.competitor_price_avg);
+      let newPrice: number;
+      switch (strategy) {
+        case "undercut_5":
+          newPrice = competitorAvg * 0.95;
+          break;
+        case "undercut_10":
+          newPrice = competitorAvg * 0.90;
+          break;
+        case "match_avg":
+        default:
+          newPrice = competitorAvg;
+          break;
+      }
+      newPrice = Math.round(newPrice * 100) / 100;
+
+      // Escape CSV fields that might contain commas or quotes
+      const escapeCSV = (val: string) => {
+        if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+          return `"${val.replace(/"/g, '""')}"`;
+        }
+        return val;
+      };
+
+      return [
+        escapeCSV(e.shopify_handle || ""),
+        escapeCSV(e.shopify_title),
+        "Title",
+        "Default Title",
+        newPrice.toFixed(2),
+        currentPrice.toFixed(2), // original price becomes compare-at price
+      ].join(",");
+    });
+
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    const strategyLabel = strategy === "match_avg" ? "match-avg" : strategy === "undercut_5" ? "undercut-5pct" : "undercut-10pct";
+    link.download = `shopify-price-update-${strategyLabel}-${new Date().toISOString().split("T")[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    addLog("success", `Exported ${overpriced.length} products as Shopify CSV (${strategyLabel}). Import in Shopify Admin > Products > Import with "Overwrite products with matching handles" checked.`);
+  };
+
   const [priceProgress, setPriceProgress] = useState<{
     total: number;
     done: number;
@@ -972,6 +1051,56 @@ export default function EnrichmentDashboard() {
                   )
                 </span>
               </button>
+            </div>
+          )}
+          {enrichments.some(
+            (e) =>
+              e.price_position === "overpriced" &&
+              e.competitor_price_avg != null &&
+              e.shopify_handle != null &&
+              (e.status === "approved" || e.status === "applied")
+          ) && (
+            <div className="relative group">
+              <button
+                onClick={() => handleExportPriceCSV("match_avg")}
+                className="inline-flex items-center gap-2 rounded-full border-2 border-[#C4963C] bg-white px-6 py-2.5 text-sm font-medium text-[#C4963C] transition-all hover:bg-[#C4963C]/10"
+              >
+                <Download className="h-4 w-4" />
+                <span>
+                  Export Price CSV (
+                  {
+                    enrichments.filter(
+                      (e) =>
+                        e.price_position === "overpriced" &&
+                        e.competitor_price_avg != null &&
+                        e.shopify_handle != null &&
+                        (e.status === "approved" || e.status === "applied")
+                    ).length
+                  }
+                  )
+                </span>
+              </button>
+              {/* Dropdown for different strategies */}
+              <div className="absolute right-0 top-full z-10 mt-1 hidden w-56 rounded-lg border border-[#E8E4DC] bg-white py-1 shadow-lg group-hover:block">
+                <button
+                  onClick={() => handleExportPriceCSV("match_avg")}
+                  className="w-full px-4 py-2 text-left text-xs text-[#1A1A1A] hover:bg-[#F5F3EF]"
+                >
+                  Match competitor average
+                </button>
+                <button
+                  onClick={() => handleExportPriceCSV("undercut_5")}
+                  className="w-full px-4 py-2 text-left text-xs text-[#1A1A1A] hover:bg-[#F5F3EF]"
+                >
+                  Undercut by 5%
+                </button>
+                <button
+                  onClick={() => handleExportPriceCSV("undercut_10")}
+                  className="w-full px-4 py-2 text-left text-xs text-[#1A1A1A] hover:bg-[#F5F3EF]"
+                >
+                  Undercut by 10%
+                </button>
+              </div>
             </div>
           )}
         </div>
