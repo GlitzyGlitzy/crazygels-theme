@@ -669,6 +669,186 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ status: "success", id, new_status: newStatus });
     }
 
+    // --- Adjust prices to match benchmarks ---
+    if (action === "adjust_prices") {
+      const SHOPIFY_STORE =
+        process.env.SHOPIFY_STORE_DOMAIN?.replace(/^https?:\/\//, "").replace(
+          /\/$/,
+          ""
+        );
+      const SHOPIFY_ADMIN_TOKEN = process.env.SHOPIFY_ADMIN_TOKEN;
+
+      if (!SHOPIFY_STORE || !SHOPIFY_ADMIN_TOKEN) {
+        return NextResponse.json(
+          { status: "error", message: "SHOPIFY_STORE_DOMAIN and SHOPIFY_ADMIN_TOKEN required" },
+          { status: 400 }
+        );
+      }
+
+      // ids is optional -- if provided, only adjust those; otherwise adjust all overpriced
+      const { ids, strategy } = body as {
+        ids?: number[];
+        strategy?: "match_avg" | "undercut_5" | "undercut_10";
+      };
+      const priceStrategy = strategy || "match_avg";
+
+      // Get enrichments that have price data
+      let rows;
+      if (ids?.length) {
+        rows = await sql`
+          SELECT * FROM product_enrichment
+          WHERE id = ANY(${ids})
+            AND competitor_price_avg IS NOT NULL
+            AND shopify_price IS NOT NULL
+        `;
+      } else {
+        rows = await sql`
+          SELECT * FROM product_enrichment
+          WHERE (status = 'approved' OR status = 'applied')
+            AND competitor_price_avg IS NOT NULL
+            AND shopify_price IS NOT NULL
+            AND price_position = 'overpriced'
+        `;
+      }
+
+      if (rows.length === 0) {
+        return NextResponse.json({
+          status: "success",
+          message: "No products with price data to adjust",
+          adjusted: 0,
+        });
+      }
+
+      let adjusted = 0;
+      let failed = 0;
+      const results: Array<{
+        title: string;
+        old_price: number;
+        new_price: number;
+        status: string;
+      }> = [];
+      const errors: string[] = [];
+
+      for (const row of rows) {
+        try {
+          const shopifyId = row.shopify_product_id.replace(
+            "gid://shopify/Product/",
+            ""
+          );
+          const currentPrice = Number(row.shopify_price);
+          const competitorAvg = Number(row.competitor_price_avg);
+
+          // Calculate new price based on strategy
+          let newPrice: number;
+          switch (priceStrategy) {
+            case "undercut_5":
+              newPrice = competitorAvg * 0.95;
+              break;
+            case "undercut_10":
+              newPrice = competitorAvg * 0.90;
+              break;
+            case "match_avg":
+            default:
+              newPrice = competitorAvg;
+              break;
+          }
+
+          // Round to 2 decimal places
+          newPrice = Math.round(newPrice * 100) / 100;
+
+          // Skip if price would increase for overpriced items or barely changes
+          if (Math.abs(newPrice - currentPrice) < 0.50) {
+            results.push({
+              title: row.shopify_title,
+              old_price: currentPrice,
+              new_price: newPrice,
+              status: "skipped_minimal_change",
+            });
+            continue;
+          }
+
+          // First get the product's variants to find variant IDs
+          const productUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/products/${shopifyId}.json?fields=id,variants`;
+          const productRes = await fetch(productUrl, {
+            headers: { "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN },
+          });
+
+          if (!productRes.ok) {
+            failed++;
+            errors.push(`${row.shopify_title}: Failed to fetch product (${productRes.status})`);
+            continue;
+          }
+
+          const productData = await productRes.json();
+          const variants = productData?.product?.variants || [];
+
+          if (variants.length === 0) {
+            failed++;
+            errors.push(`${row.shopify_title}: No variants found`);
+            continue;
+          }
+
+          // Update price on all variants
+          let variantUpdated = false;
+          for (const variant of variants) {
+            const variantUrl = `https://${SHOPIFY_STORE}/admin/api/2024-01/variants/${variant.id}.json`;
+            const varRes = await fetch(variantUrl, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Shopify-Access-Token": SHOPIFY_ADMIN_TOKEN,
+              },
+              body: JSON.stringify({
+                variant: {
+                  id: variant.id,
+                  price: String(newPrice),
+                  compare_at_price: String(currentPrice), // Show original as "was" price
+                },
+              }),
+            });
+            if (varRes.ok) variantUpdated = true;
+          }
+
+          if (variantUpdated) {
+            adjusted++;
+            results.push({
+              title: row.shopify_title,
+              old_price: currentPrice,
+              new_price: newPrice,
+              status: "adjusted",
+            });
+            // Update the enrichment record
+            await sql`
+              UPDATE product_enrichment
+              SET shopify_price = ${newPrice},
+                  price_position = 'fair',
+                  updated_at = NOW()
+              WHERE id = ${row.id}
+            `;
+          } else {
+            failed++;
+            errors.push(`${row.shopify_title}: Variant update failed`);
+          }
+        } catch (e) {
+          failed++;
+          errors.push(
+            `${row.shopify_title}: ${e instanceof Error ? e.message : String(e)}`
+          );
+        }
+      }
+
+      return NextResponse.json({
+        status: "success",
+        total: rows.length,
+        adjusted,
+        failed,
+        skipped: rows.length - adjusted - failed,
+        strategy: priceStrategy,
+        results: results.slice(0, 20),
+        errors: errors.slice(0, 10),
+      });
+    }
+
     // --- Push approved enrichments to Shopify ---
     if (action === "push_to_shopify") {
       const SHOPIFY_STORE =
