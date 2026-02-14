@@ -325,7 +325,7 @@ export default function IntelligenceDashboard() {
     setError(null);
     try {
       const res = await fetch(
-        `/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=600`,
+        `/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=2000`,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       if (!res.ok) {

@@ -389,6 +389,8 @@ export default function StockingPage() {
 
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(false);
+  const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("cg_admin_token") || "";
@@ -424,14 +426,14 @@ export default function StockingPage() {
     try {
       // Fetch research + sampled products not yet in stocking_decisions
       const res = await fetch(
-        `/api/admin/demand-signals?status=research&sort=efficacy&limit=600`,
+        `/api/admin/demand-signals?status=research&sort=efficacy&limit=2000`,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       if (!res.ok) return;
       const data = await res.json();
       // Also fetch sampled
       const res2 = await fetch(
-        `/api/admin/demand-signals?status=sampled&sort=efficacy&limit=600`,
+        `/api/admin/demand-signals?status=sampled&sort=efficacy&limit=2000`,
         { headers: { Authorization: `Bearer ${adminToken}` } }
       );
       const data2 = res2.ok ? await res2.json() : { signals: [] };
@@ -506,6 +508,70 @@ export default function StockingPage() {
       p.category.toLowerCase().includes(q)
     );
   });
+
+  const toggleBulkSelect = (hash: string) => {
+    setBulkSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(hash)) next.delete(hash);
+      else next.add(hash);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    const visible = filteredUnstocked.slice(0, 200);
+    const allSelected = visible.every((p) => bulkSelected.has(p.product_hash));
+    if (allSelected) {
+      setBulkSelected((prev) => {
+        const next = new Set(prev);
+        visible.forEach((p) => next.delete(p.product_hash));
+        return next;
+      });
+    } else {
+      setBulkSelected((prev) => {
+        const next = new Set(prev);
+        visible.forEach((p) => next.add(p.product_hash));
+        return next;
+      });
+    }
+  };
+
+  const handleBulkAdd = async () => {
+    if (bulkSelected.size === 0) return;
+    setBulkSaving(true);
+    let success = 0;
+    let failed = 0;
+    const selectedProducts = unstocked.filter((p) =>
+      bulkSelected.has(p.product_hash)
+    );
+    for (const p of selectedProducts) {
+      try {
+        const res = await fetch("/api/admin/stocking", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            product_hash: p.product_hash,
+            decision: "stock",
+            initial_quantity: 10,
+            fulfillment_method: "in_house",
+            priority: "medium",
+          }),
+        });
+        if (res.ok) success++;
+        else failed++;
+      } catch {
+        failed++;
+      }
+    }
+    setBulkSaving(false);
+    setBulkSelected(new Set());
+    setShowAdd(false);
+    fetchDecisions();
+    alert(`Bulk add complete: ${success} added, ${failed} failed`);
+  };
 
   /* Auth gate */
   if (!tokenReady) {
@@ -777,45 +843,97 @@ export default function StockingPage() {
                   className="h-9 w-full rounded-full border border-[#E8E4DC] bg-white pl-9 pr-4 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:border-[#9E6B73] focus:outline-none"
                 />
               </div>
-              <div className="space-y-2">
-                {filteredUnstocked.slice(0, 50).map((p) => (
+
+              {/* Bulk actions bar */}
+              <div className="mb-3 flex items-center justify-between rounded-lg border border-[#E8E4DC] bg-white px-3 py-2">
+                <label className="flex cursor-pointer items-center gap-2 text-xs font-medium text-[#6B5B4F]">
+                  <input
+                    type="checkbox"
+                    checked={
+                      filteredUnstocked.slice(0, 200).length > 0 &&
+                      filteredUnstocked.slice(0, 200).every((p) => bulkSelected.has(p.product_hash))
+                    }
+                    onChange={toggleSelectAll}
+                    className="h-4 w-4 rounded border-[#E8E4DC] accent-[#9E6B73]"
+                  />
+                  Select All ({filteredUnstocked.slice(0, 200).length})
+                </label>
+                {bulkSelected.size > 0 && (
                   <button
-                    key={p.product_hash}
-                    onClick={() => {
-                      setEditingProduct({
-                        product_hash: p.product_hash,
-                        display_name: p.display_name,
-                        category: p.category,
-                        price_tier: p.price_tier,
-                        efficacy_score: p.efficacy_score,
-                        key_actives: p.key_actives,
-                        suitable_for: p.suitable_for,
-                      });
-                      setEditingExisting(undefined);
-                      setShowAdd(false);
-                    }}
-                    className="flex w-full items-center justify-between rounded-lg border border-[#E8E4DC] bg-white p-3 text-left transition-colors hover:border-[#9E6B73]/40"
+                    onClick={handleBulkAdd}
+                    disabled={bulkSaving}
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#4A7C59] px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#3d6b4a] disabled:opacity-50"
                   >
-                    <div>
-                      <p className="text-sm font-medium text-[#1A1A1A]">
-                        {p.display_name}
-                      </p>
-                      <p className="text-[10px] text-[#9B9B9B]">
-                        {p.category} &middot; {p.price_tier} &middot;{" "}
-                        {p.efficacy_score != null
-                          ? `${Math.round(p.efficacy_score * 100)}%`
-                          : "N/A"}{" "}
-                        efficacy
-                      </p>
-                    </div>
-                    <span className="text-[10px] font-medium uppercase tracking-wider text-[#9E6B73]">
-                      Select
-                    </span>
+                    {bulkSaving ? (
+                      <>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                        Adding {bulkSelected.size}...
+                      </>
+                    ) : (
+                      <>Add {bulkSelected.size} Selected</>
+                    )}
                   </button>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                {filteredUnstocked.slice(0, 200).map((p) => (
+                  <div
+                    key={p.product_hash}
+                    className={`flex w-full items-center gap-3 rounded-lg border p-3 transition-colors ${
+                      bulkSelected.has(p.product_hash)
+                        ? "border-[#9E6B73]/60 bg-[#9E6B73]/5"
+                        : "border-[#E8E4DC] bg-white hover:border-[#9E6B73]/40"
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={bulkSelected.has(p.product_hash)}
+                      onChange={() => toggleBulkSelect(p.product_hash)}
+                      className="h-4 w-4 shrink-0 rounded border-[#E8E4DC] accent-[#9E6B73]"
+                    />
+                    <button
+                      onClick={() => {
+                        setEditingProduct({
+                          product_hash: p.product_hash,
+                          display_name: p.display_name,
+                          category: p.category,
+                          price_tier: p.price_tier,
+                          efficacy_score: p.efficacy_score,
+                          key_actives: p.key_actives,
+                          suitable_for: p.suitable_for,
+                        });
+                        setEditingExisting(undefined);
+                        setShowAdd(false);
+                      }}
+                      className="flex flex-1 items-center justify-between text-left"
+                    >
+                      <div>
+                        <p className="text-sm font-medium text-[#1A1A1A]">
+                          {p.display_name}
+                        </p>
+                        <p className="text-[10px] text-[#9B9B9B]">
+                          {p.category} &middot; {p.price_tier} &middot;{" "}
+                          {p.efficacy_score != null
+                            ? `${Math.round(p.efficacy_score * 100)}%`
+                            : "N/A"}{" "}
+                          efficacy
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-medium uppercase tracking-wider text-[#9E6B73]">
+                        Details
+                      </span>
+                    </button>
+                  </div>
                 ))}
                 {filteredUnstocked.length === 0 && (
                   <p className="py-8 text-center text-sm text-[#9B9B9B]">
                     All intelligence products already have stocking decisions.
+                  </p>
+                )}
+                {filteredUnstocked.length > 200 && (
+                  <p className="py-2 text-center text-[10px] text-[#9B9B9B]">
+                    Showing 200 of {filteredUnstocked.length} &mdash; use search to narrow down
                   </p>
                 )}
               </div>
