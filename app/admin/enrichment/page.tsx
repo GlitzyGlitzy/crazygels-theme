@@ -560,8 +560,9 @@ export default function EnrichmentDashboard() {
     if (!window.confirm(confirmMsg)) return;
 
     const ids = toApprove.map((e) => e.id);
+    const idSet = new Set(ids);
     setEnrichments((prev) =>
-      prev.map((e) => (ids.has(e.id) ? { ...e, status: "approved" } : e))
+      prev.map((e) => (idSet.has(e.id) ? { ...e, status: "approved" } : e))
     );
     await bulkUpdateStatus(ids, "approved");
     addLog("success", `Approved ${toApprove.length} matches`);
