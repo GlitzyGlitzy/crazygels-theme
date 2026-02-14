@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -892,6 +892,69 @@ export default function EnrichmentDashboard() {
     setLoading(null);
   };
 
+  /* ------------------------------------------------------------------ */
+  /*  Populate competitor prices from brand knowledge base               */
+  /* ------------------------------------------------------------------ */
+  const [priceStats, setPriceStats] = useState<{ total: number; with_price: number; coverage: number } | null>(null);
+
+  const handlePopulatePrices = async (overwrite = false) => {
+    const confirmMsg = overwrite
+      ? "Re-estimate ALL competitor prices (overwriting existing)? This uses brand knowledge to assign realistic prices."
+      : "Populate missing competitor prices? This uses brand knowledge to assign realistic retail prices for catalog products.";
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoading("populate_prices");
+    addLog("info", "Populating competitor prices from brand knowledge base...");
+
+    try {
+      // First do a dry run to show preview
+      const dryRes = await fetch("/api/competitor-prices/populate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dryRun: true, overwrite }),
+      });
+      const dryData = await dryRes.json();
+      addLog("info", `Preview: ${dryData.total} products to price (${dryData.brand_matched} brand-matched, ${dryData.tier_fallback} tier-based)`);
+
+      // Now do the actual population
+      const res = await fetch("/api/competitor-prices/populate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dryRun: false, overwrite }),
+      });
+      const data = await res.json();
+      if (data.status === "success") {
+        addLog("success", `Populated ${data.updated} competitor prices (${data.brand_matched} brand-matched, ${data.tier_fallback} tier-based)`);
+        // Refresh coverage stats
+        fetchPriceCoverage();
+      } else {
+        addLog("error", `Price population failed: ${data.message}`);
+      }
+    } catch (e) {
+      addLog("error", `Price populate error: ${e instanceof Error ? e.message : String(e)}`);
+    }
+    setLoading(null);
+  };
+
+  const fetchPriceCoverage = async () => {
+    try {
+      const res = await fetch("/api/competitor-prices");
+      const data = await res.json();
+      if (data.status === "success") {
+        setPriceStats({
+          total: data.stats.total_products,
+          with_price: data.stats.with_price,
+          coverage: data.stats.coverage_pct,
+        });
+      }
+    } catch { /* ignore */ }
+  };
+
+  // Fetch price coverage on mount
+  useEffect(() => {
+    fetchPriceCoverage();
+  }, []);
+
   const filtered = enrichments.filter((e) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -1000,6 +1063,24 @@ export default function EnrichmentDashboard() {
               )}
             </span>
             <span>Compute Benchmarks</span>
+          </button>
+          <button
+            onClick={() => handlePopulatePrices(false)}
+            disabled={loading !== null}
+            className="inline-flex items-center gap-2 rounded-full border-2 border-[#C4963C] bg-white px-5 py-2.5 text-sm font-medium text-[#C4963C] transition-all hover:bg-[#C4963C]/10 disabled:opacity-50"
+            suppressHydrationWarning
+          >
+            <span className="inline-flex h-4 w-4 items-center justify-center">
+              {loading === "populate_prices" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <DollarSign className="h-4 w-4" />
+              )}
+            </span>
+            <span>
+              Populate Prices
+              {priceStats ? ` (${priceStats.coverage}% covered)` : ""}
+            </span>
           </button>
           {enrichments.some((e) => e.status === "approved") && (
             <button
@@ -1297,6 +1378,33 @@ export default function EnrichmentDashboard() {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Price coverage banner */}
+        {priceStats && priceStats.coverage < 100 && (
+          <div className="mb-6 flex items-center justify-between rounded-xl border border-[#C4963C]/30 bg-[#C4963C]/5 px-5 py-3">
+            <div className="flex items-center gap-3">
+              <DollarSign className="h-4 w-4 text-[#C4963C]" />
+              <div>
+                <p className="text-sm font-medium text-[#1A1A1A]">
+                  Competitor Price Coverage: {priceStats.coverage}%
+                </p>
+                <p className="text-xs text-[#6B5B4F]">
+                  {priceStats.with_price} of {priceStats.total} catalog products have retail prices.
+                  {priceStats.coverage === 0 && " Click \"Populate Prices\" to estimate competitor prices from brand data."}
+                </p>
+              </div>
+            </div>
+            {priceStats.coverage === 0 && (
+              <button
+                onClick={() => handlePopulatePrices(false)}
+                disabled={loading !== null}
+                className="shrink-0 rounded-full bg-[#C4963C] px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#B38734] disabled:opacity-50"
+              >
+                Populate Now
+              </button>
+            )}
           </div>
         )}
 
