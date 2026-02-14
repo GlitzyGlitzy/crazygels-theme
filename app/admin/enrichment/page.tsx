@@ -467,6 +467,78 @@ export default function EnrichmentDashboard() {
     }
   };
 
+  const handleApproveAll = async () => {
+    const pending = enrichments.filter(
+      (e) => e.status !== "approved" && e.status !== "rejected"
+    );
+    if (pending.length === 0) {
+      addLog("warning", "No pending matches to approve");
+      return;
+    }
+    const confirmMsg = `Approve all ${pending.length} pending matches?`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoading("approve_all");
+    addLog("info", `Approving ${pending.length} matches...`);
+
+    let approved = 0;
+    setEnrichments((prev) =>
+      prev.map((e) =>
+        e.status !== "approved" && e.status !== "rejected"
+          ? { ...e, status: "approved" }
+          : e
+      )
+    );
+    approved = pending.length;
+
+    addLog("success", `Approved ${approved} matches`);
+    setLoading(null);
+  };
+
+  const handleRejectAll = async () => {
+    const pending = enrichments.filter(
+      (e) => e.status !== "approved" && e.status !== "rejected"
+    );
+    if (pending.length === 0) {
+      addLog("warning", "No pending matches to reject");
+      return;
+    }
+    const confirmMsg = `Reject all ${pending.length} pending matches?`;
+    if (!window.confirm(confirmMsg)) return;
+
+    setLoading("reject_all");
+    addLog("info", `Rejecting ${pending.length} matches...`);
+
+    setEnrichments((prev) =>
+      prev.map((e) =>
+        e.status !== "approved" && e.status !== "rejected"
+          ? { ...e, status: "rejected" }
+          : e
+      )
+    );
+
+    addLog("success", `Rejected ${pending.length} matches`);
+    setLoading(null);
+  };
+
+  const handleApproveFiltered = async () => {
+    const toApprove = filteredByConfidence.filter(
+      (e) => e.status !== "approved" && e.status !== "rejected"
+    );
+    if (toApprove.length === 0) {
+      addLog("warning", "No pending matches in current view");
+      return;
+    }
+    const confirmMsg = `Approve ${toApprove.length} ${confidenceFilter === "all" ? "" : confidenceFilter + " confidence "}matches?`;
+    if (!window.confirm(confirmMsg)) return;
+
+    const ids = new Set(toApprove.map((e) => e.id));
+    setEnrichments((prev) =>
+      prev.map((e) => (ids.has(e.id) ? { ...e, status: "approved" } : e))
+    );
+    addLog("success", `Approved ${toApprove.length} matches`);
+  };
+
   const filtered = enrichments.filter((e) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
@@ -477,6 +549,15 @@ export default function EnrichmentDashboard() {
       (e.key_actives || []).some((a) => a.toLowerCase().includes(q))
     );
   });
+
+  const filteredByConfidence = filtered.filter((e) => {
+    if (confidenceFilter === "all") return true;
+    return e.confidence === confidenceFilter;
+  });
+
+  const pendingCount = enrichments.filter(
+    (e) => e.status !== "approved" && e.status !== "rejected"
+  ).length;
 
   const logLevelColor = (level: LogEntry["level"]) => {
     switch (level) {
@@ -702,7 +783,40 @@ export default function EnrichmentDashboard() {
         <div className="grid gap-8 lg:grid-cols-3">
           {/* Results table */}
           <div className="lg:col-span-2">
-            {filtered.length > 0 ? (
+            {/* Bulk actions */}
+            {filteredByConfidence.length > 0 && pendingCount > 0 && (
+              <div className="mb-4 flex items-center gap-3 rounded-xl border border-[#E8E4DC] bg-white px-4 py-3">
+                <span className="text-xs text-[#6B5B4F]">
+                  {pendingCount} pending
+                </span>
+                <button
+                  onClick={handleApproveFiltered}
+                  disabled={loading !== null}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#4A7C59] px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#3D6A4A] disabled:opacity-50"
+                >
+                  {loading === "approve_all" ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-3 w-3" />
+                  )}
+                  Approve All{confidenceFilter !== "all" ? ` ${confidenceFilter}` : ""}
+                </button>
+                <button
+                  onClick={handleRejectAll}
+                  disabled={loading !== null}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E4DC] px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#B76E79] hover:text-[#B76E79] disabled:opacity-50"
+                >
+                  {loading === "reject_all" ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <XCircle className="h-3 w-3" />
+                  )}
+                  Reject All
+                </button>
+              </div>
+            )}
+
+            {filteredByConfidence.length > 0 ? (
               <div className="overflow-x-auto rounded-xl border border-[#E8E4DC]">
                 <table className="w-full text-left">
                   <thead>
@@ -725,7 +839,7 @@ export default function EnrichmentDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((row) => (
+                    {filteredByConfidence.map((row) => (
                       <tr
                         key={row.id}
                         className="border-b border-[#E8E4DC] transition-colors last:border-0 hover:bg-[#F5F3EF]/60"
