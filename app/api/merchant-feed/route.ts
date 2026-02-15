@@ -182,8 +182,12 @@ export async function GET() {
 
       for (const variant of variants) {
         const variantId = variant.id?.split('/').pop() || '';
-        const price = parseFloat(variant.price?.amount || '0').toFixed(2);
-        const currency = variant.price?.currencyCode || 'EUR';
+        // Use variant price, fall back to product's min price if variant is zero
+        const rawPrice = parseFloat(variant.price?.amount || '0');
+        const fallbackPrice = parseFloat(p.priceRange?.minVariantPrice?.amount || '0');
+        const finalPrice = rawPrice > 0 ? rawPrice : fallbackPrice;
+        const price = finalPrice.toFixed(2);
+        const currency = variant.price?.currencyCode || p.priceRange?.minVariantPrice?.currencyCode || 'EUR';
         const compareAtPrice = variant.compareAtPrice
           ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
           : '';

@@ -18,7 +18,9 @@ export function ProductInfo({ product }: { product: Product }) {
   const [shareMessage, setShareMessage] = useState<string | null>(null);
 
   const hasMultipleVariants = variants.length > 1;
-  const isOnSale = selectedVariant.compareAtPrice !== undefined && selectedVariant.compareAtPrice !== null;
+  const isOnSale = selectedVariant.compareAtPrice != null
+    && parseFloat(selectedVariant.compareAtPrice.amount) > 0
+    && parseFloat(selectedVariant.compareAtPrice.amount) > parseFloat(selectedVariant.price.amount);
   const isAvailable = selectedVariant.availableForSale;
 
   // Group options by name

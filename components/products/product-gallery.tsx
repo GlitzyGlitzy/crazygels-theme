@@ -100,8 +100,9 @@ export function ProductGallery({ product }: { product: Product }) {
           </>
         )}
 
-        {/* Sale Badge */}
-        {product.variants?.edges?.[0]?.node.compareAtPrice && (
+        {/* Sale Badge -- only show when compareAt > actual price */}
+        {product.variants?.edges?.[0]?.node.compareAtPrice
+          && parseFloat(product.variants.edges[0].node.compareAtPrice.amount) > parseFloat(product.variants.edges[0].node.price.amount) && (
           <div className="absolute left-3 top-3 rounded-full bg-[#A15D67] px-3 py-1.5 text-xs font-medium tracking-wide text-white md:left-4 md:top-4">
             SALE
           </div>
