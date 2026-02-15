@@ -204,6 +204,9 @@ function promoteProduct(anon: AnonymisedProduct) {
     efficacyScore = raw > 1.0 ? Math.min(raw / 10.0, 1.0) : raw;
   }
 
+    // Pull real data from the raw scraped product (if available)
+    const raw = anon as ImportProduct;
+
     return {
     product_hash: anon.product_hash,
     display_name: (name || `Unknown ${productType}`).slice(0, 255),
@@ -219,7 +222,13 @@ function promoteProduct(anon: AnonymisedProduct) {
     status: "research",
     acquisition_lead: anon.acquisition_lead || null,
     source: anon.source || "unknown",
-    image_url: (anon as ImportProduct).image_url || null,
+    // Real data from scraper (price, image, URL, brand, description)
+    image_url: raw.image_url || null,
+    retail_price: raw.price && raw.price > 0 ? raw.price : null,
+    currency: raw.price && raw.price > 0 ? (raw.currency || "EUR") : null,
+    source_url: raw.url || anon.acquisition_lead || null,
+    brand: raw.brand || anon.brand_type || null,
+    description_generated: raw.description || null,
   };
 }
 
@@ -266,7 +275,8 @@ export async function POST(request: NextRequest) {
             product_hash, display_name, category, product_type, price_tier,
             efficacy_score, review_signals, key_actives, ingredient_summary,
             suitable_for, contraindications, status, acquisition_lead, source,
-            image_url, created_at, updated_at
+            image_url, retail_price, currency, source_url, brand, description_generated,
+            created_at, updated_at
           ) VALUES (
             ${entry.product_hash},
             ${entry.display_name},
@@ -283,6 +293,11 @@ export async function POST(request: NextRequest) {
             ${entry.acquisition_lead},
             ${entry.source},
             ${entry.image_url},
+            ${entry.retail_price},
+            ${entry.currency},
+            ${entry.source_url},
+            ${entry.brand},
+            ${entry.description_generated},
             NOW(),
             NOW()
           )
@@ -296,6 +311,10 @@ export async function POST(request: NextRequest) {
             key_actives = COALESCE(EXCLUDED.key_actives, product_catalog.key_actives),
             suitable_for = COALESCE(EXCLUDED.suitable_for, product_catalog.suitable_for),
             image_url = COALESCE(EXCLUDED.image_url, product_catalog.image_url),
+            retail_price = COALESCE(EXCLUDED.retail_price, product_catalog.retail_price),
+            currency = COALESCE(EXCLUDED.currency, product_catalog.currency),
+            source_url = COALESCE(EXCLUDED.source_url, product_catalog.source_url),
+            description_generated = COALESCE(EXCLUDED.description_generated, product_catalog.description_generated),
             source = EXCLUDED.source,
             updated_at = NOW()
           RETURNING (xmax = 0) as is_insert
