@@ -55,23 +55,27 @@ export async function GET(req: NextRequest) {
       LIMIT ${limit}`;
 
     // Enrichment stats across entire catalog (not just filtered)
-    const enrichmentStats = await sql<{
-      total: string;
-      has_price: string;
-      has_image: string;
-      complete: string;
-      listed: string;
-    }[]>`
-      SELECT
-        COUNT(*) as total,
-        COUNT(CASE WHEN retail_price IS NOT NULL AND retail_price > 0 THEN 1 END) as has_price,
-        COUNT(CASE WHEN image_url IS NOT NULL THEN 1 END) as has_image,
-        COUNT(CASE WHEN retail_price > 0 AND image_url IS NOT NULL THEN 1 END) as complete,
-        COUNT(CASE WHEN status = 'listed' THEN 1 END) as listed
-      FROM product_catalog
-    `;
-
-    const e = enrichmentStats[0];
+    let e = { total: '0', has_price: '0', has_image: '0', complete: '0', listed: '0' };
+    try {
+      const enrichmentStats = await sql<{
+        total: string;
+        has_price: string;
+        has_image: string;
+        complete: string;
+        listed: string;
+      }[]>`
+        SELECT
+          COUNT(*) as total,
+          COUNT(CASE WHEN retail_price IS NOT NULL AND retail_price > 0 THEN 1 END) as has_price,
+          COUNT(CASE WHEN image_url IS NOT NULL THEN 1 END) as has_image,
+          COUNT(CASE WHEN retail_price > 0 AND image_url IS NOT NULL THEN 1 END) as complete,
+          COUNT(CASE WHEN status = 'listed' THEN 1 END) as listed
+        FROM product_catalog
+      `;
+      if (enrichmentStats[0]) e = enrichmentStats[0];
+    } catch (err) {
+      console.error("[demand-signals] Enrichment stats query failed:", err);
+    }
 
     const stats = {
       total: rows.length,
