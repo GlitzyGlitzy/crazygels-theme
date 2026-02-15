@@ -323,11 +323,15 @@ export default function IntelligenceDashboard() {
     enriched: number; prices_set: number; images_found: number; total_remaining: number;
   } | null>(null);
 
+  // Delay all rendering until after hydration to avoid GTM insertBefore errors
+  const [mounted, setMounted] = useState(false);
+
   // Read token in useEffect to avoid hydration mismatch
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const stored = localStorage.getItem("cg_admin_token") || "";
     setAdminToken(stored);
     setTokenReady(true);
@@ -448,8 +452,8 @@ export default function IntelligenceDashboard() {
     );
   });
 
-  /* ----- Wait for token check ----- */
-  if (!tokenReady) {
+  /* ----- Wait for client mount + token check ----- */
+  if (!mounted || !tokenReady) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E8E4DC] border-t-[#9E6B73]" />
@@ -463,7 +467,7 @@ export default function IntelligenceDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="min-h-screen bg-[#FAFAF8]" suppressHydrationWarning>
       {/* Header */}
       <header className="border-b border-[#E8E4DC] bg-[#FAFAF8]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
@@ -504,7 +508,7 @@ export default function IntelligenceDashboard() {
             />
             <StatCard
               label="Enriched"
-              value={`${stats.enriched_complete}/${stats.catalog_total}`}
+              value={`${stats.enriched_complete ?? 0}/${stats.catalog_total ?? 0}`}
               icon={ShoppingBag}
               accent="#6B5B4F"
             />
@@ -524,7 +528,7 @@ export default function IntelligenceDashboard() {
         )}
 
         {/* Enrichment Progress */}
-        {stats && stats.catalog_total > 0 && stats.enriched_complete < stats.catalog_total && (
+        {stats && (stats.catalog_total ?? 0) > 0 && (stats.enriched_complete ?? 0) < (stats.catalog_total ?? 1) && (
           <div className="mb-6 rounded-xl border border-[#E8E4DC] bg-[#FAFAF8] p-5">
             <div className="flex items-center justify-between">
               <div>
@@ -532,9 +536,9 @@ export default function IntelligenceDashboard() {
                   Catalog Enrichment
                 </p>
                 <p className="mt-1 text-sm text-[#1A1A1A]">
-                  <span className="font-semibold">{stats.enriched_price}</span> with prices,{" "}
-                  <span className="font-semibold">{stats.enriched_image}</span> with images,{" "}
-                  <span className="font-semibold">{stats.listed_on_shopify}</span> listed on Shopify
+                  <span className="font-semibold">{stats.enriched_price ?? 0}</span> with prices,{" "}
+                  <span className="font-semibold">{stats.enriched_image ?? 0}</span> with images,{" "}
+                  <span className="font-semibold">{stats.listed_on_shopify ?? 0}</span> listed on Shopify
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -560,11 +564,11 @@ export default function IntelligenceDashboard() {
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#E8E4DC]">
               <div
                 className="h-full rounded-full bg-[#9E6B73] transition-all"
-                style={{ width: `${Math.round((stats.enriched_complete / stats.catalog_total) * 100)}%` }}
+                style={{ width: `${Math.round(((stats.enriched_complete ?? 0) / (stats.catalog_total || 1)) * 100)}%` }}
               />
             </div>
             <p className="mt-1.5 text-[10px] text-[#9B9B9B]">
-              {Math.round((stats.enriched_complete / stats.catalog_total) * 100)}% complete
+              {Math.round(((stats.enriched_complete ?? 0) / (stats.catalog_total || 1)) * 100)}% complete
               {enrichResult && (
                 <span className="ml-3 text-[#4A7C59]">
                   Last run: {enrichResult.enriched} enriched, {enrichResult.prices_set} prices set, {enrichResult.images_found} images found
