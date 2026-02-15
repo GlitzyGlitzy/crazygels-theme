@@ -234,6 +234,13 @@ function estimatePrice(
 
 export async function POST(request: NextRequest) {
   try {
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json(
+        { status: 'error', message: 'DATABASE_URL not configured. Run: npx vercel env pull .env.local' },
+        { status: 503 },
+      );
+    }
+
     const body = await request.json().catch(() => ({}));
     const dryRun = body.dryRun === true;
     const overwrite = body.overwrite === true;

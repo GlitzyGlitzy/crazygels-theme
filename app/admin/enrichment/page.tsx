@@ -485,9 +485,13 @@ export default function EnrichmentDashboard() {
           by_status: data.by_status,
           by_price_position: data.by_price_position,
         });
-        addLog("success", `Loaded ${data.enrichments?.length || 0} enrichments (${data.total} total)`);
+        if ((data.enrichments?.length || 0) === 0) {
+          addLog("warning", "No enrichment data yet. Click 'Auto-Match Shopify Products' first, then 'Load Results'.");
+        } else {
+          addLog("success", `Loaded ${data.enrichments?.length || 0} enrichments (${data.total} total)`);
+        }
       } else {
-        addLog("error", `Load error: ${data.message}`);
+        addLog("error", `Load error: ${data.message || 'Unknown error. Check if DATABASE_URL is set.'}`);
       }
     } catch (e) {
       addLog("error", `Load error: ${e instanceof Error ? e.message : String(e)}`);
@@ -950,9 +954,11 @@ export default function EnrichmentDashboard() {
     } catch { /* ignore */ }
   };
 
-  // Fetch price coverage on mount
+  // Fetch price coverage and enrichments on mount
   useEffect(() => {
     fetchPriceCoverage();
+    loadEnrichments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = enrichments.filter((e) => {
