@@ -354,13 +354,32 @@ export async function POST(request: NextRequest) {
     let shopifyProducts: ShopifyInput[] = body.products || [];
 
     if (shopifyProducts.length === 0 && mode === "auto") {
-      // Fetch from Shopify Storefront API
+      // Try Shopify Storefront API first
       shopifyProducts = await fetchShopifyProducts();
+
+      // Fallback: if Shopify env vars are missing, use catalog products from DB as self-match
+      if (shopifyProducts.length === 0) {
+        const catalogProducts = await sql`
+          SELECT product_hash, display_name, category, product_type, price_tier, retail_price
+          FROM product_catalog
+          LIMIT 500
+        `;
+        shopifyProducts = catalogProducts.map((p: Record<string, unknown>) => ({
+          id: p.product_hash as string,
+          title: p.display_name as string,
+          vendor: null,
+          productType: (p.product_type as string) || (p.category as string) || null,
+          handle: null,
+          tags: [],
+          description: null,
+          price: p.retail_price ? Number(p.retail_price) : undefined,
+        }));
+      }
     }
 
     if (shopifyProducts.length === 0) {
       return NextResponse.json(
-        { status: "error", message: "No products provided. Pass products array or use mode:'auto' to fetch from Shopify." },
+        { status: "error", message: "No products found. Check Shopify env vars or ensure product_catalog has data." },
         { status: 400 }
       );
     }
