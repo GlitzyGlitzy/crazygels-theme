@@ -37,6 +37,15 @@ export default function robots(): MetadataRoute.Robots {
           '/*?*mc_cid*',
         ],
       },
+      // Allow Google Merchant Center crawler to access the feed
+      {
+        userAgent: 'Googlebot',
+        allow: ['/api/merchant-feed'],
+      },
+      {
+        userAgent: 'Googlebot-Image',
+        allow: '/',
+      },
     ],
     sitemap: 'https://crazygels.com/sitemap.xml',
     host: 'https://crazygels.com',

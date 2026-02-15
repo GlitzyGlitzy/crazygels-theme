@@ -8,6 +8,7 @@ import { GtmNoscript } from '@/components/gtm-noscript'
 import './globals.css'
 
 const GTM_ID = 'GTM-W7NQG2QL'
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''
 
 const _geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const _geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -73,8 +74,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    // Add your Google Search Console verification code here
-    // google: 'your-google-verification-code',
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
   icons: {
     icon: [
@@ -147,6 +147,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${_geist.variable} ${_geistMono.variable} ${_cormorant.variable} font-sans antialiased`} suppressHydrationWarning>
+        {/* Google Tag Manager */}
         <Script
           id="gtm-script"
           strategy="afterInteractive"
@@ -158,6 +159,30 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','${GTM_ID}');`,
           }}
         />
+        {/* Direct GA4 measurement -- ensures data flows even if GTM tags are misconfigured */}
+        {GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              id="ga4-gtag"
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            />
+            <Script
+              id="ga4-config"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','${GA_MEASUREMENT_ID}',{
+  page_path:window.location.pathname,
+  cookie_domain:'crazygels.com',
+  cookie_flags:'SameSite=None;Secure',
+  send_page_view:true
+});`,
+              }}
+            />
+          </>
+        )}
         <GtmNoscript gtmId={GTM_ID} />
         {children}
         <Analytics />

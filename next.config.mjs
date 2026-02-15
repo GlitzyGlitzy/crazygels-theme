@@ -56,8 +56,11 @@ const nextConfig = {
       },
 
       // ── Old Shopify pages ────────────────────────────────────
+      // Note: /pages/about, /pages/contact, /pages/faq, /pages/shipping,
+      // /pages/returns, /pages/privacy, /pages/terms are real Next.js routes.
+      // Only redirect Shopify-specific pages that don't exist in Next.js.
       {
-        source: '/pages/:slug',
+        source: '/pages/frontpage',
         destination: '/',
         permanent: true,
       },

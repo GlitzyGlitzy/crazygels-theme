@@ -3,13 +3,13 @@ import { getAllProducts, getCollections, getBlogs, getAllBlogArticles, isShopify
 
 const BASE_URL = 'https://crazygels.com';
 
-// Revalidate sitemap every hour at request time
-export const revalidate = 3600;
+// Revalidate sitemap every 6 hours
+export const revalidate = 21600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  // Static pages
+  // ── Static pages ──
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
     { url: `${BASE_URL}/collections`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
@@ -17,27 +17,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/consult`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
     { url: `${BASE_URL}/consult/skin`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${BASE_URL}/consult/hair`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
-    // Note: /search is not listed here because it redirects to /collections
-  ];
-
-  // Subcategory landing pages matching top Google Merchant Center search topics.
-  // These filtered views help Google discover and index our best-performing categories.
-  const subcategoryPages: MetadataRoute.Sitemap = [
-    // Skincare subcategories (85 searches, trending +1.1%)
-    { url: `${BASE_URL}/collections/skincare?subcategory=face-cream`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/collections/skincare?subcategory=toners`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/collections/skincare?subcategory=serums`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/collections/skincare?subcategory=face-masks`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/collections/skincare?subcategory=wash-gels`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${BASE_URL}/collections/skincare?subcategory=body-care`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    // Haircare subcategories (Shampoo & Conditioner: 19 searches, trending +3.7%)
-    { url: `${BASE_URL}/collections/haircare?subcategory=shampoo`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/collections/haircare?subcategory=conditioner`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${BASE_URL}/collections/haircare?subcategory=hair-masks`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${BASE_URL}/collections/haircare?subcategory=oils-serums`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    // Nails subcategories (Nail Polish: 9 searches, Artificial Nails: 3 searches)
-    { url: `${BASE_URL}/collections/gel-nail-wraps?subcategory=french-tips`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
-    { url: `${BASE_URL}/collections/gel-nail-wraps?subcategory=solid-colors`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    // Legal / info pages
+    { url: `${BASE_URL}/pages/about`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${BASE_URL}/pages/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${BASE_URL}/pages/faq`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${BASE_URL}/pages/shipping`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${BASE_URL}/pages/returns`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
+    { url: `${BASE_URL}/pages/privacy`, lastModified: now, changeFrequency: 'monthly', priority: 0.3 },
+    { url: `${BASE_URL}/pages/terms`, lastModified: now, changeFrequency: 'monthly', priority: 0.3 },
+    // Recommendations page
+    { url: `${BASE_URL}/recommendations`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
   ];
 
   if (!isShopifyConfigured) {
@@ -48,33 +37,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let collectionPages: MetadataRoute.Sitemap = [];
   let blogPages: MetadataRoute.Sitemap = [];
 
-  // Products
+  // ── Products with images for Google Image Search ──
   try {
     const products = await getAllProducts({});
-    productPages = (products || []).map((product) => ({
-      url: `${BASE_URL}/products/${product.handle}`,
-      lastModified: product.updatedAt ? new Date(product.updatedAt) : now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    }));
+    productPages = (products || []).map((product) => {
+      // Get product images for image sitemap
+      const images: { url: string; title?: string }[] = [];
+      if (product.featuredImage?.url) {
+        images.push({
+          url: product.featuredImage.url,
+          title: product.featuredImage.altText || product.title,
+        });
+      }
+      // Also include additional images from the product
+      const productImages = Array.isArray(product.images)
+        ? (product.images as { url: string; altText?: string }[])
+        : product.images?.edges?.map((e: { node: { url: string; altText?: string } }) => e.node) || [];
+      for (const img of productImages.slice(0, 5)) {
+        if (img.url && !images.some(i => i.url === img.url)) {
+          images.push({ url: img.url, title: img.altText || product.title });
+        }
+      }
+
+      return {
+        url: `${BASE_URL}/products/${product.handle}`,
+        lastModified: product.updatedAt ? new Date(product.updatedAt) : now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+        images: images.map(i => i.url),
+      };
+    });
   } catch (e) {
     console.error('Sitemap: products fetch failed', e);
   }
 
-  // Collections
+  // ── Collections ──
   try {
     const collections = await getCollections();
-    collectionPages = (collections || []).map((collection) => ({
-      url: `${BASE_URL}/collections/${collection.handle}`,
-      lastModified: collection.updatedAt ? new Date(collection.updatedAt) : now,
-      changeFrequency: 'daily' as const,
-      priority: 0.9,
-    }));
+    collectionPages = (collections || [])
+      .filter((c) => c.handle !== 'frontpage') // Skip Shopify default frontpage collection
+      .map((collection) => ({
+        url: `${BASE_URL}/collections/${collection.handle}`,
+        lastModified: collection.updatedAt ? new Date(collection.updatedAt) : now,
+        changeFrequency: 'daily' as const,
+        priority: 0.9,
+      }));
   } catch (e) {
     console.error('Sitemap: collections fetch failed', e);
   }
 
-  // Blog articles
+  // ── Blog articles ──
   try {
     const blogs = await getBlogs();
     for (const blog of blogs || []) {
@@ -96,5 +108,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error('Sitemap: blogs fetch failed', e);
   }
 
-  return [...staticPages, ...subcategoryPages, ...collectionPages, ...productPages, ...blogPages];
+  return [...staticPages, ...collectionPages, ...productPages, ...blogPages];
 }
