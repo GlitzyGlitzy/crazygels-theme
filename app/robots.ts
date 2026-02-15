@@ -8,7 +8,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           // Internal / private
-          '/api/',
           '/admin/',
           '/cart',
           '/checkout',
@@ -36,6 +35,15 @@ export default function robots(): MetadataRoute.Robots {
           '/*?*fbclid*',
           '/*?*mc_cid*',
         ],
+      },
+      // Allow Google Merchant Center crawler to access the feed
+      {
+        userAgent: 'Googlebot',
+        allow: ['/api/merchant-feed'],
+      },
+      {
+        userAgent: 'Googlebot-Image',
+        allow: '/',
       },
     ],
     sitemap: 'https://crazygels.com/sitemap.xml',

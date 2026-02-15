@@ -152,6 +152,13 @@ export async function GET() {
       // Skip products without a valid handle or title (causes "Product page unavailable")
       if (!p.handle || !p.title) continue;
 
+      // Skip products without images (causes "Missing product image" disapproval)
+      const imageUrls = (p.images as unknown as { url: string }[])?.map?.((img) => img.url)
+        || p.images?.edges?.map?.((e: { node: { url: string } }) => e.node.url)
+        || [];
+      const mainImage = imageUrls[0] || p.featuredImage?.url || '';
+      if (!mainImage) continue;
+
       const googleCategory = getGoogleCategory(p.productType || '', p.title);
       const description = stripHtml(p.description || p.title).slice(0, 5000);
       const seoTitle = buildSeoTitle(p.title, p.productType);
@@ -164,10 +171,8 @@ export async function GET() {
           : ''
       );
 
-      // Get all images
-      const imageUrls = p.images?.edges?.map((e: { node: { url: string } }) => e.node.url) || [];
-      const mainImage = imageUrls[0] || p.featuredImage?.url || '';
-      const additionalImages = imageUrls.slice(1, 10); // Google allows up to 10 additional images
+      // Additional images (up to 10)
+      const additionalImages = imageUrls.slice(1, 10);
 
       // MPN -- Shopify product ID
       const mpn = p.id?.split('/').pop() || p.handle;
@@ -211,15 +216,19 @@ export async function GET() {
         // For sale_price: only include if compareAtPrice is HIGHER than the current price
         const hasSale = compareAtPrice && parseFloat(compareAtPrice) > parseFloat(price);
 
+        // Canonical link -- critical for Google to match feed items to live pages
+        const productUrl = `${BASE_URL}/products/${p.handle}`;
+
         let item = `    <item>
       <g:id>${escapeXml(uniqueId)}</g:id>
       <g:title>${escapeXml(seoTitle || variantTitle)}</g:title>
       <g:description>${escapeXml(seoDescription || description)}</g:description>
-      <g:link>${escapeXml(`${BASE_URL}/products/${p.handle}`)}</g:link>
+      <g:link>${escapeXml(productUrl)}</g:link>
+      <g:canonical_link>${escapeXml(productUrl)}</g:canonical_link>
       <g:image_link>${escapeXml(variantImage)}</g:image_link>
 ${additionalImages.map((img: string) => `      <g:additional_image_link>${escapeXml(img)}</g:additional_image_link>`).join('\n')}
       <g:availability>${isAvailable ? 'in_stock' : 'out_of_stock'}</g:availability>
-${hasSale ? `      <g:price>${compareAtPrice} EUR</g:price>\n      <g:sale_price>${price} EUR</g:sale_price>` : `      <g:price>${price} EUR</g:price>`}
+${hasSale ? `      <g:price>${compareAtPrice} ${currency}</g:price>\n      <g:sale_price>${price} ${currency}</g:sale_price>` : `      <g:price>${price} ${currency}</g:price>`}
       <g:brand>${escapeXml(p.vendor || 'Crazy Gels')}</g:brand>
       <g:mpn>${escapeXml(mpn)}</g:mpn>
       <g:condition>new</g:condition>
