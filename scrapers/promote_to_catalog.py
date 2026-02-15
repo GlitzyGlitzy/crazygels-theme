@@ -61,6 +61,24 @@ CONTRA_MAP = {
     "glycolic acid": ["sensitive_skin_severe"],
 }
 
+# ── Currency conversion ───────────────────────────────────────
+USD_TO_EUR = 0.92  # Fixed rate; update periodically or use a live API
+
+
+def convert_to_eur(price: float, currency: str) -> float:
+    """Convert a price to EUR. Returns the price unchanged if already EUR."""
+    if not price or price <= 0:
+        return 0.0
+    currency = (currency or "EUR").upper()
+    if currency == "EUR":
+        return round(price, 2)
+    if currency == "USD":
+        return round(price * USD_TO_EUR, 2)
+    if currency == "GBP":
+        return round(price * 1.17, 2)  # Approximate
+    return round(price, 2)  # Unknown currency, keep as-is
+
+
 CATEGORY_TYPE_MAP = {
     "skincare-serums": "serum",
     "skincare-moisturizers": "moisturizer",
@@ -73,9 +91,13 @@ CATEGORY_TYPE_MAP = {
 }
 
 
-def promote_product(anon: dict) -> dict:
-    """Convert an anonymised product into a product_catalog entry."""
-    name = anon.get("name_clean", "")
+def promote_product(anon: dict, staging: dict = None) -> dict:
+    """Convert an anonymised product into a product_catalog entry.
+
+    If staging data is provided, real prices/images/URLs are preserved.
+    """
+    # Prefer staging data for name (it has the original full name)
+    name = (staging or {}).get("name_original") or anon.get("name_clean", "")
     category = anon.get("category", "").replace("_", "-")
     product_type = CATEGORY_TYPE_MAP.get(category, category.split("-")[-1] if category else "unknown")
 
@@ -114,6 +136,12 @@ def promote_product(anon: dict) -> dict:
     rating = efficacy.get("rating")
     efficacy_score = float(rating) if rating and str(rating) != "null" else None
 
+    # Extract real data from staging if available
+    s = staging or {}
+    price_original = s.get("price_original", 0) or 0
+    price_currency = s.get("price_currency", "EUR") or "EUR"
+    retail_price = convert_to_eur(price_original, price_currency) if price_original > 0 else None
+
     return {
         "product_hash": anon.get("product_hash", ""),
         "display_name": name[:255] if name else f"Unknown {product_type.title()}",
@@ -126,11 +154,18 @@ def promote_product(anon: dict) -> dict:
         "ingredient_summary": ingredient_summary,
         "suitable_for": list(suitable_for),
         "contraindications": list(contraindications),
-        "image_url": None,
-        "description_generated": None,
+        # Real data from staging (no longer hardcoded None)
+        "image_url": s.get("image_url"),
+        "description_generated": s.get("description"),
+        "source_url": s.get("source_url"),
+        "brand": s.get("brand"),
+        "retail_price": retail_price,
+        "currency": "EUR" if retail_price else None,
+        "price_original": price_original if price_original > 0 else None,
+        "price_currency": price_currency if price_original > 0 else None,
         "status": "research",
         "acquisition_lead": anon.get("acquisition_lead"),
-        "source": anon.get("source", "unknown"),
+        "source": s.get("source") or anon.get("source", "unknown"),
         "created_at": datetime.utcnow().isoformat(),
     }
 
@@ -147,6 +182,30 @@ def load_scraped_data(paths: list[str]) -> list[dict]:
         logger.info(f"Loaded {len(products)} products from {path}")
         all_products.extend(products)
     return all_products
+
+
+def load_staging_data(anon_paths: list[str]) -> dict:
+    """Load staging data keyed by product_hash.
+
+    For each anonymised file like 'ulta_intelligence.json', looks for
+    a corresponding 'ulta_intelligence_staging.json' in the same directory.
+    """
+    staging_by_hash = {}
+    for anon_path in anon_paths:
+        staging_path = anon_path.replace(".json", "_staging.json")
+        if not os.path.exists(staging_path):
+            logger.info(f"No staging file for {anon_path} (expected {staging_path})")
+            continue
+        with open(staging_path) as f:
+            data = json.load(f)
+        items = data if isinstance(data, list) else data.get("products", [])
+        for item in items:
+            ph = item.get("product_hash")
+            if ph:
+                staging_by_hash[ph] = item
+        logger.info(f"Loaded {len(items)} staging products from {staging_path}")
+    logger.info(f"Total staging entries: {len(staging_by_hash)} (with prices/images/URLs)")
+    return staging_by_hash
 
 
 def insert_postgres(catalog_entries: list[dict], use_neon: bool = False):
@@ -178,13 +237,19 @@ def insert_postgres(catalog_entries: list[dict], use_neon: bool = False):
                 INSERT INTO product_catalog
                     (product_hash, display_name, category, product_type, price_tier,
                      efficacy_score, review_signals, key_actives, ingredient_summary,
-                     suitable_for, contraindications, status, created_at, updated_at)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
+                     suitable_for, contraindications, image_url, description_generated,
+                     source_url, retail_price, currency, source, status, created_at, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW(), NOW())
                 ON CONFLICT (product_hash) DO UPDATE SET
                     efficacy_score = COALESCE(EXCLUDED.efficacy_score, product_catalog.efficacy_score),
                     price_tier = COALESCE(NULLIF(EXCLUDED.price_tier, 'unknown'), product_catalog.price_tier),
                     key_actives = COALESCE(EXCLUDED.key_actives, product_catalog.key_actives),
                     suitable_for = COALESCE(EXCLUDED.suitable_for, product_catalog.suitable_for),
+                    image_url = COALESCE(EXCLUDED.image_url, product_catalog.image_url),
+                    description_generated = COALESCE(EXCLUDED.description_generated, product_catalog.description_generated),
+                    source_url = COALESCE(EXCLUDED.source_url, product_catalog.source_url),
+                    retail_price = COALESCE(EXCLUDED.retail_price, product_catalog.retail_price),
+                    currency = COALESCE(EXCLUDED.currency, product_catalog.currency),
                     updated_at = NOW()
             """, (
                 entry["product_hash"],
@@ -198,6 +263,12 @@ def insert_postgres(catalog_entries: list[dict], use_neon: bool = False):
                 json.dumps(entry["ingredient_summary"]),
                 entry["suitable_for"] or None,
                 entry["contraindications"] or None,
+                entry.get("image_url"),
+                entry.get("description_generated"),
+                entry.get("source_url"),
+                entry.get("retail_price"),
+                entry.get("currency"),
+                entry.get("source", "unknown"),
                 entry["status"],
             ))
             inserted += 1
@@ -243,18 +314,25 @@ def main():
         logger.error("No input files found")
         return
 
-    # Load and promote
+    # Load anonymised + staging data
     raw_products = load_scraped_data(paths)
+    staging_by_hash = load_staging_data(paths)
+
     seen_hashes = set()
     catalog = []
+    with_real_data = 0
 
     for prod in raw_products:
         ph = prod.get("product_hash")
         if ph and ph not in seen_hashes:
             seen_hashes.add(ph)
-            catalog.append(promote_product(prod))
+            staging = staging_by_hash.get(ph)
+            entry = promote_product(prod, staging)
+            catalog.append(entry)
+            if entry.get("retail_price") and entry["retail_price"] > 0:
+                with_real_data += 1
 
-    logger.info(f"Promoted {len(catalog)} unique products to catalog format")
+    logger.info(f"Promoted {len(catalog)} unique products ({with_real_data} with real prices/images)")
 
     # Stats
     by_type = {}

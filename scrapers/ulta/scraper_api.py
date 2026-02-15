@@ -435,6 +435,43 @@ def _anonymise_product(product: Product) -> dict:
     }
 
 
+def _full_product_for_staging(product: Product) -> dict:
+    """Convert a Product to a full staging dict that preserves ALL data."""
+    hash_input = f"{product.source.value}:{product.external_id}:{product.name}"
+    product_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
+
+    price = product.price.price if product.price else 0
+    if price > 80:
+        price_tier = "luxury"
+    elif price > 40:
+        price_tier = "premium"
+    elif price > 15:
+        price_tier = "mid"
+    else:
+        price_tier = "budget"
+
+    return {
+        "product_hash": product_hash,
+        "source": "ulta",
+        "source_product_id": product.external_id,
+        "name_original": product.name,
+        "brand": product.brand,
+        "category": product.category.value if product.category else None,
+        "price_tier": price_tier,
+        "price_original": price,
+        "price_currency": "USD",
+        "image_url": product.image_url,
+        "source_url": product.url,
+        "description": getattr(product, "description", None),
+        "ingredients": product.ingredients,
+        "rating": product.rating,
+        "review_count": product.review_count,
+        "in_stock": product.price.in_stock if product.price else None,
+        "sale_price": product.price.sale_price if product.price else None,
+        "scraped_at": datetime.utcnow().isoformat(),
+    }
+
+
 def _extract_ingredient_profile(ingredients_text: Optional[str]) -> dict:
     """Extract key actives from ingredient list."""
     if not ingredients_text:
@@ -482,12 +519,18 @@ async def run(pages: int, output: str, category: Optional[str] = None):
         result = await scraper.scrape()
 
     anonymised = [_anonymise_product(p) for p in result.products]
+    staging = [_full_product_for_staging(p) for p in result.products]
 
     os.makedirs(os.path.dirname(output) or ".", exist_ok=True)
     with open(output, "w") as f:
         json.dump(anonymised, f, indent=2, ensure_ascii=False)
 
-    logger.info(f"Wrote {len(anonymised)} anonymised products to {output}")
+    # Also write full staging data alongside the anonymised output
+    staging_output = output.replace(".json", "_staging.json")
+    with open(staging_output, "w") as f:
+        json.dump(staging, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Wrote {len(anonymised)} anonymised + {len(staging)} staging products to {output}")
     return len(anonymised)
 
 
