@@ -40,6 +40,9 @@ export async function GET(req: NextRequest) {
         pc.acquisition_lead,
         pc.source,
         pc.image_url,
+        pc.retail_price,
+        pc.currency,
+        pc.source_url,
         CASE
           WHEN pc.efficacy_score >= 0.3 THEN 'high'
           WHEN pc.efficacy_score >= 0.15 THEN 'medium'
@@ -50,6 +53,25 @@ export async function GET(req: NextRequest) {
       WHERE pc.status = ${status}
       ORDER BY ${orderSql}
       LIMIT ${limit}`;
+
+    // Enrichment stats across entire catalog (not just filtered)
+    const enrichmentStats = await sql<{
+      total: string;
+      has_price: string;
+      has_image: string;
+      complete: string;
+      listed: string;
+    }[]>`
+      SELECT
+        COUNT(*) as total,
+        COUNT(CASE WHEN retail_price IS NOT NULL AND retail_price > 0 THEN 1 END) as has_price,
+        COUNT(CASE WHEN image_url IS NOT NULL THEN 1 END) as has_image,
+        COUNT(CASE WHEN retail_price > 0 AND image_url IS NOT NULL THEN 1 END) as complete,
+        COUNT(CASE WHEN status = 'listed' THEN 1 END) as listed
+      FROM product_catalog
+    `;
+
+    const e = enrichmentStats[0];
 
     const stats = {
       total: rows.length,
@@ -62,6 +84,11 @@ export async function GET(req: NextRequest) {
               rows.length
             ).toFixed(2)
           : 0,
+      catalog_total: Number(e.total),
+      enriched_price: Number(e.has_price),
+      enriched_image: Number(e.has_image),
+      enriched_complete: Number(e.complete),
+      listed_on_shopify: Number(e.listed),
     };
 
     return NextResponse.json({ signals: rows, stats });

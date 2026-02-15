@@ -42,6 +42,9 @@ interface DemandSignal {
   has_source: boolean;
   source: string | null;
   image_url: string | null;
+  retail_price: number | null;
+  currency: string | null;
+  source_url: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -51,6 +54,11 @@ interface Stats {
   with_source: number;
   high_demand: number;
   avg_efficacy: string | number;
+  catalog_total: number;
+  enriched_price: number;
+  enriched_image: number;
+  enriched_complete: number;
+  listed_on_shopify: number;
 }
 
 interface SourceDetail {
@@ -309,6 +317,12 @@ export default function IntelligenceDashboard() {
   const [listingLoading, setListingLoading] = useState(false);
   const [listingResult, setListingResult] = useState<{ success: boolean; message: string; handle?: string } | null>(null);
 
+  // Enrichment state
+  const [enriching, setEnriching] = useState(false);
+  const [enrichResult, setEnrichResult] = useState<{
+    enriched: number; prices_set: number; images_found: number; total_remaining: number;
+  } | null>(null);
+
   // Read token in useEffect to avoid hydration mismatch
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(false);
@@ -400,6 +414,30 @@ export default function IntelligenceDashboard() {
     }
   };
 
+  const handleEnrichAll = async (priceOnly = false) => {
+    setEnriching(true);
+    setEnrichResult(null);
+    try {
+      const res = await fetch("/api/admin/enrich-products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-token": adminToken || "",
+        },
+        body: JSON.stringify({ batch_size: 200, price_only: priceOnly }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to enrich");
+      setEnrichResult(data);
+      // Refresh the list to show updated data
+      fetchSignals();
+    } catch (err) {
+      console.error("Enrich failed:", err);
+    } finally {
+      setEnriching(false);
+    }
+  };
+
   const filtered = signals.filter((s) => {
     if (!search) return true;
     const q = search.toLowerCase();
@@ -465,8 +503,8 @@ export default function IntelligenceDashboard() {
               accent="#9E6B73"
             />
             <StatCard
-              label="With Sources"
-              value={stats.with_source}
+              label="Enriched"
+              value={`${stats.enriched_complete}/${stats.catalog_total}`}
               icon={ShoppingBag}
               accent="#6B5B4F"
             />
@@ -482,6 +520,57 @@ export default function IntelligenceDashboard() {
               icon={BarChart3}
               accent="#4A7C59"
             />
+          </div>
+        )}
+
+        {/* Enrichment Progress */}
+        {stats && stats.catalog_total > 0 && stats.enriched_complete < stats.catalog_total && (
+          <div className="mb-6 rounded-xl border border-[#E8E4DC] bg-[#FAFAF8] p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9B9B9B]">
+                  Catalog Enrichment
+                </p>
+                <p className="mt-1 text-sm text-[#1A1A1A]">
+                  <span className="font-semibold">{stats.enriched_price}</span> with prices,{" "}
+                  <span className="font-semibold">{stats.enriched_image}</span> with images,{" "}
+                  <span className="font-semibold">{stats.listed_on_shopify}</span> listed on Shopify
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleEnrichAll(true)}
+                  disabled={enriching}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E4DC] px-4 py-2 text-[10px] font-medium uppercase tracking-wider text-[#6B5B4F] transition-all hover:border-[#9E6B73] hover:text-[#9E6B73] disabled:opacity-50"
+                >
+                  {enriching ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                  Set Prices
+                </button>
+                <button
+                  onClick={() => handleEnrichAll(false)}
+                  disabled={enriching}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-[#1A1A1A] px-4 py-2 text-[10px] font-medium uppercase tracking-wider text-white transition-colors hover:bg-[#9E6B73] disabled:opacity-50"
+                >
+                  {enriching ? <Loader2 className="h-3 w-3 animate-spin" /> : null}
+                  Enrich All
+                </button>
+              </div>
+            </div>
+            {/* Progress bar */}
+            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-[#E8E4DC]">
+              <div
+                className="h-full rounded-full bg-[#9E6B73] transition-all"
+                style={{ width: `${Math.round((stats.enriched_complete / stats.catalog_total) * 100)}%` }}
+              />
+            </div>
+            <p className="mt-1.5 text-[10px] text-[#9B9B9B]">
+              {Math.round((stats.enriched_complete / stats.catalog_total) * 100)}% complete
+              {enrichResult && (
+                <span className="ml-3 text-[#4A7C59]">
+                  Last run: {enrichResult.enriched} enriched, {enrichResult.prices_set} prices set, {enrichResult.images_found} images found
+                </span>
+              )}
+            </p>
           </div>
         )}
 
@@ -567,7 +656,7 @@ export default function IntelligenceDashboard() {
                     Demand
                   </th>
                   <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] lg:table-cell">
-                    Source
+                    Price
                   </th>
                   <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] md:table-cell">
                     Status
@@ -585,6 +674,19 @@ export default function IntelligenceDashboard() {
                   >
                     {/* Product */}
                     <td className="max-w-xs px-4 py-3.5">
+                      <div className="flex items-center gap-3">
+                        {signal.image_url ? (
+                          <img
+                            src={signal.image_url}
+                            alt={signal.display_name}
+                            className="h-10 w-10 shrink-0 rounded-lg border border-[#E8E4DC] object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F5F3EF]">
+                            <Package className="h-4 w-4 text-[#9B9B9B]" />
+                          </div>
+                        )}
+                        <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-[#1A1A1A]">
                         {signal.display_name}
                       </p>
@@ -600,6 +702,8 @@ export default function IntelligenceDashboard() {
                         <span className="rounded-full bg-[#F5F3EF] px-2 py-0.5 text-[9px] text-[#9B9B9B]">
                           {signal.category}
                         </span>
+                      </div>
+                        </div>
                       </div>
                     </td>
 
@@ -625,11 +729,17 @@ export default function IntelligenceDashboard() {
                       <DemandBadge tier={signal.demand_tier} />
                     </td>
 
-                    {/* Source */}
+                    {/* Price */}
                     <td className="hidden px-4 py-3.5 lg:table-cell">
-                      <span className="text-[10px] font-medium uppercase tracking-wider text-[#9B9B9B]">
-                        {(signal.source || "unknown").replace(/_/g, " ")}
-                      </span>
+                      {signal.retail_price && Number(signal.retail_price) > 0 ? (
+                        <span className="text-sm font-medium tabular-nums text-[#1A1A1A]">
+                          {Number(signal.retail_price).toFixed(2)} {signal.currency || "EUR"}
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-medium uppercase tracking-wider text-[#9B9B9B]">
+                          Not set
+                        </span>
+                      )}
                     </td>
 
                     {/* Status */}
@@ -643,20 +753,16 @@ export default function IntelligenceDashboard() {
                         {signal.status === "listed" ? (
                           <span className="inline-flex items-center gap-1 text-[10px] font-medium uppercase tracking-wider text-[#4A7C59]">
                             <CheckCircle className="h-3 w-3" />
-                            Stocked
+                            Listed
                           </span>
                         ) : (
-                          <Link
-                            href="/admin/stocking"
-                            onClick={() => {
-                              // Store product hash so stocking page can auto-open it
-                              sessionStorage.setItem("stock_product", signal.product_hash);
-                            }}
+                          <button
+                            onClick={() => setListingProduct(signal)}
                             className="inline-flex items-center gap-1.5 rounded-full border border-[#9E6B73] px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#9E6B73] transition-all hover:bg-[#9E6B73] hover:text-white"
                           >
-                            <Package className="h-3 w-3" />
-                            Stock
-                          </Link>
+                            <ShoppingCart className="h-3 w-3" />
+                            List on Shopify
+                          </button>
                         )}
                         {signal.acquisition_lead && (
                           <button

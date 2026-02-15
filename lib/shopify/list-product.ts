@@ -20,6 +20,9 @@ interface CatalogProduct {
   contraindications: string[];
   image_url: string | null;
   description_generated: string | null;
+  retail_price: number | null;
+  currency: string | null;
+  source_url: string | null;
 }
 
 interface SourceIntelligence {
@@ -124,7 +127,7 @@ export async function getProductFromCatalog(
   const result = await sql<CatalogProduct[]>`
     SELECT product_hash, display_name, category, product_type, price_tier,
            efficacy_score, key_actives, suitable_for, contraindications,
-           image_url, description_generated
+           image_url, description_generated, retail_price, currency, source_url
     FROM product_catalog WHERE product_hash = ${productHash}`;
 
   if (result.length === 0) {
@@ -149,10 +152,11 @@ export async function listProduct(productHash: string) {
   const product = await getProductFromCatalog(productHash);
   const source = await getSourceIntelligence(productHash);
 
-  const retailPrice = calculateRetailPrice(
-    source?.wholesale_price ?? null,
-    product.price_tier
-  );
+  // Use retail_price from catalog if enriched, then source wholesale, then tier default
+  const retailPrice =
+    product.retail_price && Number(product.retail_price) > 0
+      ? Number(product.retail_price).toFixed(2)
+      : calculateRetailPrice(source?.wholesale_price ?? null, product.price_tier);
 
   const shopifyResponse = await shopifyAdminFetch<{
     product: { id: number; handle: string; variants: Array<{ id: number }> };
@@ -214,6 +218,7 @@ export async function listProduct(productHash: string) {
 
   const shopifyId = String(shopifyResponse.product.id);
 
+  // Update source_intelligence if a row exists (may be empty)
   await sql`
     UPDATE source_intelligence
     SET listed_on_shopify = TRUE,
@@ -221,9 +226,11 @@ export async function listProduct(productHash: string) {
         updated_at = NOW()
     WHERE product_hash = ${productHash}`;
 
+  // Always update the catalog status and store the Shopify product ID
   await sql`
     UPDATE product_catalog
     SET status = 'listed',
+        retail_price = COALESCE(retail_price, ${Number(retailPrice)}),
         updated_at = NOW()
     WHERE product_hash = ${productHash}`;
 
