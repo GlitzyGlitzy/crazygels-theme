@@ -8,6 +8,13 @@ import sql from '@/lib/db';
 
 export async function GET(request: NextRequest) {
   try {
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json(
+        { status: 'error', message: 'DATABASE_URL not configured. Run: npx vercel env pull .env.local' },
+        { status: 503 },
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const withPriceOnly = searchParams.get('with_price') === 'true';

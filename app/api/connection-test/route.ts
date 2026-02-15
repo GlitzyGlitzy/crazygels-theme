@@ -89,6 +89,13 @@ export async function GET() {
 
   // Summary
   const allOk = Object.values(results).every((r) => r.status === "OK");
+  const missingCount = Object.values(results).filter((r) => r.status === "MISSING" || r.status === "ERROR").length;
 
-  return NextResponse.json({ ok: allOk, results }, { status: allOk ? 200 : 207 });
+  return NextResponse.json({
+    ok: allOk,
+    results,
+    ...(missingCount > 0 ? {
+      setup_hint: "Missing env vars? Run: npx vercel login && npx vercel link && npx vercel env pull .env.local -- or copy .env.example to .env.local and fill in values manually.",
+    } : {}),
+  }, { status: allOk ? 200 : 207 });
 }
