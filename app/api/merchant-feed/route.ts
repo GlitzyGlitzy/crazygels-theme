@@ -146,18 +146,25 @@ export async function GET() {
     const products = await getAllProducts({});
     const items: string[] = [];
 
+    // Diagnostic counters
+    let totalProducts = products.length;
+    let skippedNoHandle = 0;
+    let skippedNoImage = 0;
+    let skippedNoPrice = 0;
+    let totalVariants = 0;
+
     for (const product of products) {
       const p = product;
 
       // Skip products without a valid handle or title (causes "Product page unavailable")
-      if (!p.handle || !p.title) continue;
+      if (!p.handle || !p.title) { skippedNoHandle++; continue; }
 
       // Skip products without images (causes "Missing product image" disapproval)
       const imageUrls = (p.images as unknown as { url: string }[])?.map?.((img) => img.url)
         || p.images?.edges?.map?.((e: { node: { url: string } }) => e.node.url)
         || [];
       const mainImage = imageUrls[0] || p.featuredImage?.url || '';
-      if (!mainImage) continue;
+      if (!mainImage) { skippedNoImage++; continue; }
 
       const googleCategory = getGoogleCategory(p.productType || '', p.title);
       const description = stripHtml(p.description || p.title).slice(0, 5000);
@@ -211,7 +218,8 @@ export async function GET() {
         const itemGroupId = `shopify_${mpn}`;
 
         // Skip products with no price (causes "Missing product price" error)
-        if (!price || price === '0.00') continue;
+        if (!price || price === '0.00') { skippedNoPrice++; continue; }
+        totalVariants++;
 
         // Unique ID per variant
         const uniqueId =
@@ -406,11 +414,6 @@ ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:ite
         <g:service>Standard</g:service>
         <g:price>0.00 EUR</g:price>
       </g:shipping>
-      <g:tax>
-        <g:country>DE</g:country>
-        <g:tax_ship>yes</g:tax_ship>
-        <g:rate>19</g:rate>
-      </g:tax>
     </item>`;
 
         items.push(item);
@@ -418,6 +421,7 @@ ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:ite
     }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<!-- Feed stats: ${totalProducts} products from Shopify, ${items.length} items in feed (${totalVariants} variants). Skipped: ${skippedNoHandle} no handle, ${skippedNoImage} no image, ${skippedNoPrice} no price. Generated: ${new Date().toISOString()} -->
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
   <channel>
     <title>Crazy Gels - Product Feed</title>
