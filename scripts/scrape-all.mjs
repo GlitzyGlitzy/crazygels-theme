@@ -5,10 +5,10 @@
  * from public APIs and writes to scrape_staging + product_catalog in Neon.
  *
  * Usage:
- *   node scripts/scrape-all.mjs                     # all sources
- *   node scripts/scrape-all.mjs --source sephora    # single source
- *   node scripts/scrape-all.mjs --source ulta       # single source
- *   node scripts/scrape-all.mjs --source amazon     # single source
+ * v2 - Removed broken Sephora/Ulta (blocked by anti-bot), expanded brand DB
+ *
+ *   node scripts/scrape-all.mjs                     # OBF + Amazon
+ *   node scripts/scrape-all.mjs --source amazon     # Amazon DE only
  *   node scripts/scrape-all.mjs --source obf        # Open Beauty Facts only
  *   node scripts/scrape-all.mjs --dry-run           # preview without DB writes
  */
@@ -72,41 +72,100 @@ function priceTier(priceEur) {
 
 // ── Brand price knowledge (EUR) ──────────────────────────────────────
 const BRAND_PRICES = {
+  // Luxury (80+)
   "la mer": 95, "la prairie": 120, "sk-ii": 85, "tom ford": 75, "chanel": 70,
+  "sisley": 90, "augustinus bader": 95, "valmont": 110, "cle de peau": 85,
+  "helena rubinstein": 80, "natura bisse": 90, "sisleya": 95, "guerlain": 75,
+  "givenchy": 70, "ysl": 65, "armani": 68, "hermes": 75,
+  // Premium (40-80)
   "dior": 65, "estee lauder": 55, "lancome": 50, "shiseido": 48, "clarins": 45,
-  "clinique": 35, "origins": 32, "kiehl's": 38, "drunk elephant": 42,
-  "tatcha": 48, "sunday riley": 45, "paula's choice": 35, "the ordinary": 8,
-  "cerave": 16, "cetaphil": 14, "neutrogena": 12, "nivea": 8, "dove": 6,
-  "l'oreal": 18, "l'oreal paris": 18, "garnier": 10, "olay": 22,
-  "bioderma": 18, "avene": 20, "la roche-posay": 22, "vichy": 20,
-  "eucerin": 18, "nuxe": 25, "caudalie": 28, "sisley": 90, "fresh": 40,
-  "laneige": 32, "innisfree": 18, "cosrx": 16, "some by mi": 14,
-  "beauty of joseon": 16, "purito": 14, "anua": 18, "isntree": 16,
-  "torriden": 18, "round lab": 16, "medicube": 22, "skin1004": 18,
-  "by wishtrend": 20, "klairs": 22, "heimish": 16, "missha": 14,
-  "holika holika": 10, "too faced": 35, "urban decay": 35, "nars": 38,
-  "mac": 28, "charlotte tilbury": 42, "rare beauty": 28, "fenty beauty": 32,
-  "ilia": 35, "merit": 30, "tower 28": 22, "glossier": 22, "milk makeup": 28,
-  "pat mcgrath": 45, "hourglass": 42, "laura mercier": 38, "bobbi brown": 38,
+  "tatcha": 48, "sunday riley": 45, "drunk elephant": 42, "fresh": 40,
+  "pat mcgrath": 45, "hourglass": 42, "charlotte tilbury": 42, "laura mercier": 38,
+  "bobbi brown": 38, "ole henriksen": 35, "dermalogica": 45, "peter thomas roth": 42,
+  "murad": 45, "dr. dennis gross": 42, "skinceuticals": 55, "obagi": 48,
+  "is clinical": 50, "omorovicza": 55, "elemis": 42, "tata harper": 55,
+  "herbivore": 38, "youth to the people": 35, "biossance": 32, "farmacy": 30,
+  "glow recipe": 32, "summer fridays": 35, "supergoop": 32, "coola": 30,
+  "ren": 32, "first aid beauty": 28, "mario badescu": 22, "korres": 25,
+  // Mid (15-40)
+  "clinique": 35, "origins": 32, "kiehl's": 38, "paula's choice": 35,
+  "laneige": 32, "too faced": 35, "urban decay": 35, "nars": 38,
+  "mac": 28, "rare beauty": 28, "fenty beauty": 32, "ilia": 35,
+  "merit": 30, "tower 28": 22, "glossier": 22, "milk makeup": 28,
   "bare minerals": 30, "it cosmetics": 35, "tarte": 32, "benefit": 30,
-  "nyx": 10, "elf": 8, "maybelline": 10, "revlon": 12, "rimmel": 8,
-  "essence": 5, "catrice": 6, "milani": 10, "colourpop": 10,
   "moroccanoil": 35, "olaplex": 28, "kerastase": 35, "bumble and bumble": 32,
   "living proof": 30, "ouai": 28, "amika": 25, "briogeo": 28,
+  "nuxe": 25, "caudalie": 28, "bioderma": 18, "avene": 20,
+  "la roche-posay": 22, "vichy": 20, "eucerin": 18, "olay": 22,
+  "l'oreal": 18, "l'oreal paris": 18, "l'oreal professionnel": 22,
+  "cosrx": 16, "some by mi": 16, "beauty of joseon": 16, "purito": 16,
+  "anua": 18, "isntree": 16, "torriden": 18, "round lab": 16,
+  "medicube": 22, "skin1004": 18, "by wishtrend": 20, "klairs": 22,
+  "heimish": 16, "missha": 14, "innisfree": 18, "banila co": 18,
+  "etude": 12, "tony moly": 12, "snp": 14, "benton": 16,
+  "hada labo": 14, "rohto mentholatum": 12, "canmake": 10,
+  "neogen": 18, "mediheal": 14, "dr. jart+": 28, "amorepacific": 45,
+  "sulwhasoo": 55, "belif": 28, "iope": 25,
+  // Budget (under 15)
+  "the ordinary": 8, "cerave": 16, "cetaphil": 14, "neutrogena": 12,
+  "nivea": 8, "dove": 6, "garnier": 10, "nyx": 10, "elf": 8,
+  "maybelline": 10, "revlon": 12, "rimmel": 8, "essence": 5,
+  "catrice": 6, "milani": 10, "colourpop": 10, "holika holika": 10,
+  "wet n wild": 5, "covergirl": 10, "physicians formula": 12,
+  "pixi": 14, "soap & glory": 10, "simple": 8, "st. ives": 6,
+  "aveeno": 12, "vanicream": 12, "la girl": 5, "revolution": 8,
+  "nip + fab": 10, "acure": 10, "alba botanica": 10, "burt's bees": 10,
+  "yes to": 8, "tree hut": 10, "jason": 8, "thayers": 10,
+  "stridex": 6, "differin": 14, "panoxyl": 10, "hero cosmetics": 12,
+  "starface": 10, "bubble": 10, "good molecules": 8, "inkey list": 8,
+  "versed": 12, "peach & lily": 14, "cocokind": 12, "naturium": 12,
+  // Haircare
+  "redken": 22, "matrix": 18, "paul mitchell": 22, "chi": 18,
+  "tresemme": 6, "head & shoulders": 6, "pantene": 6, "herbal essences": 6,
+  "aussie": 6, "john frieda": 10, "ogx": 8, "shea moisture": 12,
+  "cantu": 8, "aussie": 6, "sebastian": 22, "wella": 18,
+  "schwarzkopf": 12, "got2b": 6, "syoss": 6, "balea": 3,
+  // Body/Sun
+  "sol de janeiro": 25, "necessaire": 28, "drunk elephant body": 22,
+  "jergens": 8, "lubriderm": 8, "gold bond": 10, "amlactin": 14,
+  "sun bum": 14, "banana boat": 8, "coppertone": 8, "australian gold": 10,
+  "la roche posay": 22, "eltamd": 28, "isdin": 25, "heliocare": 22,
 };
 
-function estimatePrice(brand) {
-  if (!brand) return null;
-  const key = brand.toLowerCase().trim();
-  return BRAND_PRICES[key] || null;
+function estimatePrice(brand, productName) {
+  if (!brand && !productName) return null;
+  const key = (brand || "").toLowerCase().trim().replace(/['']/g, "'");
+  // Exact match
+  if (BRAND_PRICES[key]) return BRAND_PRICES[key];
+  // Try normalizing dashes/spaces
+  const norm = key.replace(/[-_]/g, " ");
+  if (BRAND_PRICES[norm]) return BRAND_PRICES[norm];
+  // Partial: check if any brand name is IN the brand string or product name
+  const search = `${key} ${(productName || "").toLowerCase()}`;
+  for (const [bk, bv] of Object.entries(BRAND_PRICES)) {
+    if (search.includes(bk)) return bv;
+  }
+  return null;
 }
 
 // ── Source: Open Beauty Facts ────────────────────────────────────────
 const OBF_CATEGORIES = [
+  // Skincare
   "moisturizers", "serums", "cleansers", "sunscreens", "face-masks",
-  "eye-creams", "lip-balms", "foundations", "concealers", "mascaras",
-  "lipsticks", "shampoos", "conditioners", "body-lotions", "hand-creams",
-  "toners", "exfoliators", "blushes", "bronzers", "primers",
+  "eye-creams", "toners", "exfoliators", "face-oils", "micellar-water",
+  "night-cream", "day-cream", "anti-aging", "acne-treatment", "retinol",
+  "vitamin-c", "hyaluronic-acid", "niacinamide", "peptides",
+  // Makeup
+  "foundations", "concealers", "mascaras", "lipsticks", "lip-balms",
+  "blushes", "bronzers", "primers", "setting-spray", "eyeshadow",
+  "eyeliner", "lip-gloss", "bb-cream", "cc-cream", "highlighter",
+  "contour", "brow-gel", "powder",
+  // Haircare
+  "shampoos", "conditioners", "hair-masks", "hair-oils", "hair-serums",
+  "dry-shampoo", "leave-in-conditioner", "hair-spray",
+  // Body
+  "body-lotions", "hand-creams", "body-wash", "body-oil", "deodorant",
+  "body-scrub", "foot-cream", "hand-wash",
 ];
 
 async function scrapeOBF(maxPerCategory = 30) {
@@ -129,7 +188,7 @@ async function scrapeOBF(maxPerCategory = 30) {
         if (!name || name.length < 3) continue;
 
         const productHash = hash(`obf:${p.code || name}:${name}`);
-        const priceEst = estimatePrice(brand);
+        const priceEst = estimatePrice(brand, name);
         const priceEur = priceEst || 0;
 
         products.push({
@@ -163,150 +222,7 @@ async function scrapeOBF(maxPerCategory = 30) {
   return products;
 }
 
-// ── Source: Sephora (public product API) ─────────────────────────────
-const SEPHORA_CATEGORIES = [
-  { id: "skincare-moisturizers", cat: "moisturizers" },
-  { id: "skincare-face-serums", cat: "serums" },
-  { id: "skincare-cleansers", cat: "cleansers" },
-  { id: "skincare-sunscreen", cat: "sunscreens" },
-  { id: "skincare-face-masks", cat: "face_masks" },
-  { id: "eye-treatment-dark-circle-treatment", cat: "eye_creams" },
-  { id: "makeup-foundation-makeup", cat: "foundations" },
-  { id: "makeup-concealer", cat: "concealers" },
-  { id: "makeup-mascara", cat: "mascaras" },
-  { id: "makeup-lipstick", cat: "lipsticks" },
-  { id: "hair-shampoo-conditioner", cat: "shampoos" },
-];
-
-async function scrapeSephora(maxPerCategory = 24) {
-  const products = [];
-  console.log(`\n[SEPHORA] Scraping Sephora DE (${SEPHORA_CATEGORIES.length} categories)...`);
-
-  for (const { id, cat } of SEPHORA_CATEGORIES) {
-    const url = `https://www.sephora.de/api/catalog/categories/${id}/products?pageSize=${maxPerCategory}&currentPage=1`;
-    try {
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-          "Accept": "application/json",
-        },
-      });
-      if (!res.ok) { console.log(`  [SEPHORA] ${cat}: HTTP ${res.status} (may need different endpoint)`); continue; }
-      const data = await res.json();
-      const items = data.products || data.data?.products || [];
-      let added = 0;
-
-      for (const p of items) {
-        const name = (p.displayName || p.name || "").trim();
-        const brand = (p.brand?.displayName || p.brand?.name || "").trim();
-        if (!name || name.length < 3) continue;
-
-        const price = parseFloat(p.price?.value || p.currentSku?.listPrice || 0);
-        const salePrice = parseFloat(p.price?.saleValue || 0) || null;
-        const productHash = hash(`sephora:${p.productId || p.id || name}:${name}`);
-        const priceEur = price > 0 ? price : (estimatePrice(brand) || 0);
-
-        products.push({
-          product_hash: productHash,
-          source: "sephora",
-          external_id: String(p.productId || p.id || productHash),
-          name: `${brand ? brand + " " : ""}${name}`.slice(0, 255),
-          brand: brand || null,
-          category: cat,
-          product_type: cat.replace(/_/g, " "),
-          price_original: price > 0 ? price : null,
-          price_currency: "EUR",
-          sale_price: salePrice,
-          price_eur: priceEur,
-          price_tier: priceEur > 0 ? priceTier(priceEur) : "unknown",
-          image_url: p.image?.url || p.heroImage || p.thumbnail || null,
-          source_url: p.url ? `https://www.sephora.de${p.url}` : null,
-          description: p.shortDescription || p.longDescription || null,
-          ingredients: p.ingredients || null,
-          size: p.size || p.currentSku?.size || null,
-          rating: p.rating ? parseFloat(p.rating) : null,
-          review_count: p.reviews ? parseInt(p.reviews) : null,
-        });
-        added++;
-      }
-      console.log(`  [SEPHORA] ${cat}: ${added} products`);
-    } catch (err) {
-      console.log(`  [SEPHORA] ${cat}: error - ${err.message}`);
-    }
-    // Be polite
-    await new Promise((r) => setTimeout(r, 800));
-  }
-  return products;
-}
-
-// ── Source: Ulta (public search API) ─────────────────────────────────
-const ULTA_SEARCHES = [
-  "moisturizer", "serum", "cleanser", "sunscreen", "face mask",
-  "eye cream", "foundation", "concealer", "mascara", "lipstick",
-  "shampoo", "conditioner", "body lotion",
-];
-
-async function scrapeUlta(maxPerSearch = 24) {
-  const products = [];
-  console.log(`\n[ULTA] Scraping Ulta (${ULTA_SEARCHES.length} searches)...`);
-
-  for (const term of ULTA_SEARCHES) {
-    const url = `https://www.ulta.com/api/search?query=${encodeURIComponent(term)}&pageSize=${maxPerSearch}`;
-    try {
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-          "Accept": "application/json",
-        },
-      });
-      if (!res.ok) { console.log(`  [ULTA] ${term}: HTTP ${res.status}`); continue; }
-      const data = await res.json();
-      const items = data.products || data.results || [];
-      let added = 0;
-
-      for (const p of items) {
-        const name = (p.displayName || p.productName || p.name || "").trim();
-        const brand = (p.brandName || p.brand || "").trim();
-        if (!name || name.length < 3) continue;
-
-        const price = parseFloat(p.currentSku?.listPrice || p.price || p.listPrice || 0);
-        const salePrice = parseFloat(p.currentSku?.salePrice || p.salePrice || 0) || null;
-        const productHash = hash(`ulta:${p.productId || p.id || name}:${name}`);
-        const priceEur = price > 0 ? toEur(price, "USD") : (estimatePrice(brand) || 0);
-
-        products.push({
-          product_hash: productHash,
-          source: "ulta",
-          external_id: String(p.productId || p.id || productHash),
-          name: `${brand ? brand + " " : ""}${name}`.slice(0, 255),
-          brand: brand || null,
-          category: term.replace(/ /g, "_"),
-          product_type: term,
-          price_original: price > 0 ? price : null,
-          price_currency: price > 0 ? "USD" : null,
-          sale_price: salePrice ? toEur(salePrice, "USD") : null,
-          price_eur: priceEur,
-          price_tier: priceEur > 0 ? priceTier(priceEur) : "unknown",
-          image_url: p.image?.url || p.mediumImage || p.thumbnail || null,
-          source_url: p.productUrl ? `https://www.ulta.com${p.productUrl}` : null,
-          description: p.shortDescription || null,
-          ingredients: null,
-          size: p.size || null,
-          rating: p.rating ? parseFloat(p.rating) : null,
-          review_count: p.reviewCount ? parseInt(p.reviewCount) : null,
-        });
-        added++;
-      }
-      console.log(`  [ULTA] ${term}: ${added} products`);
-    } catch (err) {
-      console.log(`  [ULTA] ${term}: error - ${err.message}`);
-    }
-    await new Promise((r) => setTimeout(r, 800));
-  }
-  return products;
-}
-
-// ── Source: Amazon DE (product advertising API / search) ─────────────
+// ── Source: Amazon DE (brand knowledge + suggestions) ────────────────
 const AMAZON_SEARCHES = [
   "feuchtigkeitscreme gesicht", "serum gesichtspflege", "gesichtsreiniger",
   "sonnencreme gesicht lsf 50", "augencreme", "foundation makeup",
@@ -467,24 +383,20 @@ async function main() {
 
   let allProducts = [];
 
-  const sources = sourceArg ? [sourceArg] : ["obf", "sephora", "ulta", "amazon"];
+  // Sephora and Ulta APIs are blocked (404 / Akamai CDN), so we skip them.
+  // OBF is the reliable backbone, Amazon supplements with brand-based entries.
+  const sources = sourceArg ? [sourceArg] : ["obf", "amazon"];
 
   for (const src of sources) {
     switch (src) {
       case "obf":
-        allProducts.push(...await scrapeOBF(30));
-        break;
-      case "sephora":
-        allProducts.push(...await scrapeSephora(24));
-        break;
-      case "ulta":
-        allProducts.push(...await scrapeUlta(24));
+        allProducts.push(...await scrapeOBF(100));
         break;
       case "amazon":
         allProducts.push(...await scrapeAmazon(20));
         break;
       default:
-        console.log(`Unknown source: ${src}`);
+        console.log(`Unknown source: ${src}. Available: obf, amazon`);
     }
   }
 
