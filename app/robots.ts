@@ -8,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           // Internal / private
+          '/api/',
           '/admin/',
           '/cart',
           '/checkout',
