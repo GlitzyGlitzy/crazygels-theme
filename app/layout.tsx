@@ -8,7 +8,7 @@ import { GtmNoscript } from '@/components/gtm-noscript'
 import './globals.css'
 
 const GTM_ID = 'GTM-W7NQG2QL'
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX' // Replace with your GA4 Measurement ID from GA4 > Admin > Data Streams
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ''
 
 const _geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 const _geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'google-site-verification=your-code-here',
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
   },
   icons: {
     icon: [
@@ -160,16 +160,18 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           }}
         />
         {/* Direct GA4 measurement -- ensures data flows even if GTM tags are misconfigured */}
-        <Script
-          id="ga4-gtag"
-          strategy="afterInteractive"
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        />
-        <Script
-          id="ga4-config"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+        {GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              id="ga4-gtag"
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            />
+            <Script
+              id="ga4-config"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
 gtag('config','${GA_MEASUREMENT_ID}',{
   page_path:window.location.pathname,
@@ -177,8 +179,10 @@ gtag('config','${GA_MEASUREMENT_ID}',{
   cookie_flags:'SameSite=None;Secure',
   send_page_view:true
 });`,
-          }}
-        />
+              }}
+            />
+          </>
+        )}
         <GtmNoscript gtmId={GTM_ID} />
         {children}
         <Analytics />
