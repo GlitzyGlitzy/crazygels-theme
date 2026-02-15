@@ -7,7 +7,13 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
-    "start": "next start"
+    "start": "next start",
+    "scrape": "node scripts/scrape-all.mjs",
+    "scrape:obf": "node scripts/scrape-all.mjs --source obf",
+    "scrape:sephora": "node scripts/scrape-all.mjs --source sephora",
+    "scrape:ulta": "node scripts/scrape-all.mjs --source ulta",
+    "scrape:amazon": "node scripts/scrape-all.mjs --source amazon",
+    "scrape:dry": "node scripts/scrape-all.mjs --dry-run"
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.72",
