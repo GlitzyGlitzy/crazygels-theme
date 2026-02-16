@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { getCollectionProducts, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
+import { getCollectionProducts, getCollection, getAllProducts, isShopifyConfigured } from "@/lib/shopify"
 import type { Product } from "@/lib/shopify/types"
 import { formatPrice } from "@/lib/utils"
 
@@ -98,12 +98,57 @@ async function CollectionProducts({
 }
 
 const HOMEPAGE_COLLECTIONS = [
-  { handle: "skincare", title: "Skin Optimization", subtitle: "Barrier repair & cellular renewal", image: "/images/categories/skincare.jpg" },
-  { handle: "haircare", title: "Scalp & Hair System", subtitle: "Follicle health & growth support", image: "/images/categories/haircare.jpg" },
-  { handle: "gel-nail-wraps", title: "Nail Intelligence", subtitle: "Keratin quality & structural support", image: "/images/categories/nails.jpg" },
-  { handle: "collagen-masks", title: "Collagen Protocols", subtitle: "Deep hydration & protein synthesis", image: "/images/categories/collagen.jpg" },
-  { handle: "treatments", title: "Bio-Tools & Treatments", subtitle: "Advanced delivery systems", image: "/images/categories/treatments.jpg" },
+  { handle: "skincare", title: "Skin Optimization", subtitle: "Barrier repair & cellular renewal" },
+  { handle: "haircare", title: "Scalp & Hair System", subtitle: "Follicle health & growth support" },
+  { handle: "gel-nail-wraps", title: "Nail Intelligence", subtitle: "Keratin quality & structural support" },
+  { handle: "collagen-masks", title: "Collagen Protocols", subtitle: "Deep hydration & protein synthesis" },
+  { handle: "treatments", title: "Bio-Tools & Treatments", subtitle: "Advanced delivery systems" },
 ]
+
+async function CollectionBannerImage({ handle }: { handle: string }) {
+  if (!isShopifyConfigured) return null;
+  try {
+    // Try collection image first
+    const collection = await getCollection(handle);
+    if (collection?.image?.url) {
+      return (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={collection.image.url}
+          alt={collection.title || handle}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          loading="lazy"
+        />
+      );
+    }
+    // Fallback: use first product's featured image
+    let products: Product[];
+    if (VIRTUAL_KEYWORDS[handle]) {
+      const all = await getAllProducts({});
+      products = all.filter((p) => {
+        const text = `${p.title} ${p.description} ${p.tags?.join(" ") || ""} ${p.productType || ""}`.toLowerCase();
+        return VIRTUAL_KEYWORDS[handle].some((kw) => text.includes(kw.toLowerCase()));
+      });
+    } else {
+      products = await getCollectionProducts({ handle, first: 4 });
+    }
+    const firstWithImage = products.find((p) => p.featuredImage?.url);
+    if (firstWithImage?.featuredImage?.url) {
+      return (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          src={firstWithImage.featuredImage.url}
+          alt={firstWithImage.title}
+          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          loading="lazy"
+        />
+      );
+    }
+  } catch {
+    // Silently fail
+  }
+  return null;
+}
 
 export function BioProductsSection() {
   return (
@@ -123,15 +168,11 @@ export function BioProductsSection() {
         <div className="space-y-16 md:space-y-24">
           {HOMEPAGE_COLLECTIONS.map((col, index) => (
             <div key={col.handle}>
-              {/* Category banner image */}
+              {/* Category banner image -- dynamic from Shopify */}
               <Link href={`/collections/${col.handle}`} className="block relative aspect-[3/1] overflow-hidden mb-6 md:mb-8 group">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={col.image}
-                  alt={`${col.title} collection`}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  loading={index === 0 ? "eager" : "lazy"}
-                />
+                <Suspense fallback={<div className="absolute inset-0 bg-[var(--bio-card)] animate-pulse" />}>
+                  <CollectionBannerImage handle={col.handle} />
+                </Suspense>
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--bio-dark)] via-[var(--bio-dark)]/40 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
                   <p className="text-[10px] font-mono tracking-[0.2em] text-[var(--bio-teal)] uppercase mb-1">
