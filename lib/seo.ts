@@ -172,19 +172,19 @@ export function buildSeoDescription(
 
     // Attempt keyword-rich description
     if (category === 'nails') {
-      const desc = `Shop ${title} semi-cured gel nail strips at Crazy Gels.${priceStr} Easy DIY application, lasts 2+ weeks, zero damage. Free shipping over $50.`;
+      const desc = `Shop ${title} semi-cured gel nail strips at Crazy Gels.${priceStr} Easy DIY application, lasts 2+ weeks, zero damage. Free EU shipping.`;
       if (desc.length <= 160) return desc;
     }
     if (category === 'hair') {
-      const desc = `Shop ${title} at Crazy Gels.${priceStr} Premium hair care for healthy, beautiful hair. Free shipping on orders over $50.`;
+      const desc = `Shop ${title} at Crazy Gels.${priceStr} Premium hair care for healthy, beautiful hair. Free EU shipping available.`;
       if (desc.length <= 160) return desc;
     }
     if (category === 'skin') {
-      const desc = `Shop ${title} at Crazy Gels.${priceStr} Luxury skincare crafted with premium ingredients for radiant results. Free shipping over $50.`;
+      const desc = `Shop ${title} at Crazy Gels.${priceStr} Luxury skincare crafted with premium ingredients for radiant results. Free EU shipping.`;
       if (desc.length <= 160) return desc;
     }
     if (category === 'fragrances') {
-      const desc = `Shop ${title} at Crazy Gels.${priceStr} Premium fragrances and perfumes for every occasion. Free shipping on orders over $50.`;
+      const desc = `Shop ${title} at Crazy Gels.${priceStr} Premium fragrances and perfumes for every occasion. Free EU shipping available.`;
       if (desc.length <= 160) return desc;
     }
   }
@@ -193,10 +193,10 @@ export function buildSeoDescription(
   if (description && description.length > 20) {
     const cleaned = description.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
     const trimmed = cleaned.length > 120 ? cleaned.slice(0, 117) + '...' : cleaned;
-    return `${trimmed} Shop now at Crazy Gels. Free shipping over $50.`;
+    return `${trimmed} Shop now at Crazy Gels. Free EU shipping.`;
   }
 
-  return `Shop ${title} at Crazy Gels. Premium beauty products with free shipping on orders over $50.`;
+  return `Shop ${title} at Crazy Gels. Premium beauty products with free EU shipping.`;
 }
 
 /**
@@ -297,6 +297,9 @@ export function buildProductJsonLd(product: {
       };
     }[];
   };
+}, ratingData?: {
+  avgRating?: number;   // e.g. 4.7
+  reviewCount?: number; // e.g. 23
 }) {
   const price = product.priceRange.minVariantPrice;
   const typeKey = product.productType?.toLowerCase().trim() || '';
@@ -321,18 +324,21 @@ export function buildProductJsonLd(product: {
   // 30-day price validity for sale items
   const priceValidUntil = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-  // Shared shipping and return policy for all offers
+  // Shared shipping and return policy for all offers (DE/EU-based store)
   const shippingDetails = {
     '@type': 'OfferShippingDetails',
     shippingRate: {
       '@type': 'MonetaryAmount',
       value: '0',
-      currency: price.currencyCode,
+      currency: 'EUR',
     },
-    shippingDestination: {
-      '@type': 'DefinedRegion',
-      addressCountry: 'US',
-    },
+    shippingDestination: [
+      { '@type': 'DefinedRegion', addressCountry: 'DE' },
+      { '@type': 'DefinedRegion', addressCountry: 'AT' },
+      { '@type': 'DefinedRegion', addressCountry: 'NL' },
+      { '@type': 'DefinedRegion', addressCountry: 'BE' },
+      { '@type': 'DefinedRegion', addressCountry: 'FR' },
+    ],
     deliveryTime: {
       '@type': 'ShippingDeliveryTime',
       handlingTime: {
@@ -343,8 +349,8 @@ export function buildProductJsonLd(product: {
       },
       transitTime: {
         '@type': 'QuantitativeValue',
-        minValue: 3,
-        maxValue: 7,
+        minValue: 2,
+        maxValue: 5,
         unitCode: 'DAY',
       },
     },
@@ -352,7 +358,7 @@ export function buildProductJsonLd(product: {
 
   const returnPolicy = {
     '@type': 'MerchantReturnPolicy',
-    applicableCountry: 'US',
+    applicableCountry: ['DE', 'AT', 'NL', 'BE', 'FR'],
     returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
     merchantReturnDays: 14,
     returnMethod: 'https://schema.org/ReturnByMail',
@@ -442,6 +448,17 @@ export function buildProductJsonLd(product: {
             offers,
           },
   };
+
+  // ── AggregateRating (shows stars in Google search results) ──
+  if (ratingData?.avgRating && ratingData.avgRating > 0 && ratingData?.reviewCount && ratingData.reviewCount > 0) {
+    productLd.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: ratingData.avgRating.toFixed(1),
+      bestRating: '5',
+      worstRating: '1',
+      reviewCount: ratingData.reviewCount,
+    };
+  }
 
   return productLd;
 }

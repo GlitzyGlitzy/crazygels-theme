@@ -90,7 +90,12 @@ export default async function ProductPage({
     notFound();
   }
 
-  const productJsonLd = buildProductJsonLd(product);
+  // Extract Loox review data for AggregateRating in structured data
+  const ratingData = {
+    avgRating: product.looxAvgRating?.value ? parseFloat(product.looxAvgRating.value) : undefined,
+    reviewCount: product.looxNumReviews?.value ? parseInt(product.looxNumReviews.value, 10) : undefined,
+  };
+  const productJsonLd = buildProductJsonLd(product, ratingData);
   const breadcrumbJsonLd = buildBreadcrumbJsonLd(product.title, handle, product.productType);
 
   return (
@@ -158,7 +163,7 @@ export default async function ProductPage({
               <Truck className="h-5 w-5 md:h-6 md:w-6 text-[#B76E79]" />
             </div>
             <span className="text-xs md:text-sm font-medium text-[#2C2C2C]">Free Shipping</span>
-            <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">Orders over $50</span>
+            <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">EU-wide delivery</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 md:gap-2 text-center">
             <div className="rounded-full bg-[#9E6B73]/10 p-2.5 md:p-3">
