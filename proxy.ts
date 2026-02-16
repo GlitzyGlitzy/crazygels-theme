@@ -19,6 +19,12 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
   'da', 'pl', 'cs', 'th', 'zh', 'ar', 'bg', 'ca', 'el', 'et', 'he',
   'hi', 'hr', 'hu', 'id', 'lt', 'lv', 'ms', 'nb', 'nn', 'ro', 'ru',
   'sk', 'sl', 'sr', 'tr', 'uk', 'vi',
+  // Missing locale codes found in Google Search Console 404s
+  'no', 'ga', 'ka', 'eu', 'af', 'am', 'az', 'be', 'bn', 'bs', 'cy',
+  'eo', 'fa', 'fy', 'gl', 'gu', 'ha', 'hy', 'is', 'jv', 'kk', 'km',
+  'kn', 'ku', 'ky', 'lo', 'mg', 'mi', 'mk', 'ml', 'mn', 'mr', 'mt',
+  'my', 'ne', 'or', 'pa', 'ps', 'rw', 'sd', 'si', 'so', 'sq', 'su',
+  'sw', 'ta', 'te', 'tg', 'tl', 'ur', 'uz', 'yo', 'zu',
   // Regional variants Shopify uses
   'zh-cn', 'zh-tw', 'pt-br', 'pt-pt', 'en-gb', 'en-us', 'fr-ca',
   'es-mx', 'es-ar', 'en-au', 'en-ca', 'en-nz', 'en-ie', 'en-sg',
@@ -26,20 +32,39 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const url = request.nextUrl.clone();
 
-  // Match paths starting with a potential locale prefix: /xx or /xx-xx
-  const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[a-z]{2})?)(?:\/(.*))?$/i);
+  // ── 1. Strip locale prefixes (handles double-locale like /no/no/products/...) ──
+  let cleanPath = pathname;
+  let localeStripped = false;
 
-  if (localeMatch) {
+  // Keep stripping locale prefixes until none remain (handles /no/no/... , /da/en/... etc.)
+  let safetyCounter = 0;
+  while (safetyCounter < 3) {
+    const localeMatch = cleanPath.match(/^\/([a-z]{2}(?:-[a-z]{2})?)(?:\/(.*))?$/i);
+    if (!localeMatch) break;
+
     const prefix = localeMatch[1]!.toLowerCase();
-    const rest = localeMatch[2] || '';
+    if (!SHOPIFY_LOCALE_PREFIXES.has(prefix)) break;
 
-    if (SHOPIFY_LOCALE_PREFIXES.has(prefix)) {
-      const destination = rest ? `/${rest}` : '/';
-      const url = request.nextUrl.clone();
-      url.pathname = destination;
-      return NextResponse.redirect(url, 301);
-    }
+    cleanPath = localeMatch[2] ? `/${localeMatch[2]}` : '/';
+    localeStripped = true;
+    safetyCounter++;
+  }
+
+  // ── 2. Flatten Shopify collection-nested product URLs ──
+  // /collections/:collection/products/:handle -> /products/:handle
+  const collectionProductMatch = cleanPath.match(/^\/collections\/[^/]+\/products\/(.+)$/i);
+  if (collectionProductMatch) {
+    cleanPath = `/products/${collectionProductMatch[1]}`;
+    url.pathname = cleanPath;
+    return NextResponse.redirect(url, 301);
+  }
+
+  // ── 3. Redirect if locale was stripped ──
+  if (localeStripped) {
+    url.pathname = cleanPath;
+    return NextResponse.redirect(url, 301);
   }
 
   return NextResponse.next();
