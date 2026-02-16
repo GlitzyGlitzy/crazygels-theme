@@ -8,7 +8,7 @@ import { buildSeoTitle, buildSeoDescription, buildProductJsonLd, buildBreadcrumb
 import { formatPrice } from '@/lib/utils';
 import { ProductViewTracker } from '@/components/klaviyo/product-view-tracker';
 
-export const revalidate = 300;
+export const revalidate = 600; // 10 minutes -- Shopify data doesn't change that often
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';

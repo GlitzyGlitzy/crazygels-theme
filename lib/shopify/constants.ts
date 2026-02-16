@@ -30,14 +30,14 @@ export const PRODUCT_SORT_KEYS = {
 
 // Rate limiting configuration
 export const RATE_LIMIT = {
-  MAX_REQUESTS_PER_SECOND: 4, // Shopify allows ~50/sec but we stay conservative
+  MAX_REQUESTS_PER_SECOND: 20, // Shopify Storefront API allows ~100/sec; 20 is safe
   RETRY_DELAY_MS: 1000,
   MAX_RETRIES: 3,
 };
 
 // Cache revalidation times (in seconds)
 export const CACHE_TIMES = {
-  products: 60, // 1 minute for products
-  collections: 300, // 5 minutes for collections
+  products: 300, // 5 minutes for products (was 60s, reduces Shopify round-trips)
+  collections: 600, // 10 minutes for collections
   cart: 0, // No cache for cart (always fresh)
 };
