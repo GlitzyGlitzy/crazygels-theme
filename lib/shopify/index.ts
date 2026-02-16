@@ -280,6 +280,12 @@ const productFragment = /* GraphQL */ `
     updatedAt
     vendor
     productType
+    looxAvgRating: metafield(namespace: "loox", key: "avg_rating") {
+      value
+    }
+    looxNumReviews: metafield(namespace: "loox", key: "num_reviews") {
+      value
+    }
   }
 `;
 

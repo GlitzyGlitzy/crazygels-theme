@@ -104,6 +104,9 @@ export type Product = {
   updatedAt: string;
   vendor: string;
   productType: string;
+  // Loox review metafields (fetched via GraphQL aliases)
+  looxAvgRating?: { value: string } | null;
+  looxNumReviews?: { value: string } | null;
 };
 
 export type ProductOption = {
