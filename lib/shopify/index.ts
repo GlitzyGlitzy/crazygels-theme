@@ -526,7 +526,7 @@ export async function getProducts({
   sortKey?: string;
   first?: number;
 } = {}): Promise<Product[]> {
-  const safeFirst = Math.min(first, 50);
+  const safeFirst = Math.min(first, 250);
   const res = await shopifyFetch<{
     data: { products: Connection<ShopifyProduct> };
     variables: {
@@ -558,7 +558,8 @@ export async function getAllProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  const pageSize = 50;
+  // Shopify Storefront API allows up to 250 per page
+  const pageSize = 250;
 
   while (hasNextPage) {
     const res = await shopifyFetch<{
@@ -637,14 +638,14 @@ export async function getCollectionProducts({
   handle,
   reverse,
   sortKey,
-  first = 50,
+  first = 250,
 }: {
   handle: string;
   reverse?: boolean;
   sortKey?: string;
   first?: number;
 }): Promise<Product[]> {
-  const safeFirst = Math.min(first, 50);
+  const safeFirst = Math.min(first, 250);
   const res = await shopifyFetch<{
     data: { collection: { products: Connection<ShopifyProduct> } };
     variables: {
@@ -681,7 +682,8 @@ export async function getAllCollectionProducts({
   const allProducts: ShopifyProduct[] = [];
   let hasNextPage = true;
   let cursor: string | null = null;
-  const pageSize = 50;
+  // Shopify Storefront API allows up to 250 per page
+  const pageSize = 250;
 
   while (hasNextPage) {
     const res = await shopifyFetch<{

@@ -13,7 +13,7 @@ const getCachedAllProducts = cache(async (sortKey: string, reverse: boolean) => 
 });
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 
-export const revalidate = 300;
+export const revalidate = 600; // 10 minutes -- matches CACHE_TIMES.collections
 import { Footer } from '@/components/layout/footer';
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
 import { ChevronLeft, Grid3X3, SlidersHorizontal } from 'lucide-react';
