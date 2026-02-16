@@ -189,16 +189,27 @@ export async function GET() {
 
       for (const variant of variants) {
         const variantId = variant.id?.split('/').pop() || '';
-        // Use variant price, fall back to product's min price if variant is zero
+
+        // ── Price resolution (fixes "Missing product price" for 185 products) ──
+        // Try: variant price → product min price → product max price → 0
         const rawPrice = parseFloat(variant.price?.amount || '0');
-        const fallbackPrice = parseFloat(p.priceRange?.minVariantPrice?.amount || '0');
-        const finalPrice = rawPrice > 0 ? rawPrice : fallbackPrice;
+        const fallbackMinPrice = parseFloat(p.priceRange?.minVariantPrice?.amount || '0');
+        const fallbackMaxPrice = parseFloat(p.priceRange?.maxVariantPrice?.amount || '0');
+        const finalPrice = rawPrice > 0 ? rawPrice : (fallbackMinPrice > 0 ? fallbackMinPrice : fallbackMaxPrice);
         const price = finalPrice.toFixed(2);
-        const currency = variant.price?.currencyCode || p.priceRange?.minVariantPrice?.currencyCode || 'EUR';
-        const compareAtPrice = variant.compareAtPrice
+        const currency = variant.price?.currencyCode
+          || p.priceRange?.minVariantPrice?.currencyCode
+          || p.priceRange?.maxVariantPrice?.currencyCode
+          || 'EUR';
+        const compareAtPrice = variant.compareAtPrice?.amount
           ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
           : '';
-        const isAvailable = variant.availableForSale !== false;
+
+        // ── Availability (fixes "Missing value [availability]" for 33 products) ──
+        // Explicit check: if variant says available, use that; otherwise fall back to product-level
+        const isAvailable = typeof variant.availableForSale === 'boolean'
+          ? variant.availableForSale
+          : (typeof p.availableForSale === 'boolean' ? p.availableForSale : true);
         const variantImage = variant.image?.url || mainImage;
 
         // Extract variant attributes
@@ -217,7 +228,7 @@ export async function GET() {
         // Item group ID (same for all variants of one product)
         const itemGroupId = `shopify_${mpn}`;
 
-        // Skip products with no price (causes "Missing product price" error)
+        // If price is truly zero/missing, skip entirely -- Google requires a valid price
         if (!price || price === '0.00') { skippedNoPrice++; continue; }
         totalVariants++;
 
@@ -229,13 +240,18 @@ export async function GET() {
         const hasSale = compareAtPrice && parseFloat(compareAtPrice) > parseFloat(price);
 
         // Canonical link -- critical for Google to match feed items to live pages
+        // Use clean URL for canonical (no query params) -- fixes "Mismatched domains"
         const productUrl = `${BASE_URL}/products/${p.handle}`;
+        // Variant-specific link for multi-variant products
+        const variantUrl = variants.length > 1 && variantId
+          ? `${productUrl}?variant=${variantId}`
+          : productUrl;
 
         let item = `    <item>
       <g:id>${escapeXml(uniqueId)}</g:id>
       <g:title>${escapeXml(seoTitle || variantTitle)}</g:title>
       <g:description>${escapeXml(seoDescription || description)}</g:description>
-      <g:link>${escapeXml(productUrl)}</g:link>
+      <g:link>${escapeXml(variantUrl)}</g:link>
       <g:canonical_link>${escapeXml(productUrl)}</g:canonical_link>
       <g:image_link>${escapeXml(variantImage)}</g:image_link>
 ${additionalImages.map((img: string) => `      <g:additional_image_link>${escapeXml(img)}</g:additional_image_link>`).join('\n')}
