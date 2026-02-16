@@ -15,6 +15,15 @@ const nextConfig = {
       // ALL old Shopify locale prefix URLs (/en, /de, /fr, /fi, /it, /es, etc.)
       // are handled by proxy.ts — no individual rules needed here.
 
+      // ── Shopify collection-nested product URLs ─────────────────
+      // Old Shopify pattern: /collections/:collection/products/:handle
+      // Redirect to clean product URL: /products/:handle
+      {
+        source: '/collections/:collection/products/:handle*',
+        destination: '/products/:handle*',
+        permanent: true,
+      },
+
       // ── Shopify "all products" collection ────────────────────
       // /collections/all is Shopify's default "show everything" page
       {
