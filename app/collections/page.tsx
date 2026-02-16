@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import { getCollections, isShopifyConfigured } from '@/lib/shopify';
+import { getCollections, getCollectionProducts, isShopifyConfigured } from '@/lib/shopify';
 export const revalidate = 300;
 import { DynamicHeader } from '@/components/layout/dynamic-header';
 import { Footer } from '@/components/layout/footer';
@@ -134,6 +134,24 @@ async function CollectionsGrid() {
   console.error('Failed to fetch collections:', error);
   }
   }
+
+  // For collections without an image, fetch the first product's image as fallback
+  const collectionsWithImages = await Promise.all(
+    collections.map(async (collection) => {
+      if (collection.image?.url) return collection;
+      try {
+        const products = await getCollectionProducts({ handle: collection.handle, first: 1 });
+        const firstProductImage = products[0]?.featuredImage;
+        if (firstProductImage) {
+          return { ...collection, image: firstProductImage };
+        }
+      } catch {
+        // Silently fail -- will fall back to gradient
+      }
+      return collection;
+    })
+  );
+  collections = collectionsWithImages;
 
   // Show default collections if none found or Shopify not configured
   if (collections.length === 0) {
