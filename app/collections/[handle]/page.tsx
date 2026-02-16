@@ -27,63 +27,68 @@ import { buildCollectionJsonLd } from '@/lib/seo';
 const COLLECTION_SEO: Record<string, { title: string; description: string; keywords: string }> = {
   'gel-nail-wraps': {
     title: 'Semi-Cured Gel Nail Wraps - Salon Nails at Home | Crazy Gels',
-    description: 'Shop 285+ semi-cured gel nail wraps at Crazy Gels. Easy DIY application, lasts 2+ weeks, zero damage. French tips, nail art, solid colors and more. Free shipping over $50.',
+    description: 'Shop 285+ semi-cured gel nail wraps at Crazy Gels. Easy DIY application, lasts 2+ weeks, zero damage. French tips, nail art, solid colors and more. Free EU shipping.',
     keywords: 'semi-cured gel nails, gel nail wraps, press on nails, nail strips, DIY gel nails, salon nails at home',
   },
   'french-styles': {
     title: 'French Tip Gel Nails - Classic & Modern Designs | Crazy Gels',
-    description: 'Shop French tip semi-cured gel nail wraps. Classic white tips, ombre French, and modern French nail designs. Easy DIY application at home. Free shipping over $50.',
+    description: 'Shop French tip semi-cured gel nail wraps. Classic white tips, ombre French, and modern French nail designs. Easy DIY application at home. Free EU shipping.',
     keywords: 'French tip nails, French gel nails, French manicure, French tip nail wraps',
   },
   nails: {
     title: 'Semi-Cured Gel Nails - Press On Nail Strips | Crazy Gels',
-    description: 'Shop premium semi-cured gel nails at Crazy Gels. Salon-quality press on nail strips, easy application, lasts 2+ weeks. 285+ designs. Free shipping over $50.',
+    description: 'Shop premium semi-cured gel nails at Crazy Gels. Salon-quality press on nail strips, easy application, lasts 2+ weeks. 285+ designs. Free EU shipping.',
     keywords: 'semi-cured gel nails, gel nail strips, press on nails, nail wraps',
   },
   haircare: {
     title: 'Hair Care Products - Shampoo, Treatments & Styling | Crazy Gels',
-    description: 'Shop premium hair care products at Crazy Gels. Professional shampoos, conditioners, treatments and styling products for healthy, beautiful hair. Free shipping over $50.',
+    description: 'Shop premium hair care products at Crazy Gels. Professional shampoos, conditioners, treatments and styling products for healthy, beautiful hair. Free EU shipping.',
     keywords: 'hair care products, shampoo, conditioner, hair treatment, hair growth, healthy hair',
   },
   'hair-care': {
     title: 'Hair Care Products - Shampoo, Treatments & Styling | Crazy Gels',
-    description: 'Shop premium hair care products at Crazy Gels. Professional shampoos, conditioners, treatments and styling products for healthy, beautiful hair. Free shipping over $50.',
+    description: 'Shop premium hair care products at Crazy Gels. Professional shampoos, conditioners, treatments and styling products for healthy, beautiful hair. Free EU shipping.',
     keywords: 'hair care products, shampoo, conditioner, hair treatment, hair growth',
   },
   skincare: {
     title: 'Skincare Products - Serums, Moisturizers & Masks | Crazy Gels',
-    description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free shipping over $50.',
+    description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free EU shipping.',
     keywords: 'skincare products, face serum, moisturizer, face mask, anti-aging, skin care',
   },
   'skin-care': {
     title: 'Skincare Products - Serums, Moisturizers & Masks | Crazy Gels',
-    description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free shipping over $50.',
+    description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free EU shipping.',
     keywords: 'skincare products, face serum, moisturizer, face mask, anti-aging',
   },
   treatments: {
     title: 'Beauty Tools & Treatments - UV Lamps & Nail Kits | Crazy Gels',
-    description: 'Shop professional beauty tools and treatments at Crazy Gels. UV lamps, nail prep kits, application tools and accessories for the perfect at-home salon. Free shipping over $50.',
+    description: 'Shop professional beauty tools and treatments at Crazy Gels. UV lamps, nail prep kits, application tools and accessories for the perfect at-home salon. Free EU shipping.',
     keywords: 'beauty tools, UV nail lamp, nail kit, gel nail tools, beauty treatments',
   },
   'collagen-masks': {
     title: 'Collagen Face Masks - Anti-Aging & Hydrating | Crazy Gels',
-    description: 'Shop collagen face masks at Crazy Gels. Overnight hydrating, firming, and anti-aging face masks crafted with premium ingredients. Free shipping over $50.',
+    description: 'Shop collagen face masks at Crazy Gels. Overnight hydrating, firming, and anti-aging face masks crafted with premium ingredients. Free EU shipping.',
     keywords: 'collagen mask, face mask, anti-aging mask, hydrating mask, overnight mask',
   },
   sets: {
     title: 'Gel Nail Sets & Bundles - Save More | Crazy Gels',
-    description: 'Shop gel nail sets and bundles at Crazy Gels. Save on curated sets of semi-cured gel nail wraps, tools and accessories. Free shipping over $50.',
+    description: 'Shop gel nail sets and bundles at Crazy Gels. Save on curated sets of semi-cured gel nail wraps, tools and accessories. Free EU shipping.',
     keywords: 'gel nail sets, nail wrap bundles, nail art kits, gift sets',
   },
   'best-sellers': {
     title: 'Best Selling Gel Nails & Beauty Products | Crazy Gels',
-    description: 'Shop our best selling semi-cured gel nails and beauty products. Top-rated by 50K+ customers. Free shipping on orders over $50.',
+    description: 'Shop our best selling semi-cured gel nails and beauty products. Top-rated by thousands of customers. Free EU shipping.',
     keywords: 'best selling nails, popular gel nails, top rated beauty products',
   },
   'new-arrivals': {
     title: 'New Arrivals - Latest Gel Nail Designs | Crazy Gels',
-    description: 'Discover the latest semi-cured gel nail designs at Crazy Gels. New arrivals in nail wraps, hair care, and skincare. Free shipping over $50.',
+    description: 'Discover the latest semi-cured gel nail designs at Crazy Gels. New arrivals in nail wraps, hair care, and skincare. Free EU shipping.',
     keywords: 'new gel nails, new nail designs, latest nail art, new arrivals',
+  },
+  fragrances: {
+    title: 'Fragrances & Perfumes - Premium Scents | Crazy Gels',
+    description: 'Shop premium fragrances and perfumes at Crazy Gels. Discover your signature scent from our curated collection. Free EU shipping.',
+    keywords: 'fragrances, perfume, body mist, scent, eau de parfum',
   },
 }
 
@@ -113,7 +118,7 @@ export async function generateMetadata({
   const collectionDesc = virtualDef?.description || collection?.description || '';
 
   const title = seo?.title || collection?.seo?.title || `${collectionTitle} - Shop Online | Crazy Gels`
-  const description = seo?.description || collection?.seo?.description || collectionDesc || `Shop our ${collectionTitle} collection at Crazy Gels. Premium beauty products with free shipping over $50.`
+  const description = seo?.description || collection?.seo?.description || collectionDesc || `Shop our ${collectionTitle} collection at Crazy Gels. Premium beauty products with free EU shipping.`
 
   return {
     title,
@@ -134,9 +139,6 @@ export async function generateMetadata({
       card: 'summary_large_image',
       title,
       description,
-    },
-    alternates: {
-      canonical: `/collections/${handle}`,
     },
   };
 }
@@ -211,6 +213,10 @@ const COLLECTION_KEYWORDS: Record<string, string[]> = {
     'treatment', 'uv lamp', 'led lamp', 'nail lamp', 'nail prep', 'base coat',
     'top coat', 'cuticle', 'nail file', 'buffer', 'remover', 'acetone',
     'nail tool', 'application kit', 'nail kit', 'beauty tool', 'accessory',
+  ],
+  fragrances: [
+    'fragrance', 'perfume', 'parfum', 'cologne', 'body mist', 'eau de',
+    'scent', 'spray', 'aroma', 'toilette', 'deodorant', 'body spray',
   ],
 };
 
