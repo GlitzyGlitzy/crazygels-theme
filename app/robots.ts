@@ -29,7 +29,6 @@ export default function robots(): MetadataRoute.Robots {
 
           // Misc crawl traps
           '/*.json',
-          '/cdn/',
           '/*?*preview_theme*',
           '/*?*fclid*',
           '/*?*gclid*',
@@ -57,7 +56,6 @@ export default function robots(): MetadataRoute.Robots {
           '/products/*?*utm_*',
           '/search?*',
           '/*.json',
-          '/cdn/',
           '/*?*preview_theme*',
           '/*?*fclid*',
           '/*?*gclid*',
@@ -67,7 +65,7 @@ export default function robots(): MetadataRoute.Robots {
       },
       {
         userAgent: 'Googlebot-Image',
-        allow: '/',
+        allow: ['/', '/cdn/'],
       },
     ],
     sitemap: 'https://crazygels.com/sitemap.xml',
