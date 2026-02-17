@@ -1,8 +1,8 @@
-/* cache-bust-v20-feb6 */
+/* cache-bust-v21-feb17 */
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { Geist, Geist_Mono, Cormorant_Garamond } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { AnalyticsScripts } from '@/components/analytics-scripts'
 import { KlaviyoScript } from '@/components/klaviyo/klaviyo-script'
 import { GtmNoscript } from '@/components/gtm-noscript'
 import './globals.css'
@@ -147,42 +147,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${_geist.variable} ${_geistMono.variable} ${_cormorant.variable} font-sans antialiased`} suppressHydrationWarning>
-        {/* Google Tag Manager */}
-        <Script
-          id="gtm-script"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${GTM_ID}');`,
-          }}
-        />
-        {/* Direct GA4 measurement -- ensures data flows even if GTM tags are misconfigured */}
-        {GA_MEASUREMENT_ID && (
-          <>
-            <Script
-              id="ga4-gtag"
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-            />
-            <Script
-              id="ga4-config"
-              strategy="afterInteractive"
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-gtag('js',new Date());
-gtag('config','${GA_MEASUREMENT_ID}',{
-  page_path:window.location.pathname,
-  cookie_domain:'crazygels.com',
-  cookie_flags:'SameSite=None;Secure',
-  send_page_view:true
-});`,
-              }}
-            />
-          </>
-        )}
+        <AnalyticsScripts gtmId={GTM_ID} gaMeasurementId={GA_MEASUREMENT_ID} />
         <GtmNoscript gtmId={GTM_ID} />
         {children}
         <Analytics />
