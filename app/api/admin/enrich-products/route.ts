@@ -21,8 +21,10 @@ function verifyAdmin(req: NextRequest): boolean {
   return token === process.env.ADMIN_TOKEN;
 }
 
-// Same tier-based defaults as list-product.ts
-const TIER_PRICES: Record<string, number> = {
+// Price suggestions based on tier -- ONLY used when user explicitly clicks "Set Prices"
+// These are suggestions for YOUR selling prices (with margin), not market research prices.
+// The scraper should provide real market prices; these are a fallback for listing on Shopify.
+const TIER_SELLING_PRICES: Record<string, number> = {
   budget: 14.99,
   mid: 24.99,
   premium: 39.99,
@@ -133,10 +135,12 @@ export async function POST(req: NextRequest) {
 
     for (const product of products) {
       try {
-        // 1. Set price from tier if missing
+        // 1. Set price from tier if missing AND price_only mode is requested
+        // In normal enrichment, we only fill images -- prices come from the scraper.
+        // Only assign tier prices when explicitly asked (price_only mode = "Set Prices" button).
         let newPrice = product.retail_price;
-        if (!newPrice || Number(newPrice) === 0) {
-          newPrice = TIER_PRICES[product.price_tier] || TIER_PRICES.mid;
+        if (priceOnly && (!newPrice || Number(newPrice) === 0)) {
+          newPrice = TIER_SELLING_PRICES[product.price_tier] || TIER_SELLING_PRICES.mid;
           pricesSet++;
         }
 
