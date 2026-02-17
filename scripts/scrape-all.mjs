@@ -3,13 +3,15 @@
  *
  * 2-stage pipeline:
  *   Stage 1: Product discovery from Open Beauty Facts (names, brands, ingredients, images, barcodes)
- *   Stage 2: Price enrichment from DuckDuckGo DE (real EUR prices from retailer snippets)
+ *   Stage 2: Price enrichment via:
+ *     a) UPCitemdb barcode lookup (free, 100/day, most reliable)
+ *     b) DuckDuckGo DE search fallback (with exponential backoff)
+ *     c) NULL -- we NEVER fabricate prices
  *
- * Why DuckDuckGo?
- *   - Google Shopping requires JS rendering (useless with plain fetch)
- *   - Idealo.de blocks with 429 rate limits
- *   - DDG's HTML endpoint returns server-rendered results with real EUR prices
- *   - No Cloudflare, no JS required, no captchas
+ * The scraper gracefully handles rate limits:
+ *   - UPCitemdb: stops barcode lookups after daily limit, moves to DDG
+ *   - DuckDuckGo: exponential backoff, auto-disables after 5 consecutive failures
+ *   - Run `--stage prices` again later to retry products that got NULL prices
  *
  * Usage:
  *   node scripts/scrape-all.mjs                          # Full pipeline (discovery + prices)
@@ -238,20 +240,29 @@ function parseOBFProduct(p, searchType) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// STAGE 2: PRICE ENRICHMENT (DuckDuckGo DE)
+// STAGE 2: PRICE ENRICHMENT (Multi-source with aggressive backoff)
 // ══════════════════════════════════════════════════════════════════════
-// Google Shopping requires JS rendering (useless with plain fetch).
-// DuckDuckGo's HTML endpoint returns server-rendered results WITH
-// real EUR prices from retailer snippets. Tested and confirmed working.
+// Strategy (in order of reliability):
+//   1. UPCitemdb.com trial API -- free barcode-based lookup (100/day)
+//   2. DuckDuckGo DE with exponential backoff -- search-based fallback
+//   3. NULL -- we NEVER fabricate prices. Unknown stays unknown.
+
+const DDG_INITIAL_DELAY = 5000;   // 5s between DDG requests
+const DDG_MAX_DELAY     = 120000; // max 2min backoff
+const DDG_MAX_CONSEC_FAILS = 5;   // stop DDG after 5 consecutive failures
 
 async function enrichPrices(products) {
-  console.log(`\n[STAGE 2] Price Enrichment via DuckDuckGo DE`);
+  console.log(`\n[STAGE 2] Price Enrichment (UPCitemdb + DuckDuckGo fallback)`);
   console.log(`  Products to price: ${products.length}`);
 
   let found = 0;
   let notFound = 0;
   let errors = 0;
-  let rateLimited = 0;
+  let upcHits = 0;
+  let ddgHits = 0;
+  let ddgDisabled = false;
+  let ddgConsecFails = 0;
+  let ddgDelay = DDG_INITIAL_DELAY;
 
   for (let i = 0; i < products.length; i++) {
     const p = products[i];
@@ -262,105 +273,179 @@ async function enrichPrices(products) {
       continue;
     }
 
-    // Build search query: "brand + product name + kaufen preis"
-    const searchQuery = [p.brand, p.name]
-      .filter(Boolean)
-      .join(" ")
-      .replace(/[^\w\s\-äöüÄÖÜß.]/g, "")
-      .slice(0, 100);
-
-    if (!searchQuery || searchQuery.length < 5) {
-      notFound++;
-      continue;
+    // ── Method 1: UPCitemdb barcode lookup (free, reliable) ──
+    if (p.barcode && p.barcode.length >= 8) {
+      try {
+        const upcResult = await lookupUPCitemdb(p.barcode);
+        if (upcResult && upcResult.amount > 0) {
+          p.price_eur = upcResult.amount;
+          p.price_currency = upcResult.currency || "EUR";
+          p.price_tier = priceTier(upcResult.amount);
+          p.price_original = upcResult.amount;
+          if (upcResult.url) p.source_url = upcResult.url;
+          found++;
+          upcHits++;
+          continue; // Got a price, move on
+        }
+      } catch (err) {
+        // UPC rate limited (100/day) -- just skip to DDG
+        if (err.message?.includes("rate")) {
+          console.log("  [UPC] Daily limit reached, skipping barcode lookups");
+        }
+      }
+      await sleep(600); // UPC rate limit
     }
 
-    try {
-      const result = await scrapeDDGPrice(searchQuery);
+    // ── Method 2: DuckDuckGo search (fallback, rate-limited) ──
+    if (!ddgDisabled) {
+      const searchQuery = [p.brand, p.name]
+        .filter(Boolean)
+        .join(" ")
+        .replace(/[^\w\s\-äöüÄÖÜß.]/g, "")
+        .slice(0, 100);
 
-      if (result && result.amount > 0) {
-        p.price_eur = result.amount;
-        p.price_currency = "EUR";
-        p.price_tier = priceTier(result.amount);
-        p.price_original = result.amount;
-        if (result.url) p.source_url = result.url;
-        found++;
+      if (searchQuery && searchQuery.length >= 5) {
+        try {
+          const result = await scrapeDDGPrice(searchQuery);
+
+          if (result && result.amount > 0) {
+            p.price_eur = result.amount;
+            p.price_currency = "EUR";
+            p.price_tier = priceTier(result.amount);
+            p.price_original = result.amount;
+            if (result.url) p.source_url = result.url;
+            found++;
+            ddgHits++;
+            ddgConsecFails = 0; // Reset on success
+            ddgDelay = DDG_INITIAL_DELAY; // Reset delay on success
+          } else {
+            notFound++;
+            ddgConsecFails++;
+          }
+        } catch (err) {
+          errors++;
+          ddgConsecFails++;
+          if (errors <= 5) {
+            console.log(`  [DDG] Error for "${searchQuery.slice(0, 40)}": ${err.message}`);
+          }
+        }
+
+        // Exponential backoff on consecutive failures
+        if (ddgConsecFails >= DDG_MAX_CONSEC_FAILS) {
+          console.log(`  [DDG] ${DDG_MAX_CONSEC_FAILS} consecutive failures -- disabling DDG for this run.`);
+          console.log(`  [DDG] Remaining products will have NULL prices (honest data).`);
+          ddgDisabled = true;
+        } else if (ddgConsecFails > 0) {
+          ddgDelay = Math.min(ddgDelay * 1.5, DDG_MAX_DELAY);
+        }
+
+        await sleep(ddgDelay + Math.random() * 2000);
       } else {
         notFound++;
       }
-    } catch (err) {
-      errors++;
-      if (errors <= 5) {
-        console.log(`  [PRICE] Error for "${searchQuery.slice(0, 40)}": ${err.message}`);
-      }
+    } else {
+      notFound++;
     }
 
-    // Progress log every 20 products
-    if ((i + 1) % 20 === 0) {
+    // Progress log every 50 products
+    if ((i + 1) % 50 === 0) {
       console.log(
-        `  [PRICE] Progress: ${i + 1}/${products.length} | Found: ${found} | Not found: ${notFound} | Errors: ${errors}`
+        `  [PRICE] Progress: ${i + 1}/${products.length} | Found: ${found} (UPC: ${upcHits}, DDG: ${ddgHits}) | Not found: ${notFound} | Errors: ${errors}`
       );
-    }
-
-    // Rate limit: 2-4s between requests (randomised to look human)
-    await sleep(2000 + Math.random() * 2000);
-
-    // If we get rate limited too often, back off
-    if (rateLimited >= 3) {
-      console.log("  [PRICE] Too many rate limits, pausing 60s...");
-      await sleep(60000);
-      rateLimited = 0;
     }
   }
 
-  console.log(
-    `  [PRICE] DONE: ${found} priced, ${notFound} not found, ${errors} errors`
-  );
+  console.log(`\n  [PRICE] DONE: ${found} priced (UPC: ${upcHits}, DDG: ${ddgHits}), ${notFound} not found, ${errors} errors`);
+  if (ddgDisabled) {
+    console.log(`  [PRICE] NOTE: DuckDuckGo was disabled due to rate limiting. Run again later for more prices.`);
+    console.log(`  [PRICE] Or use: node scripts/scrape-all.mjs --stage prices  (to retry just pricing)`);
+  }
   return products;
 }
 
 /**
- * Scrape DuckDuckGo HTML endpoint for real EUR prices.
- * DDG's HTML version (html.duckduckgo.com) doesn't need JS rendering
- * and returns retailer snippets that contain actual prices.
+ * UPCitemdb.com trial API -- free barcode-to-price lookup.
+ * 100 requests/day limit. Returns real retailer prices.
  */
-async function scrapeDDGPrice(query) {
-  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query + " preis EUR kaufen")}&kl=de-de`;
+async function lookupUPCitemdb(barcode) {
+  const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(barcode)}`;
 
-  const res = await fetch(searchUrl, {
-    headers: {
-      ...HEADERS,
-      Referer: "https://duckduckgo.com/",
-    },
-    redirect: "follow",
+  const res = await fetch(url, {
+    headers: { "User-Agent": "CrazyGels-Scraper/3.0", Accept: "application/json" },
   });
 
-  if (!res.ok) {
-    if (res.status === 429 || res.status === 403) {
-      console.log("  [DDG] Rate limited, waiting 30s...");
-      await sleep(30000);
-      return null;
+  if (res.status === 429) {
+    throw new Error("rate limited");
+  }
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const items = data.items || [];
+  if (items.length === 0) return null;
+
+  const item = items[0];
+  const offers = item.offers || [];
+
+  // Find EUR offers first, then any offer with a price
+  let bestOffer = offers.find((o) => o.currency === "EUR" && o.price > 0);
+  if (!bestOffer) bestOffer = offers.find((o) => o.price > 0);
+
+  if (!bestOffer) {
+    // Try the lowest_recorded_price field
+    if (item.lowest_recorded_price > 0) {
+      return {
+        amount: Math.round(item.lowest_recorded_price * 100) / 100,
+        currency: item.currency || "USD",
+        url: item.offers?.[0]?.link || null,
+      };
     }
     return null;
   }
 
-  const html = await res.text();
-
-  // Check for DDG captcha
-  if (html.includes("d=1") && html.length < 5000) {
-    return null;
-  }
-
-  return parseDDGPrices(html);
+  return {
+    amount: Math.round(bestOffer.price * 100) / 100,
+    currency: bestOffer.currency || "USD",
+    url: bestOffer.link || null,
+  };
 }
 
 /**
- * Parse DuckDuckGo HTML to extract EUR prices from result snippets.
- * DDG results contain retailer listings with real prices in the text.
+ * DuckDuckGo HTML search fallback for EUR prices.
+ * Uses aggressive exponential backoff to avoid getting blocked.
+ */
+async function scrapeDDGPrice(query) {
+  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query + " preis EUR kaufen")}&kl=de-de`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const res = await fetch(searchUrl, {
+      headers: { ...HEADERS, Referer: "https://duckduckgo.com/" },
+      redirect: "follow",
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      if (res.status === 429 || res.status === 403) {
+        throw new Error("rate limited");
+      }
+      return null;
+    }
+
+    const html = await res.text();
+    if (html.includes("d=1") && html.length < 5000) return null; // Captcha
+    return parseDDGPrices(html);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
+ * Parse EUR prices from DuckDuckGo HTML snippets.
  */
 function parseDDGPrices(html) {
   const prices = [];
-
-  // Match EUR price patterns: "12,99 €", "€12.99", "EUR 12,99", "12.99 EUR"
   const patterns = [
     /(\d{1,3})[,.](\d{2})\s*(?:&nbsp;)?€/g,
     /€\s*(\d{1,3})[,.](\d{2})/g,
@@ -372,22 +457,16 @@ function parseDDGPrices(html) {
     let match;
     while ((match = pattern.exec(html)) !== null) {
       const amount = parseFloat(match[1] + "." + match[2]);
-      // Sanity: beauty products typically 2-300 EUR
-      if (amount >= 2 && amount <= 300) {
-        prices.push(amount);
-      }
+      if (amount >= 2 && amount <= 300) prices.push(amount);
     }
   }
 
   if (prices.length === 0) return null;
 
-  // Deduplicate and take median to avoid outliers (shipping costs, multi-packs)
-  const unique = [...new Set(prices.map(p => p.toFixed(2)))].map(Number);
+  const unique = [...new Set(prices.map((p) => p.toFixed(2)))].map(Number);
   unique.sort((a, b) => a - b);
   const median = unique[Math.floor(unique.length / 2)];
-  const amount = Math.round(median * 100) / 100;
 
-  // Try to extract a retailer URL from the results
   let productUrl = null;
   const urlMatch = html.match(
     /href="[^"]*(?:uddg=|u=)(https?%3A%2F%2F(?:www\.)?(?:douglas|notino|flaconi|parfumdreams|shop-apotheke|amazon|dm|mueller|rossmann|cocopanda|lookfantastic)[^"&]*)/i
@@ -396,11 +475,7 @@ function parseDDGPrices(html) {
     try { productUrl = decodeURIComponent(urlMatch[1]); } catch { /* ignore */ }
   }
 
-  return {
-    amount,
-    currency: "EUR",
-    url: productUrl,
-  };
+  return { amount: Math.round(median * 100) / 100, currency: "EUR", url: productUrl };
 }
 
 // ══════════════════════════════════════════════════════════════════════
