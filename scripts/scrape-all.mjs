@@ -3,7 +3,13 @@
  *
  * 2-stage pipeline:
  *   Stage 1: Product discovery from Open Beauty Facts (names, brands, ingredients, images, barcodes)
- *   Stage 2: Price enrichment from Google Shopping DE (real EUR prices from German retailers)
+ *   Stage 2: Price enrichment from DuckDuckGo DE (real EUR prices from retailer snippets)
+ *
+ * Why DuckDuckGo?
+ *   - Google Shopping requires JS rendering (useless with plain fetch)
+ *   - Idealo.de blocks with 429 rate limits
+ *   - DDG's HTML endpoint returns server-rendered results with real EUR prices
+ *   - No Cloudflare, no JS required, no captchas
  *
  * Usage:
  *   node scripts/scrape-all.mjs                          # Full pipeline (discovery + prices)
@@ -125,7 +131,7 @@ async function discoverProducts() {
   // 1a. Search by brand
   console.log(`\n  --- Brand search ---`);
   for (const brand of BRANDS) {
-    const url = `https://world.openbeautyfacts.org/api/v2/search?brands=${encodeURIComponent(brand)}&fields=code,product_name,brands,categories,image_front_url,ingredients_text,quantity,labels&page_size=${limitArg}`;
+    const url = `https://world.openbeautyfacts.org/api/v2/search?brands_tags=${encodeURIComponent(brand)}&fields=code,product_name,brands,categories,image_front_url,ingredients_text,quantity,labels&page_size=${limitArg}&sort_by=unique_scans_n`;
     try {
       const res = await fetch(url, { headers: HEADERS });
       if (!res.ok) {
@@ -232,21 +238,20 @@ function parseOBFProduct(p, searchType) {
 }
 
 // ══════════════════════════════════════════════════════════════════════
-// STAGE 2: PRICE ENRICHMENT (Google Shopping DE)
+// STAGE 2: PRICE ENRICHMENT (DuckDuckGo DE)
 // ══════════════════════════════════════════════════════════════════════
+// Google Shopping requires JS rendering (useless with plain fetch).
+// DuckDuckGo's HTML endpoint returns server-rendered results WITH
+// real EUR prices from retailer snippets. Tested and confirmed working.
 
-/**
- * Scrape Google Shopping DE for real prices.
- * Google Shopping returns HTML with structured price data.
- * We parse the response to extract price, retailer, and product URL.
- */
 async function enrichPrices(products) {
-  console.log(`\n[STAGE 2] Price Enrichment via Google Shopping DE`);
+  console.log(`\n[STAGE 2] Price Enrichment via DuckDuckGo DE`);
   console.log(`  Products to price: ${products.length}`);
 
   let found = 0;
   let notFound = 0;
   let errors = 0;
+  let rateLimited = 0;
 
   for (let i = 0; i < products.length; i++) {
     const p = products[i];
@@ -257,12 +262,12 @@ async function enrichPrices(products) {
       continue;
     }
 
-    // Build search query: "brand + product name"
+    // Build search query: "brand + product name + kaufen preis"
     const searchQuery = [p.brand, p.name]
       .filter(Boolean)
       .join(" ")
-      .replace(/[^\w\s\-äöüÄÖÜß]/g, "")
-      .slice(0, 120);
+      .replace(/[^\w\s\-äöüÄÖÜß.]/g, "")
+      .slice(0, 100);
 
     if (!searchQuery || searchQuery.length < 5) {
       notFound++;
@@ -270,15 +275,14 @@ async function enrichPrices(products) {
     }
 
     try {
-      const price = await scrapeGoogleShoppingPrice(searchQuery);
+      const result = await scrapeDDGPrice(searchQuery);
 
-      if (price && price.amount > 0) {
-        p.price_eur = price.amount;
+      if (result && result.amount > 0) {
+        p.price_eur = result.amount;
         p.price_currency = "EUR";
-        p.price_tier = priceTier(price.amount);
-        p.price_original = price.amount;
-        if (price.url) p.source_url = price.url;
-        if (price.retailer) p.retailer = price.retailer;
+        p.price_tier = priceTier(result.amount);
+        p.price_original = result.amount;
+        if (result.url) p.source_url = result.url;
         found++;
       } else {
         notFound++;
@@ -297,8 +301,15 @@ async function enrichPrices(products) {
       );
     }
 
-    // Rate limit: 2-4 seconds between requests (randomised to look natural)
+    // Rate limit: 2-4s between requests (randomised to look human)
     await sleep(2000 + Math.random() * 2000);
+
+    // If we get rate limited too often, back off
+    if (rateLimited >= 3) {
+      console.log("  [PRICE] Too many rate limits, pausing 60s...");
+      await sleep(60000);
+      rateLimited = 0;
+    }
   }
 
   console.log(
@@ -308,23 +319,24 @@ async function enrichPrices(products) {
 }
 
 /**
- * Scrape a single product price from Google Shopping DE.
- * Returns { amount: number, currency: string, retailer: string, url: string } or null.
+ * Scrape DuckDuckGo HTML endpoint for real EUR prices.
+ * DDG's HTML version (html.duckduckgo.com) doesn't need JS rendering
+ * and returns retailer snippets that contain actual prices.
  */
-async function scrapeGoogleShoppingPrice(query) {
-  const url = `https://www.google.de/search?tbm=shop&q=${encodeURIComponent(query)}&hl=de&gl=de`;
+async function scrapeDDGPrice(query) {
+  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query + " preis EUR kaufen")}&kl=de-de`;
 
-  const res = await fetch(url, {
+  const res = await fetch(searchUrl, {
     headers: {
       ...HEADERS,
-      Referer: "https://www.google.de/",
+      Referer: "https://duckduckgo.com/",
     },
     redirect: "follow",
   });
 
   if (!res.ok) {
-    if (res.status === 429) {
-      console.log("  [PRICE] Rate limited by Google, waiting 30s...");
+    if (res.status === 429 || res.status === 403) {
+      console.log("  [DDG] Rate limited, waiting 30s...");
       await sleep(30000);
       return null;
     }
@@ -332,42 +344,36 @@ async function scrapeGoogleShoppingPrice(query) {
   }
 
   const html = await res.text();
-  return parseGoogleShoppingHTML(html);
+
+  // Check for DDG captcha
+  if (html.includes("d=1") && html.length < 5000) {
+    return null;
+  }
+
+  return parseDDGPrices(html);
 }
 
 /**
- * Parse Google Shopping HTML to extract the first product price.
- * Google Shopping DE embeds prices in various formats.
+ * Parse DuckDuckGo HTML to extract EUR prices from result snippets.
+ * DDG results contain retailer listings with real prices in the text.
  */
-function parseGoogleShoppingHTML(html) {
-  // Strategy 1: Look for price patterns in the shopping results
-  // Google Shopping DE uses "XX,XX&nbsp;€" or "XX,XX €" format
-
-  // Match prices like "12,99 €", "12,99&nbsp;€", "€12,99", "EUR 12,99"
-  const pricePatterns = [
-    // German format: "12,99 €" or "12,99&nbsp;€"
-    /(\d{1,4}),(\d{2})\s*(?:&nbsp;)?€/g,
-    // Euro sign before: "€ 12,99" or "€12,99"
-    /€\s*(\d{1,4}),(\d{2})/g,
-    // "EUR 12,99"
-    /EUR\s*(\d{1,4}),(\d{2})/g,
-    // data-price attribute
-    /data-price="(\d+\.?\d*)"/g,
-  ];
-
+function parseDDGPrices(html) {
   const prices = [];
 
-  for (const pattern of pricePatterns) {
+  // Match EUR price patterns: "12,99 €", "€12.99", "EUR 12,99", "12.99 EUR"
+  const patterns = [
+    /(\d{1,3})[,.](\d{2})\s*(?:&nbsp;)?€/g,
+    /€\s*(\d{1,3})[,.](\d{2})/g,
+    /EUR\s*(\d{1,3})[,.](\d{2})/g,
+    /(\d{1,3})[,.](\d{2})\s*EUR/g,
+  ];
+
+  for (const pattern of patterns) {
     let match;
     while ((match = pattern.exec(html)) !== null) {
-      let amount;
-      if (match[0].includes("data-price")) {
-        amount = parseFloat(match[1]);
-      } else {
-        amount = parseFloat(`${match[1]}.${match[2]}`);
-      }
-      // Sanity check: beauty products are typically 2-500 EUR
-      if (amount >= 2 && amount <= 500) {
+      const amount = parseFloat(match[1] + "." + match[2]);
+      // Sanity: beauty products typically 2-300 EUR
+      if (amount >= 2 && amount <= 300) {
         prices.push(amount);
       }
     }
@@ -375,33 +381,24 @@ function parseGoogleShoppingHTML(html) {
 
   if (prices.length === 0) return null;
 
-  // Take the median price to avoid outliers
-  prices.sort((a, b) => a - b);
-  const medianIdx = Math.floor(prices.length / 2);
-  const amount = Math.round(prices[medianIdx] * 100) / 100;
+  // Deduplicate and take median to avoid outliers (shipping costs, multi-packs)
+  const unique = [...new Set(prices.map(p => p.toFixed(2)))].map(Number);
+  unique.sort((a, b) => a - b);
+  const median = unique[Math.floor(unique.length / 2)];
+  const amount = Math.round(median * 100) / 100;
 
-  // Try to extract retailer name
-  let retailer = null;
-  const retailerMatch = html.match(
-    /(?:von|bei|from)\s+<[^>]*>([^<]+)<\/(?:span|a|div)>/i
-  );
-  if (retailerMatch) {
-    retailer = retailerMatch[1].trim();
-  }
-
-  // Try to extract product URL
+  // Try to extract a retailer URL from the results
   let productUrl = null;
   const urlMatch = html.match(
-    /href="\/url\?q=(https?:\/\/(?:www\.)?(?:douglas|notino|flaconi|parfumdreams|shop-apotheke|amazon)[^"&]+)/i
+    /href="[^"]*(?:uddg=|u=)(https?%3A%2F%2F(?:www\.)?(?:douglas|notino|flaconi|parfumdreams|shop-apotheke|amazon|dm|mueller|rossmann|cocopanda|lookfantastic)[^"&]*)/i
   );
   if (urlMatch) {
-    productUrl = decodeURIComponent(urlMatch[1]);
+    try { productUrl = decodeURIComponent(urlMatch[1]); } catch { /* ignore */ }
   }
 
   return {
     amount,
     currency: "EUR",
-    retailer,
     url: productUrl,
   };
 }
