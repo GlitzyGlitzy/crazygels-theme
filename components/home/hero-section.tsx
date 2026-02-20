@@ -4,11 +4,11 @@ import { ArrowRight } from "lucide-react"
 export function HeroSection() {
   return (
     <section className="relative bg-[var(--bio-dark)] overflow-hidden">
-      {/* Ambient glow */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--bio-teal)]/5 rounded-full blur-[150px] translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--bio-teal)]/3 rounded-full blur-[120px] -translate-x-1/2 translate-y-1/2" />
+      {/* Ambient glow -- hidden on mobile for GPU performance */}
+      <div className="hidden md:block absolute top-0 right-0 w-[600px] h-[600px] bg-[var(--bio-teal)]/5 rounded-full blur-[150px] translate-x-1/3 -translate-y-1/3" />
+      <div className="hidden md:block absolute bottom-0 left-0 w-[400px] h-[400px] bg-[var(--bio-teal)]/3 rounded-full blur-[120px] -translate-x-1/2 translate-y-1/2" />
 
-      <div className="relative max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12 py-16 md:py-24 lg:py-32">
+      <div className="relative max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12 py-12 md:py-24 lg:py-32">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left copy */}
           <div>
@@ -19,7 +19,7 @@ export function HeroSection() {
               </span>
             </div>
 
-            <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light leading-[1.05] tracking-tight text-[var(--bio-text)] mb-6 text-balance">
+            <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-light leading-[1.05] tracking-tight text-[var(--bio-text)] mb-5 md:mb-6 text-balance">
               Your Body <span className="text-[var(--bio-teal)]">Speaks.</span>
               <br />
               We Listen.
@@ -45,8 +45,8 @@ export function HeroSection() {
             </p>
           </div>
 
-          {/* Right visual - Bio scan preview */}
-          <div className="relative">
+          {/* Right visual - Bio scan preview (hidden on small mobile to keep CTA visible) */}
+          <div className="hidden md:block relative">
             <div className="relative aspect-square max-w-md mx-auto">
               {/* Outer ring */}
               <div className="absolute inset-0 rounded-full border border-[var(--bio-teal)]/10" />

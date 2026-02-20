@@ -159,17 +159,17 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 })(window,document,'script','dataLayer','${GTM_ID}');`,
           }}
         />
-        {/* Direct GA4 measurement -- ensures data flows even if GTM tags are misconfigured */}
+        {/* Direct GA4 measurement -- deferred to not block mobile rendering */}
         {GA_MEASUREMENT_ID && (
           <>
             <Script
               id="ga4-gtag"
-              strategy="afterInteractive"
+              strategy="lazyOnload"
               src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
             />
             <Script
               id="ga4-config"
-              strategy="afterInteractive"
+              strategy="lazyOnload"
               dangerouslySetInnerHTML={{
                 __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
