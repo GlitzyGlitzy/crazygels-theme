@@ -451,7 +451,9 @@ ${items.join('\n')}
       status: 200,
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=21600, s-maxage=21600', // 6 hours
+        // Cache for 1 hour at CDN, revalidate in background. Feed serves
+        // live Shopify prices -- shorter cache = faster price updates.
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=1800',
       },
     });
   } catch (error) {
