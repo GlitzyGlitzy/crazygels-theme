@@ -36,8 +36,11 @@ export const RATE_LIMIT = {
 };
 
 // Cache revalidation times (in seconds)
+// Products/collections revalidate frequently so Shopify price/description
+// changes appear quickly. The revalidation webhook (/api/revalidate) can
+// also trigger instant cache purges via revalidateTag().
 export const CACHE_TIMES = {
-  products: 300, // 5 minutes for products (was 60s, reduces Shopify round-trips)
-  collections: 600, // 10 minutes for collections
-  cart: 0, // No cache for cart (always fresh)
+  products: 60,      // 1 minute -- price & description changes show fast
+  collections: 120,  // 2 minutes -- collection updates appear quickly
+  cart: 0,           // No cache for cart (always fresh)
 };

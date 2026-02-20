@@ -3,31 +3,50 @@ import { NextRequest, NextResponse } from 'next/server';
 import { TAGS } from '@/lib/shopify/constants';
 
 /**
- * Shopify Webhook Revalidation Endpoint
+ * Revalidation Endpoint -- Instant Shopify Updates
  * 
- * When you update a product/collection in Shopify, this webhook fires
- * and instantly purges the cached data so the site shows the new
- * price, description, image, etc. immediately (no 5-min wait).
+ * Two ways to trigger instant cache purges:
+ * 
+ * 1. MANUAL (no setup needed):
+ *    curl -X POST https://crazygels.com/api/revalidate?tag=products
+ *    curl -X POST https://crazygels.com/api/revalidate?tag=collections
+ *    curl -X POST https://crazygels.com/api/revalidate  (purges everything)
  *
- * Setup in Shopify Admin:
- *   Settings > Notifications > Webhooks > Create webhook
- *   - Event: Product update, Product create, Product delete,
- *            Collection update, Collection create, Collection delete
- *   - Format: JSON
- *   - URL: https://crazygels.com/api/revalidate
+ * 2. SHOPIFY WEBHOOKS (optional, for fully automatic):
+ *    Shopify Admin > Settings > Notifications > Webhooks
+ *    URL: https://crazygels.com/api/revalidate
+ *    Events: Product update/create/delete, Collection update/create/delete
+ *    If you set this up, also add SHOPIFY_REVALIDATION_SECRET env var
+ *    to match the webhook signing secret shown in Shopify Admin.
  *
- * Also set SHOPIFY_REVALIDATION_SECRET env var to match Shopify's webhook secret.
+ * Without the secret, the endpoint works but without HMAC verification.
  */
 
 export async function POST(req: NextRequest) {
   try {
-    // Verify the request is from Shopify using the shared secret
+    // ── Option A: Manual revalidation via ?tag= query param ──
+    const tagParam = req.nextUrl.searchParams.get('tag');
+    if (tagParam) {
+      const validTags = [TAGS.products, TAGS.collections, TAGS.cart, TAGS.blog];
+      const tagsToRevalidate = tagParam === 'all' ? [TAGS.products, TAGS.collections] : [tagParam];
+      
+      const revalidated: string[] = [];
+      for (const tag of tagsToRevalidate) {
+        if (validTags.includes(tag)) {
+          revalidateTag(tag, 'max');
+          revalidated.push(tag);
+        }
+      }
+
+      console.log(`[Revalidate] Manual purge: ${revalidated.join(', ')}`);
+      return NextResponse.json({ revalidated: true, tags: revalidated, now: Date.now() });
+    }
+
+    // ── Option B: Shopify webhook with optional HMAC verification ──
     const secret = process.env.SHOPIFY_REVALIDATION_SECRET;
-    
-    // Read the body
     const body = await req.text();
 
-    // Verify HMAC if secret is set
+    // Verify HMAC only if secret is configured
     if (secret) {
       const hmacHeader = req.headers.get('x-shopify-hmac-sha256');
       if (!hmacHeader) {
@@ -48,7 +67,6 @@ export async function POST(req: NextRequest) {
     // Determine what Shopify topic triggered this
     const topic = req.headers.get('x-shopify-topic') || '';
     
-    // Parse the payload
     let payload: Record<string, unknown> = {};
     try {
       payload = JSON.parse(body);
@@ -56,7 +74,6 @@ export async function POST(req: NextRequest) {
       // Body might be empty for delete events
     }
 
-    // Revalidate based on topic
     const revalidated: string[] = [];
 
     if (topic.startsWith('products/')) {
