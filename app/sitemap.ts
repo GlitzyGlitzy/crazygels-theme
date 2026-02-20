@@ -3,8 +3,8 @@ import { getAllProducts, getCollections, getBlogs, getAllBlogArticles, isShopify
 
 const BASE_URL = 'https://crazygels.com';
 
-// Revalidate sitemap every 6 hours
-export const revalidate = 21600;
+// Revalidate sitemap every 2 hours (products/collections update frequently)
+export const revalidate = 7200;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -25,8 +25,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/pages/returns`, lastModified: now, changeFrequency: 'monthly', priority: 0.4 },
     { url: `${BASE_URL}/pages/privacy`, lastModified: now, changeFrequency: 'monthly', priority: 0.3 },
     { url: `${BASE_URL}/pages/terms`, lastModified: now, changeFrequency: 'monthly', priority: 0.3 },
-    // Recommendations page
+    // Recommendations + cart
     { url: `${BASE_URL}/recommendations`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${BASE_URL}/cart`, lastModified: now, changeFrequency: 'always', priority: 0.3 },
   ];
 
   if (!isShopifyConfigured) {

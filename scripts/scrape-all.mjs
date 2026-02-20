@@ -1,22 +1,33 @@
 /**
- * Node.js Product Scraper -- NO Python needed
+ * CrazyGels Product Scraper v3 -- REAL DATA ONLY
  *
- * Scrapes real beauty product data (prices, images, URLs, ingredients)
- * from public APIs and writes to scrape_staging + product_catalog in Neon.
+ * 2-stage pipeline:
+ *   Stage 1: Product discovery from Open Beauty Facts (names, brands, ingredients, images, barcodes)
+ *   Stage 2: Price enrichment via:
+ *     a) UPCitemdb barcode lookup (free, 100/day, most reliable)
+ *     b) DuckDuckGo DE search fallback (with exponential backoff)
+ *     c) NULL -- we NEVER fabricate prices
+ *
+ * The scraper gracefully handles rate limits:
+ *   - UPCitemdb: stops barcode lookups after daily limit, moves to DDG
+ *   - DuckDuckGo: exponential backoff, auto-disables after 5 consecutive failures
+ *   - Run `--stage prices` again later to retry products that got NULL prices
  *
  * Usage:
- * v2 - Removed broken Sephora/Ulta (blocked by anti-bot), expanded brand DB
+ *   node scripts/scrape-all.mjs                          # Full pipeline (discovery + prices)
+ *   node scripts/scrape-all.mjs --stage discover          # Stage 1 only (OBF products)
+ *   node scripts/scrape-all.mjs --stage prices            # Stage 2 only (enrich existing products)
+ *   node scripts/scrape-all.mjs --brands cerave,nuxe      # Filter by brands
+ *   node scripts/scrape-all.mjs --dry-run                 # Preview without DB writes
+ *   node scripts/scrape-all.mjs --limit 50                # Limit products per category
  *
- *   node scripts/scrape-all.mjs                     # OBF + Amazon
- *   node scripts/scrape-all.mjs --source amazon     # Amazon DE only
- *   node scripts/scrape-all.mjs --source obf        # Open Beauty Facts only
- *   node scripts/scrape-all.mjs --dry-run           # preview without DB writes
+ * IMPORTANT: This scraper NEVER fabricates prices. If a price cannot be found, it stays NULL.
  */
 
 import { createHash } from "crypto";
 import { readFileSync } from "fs";
 
-// Load .env.local manually (no dotenv dependency needed)
+// ── Load .env.local ──────────────────────────────────────────────────
 try {
   const envFile = readFileSync(".env.local", "utf-8");
   for (const line of envFile.split("\n")) {
@@ -26,7 +37,6 @@ try {
     if (eqIdx === -1) continue;
     const key = trimmed.slice(0, eqIdx).trim();
     let val = trimmed.slice(eqIdx + 1).trim();
-    // Remove surrounding quotes
     if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1);
     }
@@ -42,262 +52,457 @@ if (!DATABASE_URL) {
   process.exit(1);
 }
 
+// ── CLI args ─────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
-const sourceArg = args.find((a) => a.startsWith("--source"))
-  ? args[args.indexOf("--source") + 1]
-  : null;
+function getArg(name) {
+  const idx = args.indexOf(`--${name}`);
+  return idx !== -1 && args[idx + 1] ? args[idx + 1] : null;
+}
+const stageArg = getArg("stage"); // "discover" | "prices" | null (both)
+const brandsArg = getArg("brands"); // "cerave,nuxe,..." | null
+const limitArg = parseInt(getArg("limit") || "80", 10);
 const dryRun = args.includes("--dry-run");
 
-const USD_TO_EUR = 0.92;
-
+// ── Helpers ──────────────────────────────────────────────────────────
 function hash(str) {
-  return createHash("sha256").update(str).digest("hex").slice(0, 16);
+  return createHash("sha256").update(str.toLowerCase().trim()).digest("hex").slice(0, 16);
 }
 
-function toEur(price, currency) {
-  if (!price || price <= 0) return 0;
-  currency = (currency || "EUR").toUpperCase();
-  if (currency === "EUR") return Math.round(price * 100) / 100;
-  if (currency === "USD") return Math.round(price * USD_TO_EUR * 100) / 100;
-  if (currency === "GBP") return Math.round(price * 1.17 * 100) / 100;
-  return Math.round(price * 100) / 100;
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
 }
 
 function priceTier(priceEur) {
+  if (!priceEur || priceEur <= 0) return "unknown";
   if (priceEur > 80) return "luxury";
   if (priceEur > 40) return "premium";
   if (priceEur > 15) return "mid";
   return "budget";
 }
 
-// ── Brand price knowledge (EUR) ──────────────────────────────────────
-const BRAND_PRICES = {
-  // Luxury (80+)
-  "la mer": 95, "la prairie": 120, "sk-ii": 85, "tom ford": 75, "chanel": 70,
-  "sisley": 90, "augustinus bader": 95, "valmont": 110, "cle de peau": 85,
-  "helena rubinstein": 80, "natura bisse": 90, "sisleya": 95, "guerlain": 75,
-  "givenchy": 70, "ysl": 65, "armani": 68, "hermes": 75,
-  // Premium (40-80)
-  "dior": 65, "estee lauder": 55, "lancome": 50, "shiseido": 48, "clarins": 45,
-  "tatcha": 48, "sunday riley": 45, "drunk elephant": 42, "fresh": 40,
-  "pat mcgrath": 45, "hourglass": 42, "charlotte tilbury": 42, "laura mercier": 38,
-  "bobbi brown": 38, "ole henriksen": 35, "dermalogica": 45, "peter thomas roth": 42,
-  "murad": 45, "dr. dennis gross": 42, "skinceuticals": 55, "obagi": 48,
-  "is clinical": 50, "omorovicza": 55, "elemis": 42, "tata harper": 55,
-  "herbivore": 38, "youth to the people": 35, "biossance": 32, "farmacy": 30,
-  "glow recipe": 32, "summer fridays": 35, "supergoop": 32, "coola": 30,
-  "ren": 32, "first aid beauty": 28, "mario badescu": 22, "korres": 25,
-  // Mid (15-40)
-  "clinique": 35, "origins": 32, "kiehl's": 38, "paula's choice": 35,
-  "laneige": 32, "too faced": 35, "urban decay": 35, "nars": 38,
-  "mac": 28, "rare beauty": 28, "fenty beauty": 32, "ilia": 35,
-  "merit": 30, "tower 28": 22, "glossier": 22, "milk makeup": 28,
-  "bare minerals": 30, "it cosmetics": 35, "tarte": 32, "benefit": 30,
-  "moroccanoil": 35, "olaplex": 28, "kerastase": 35, "bumble and bumble": 32,
-  "living proof": 30, "ouai": 28, "amika": 25, "briogeo": 28,
-  "nuxe": 25, "caudalie": 28, "bioderma": 18, "avene": 20,
-  "la roche-posay": 22, "vichy": 20, "eucerin": 18, "olay": 22,
-  "l'oreal": 18, "l'oreal paris": 18, "l'oreal professionnel": 22,
-  "cosrx": 16, "some by mi": 16, "beauty of joseon": 16, "purito": 16,
-  "anua": 18, "isntree": 16, "torriden": 18, "round lab": 16,
-  "medicube": 22, "skin1004": 18, "by wishtrend": 20, "klairs": 22,
-  "heimish": 16, "missha": 14, "innisfree": 18, "banila co": 18,
-  "etude": 12, "tony moly": 12, "snp": 14, "benton": 16,
-  "hada labo": 14, "rohto mentholatum": 12, "canmake": 10,
-  "neogen": 18, "mediheal": 14, "dr. jart+": 28, "amorepacific": 45,
-  "sulwhasoo": 55, "belif": 28, "iope": 25,
-  // Budget (under 15)
-  "the ordinary": 8, "cerave": 16, "cetaphil": 14, "neutrogena": 12,
-  "nivea": 8, "dove": 6, "garnier": 10, "nyx": 10, "elf": 8,
-  "maybelline": 10, "revlon": 12, "rimmel": 8, "essence": 5,
-  "catrice": 6, "milani": 10, "colourpop": 10, "holika holika": 10,
-  "wet n wild": 5, "covergirl": 10, "physicians formula": 12,
-  "pixi": 14, "soap & glory": 10, "simple": 8, "st. ives": 6,
-  "aveeno": 12, "vanicream": 12, "la girl": 5, "revolution": 8,
-  "nip + fab": 10, "acure": 10, "alba botanica": 10, "burt's bees": 10,
-  "yes to": 8, "tree hut": 10, "jason": 8, "thayers": 10,
-  "stridex": 6, "differin": 14, "panoxyl": 10, "hero cosmetics": 12,
-  "starface": 10, "bubble": 10, "good molecules": 8, "inkey list": 8,
-  "versed": 12, "peach & lily": 14, "cocokind": 12, "naturium": 12,
-  // Haircare
-  "redken": 22, "matrix": 18, "paul mitchell": 22, "chi": 18,
-  "tresemme": 6, "head & shoulders": 6, "pantene": 6, "herbal essences": 6,
-  "aussie": 6, "john frieda": 10, "ogx": 8, "shea moisture": 12,
-  "cantu": 8, "aussie": 6, "sebastian": 22, "wella": 18,
-  "schwarzkopf": 12, "got2b": 6, "syoss": 6, "balea": 3,
-  // Body/Sun
-  "sol de janeiro": 25, "necessaire": 28, "drunk elephant body": 22,
-  "jergens": 8, "lubriderm": 8, "gold bond": 10, "amlactin": 14,
-  "sun bum": 14, "banana boat": 8, "coppertone": 8, "australian gold": 10,
-  "la roche posay": 22, "eltamd": 28, "isdin": 25, "heliocare": 22,
+const HEADERS = {
+  "User-Agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+  "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
 };
 
-function estimatePrice(brand, productName) {
-  if (!brand && !productName) return null;
-  const key = (brand || "").toLowerCase().trim().replace(/['']/g, "'");
-  // Exact match
-  if (BRAND_PRICES[key]) return BRAND_PRICES[key];
-  // Try normalizing dashes/spaces
-  const norm = key.replace(/[-_]/g, " ");
-  if (BRAND_PRICES[norm]) return BRAND_PRICES[norm];
-  // Partial: check if any brand name is IN the brand string or product name
-  const search = `${key} ${(productName || "").toLowerCase()}`;
-  for (const [bk, bv] of Object.entries(BRAND_PRICES)) {
-    if (search.includes(bk)) return bv;
-  }
-  return null;
-}
-
-// ── Source: Open Beauty Facts ────────────────────────────────────────
-const OBF_CATEGORIES = [
+// ── Brands to scrape ─────────────────────────────────────────────────
+const DEFAULT_BRANDS = [
   // Skincare
-  "moisturizers", "serums", "cleansers", "sunscreens", "face-masks",
-  "eye-creams", "toners", "exfoliators", "face-oils", "micellar-water",
-  "night-cream", "day-cream", "anti-aging", "acne-treatment", "retinol",
-  "vitamin-c", "hyaluronic-acid", "niacinamide", "peptides",
-  // Makeup
-  "foundations", "concealers", "mascaras", "lipsticks", "lip-balms",
-  "blushes", "bronzers", "primers", "setting-spray", "eyeshadow",
-  "eyeliner", "lip-gloss", "bb-cream", "cc-cream", "highlighter",
-  "contour", "brow-gel", "powder",
+  "cerave", "la roche-posay", "the ordinary", "paula's choice", "neutrogena",
+  "eucerin", "bioderma", "avene", "nuxe", "caudalie", "vichy",
+  "clinique", "kiehl's", "olay", "nivea", "garnier",
+  // K-Beauty
+  "cosrx", "some by mi", "beauty of joseon", "purito", "anua",
+  "isntree", "torriden", "round lab", "klairs", "missha", "innisfree",
+  "dr. jart+", "laneige", "banila co", "skin1004", "medicube",
+  // Premium
+  "drunk elephant", "tatcha", "sunday riley", "fresh", "origins",
+  "glow recipe", "summer fridays", "farmacy", "biossance",
+  "skinceuticals", "dermalogica", "murad",
   // Haircare
-  "shampoos", "conditioners", "hair-masks", "hair-oils", "hair-serums",
-  "dry-shampoo", "leave-in-conditioner", "hair-spray",
-  // Body
-  "body-lotions", "hand-creams", "body-wash", "body-oil", "deodorant",
-  "body-scrub", "foot-cream", "hand-wash",
+  "olaplex", "moroccanoil", "kerastase", "redken", "shea moisture",
+  "briogeo", "ouai", "amika", "living proof", "ogx",
+  // Body / Sun
+  "sol de janeiro", "supergoop", "la roche posay", "eltamd", "isdin",
+  // Fragrance
+  "dior", "chanel", "ysl", "tom ford", "jo malone", "byredo",
 ];
 
-async function scrapeOBF(maxPerCategory = 30) {
-  const products = [];
-  console.log(`\n[OBF] Scraping Open Beauty Facts (${OBF_CATEGORIES.length} categories, max ${maxPerCategory} each)...`);
+const BRANDS = brandsArg
+  ? brandsArg.split(",").map((b) => b.trim().toLowerCase())
+  : DEFAULT_BRANDS;
 
-  for (const cat of OBF_CATEGORIES) {
-    const pageSize = Math.min(maxPerCategory, 50);
-    const url = `https://world.openbeautyfacts.org/cgi/search.pl?search_terms=${cat}&search_simple=1&action=process&json=1&page_size=${pageSize}&fields=code,product_name,brands,categories,image_front_url,ingredients_text,quantity`;
+// ── OBF Categories ───────────────────────────────────────────────────
+const OBF_CATEGORIES = [
+  "moisturizers", "serums", "cleansers", "sunscreens", "face-masks",
+  "eye-creams", "toners", "exfoliators", "shampoos", "conditioners",
+  "hair-masks", "body-lotions", "hand-creams", "lip-balms",
+];
+
+// ══════════════════════════════════════════════════════════════════════
+// STAGE 1: PRODUCT DISCOVERY (Open Beauty Facts)
+// ══════════════════════════════════════════════════════════════════════
+
+async function discoverProducts() {
+  const products = [];
+  console.log(`\n[STAGE 1] Product Discovery via Open Beauty Facts`);
+  console.log(`  Brands: ${BRANDS.length} | Categories: ${OBF_CATEGORIES.length} | Limit: ${limitArg}/category`);
+
+  // 1a. Search by brand
+  console.log(`\n  --- Brand search ---`);
+  for (const brand of BRANDS) {
+    const url = `https://world.openbeautyfacts.org/api/v2/search?brands_tags=${encodeURIComponent(brand)}&fields=code,product_name,brands,categories,image_front_url,ingredients_text,quantity,labels&page_size=${limitArg}&sort_by=unique_scans_n`;
     try {
-      const res = await fetch(url);
-      if (!res.ok) { console.log(`  [OBF] ${cat}: HTTP ${res.status}`); continue; }
+      const res = await fetch(url, { headers: HEADERS });
+      if (!res.ok) {
+        console.log(`  [OBF] ${brand}: HTTP ${res.status}`);
+        continue;
+      }
       const data = await res.json();
       const items = data.products || [];
       let added = 0;
 
       for (const p of items) {
-        const name = p.product_name?.trim();
-        const brand = p.brands?.split(",")[0]?.trim();
-        if (!name || name.length < 3) continue;
-
-        const productHash = hash(`obf:${p.code || name}:${name}`);
-        const priceEst = estimatePrice(brand, name);
-        const priceEur = priceEst || 0;
-
-        products.push({
-          product_hash: productHash,
-          source: "open_beauty_facts",
-          external_id: p.code || productHash,
-          name: name.slice(0, 255),
-          brand: brand || null,
-          category: cat.replace(/-/g, "_"),
-          product_type: cat.replace(/-/g, " "),
-          price_original: priceEst,
-          price_currency: "EUR",
-          sale_price: null,
-          price_eur: priceEur,
-          price_tier: priceEur > 0 ? priceTier(priceEur) : "unknown",
-          image_url: p.image_front_url || null,
-          source_url: p.code ? `https://world.openbeautyfacts.org/product/${p.code}` : null,
-          description: null,
-          ingredients: p.ingredients_text || null,
-          size: p.quantity || null,
-          rating: null,
-          review_count: null,
-        });
-        added++;
+        const parsed = parseOBFProduct(p, "brand_search");
+        if (parsed) {
+          products.push(parsed);
+          added++;
+        }
       }
-      console.log(`  [OBF] ${cat}: ${added} products`);
+      console.log(`  [OBF] ${brand}: ${added} products`);
+    } catch (err) {
+      console.log(`  [OBF] ${brand}: error - ${err.message}`);
+    }
+    await sleep(300); // Polite rate limit
+  }
+
+  // 1b. Search by category
+  console.log(`\n  --- Category search ---`);
+  for (const cat of OBF_CATEGORIES) {
+    const url = `https://world.openbeautyfacts.org/api/v2/search?categories_tags=${encodeURIComponent(cat)}&fields=code,product_name,brands,categories,image_front_url,ingredients_text,quantity,labels&page_size=${limitArg}`;
+    try {
+      const res = await fetch(url, { headers: HEADERS });
+      if (!res.ok) {
+        console.log(`  [OBF] ${cat}: HTTP ${res.status}`);
+        continue;
+      }
+      const data = await res.json();
+      const items = data.products || [];
+      let added = 0;
+
+      for (const p of items) {
+        const parsed = parseOBFProduct(p, "category_search");
+        if (parsed && !products.find((x) => x.product_hash === parsed.product_hash)) {
+          products.push(parsed);
+          added++;
+        }
+      }
+      console.log(`  [OBF] ${cat}: ${added} new products`);
     } catch (err) {
       console.log(`  [OBF] ${cat}: error - ${err.message}`);
     }
+    await sleep(300);
   }
+
   return products;
 }
 
-// ── Source: Amazon DE (brand knowledge + suggestions) ────────────────
-const AMAZON_SEARCHES = [
-  "feuchtigkeitscreme gesicht", "serum gesichtspflege", "gesichtsreiniger",
-  "sonnencreme gesicht lsf 50", "augencreme", "foundation makeup",
-  "mascara", "lippenstift", "shampoo", "body lotion",
-];
+function parseOBFProduct(p, searchType) {
+  const name = p.product_name?.trim();
+  const brand = p.brands?.split(",")[0]?.trim();
+  if (!name || name.length < 3) return null;
 
-async function scrapeAmazon(maxPerSearch = 20) {
-  const products = [];
-  console.log(`\n[AMAZON] Scraping Amazon DE (${AMAZON_SEARCHES.length} searches)...`);
+  const barcode = p.code || null;
+  const productHash = hash(`obf:${barcode || name}:${brand || ""}`);
 
-  for (const term of AMAZON_SEARCHES) {
-    const url = `https://www.amazon.de/s?k=${encodeURIComponent(term)}&i=beauty&__mk_de_DE=%C3%85M%C3%85%C5%BD%C3%95%C3%91`;
-    try {
-      // Amazon blocks API access, so we use their auto-complete suggestions API instead
-      const suggestUrl = `https://completion.amazon.de/api/2017/suggestions?mid=A1PA6795UKMFR9&alias=beauty&prefix=${encodeURIComponent(term)}&event=onKeyPress&limit=11&fb=1&suggestion-type=KEYWORD`;
-      const res = await fetch(suggestUrl, {
-        headers: {
-          "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-          "Accept": "application/json",
-        },
-      });
+  // Determine category from OBF categories string
+  const obfCats = (p.categories || "").toLowerCase();
+  let category = "skincare";
+  if (obfCats.includes("hair") || obfCats.includes("shampoo") || obfCats.includes("conditioner")) {
+    category = "haircare";
+  } else if (obfCats.includes("body") || obfCats.includes("lotion")) {
+    category = "body_care";
+  } else if (obfCats.includes("lip") || obfCats.includes("makeup") || obfCats.includes("foundation")) {
+    category = "makeup";
+  } else if (obfCats.includes("sun") || obfCats.includes("spf")) {
+    category = "suncare";
+  } else if (obfCats.includes("fragrance") || obfCats.includes("perfume") || obfCats.includes("parfum")) {
+    category = "fragrances";
+  }
 
-      // Amazon suggestions don't return full product data -- use brand knowledge
-      // to create catalog entries for popular products in the category
-      const cat = term.split(" ")[0];
-      console.log(`  [AMAZON] ${term}: using brand knowledge (API limited)`);
+  return {
+    product_hash: productHash,
+    source: "open_beauty_facts",
+    external_id: barcode || productHash,
+    barcode,
+    name: name.slice(0, 255),
+    brand: brand || null,
+    category,
+    product_type: category.replace(/_/g, " "),
+    // NO PRICE -- OBF does not have price data, we never fake it
+    price_original: null,
+    price_currency: null,
+    sale_price: null,
+    price_eur: null,
+    price_tier: "unknown",
+    image_url: p.image_front_url || null,
+    source_url: barcode ? `https://world.openbeautyfacts.org/product/${barcode}` : null,
+    description: null,
+    ingredients: p.ingredients_text || null,
+    size: p.quantity || null,
+    rating: null,
+    review_count: null,
+    labels: p.labels || null,
+    search_type: searchType,
+  };
+}
 
-      // Create brand-based entries for this category from our knowledge base
-      const brandEntries = Object.entries(BRAND_PRICES).slice(0, maxPerSearch);
-      for (const [brand, price] of brandEntries) {
-        const name = `${brand.split(" ").map(w => w[0].toUpperCase() + w.slice(1)).join(" ")} ${term}`;
-        const productHash = hash(`amazon_de:${brand}:${term}`);
-        if (products.find(p => p.product_hash === productHash)) continue;
+// ══════════════════════════════════════════════════════════════════════
+// STAGE 2: PRICE ENRICHMENT (Multi-source with aggressive backoff)
+// ══════════════════════════════════════════════════════════════════════
+// Strategy (in order of reliability):
+//   1. UPCitemdb.com trial API -- free barcode-based lookup (100/day)
+//   2. DuckDuckGo DE with exponential backoff -- search-based fallback
+//   3. NULL -- we NEVER fabricate prices. Unknown stays unknown.
 
-        products.push({
-          product_hash: productHash,
-          source: "amazon_de",
-          external_id: productHash,
-          name: name.slice(0, 255),
-          brand: brand.split(" ").map(w => w[0].toUpperCase() + w.slice(1)).join(" "),
-          category: cat,
-          product_type: term,
-          price_original: price,
-          price_currency: "EUR",
-          sale_price: null,
-          price_eur: price,
-          price_tier: priceTier(price),
-          image_url: null,
-          source_url: `https://www.amazon.de/s?k=${encodeURIComponent(name)}&i=beauty`,
-          description: null,
-          ingredients: null,
-          size: null,
-          rating: null,
-          review_count: null,
-        });
-      }
-    } catch (err) {
-      console.log(`  [AMAZON] ${term}: error - ${err.message}`);
+const DDG_INITIAL_DELAY = 5000;   // 5s between DDG requests
+const DDG_MAX_DELAY     = 120000; // max 2min backoff
+const DDG_MAX_CONSEC_FAILS = 5;   // stop DDG after 5 consecutive failures
+
+async function enrichPrices(products) {
+  console.log(`\n[STAGE 2] Price Enrichment (UPCitemdb + DuckDuckGo fallback)`);
+  console.log(`  Products to price: ${products.length}`);
+
+  let found = 0;
+  let notFound = 0;
+  let errors = 0;
+  let upcHits = 0;
+  let ddgHits = 0;
+  let ddgDisabled = false;
+  let ddgConsecFails = 0;
+  let ddgDelay = DDG_INITIAL_DELAY;
+
+  for (let i = 0; i < products.length; i++) {
+    const p = products[i];
+
+    // Skip products that already have a real price
+    if (p.price_eur && p.price_eur > 0) {
+      found++;
+      continue;
     }
-    await new Promise((r) => setTimeout(r, 500));
+
+    // ── Method 1: UPCitemdb barcode lookup (free, reliable) ──
+    if (p.barcode && p.barcode.length >= 8) {
+      try {
+        const upcResult = await lookupUPCitemdb(p.barcode);
+        if (upcResult && upcResult.amount > 0) {
+          p.price_eur = upcResult.amount;
+          p.price_currency = upcResult.currency || "EUR";
+          p.price_tier = priceTier(upcResult.amount);
+          p.price_original = upcResult.amount;
+          if (upcResult.url) p.source_url = upcResult.url;
+          found++;
+          upcHits++;
+          continue; // Got a price, move on
+        }
+      } catch (err) {
+        // UPC rate limited (100/day) -- just skip to DDG
+        if (err.message?.includes("rate")) {
+          console.log("  [UPC] Daily limit reached, skipping barcode lookups");
+        }
+      }
+      await sleep(600); // UPC rate limit
+    }
+
+    // ── Method 2: DuckDuckGo search (fallback, rate-limited) ──
+    if (!ddgDisabled) {
+      const searchQuery = [p.brand, p.name]
+        .filter(Boolean)
+        .join(" ")
+        .replace(/[^\w\s\-äöüÄÖÜß.]/g, "")
+        .slice(0, 100);
+
+      if (searchQuery && searchQuery.length >= 5) {
+        try {
+          const result = await scrapeDDGPrice(searchQuery);
+
+          if (result && result.amount > 0) {
+            p.price_eur = result.amount;
+            p.price_currency = "EUR";
+            p.price_tier = priceTier(result.amount);
+            p.price_original = result.amount;
+            if (result.url) p.source_url = result.url;
+            found++;
+            ddgHits++;
+            ddgConsecFails = 0; // Reset on success
+            ddgDelay = DDG_INITIAL_DELAY; // Reset delay on success
+          } else {
+            notFound++;
+            ddgConsecFails++;
+          }
+        } catch (err) {
+          errors++;
+          ddgConsecFails++;
+          if (errors <= 5) {
+            console.log(`  [DDG] Error for "${searchQuery.slice(0, 40)}": ${err.message}`);
+          }
+        }
+
+        // Exponential backoff on consecutive failures
+        if (ddgConsecFails >= DDG_MAX_CONSEC_FAILS) {
+          console.log(`  [DDG] ${DDG_MAX_CONSEC_FAILS} consecutive failures -- disabling DDG for this run.`);
+          console.log(`  [DDG] Remaining products will have NULL prices (honest data).`);
+          ddgDisabled = true;
+        } else if (ddgConsecFails > 0) {
+          ddgDelay = Math.min(ddgDelay * 1.5, DDG_MAX_DELAY);
+        }
+
+        await sleep(ddgDelay + Math.random() * 2000);
+      } else {
+        notFound++;
+      }
+    } else {
+      notFound++;
+    }
+
+    // Progress log every 50 products
+    if ((i + 1) % 50 === 0) {
+      console.log(
+        `  [PRICE] Progress: ${i + 1}/${products.length} | Found: ${found} (UPC: ${upcHits}, DDG: ${ddgHits}) | Not found: ${notFound} | Errors: ${errors}`
+      );
+    }
+  }
+
+  console.log(`\n  [PRICE] DONE: ${found} priced (UPC: ${upcHits}, DDG: ${ddgHits}), ${notFound} not found, ${errors} errors`);
+  if (ddgDisabled) {
+    console.log(`  [PRICE] NOTE: DuckDuckGo was disabled due to rate limiting. Run again later for more prices.`);
+    console.log(`  [PRICE] Or use: node scripts/scrape-all.mjs --stage prices  (to retry just pricing)`);
   }
   return products;
 }
 
-// ── Database writer (uses postgres package already installed) ─────────
+/**
+ * UPCitemdb.com trial API -- free barcode-to-price lookup.
+ * 100 requests/day limit. Returns real retailer prices.
+ */
+async function lookupUPCitemdb(barcode) {
+  const url = `https://api.upcitemdb.com/prod/trial/lookup?upc=${encodeURIComponent(barcode)}`;
+
+  const res = await fetch(url, {
+    headers: { "User-Agent": "CrazyGels-Scraper/3.0", Accept: "application/json" },
+  });
+
+  if (res.status === 429) {
+    throw new Error("rate limited");
+  }
+  if (!res.ok) return null;
+
+  const data = await res.json();
+  const items = data.items || [];
+  if (items.length === 0) return null;
+
+  const item = items[0];
+  const offers = item.offers || [];
+
+  // Find EUR offers first, then any offer with a price
+  let bestOffer = offers.find((o) => o.currency === "EUR" && o.price > 0);
+  if (!bestOffer) bestOffer = offers.find((o) => o.price > 0);
+
+  if (!bestOffer) {
+    // Try the lowest_recorded_price field
+    if (item.lowest_recorded_price > 0) {
+      return {
+        amount: Math.round(item.lowest_recorded_price * 100) / 100,
+        currency: item.currency || "USD",
+        url: item.offers?.[0]?.link || null,
+      };
+    }
+    return null;
+  }
+
+  return {
+    amount: Math.round(bestOffer.price * 100) / 100,
+    currency: bestOffer.currency || "USD",
+    url: bestOffer.link || null,
+  };
+}
+
+/**
+ * DuckDuckGo HTML search fallback for EUR prices.
+ * Uses aggressive exponential backoff to avoid getting blocked.
+ */
+async function scrapeDDGPrice(query) {
+  const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query + " preis EUR kaufen")}&kl=de-de`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const res = await fetch(searchUrl, {
+      headers: { ...HEADERS, Referer: "https://duckduckgo.com/" },
+      redirect: "follow",
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      if (res.status === 429 || res.status === 403) {
+        throw new Error("rate limited");
+      }
+      return null;
+    }
+
+    const html = await res.text();
+    if (html.includes("d=1") && html.length < 5000) return null; // Captcha
+    return parseDDGPrices(html);
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+/**
+ * Parse EUR prices from DuckDuckGo HTML snippets.
+ */
+function parseDDGPrices(html) {
+  const prices = [];
+  const patterns = [
+    /(\d{1,3})[,.](\d{2})\s*(?:&nbsp;)?€/g,
+    /€\s*(\d{1,3})[,.](\d{2})/g,
+    /EUR\s*(\d{1,3})[,.](\d{2})/g,
+    /(\d{1,3})[,.](\d{2})\s*EUR/g,
+  ];
+
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(html)) !== null) {
+      const amount = parseFloat(match[1] + "." + match[2]);
+      if (amount >= 2 && amount <= 300) prices.push(amount);
+    }
+  }
+
+  if (prices.length === 0) return null;
+
+  const unique = [...new Set(prices.map((p) => p.toFixed(2)))].map(Number);
+  unique.sort((a, b) => a - b);
+  const median = unique[Math.floor(unique.length / 2)];
+
+  let productUrl = null;
+  const urlMatch = html.match(
+    /href="[^"]*(?:uddg=|u=)(https?%3A%2F%2F(?:www\.)?(?:douglas|notino|flaconi|parfumdreams|shop-apotheke|amazon|dm|mueller|rossmann|cocopanda|lookfantastic)[^"&]*)/i
+  );
+  if (urlMatch) {
+    try { productUrl = decodeURIComponent(urlMatch[1]); } catch { /* ignore */ }
+  }
+
+  return { amount: Math.round(median * 100) / 100, currency: "EUR", url: productUrl };
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// DATABASE WRITER
+// ══════════════════════════════════════════════════════════════════════
+
 async function writeToDatabase(products) {
   if (dryRun) {
     console.log(`\n[DRY RUN] Would write ${products.length} products to DB. Skipping.`);
-    const withPrice = products.filter(p => p.price_eur > 0).length;
-    const withImage = products.filter(p => p.image_url).length;
-    console.log(`  With prices: ${withPrice}, With images: ${withImage}`);
+    const withPrice = products.filter((p) => p.price_eur > 0).length;
+    const withImage = products.filter((p) => p.image_url).length;
+    const withIngredients = products.filter((p) => p.ingredients).length;
+    console.log(`  With real prices: ${withPrice}`);
+    console.log(`  With images: ${withImage}`);
+    console.log(`  With ingredients: ${withIngredients}`);
+
+    // Show a sample of priced products
+    const sampled = products.filter((p) => p.price_eur > 0).slice(0, 10);
+    if (sampled.length > 0) {
+      console.log(`\n  Sample priced products:`);
+      for (const s of sampled) {
+        console.log(`    ${s.brand || "?"} - ${s.name?.slice(0, 50)} = ${s.price_eur} EUR (${s.price_tier})`);
+      }
+    }
     return;
   }
 
-  // Dynamic import of postgres (already in package.json)
   const postgresModule = await import("postgres");
   const sql = postgresModule.default(DATABASE_URL, { ssl: "require" });
 
@@ -305,7 +510,6 @@ async function writeToDatabase(products) {
   let catalogCount = 0;
   let errorCount = 0;
 
-  // Process in batches of 50
   const batchSize = 50;
   for (let i = 0; i < products.length; i += batchSize) {
     const batch = products.slice(i, i + batchSize);
@@ -329,6 +533,11 @@ async function writeToDatabase(products) {
           ON CONFLICT (product_hash) DO UPDATE SET
             price_original = COALESCE(EXCLUDED.price_original, scrape_staging.price_original),
             price_eur = COALESCE(EXCLUDED.price_eur, scrape_staging.price_eur),
+            price_currency = COALESCE(EXCLUDED.price_currency, scrape_staging.price_currency),
+            price_tier = CASE
+              WHEN EXCLUDED.price_tier != 'unknown' THEN EXCLUDED.price_tier
+              ELSE scrape_staging.price_tier
+            END,
             image_url = COALESCE(EXCLUDED.image_url, scrape_staging.image_url),
             source_url = COALESCE(EXCLUDED.source_url, scrape_staging.source_url),
             description = COALESCE(EXCLUDED.description, scrape_staging.description),
@@ -338,8 +547,10 @@ async function writeToDatabase(products) {
         `;
         stagingCount++;
 
-        // 2. Promote to product_catalog (with EUR prices)
-        const retailPrice = p.price_eur > 0 ? p.price_eur : null;
+        // 2. Promote to product_catalog (only with real data)
+        const retailPrice = p.price_eur && p.price_eur > 0 ? p.price_eur : null;
+        const currency = retailPrice ? "EUR" : null;
+
         await sql`
           INSERT INTO product_catalog
             (product_hash, display_name, category, product_type, price_tier,
@@ -347,78 +558,130 @@ async function writeToDatabase(products) {
              source_url, brand, source, price_original, price_currency,
              status, created_at, updated_at)
           VALUES (${p.product_hash}, ${p.name}, ${p.category}, ${p.product_type}, ${p.price_tier},
-                  ${retailPrice}, 'EUR', ${p.image_url}, ${p.description},
+                  ${retailPrice}, ${currency}, ${p.image_url}, ${p.description},
                   ${p.source_url}, ${p.brand}, ${p.source}, ${p.price_original}, ${p.price_currency},
                   'research', NOW(), NOW())
           ON CONFLICT (product_hash) DO UPDATE SET
+            display_name = COALESCE(EXCLUDED.display_name, product_catalog.display_name),
             retail_price = COALESCE(EXCLUDED.retail_price, product_catalog.retail_price),
+            currency = COALESCE(EXCLUDED.currency, product_catalog.currency),
             image_url = COALESCE(EXCLUDED.image_url, product_catalog.image_url),
             description_generated = COALESCE(EXCLUDED.description_generated, product_catalog.description_generated),
             source_url = COALESCE(EXCLUDED.source_url, product_catalog.source_url),
             brand = COALESCE(EXCLUDED.brand, product_catalog.brand),
             price_original = COALESCE(EXCLUDED.price_original, product_catalog.price_original),
             price_currency = COALESCE(EXCLUDED.price_currency, product_catalog.price_currency),
+            price_tier = CASE
+              WHEN EXCLUDED.price_tier != 'unknown' THEN EXCLUDED.price_tier
+              ELSE product_catalog.price_tier
+            END,
             updated_at = NOW()
         `;
         catalogCount++;
       } catch (err) {
         errorCount++;
         if (errorCount <= 5) {
-          console.log(`  [DB] Error on ${p.name?.slice(0, 40)}: ${err.message?.slice(0, 80)}`);
+          console.log(`  [DB] Error on ${p.name?.slice(0, 40)}: ${err.message?.slice(0, 100)}`);
         }
       }
     }
-    process.stdout.write(`\r  [DB] Batch ${batchNum}/${totalBatches} -- staging: ${stagingCount}, catalog: ${catalogCount}, errors: ${errorCount}`);
+    process.stdout.write(
+      `\r  [DB] Batch ${batchNum}/${totalBatches} -- staging: ${stagingCount}, catalog: ${catalogCount}, errors: ${errorCount}`
+    );
   }
 
   await sql.end();
-  console.log(`\n[DB] DONE: ${stagingCount} staging, ${catalogCount} catalog, ${errorCount} errors`);
+  console.log(
+    `\n  [DB] DONE: ${stagingCount} staging, ${catalogCount} catalog, ${errorCount} errors`
+  );
 }
 
-// ── Main ─────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// MAIN
+// ══════════════════════════════════════════════════════════════════════
+
 async function main() {
-  console.log("=== CrazyGels Product Scraper (Node.js) ===");
+  console.log("=== CrazyGels Product Scraper v3 (Real Data Only) ===");
   console.log(`Mode: ${dryRun ? "DRY RUN" : "LIVE"}`);
-  if (sourceArg) console.log(`Source filter: ${sourceArg}`);
+  console.log(`Brands: ${BRANDS.length}`);
+  if (stageArg) console.log(`Stage: ${stageArg}`);
 
-  let allProducts = [];
+  let products = [];
 
-  // Sephora and Ulta APIs are blocked (404 / Akamai CDN), so we skip them.
-  // OBF is the reliable backbone, Amazon supplements with brand-based entries.
-  const sources = sourceArg ? [sourceArg] : ["obf", "amazon"];
-
-  for (const src of sources) {
-    switch (src) {
-      case "obf":
-        allProducts.push(...await scrapeOBF(100));
-        break;
-      case "amazon":
-        allProducts.push(...await scrapeAmazon(20));
-        break;
-      default:
-        console.log(`Unknown source: ${src}. Available: obf, amazon`);
-    }
+  // Stage 1: Product Discovery
+  if (!stageArg || stageArg === "discover") {
+    products = await discoverProducts();
+    console.log(`\n[STAGE 1 DONE] ${products.length} products discovered`);
+    console.log(`  With images: ${products.filter((p) => p.image_url).length}`);
+    console.log(`  With ingredients: ${products.filter((p) => p.ingredients).length}`);
+    console.log(`  With barcodes: ${products.filter((p) => p.barcode).length}`);
   }
 
-  // Deduplicate by product_hash
+  // If prices-only stage, load existing products from DB that lack prices
+  if (stageArg === "prices") {
+    console.log(`\n[STAGE 2] Loading products without prices from DB...`);
+    const postgresModule = await import("postgres");
+    const sql = postgresModule.default(DATABASE_URL, { ssl: "require" });
+
+    const rows = await sql`
+      SELECT product_hash, display_name as name, brand, category, product_type,
+             image_url, source_url, ingredients
+      FROM product_catalog
+      WHERE (retail_price IS NULL OR retail_price = 0)
+      ORDER BY updated_at DESC
+      LIMIT 500
+    `;
+    await sql.end();
+
+    products = rows.map((r) => ({
+      ...r,
+      source: "price_enrichment",
+      external_id: r.product_hash,
+      price_original: null,
+      price_currency: null,
+      sale_price: null,
+      price_eur: null,
+      price_tier: "unknown",
+    }));
+    console.log(`  Loaded ${products.length} products to price`);
+  }
+
+  // Stage 2: Price Enrichment
+  if (!stageArg || stageArg === "prices") {
+    products = await enrichPrices(products);
+  }
+
+  // Deduplicate
   const seen = new Set();
   const unique = [];
-  for (const p of allProducts) {
+  for (const p of products) {
     if (!seen.has(p.product_hash)) {
       seen.add(p.product_hash);
       unique.push(p);
     }
   }
 
-  const withPrice = unique.filter(p => p.price_eur > 0).length;
-  const withImage = unique.filter(p => p.image_url).length;
+  // Final summary
+  const withPrice = unique.filter((p) => p.price_eur && p.price_eur > 0).length;
+  const withImage = unique.filter((p) => p.image_url).length;
+  const withIngredients = unique.filter((p) => p.ingredients).length;
+  const uniquePrices = new Set(unique.filter((p) => p.price_eur > 0).map((p) => p.price_eur)).size;
 
-  console.log(`\n=== SUMMARY ===`);
+  console.log(`\n=== FINAL SUMMARY ===`);
   console.log(`Total unique products: ${unique.length}`);
-  console.log(`With prices (EUR): ${withPrice} (${Math.round(withPrice/unique.length*100)}%)`);
-  console.log(`With images: ${withImage} (${Math.round(withImage/unique.length*100)}%)`);
-  console.log(`Sources: ${[...new Set(unique.map(p => p.source))].join(", ")}`);
+  console.log(`With REAL prices: ${withPrice} (${unique.length ? Math.round((withPrice / unique.length) * 100) : 0}%)`);
+  console.log(`Unique price points: ${uniquePrices}`);
+  console.log(`With images: ${withImage}`);
+  console.log(`With ingredients: ${withIngredients}`);
+  console.log(`Sources: ${[...new Set(unique.map((p) => p.source))].join(", ")}`);
 
+  if (withPrice > 0 && uniquePrices < 10) {
+    console.log(
+      `\nWARNING: Only ${uniquePrices} unique prices found -- this may indicate price scraping issues.`
+    );
+  }
+
+  // Write to DB
   await writeToDatabase(unique);
 
   console.log("\nDone!");
