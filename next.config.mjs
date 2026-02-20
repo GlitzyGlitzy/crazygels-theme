@@ -6,6 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 /** @type {import('next').NextConfig} */
 // Crazy Gels Storefront - Production Build
 const nextConfig = {
+  reactCompiler: true,
   turbopack: {
     root: __dirname,
   },

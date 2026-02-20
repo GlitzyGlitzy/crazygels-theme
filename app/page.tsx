@@ -17,8 +17,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[var(--bio-dark)]">
       {/* Announcement Bar */}
-      <div className="bg-[var(--bio-teal)] py-2.5">
-        <p className="text-center text-[11px] font-medium tracking-[0.2em] text-[var(--bio-dark)] uppercase">
+      <div className="bg-[var(--bio-teal)] py-2 md:py-2.5">
+        <p className="text-center text-[10px] md:text-[11px] font-medium tracking-[0.15em] md:tracking-[0.2em] text-[var(--bio-dark)] uppercase px-4">
           Free Bio-Analysis for All New Members — Start Optimizing Today
         </p>
       </div>

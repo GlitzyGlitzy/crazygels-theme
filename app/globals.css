@@ -137,6 +137,7 @@
   --bio-text-muted: #777777;
 }
 
+/* Non-critical animations -- only render when element is in viewport */
 @keyframes scan-line {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(100%); }
@@ -144,6 +145,7 @@
 
 .animate-scan {
   animation: scan-line 3s ease-in-out infinite;
+  content-visibility: auto;
 }
 
 @keyframes pulse-ring {
@@ -161,6 +163,20 @@
 
 .animate-bar {
   animation: count-bar 1.5s ease-out forwards;
+}
+
+/* Reduce animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-scan,
+  .animate-pulse-ring,
+  .animate-bar,
+  .animate-marquee,
+  .animate-float,
+  .animate-bounce-slow,
+  .animate-pulse,
+  .animate-gradient {
+    animation: none !important;
+  }
 }
 
 /* CrazyGels Luxury Editorial Theme */
@@ -273,13 +289,16 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Defer rendering of below-fold sections on mobile for faster FCP/LCP */
+@media (max-width: 768px) {
+  section:nth-child(n+3) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
+  }
+}
+
 /* Better touch targets on mobile */
 @media (max-width: 768px) {
-  button, a {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  
   /* Fix iOS input zoom */
   input, select, textarea {
     font-size: 16px !important;
