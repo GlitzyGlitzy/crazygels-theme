@@ -30,6 +30,13 @@ const EXAMPLE_MAPPING = `# Paste your ASIN to product mappings below (one per li
 
 `;
 
+function ResultIcon({ status, imported, scraped }: { status: string; imported: number; scraped: number }) {
+  if (status === 'pending') return <Loader2 className="w-5 h-5 text-[#9E6B73] animate-spin shrink-0" />;
+  if (status === 'success' && imported > 0) return <CheckCircle className="w-5 h-5 text-[#4A7C59] shrink-0" />;
+  if (status === 'success' && scraped === 0) return <AlertTriangle className="w-5 h-5 text-[#C4973B] shrink-0" />;
+  return <XCircle className="w-5 h-5 text-red-500 shrink-0" />;
+}
+
 export default function ImportReviewsPage() {
   const [mappingText, setMappingText] = useState(EXAMPLE_MAPPING);
   const [marketplace, setMarketplace] = useState('de');
@@ -166,7 +173,7 @@ export default function ImportReviewsPage() {
                 <li>Reviews appear on your product pages within 1 hour (cache)</li>
               </ol>
               <p className="text-xs text-[#8A7B6F] mt-3">
-                To find your Shopify product ID: go to Shopify Admin {'>'} Products {'>'} click a product {'>'} the number in the URL is the ID.
+                To find your Shopify product ID: go to Shopify Admin &rsaquo; Products &rsaquo; click a product &rsaquo; the number in the URL is the ID.
                 Or use the product export CSV from the Export admin page.
               </p>
             </div>
@@ -251,22 +258,14 @@ export default function ImportReviewsPage() {
                 key={i}
                 className="bg-white border border-[#E8E4DC] rounded-xl p-4 flex items-center gap-4"
               >
-                {result.status === 'pending' ? (
-                  <Loader2 className="w-5 h-5 text-[#9E6B73] animate-spin shrink-0" />
-                ) : result.status === 'success' && result.imported > 0 ? (
-                  <CheckCircle className="w-5 h-5 text-[#4A7C59] shrink-0" />
-                ) : result.status === 'success' && result.scraped === 0 ? (
-                  <AlertTriangle className="w-5 h-5 text-[#C4973B] shrink-0" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-red-500 shrink-0" />
-                )}
+                <ResultIcon status={result.status} imported={result.imported} scraped={result.scraped} />
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm text-[#2C2420] font-medium">
                       {result.asin}
                     </span>
-                    <span className="text-[#E8E4DC]">{'>'}</span>
+                    <span className="text-[#E8E4DC]">&rsaquo;</span>
                     <span className="text-sm text-[#6B5B4F] truncate">{result.handle}</span>
                   </div>
                   <p className="text-xs text-[#8A7B6F] mt-0.5">{result.message}</p>
