@@ -7,6 +7,8 @@ import { ProductInfo } from '@/components/products/product-info';
 import { buildSeoTitle, buildSeoDescription, buildProductJsonLd, buildBreadcrumbJsonLd } from '@/lib/seo';
 import { formatPrice } from '@/lib/utils';
 import { ProductViewTracker } from '@/components/klaviyo/product-view-tracker';
+import { getProductReviews, extractShopifyProductId } from '@/lib/judgeme';
+import { ProductReviews } from '@/components/products/product-reviews';
 
 export const revalidate = 600; // 10 minutes -- Shopify data doesn't change that often
 import { ProductGrid, ProductGridSkeleton } from '@/components/products/product-grid';
@@ -90,10 +92,15 @@ export default async function ProductPage({
     notFound();
   }
 
-  // Extract Loox review data for AggregateRating in structured data
+  // Fetch Judge.me reviews for this product
+  const shopifyProductId = extractShopifyProductId(product.id);
+  const { reviews: judgemeReviews, rating: judgemeRating, reviewCount: judgemeReviewCount } =
+    await getProductReviews(shopifyProductId);
+
+  // Use Judge.me data for structured data AggregateRating
   const ratingData = {
-    avgRating: product.looxAvgRating?.value ? parseFloat(product.looxAvgRating.value) : undefined,
-    reviewCount: product.looxNumReviews?.value ? parseInt(product.looxNumReviews.value, 10) : undefined,
+    avgRating: judgemeReviewCount > 0 ? judgemeRating : undefined,
+    reviewCount: judgemeReviewCount > 0 ? judgemeReviewCount : undefined,
   };
   const productJsonLd = buildProductJsonLd(product, ratingData);
   const breadcrumbJsonLd = buildBreadcrumbJsonLd(product.title, handle, product.productType);
@@ -198,6 +205,14 @@ export default async function ProductPage({
             />
           </section>
         )}
+
+        {/* Judge.me Reviews */}
+        <ProductReviews
+          reviews={judgemeReviews}
+          rating={judgemeRating}
+          reviewCount={judgemeReviewCount}
+          productTitle={product.title}
+        />
 
         {/* Related Products */}
         <Suspense fallback={<ProductGridSkeleton count={4} />}>

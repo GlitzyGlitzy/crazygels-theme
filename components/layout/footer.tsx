@@ -65,7 +65,6 @@ export function Footer() {
               { name: "Skin Optimization", href: "/collections/skincare" },
               { name: "Scalp & Hair System", href: "/collections/haircare" },
               { name: "Nail Intelligence", href: "/collections/gel-nail-wraps" },
-              { name: "Fragrances", href: "/collections/fragrances" },
               { name: "Bio-Tools", href: "/collections/treatments" },
             ] },
             { title: "Help", links: [

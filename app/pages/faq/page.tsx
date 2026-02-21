@@ -33,7 +33,7 @@ const faqs = [
     questions: [
       {
         q: "What types of products do you sell?",
-        a: "We offer skincare, haircare, nail products (semi-cured gel wraps), fragrances, and beauty tools/treatments. All curated to work as part of an interconnected biological optimization system.",
+        a: "We offer skincare, haircare, nail products (semi-cured gel wraps), collagen masks, and beauty tools/treatments. All curated to work as part of an interconnected biological optimization system.",
       },
       {
         q: "Are your products tested on animals?",

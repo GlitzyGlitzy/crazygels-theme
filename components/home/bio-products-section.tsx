@@ -58,9 +58,7 @@ const VIRTUAL_KEYWORDS: Record<string, string[]> = {
     "collagen", "mask", "face mask", "overnight mask", "sleeping mask", "sheet mask",
     "moisturizing cream", "moisturizer", "face cream", "night cream", "day cream",
   ],
-  fragrances: [
-    "fragrance", "perfume", "parfum", "eau de", "body mist", "scent", "cologne", "duft",
-  ],
+
 }
 
 async function CollectionProducts({
