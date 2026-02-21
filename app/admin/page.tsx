@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package } from 'lucide-react';
+import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package, Star } from 'lucide-react';
 
 const adminTools = [
   {
@@ -40,6 +40,14 @@ const adminTools = [
       'Smart-match Shopify products to scraped intelligence. Fuzzy name + ingredient + price tier matching with confidence scoring.',
     href: '/admin/enrichment',
     icon: Sparkles,
+    accent: '#C4963C',
+  },
+  {
+    title: 'Amazon Review Importer',
+    description:
+      'Bulk import Amazon reviews by ASIN. Scrapes reviews and pushes them directly to Judge.me for display on product pages.',
+    href: '/admin/import-reviews',
+    icon: Star,
     accent: '#C4963C',
   },
   {
