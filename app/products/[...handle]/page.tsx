@@ -92,10 +92,11 @@ export default async function ProductPage({
     notFound();
   }
 
-  // Fetch Judge.me reviews for this product
+  // Fetch Judge.me reviews -- tries Shopify product ID first, then falls back
+  // to handle-based lookup (catches Amazon/AliExpress imported reviews)
   const shopifyProductId = extractShopifyProductId(product.id);
   const { reviews: judgemeReviews, rating: judgemeRating, reviewCount: judgemeReviewCount } =
-    await getProductReviews(shopifyProductId);
+    await getProductReviews(shopifyProductId, handle);
 
   // Use Judge.me data for structured data AggregateRating
   const ratingData = {
