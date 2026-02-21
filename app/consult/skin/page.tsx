@@ -6,6 +6,7 @@ import { DefaultChatTransport, UIMessage } from 'ai';
 import Link from 'next/link';
 
 import { ArrowLeft, Send, Loader2, Sparkles, User, RefreshCcw, Droplets, ShoppingBag, ExternalLink } from 'lucide-react';
+import { SignupGate } from '@/components/consult/signup-gate';
 
 function getUIMessageText(msg: UIMessage): string {
   if (!msg.parts || !Array.isArray(msg.parts)) return '';
@@ -150,6 +151,7 @@ export default function SkinConsultPage() {
   };
 
   return (
+    <SignupGate consultType="skin">
     <div className="min-h-screen bg-[#FAFAF8] flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#FAFAF8]/95 backdrop-blur-xl border-b border-[#E8E4DC]">
@@ -324,5 +326,6 @@ export default function SkinConsultPage() {
         </div>
       </footer>
     </div>
+    </SignupGate>
   );
 }
