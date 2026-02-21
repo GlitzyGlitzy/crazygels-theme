@@ -20,7 +20,7 @@ const consultFaqs = [
   },
   {
     question: 'Is the beauty consultation free?',
-    answer: 'Yes, the virtual beauty consultation is completely free. You can get personalized skin and hair care recommendations at any time, with no obligation to purchase.',
+    answer: 'Yes, the virtual beauty consultation is completely free. Just enter your email to get started and receive personalized skin and hair care recommendations, with no obligation to purchase.',
   },
   {
     question: 'What types of consultations are available?',
@@ -28,7 +28,7 @@ const consultFaqs = [
   },
   {
     question: 'Is my personal information kept private?',
-    answer: 'Absolutely. Your consultation data is never stored or shared with third parties. We prioritize your privacy and security throughout the entire process.',
+    answer: 'Absolutely. Your email is only used to deliver your personalized results and occasional beauty tips. You can unsubscribe at any time. Your consultation data is never shared with third parties.',
   },
   {
     question: 'How accurate are the product recommendations?',

@@ -264,6 +264,7 @@ ${hasSale ? `      <g:price>${compareAtPrice} ${currency}</g:price>\n      <g:sa
       <g:product_type>${escapeXml(p.productType || 'Beauty')}</g:product_type>
 ${color ? `      <g:color>${escapeXml(color)}</g:color>\n` : ''}${size ? `      <g:size>${escapeXml(size)}</g:size>\n` : ''}${material ? `      <g:material>${escapeXml(material)}</g:material>\n` : ''}${style ? `      <g:pattern>${escapeXml(style)}</g:pattern>\n` : ''}      <g:gender>unisex</g:gender>
       <g:age_group>adult</g:age_group>
+${p.tags && Array.isArray(p.tags) && p.tags.length > 0 ? `      <g:custom_label_0>${escapeXml(p.tags[0] || '')}</g:custom_label_0>\n` : ''}${p.productType ? `      <g:custom_label_1>${escapeXml(p.productType)}</g:custom_label_1>\n` : ''}${hasSale ? `      <g:custom_label_2>Sale</g:custom_label_2>\n` : ''}
 ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:item_group_id>\n` : ''}      <g:identifier_exists>false</g:identifier_exists>
       <g:shipping>
         <g:country>DE</g:country>
@@ -451,7 +452,9 @@ ${items.join('\n')}
       status: 200,
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
-        'Cache-Control': 'public, max-age=21600, s-maxage=21600', // 6 hours
+        // Cache for 1 hour at CDN, revalidate in background. Feed serves
+        // live Shopify prices -- shorter cache = faster price updates.
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600, stale-while-revalidate=1800',
       },
     });
   } catch (error) {
