@@ -3,8 +3,9 @@ import { getAllProducts, getCollections, getBlogs, getAllBlogArticles, isShopify
 
 const BASE_URL = 'https://crazygels.com';
 
-// Revalidate sitemap every 2 hours (products/collections update frequently)
-export const revalidate = 7200;
+// Revalidate sitemap every 1 hour -- picks up new products, price changes,
+// and category updates from Shopify quickly.
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
@@ -41,33 +42,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Products with images for Google Image Search ──
   try {
     const products = await getAllProducts({});
-    productPages = (products || []).map((product) => {
-      // Get product images for image sitemap
-      const images: { url: string; title?: string }[] = [];
-      if (product.featuredImage?.url) {
-        images.push({
-          url: product.featuredImage.url,
-          title: product.featuredImage.altText || product.title,
-        });
-      }
-      // Also include additional images from the product
-      const productImages = Array.isArray(product.images)
-        ? (product.images as { url: string; altText?: string }[])
-        : product.images?.edges?.map((e: { node: { url: string; altText?: string } }) => e.node) || [];
-      for (const img of productImages.slice(0, 5)) {
-        if (img.url && !images.some(i => i.url === img.url)) {
-          images.push({ url: img.url, title: img.altText || product.title });
+    productPages = (products || [])
+      .filter((product) => product.handle && product.title) // Skip products without handles
+      .map((product) => {
+        // Get product images for image sitemap
+        const images: { url: string; title?: string }[] = [];
+        if (product.featuredImage?.url) {
+          images.push({
+            url: product.featuredImage.url,
+            title: product.featuredImage.altText || product.title,
+          });
         }
-      }
+        // Also include additional images from the product
+        const productImages = Array.isArray(product.images)
+          ? (product.images as { url: string; altText?: string }[])
+          : product.images?.edges?.map((e: { node: { url: string; altText?: string } }) => e.node) || [];
+        for (const img of productImages.slice(0, 5)) {
+          if (img.url && !images.some(i => i.url === img.url)) {
+            images.push({ url: img.url, title: img.altText || product.title });
+          }
+        }
 
-      return {
-        url: `${BASE_URL}/products/${product.handle}`,
-        lastModified: product.updatedAt ? new Date(product.updatedAt) : now,
-        changeFrequency: 'weekly' as const,
-        priority: 0.8,
-        images: images.map(i => i.url),
-      };
-    });
+        // Higher priority for in-stock products
+        const isAvailable = product.availableForSale !== false;
+        const priority = isAvailable ? 0.8 : 0.5;
+
+        return {
+          url: `${BASE_URL}/products/${product.handle}`,
+          lastModified: product.updatedAt ? new Date(product.updatedAt) : now,
+          changeFrequency: 'weekly' as const,
+          priority,
+          images: images.map(i => i.url),
+        };
+      });
   } catch (e) {
     console.error('Sitemap: products fetch failed', e);
   }
