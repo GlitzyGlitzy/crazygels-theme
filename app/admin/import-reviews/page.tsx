@@ -1,5 +1,3 @@
-'use client';
-
 import dynamic from 'next/dynamic';
 
 const ImportReviewsContent = dynamic(() => import('./import-reviews-content'), {
