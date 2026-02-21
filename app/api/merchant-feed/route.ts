@@ -29,7 +29,7 @@ const BASE_URL = 'https://crazygels.com';
 
 // Google Product Category mappings
 // Aligned to Google Merchant Center trending search topics for Crazy Gels:
-// Skincare (85), Fragrances (54), Shampoo & Conditioner (19), Nail Polish (9),
+// Skincare (85), Shampoo & Conditioner (19), Nail Polish (9),
 // Moisturizing Creams (5), Artificial Nails (3), Toners (2), Conditioners (2)
 const GOOGLE_CATEGORIES: Record<string, string> = {
   // Nails
@@ -66,12 +66,6 @@ const GOOGLE_CATEGORIES: Record<string, string> = {
   'collagen masks': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
   'face mask': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
   'sheet mask': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
-  // Fragrances — #2 search volume (54 searches)
-  fragrance: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-  fragrances: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-  perfume: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-  parfum: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-  'body mist': 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
   // Treatments & tools
   treatments: 'Health & Beauty > Personal Care > Skin Care',
   serum: 'Health & Beauty > Personal Care > Skin Care > Facial Serums',

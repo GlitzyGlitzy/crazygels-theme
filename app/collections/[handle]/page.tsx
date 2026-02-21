@@ -85,11 +85,7 @@ const COLLECTION_SEO: Record<string, { title: string; description: string; keywo
     description: 'Discover the latest semi-cured gel nail designs at Crazy Gels. New arrivals in nail wraps, hair care, and skincare. Free EU shipping.',
     keywords: 'new gel nails, new nail designs, latest nail art, new arrivals',
   },
-  fragrances: {
-    title: 'Fragrances & Perfumes - Premium Scents | Crazy Gels',
-    description: 'Shop premium fragrances and perfumes at Crazy Gels. Discover your signature scent from our curated collection. Free EU shipping.',
-    keywords: 'fragrances, perfume, body mist, scent, eau de parfum',
-  },
+
 }
 
 export async function generateMetadata({
@@ -213,10 +209,6 @@ const COLLECTION_KEYWORDS: Record<string, string[]> = {
     'treatment', 'uv lamp', 'led lamp', 'nail lamp', 'nail prep', 'base coat',
     'top coat', 'cuticle', 'nail file', 'buffer', 'remover', 'acetone',
     'nail tool', 'application kit', 'nail kit', 'beauty tool', 'accessory',
-  ],
-  fragrances: [
-    'fragrance', 'perfume', 'parfum', 'cologne', 'body mist', 'eau de',
-    'scent', 'spray', 'aroma', 'toilette', 'deodorant', 'body spray',
   ],
 };
 

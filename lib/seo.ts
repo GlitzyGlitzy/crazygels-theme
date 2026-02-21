@@ -95,22 +95,7 @@ const PRODUCT_TYPE_KEYWORDS: Record<string, { suffix: string; category: string; 
     category: 'Skin',
     keywords: ['essence', 'facial essence', 'skin essence', 'hydrating essence'],
   },
-  // -- Fragrances (#2 search volume: 54 searches) --
-  fragrance: {
-    suffix: 'Premium Fragrance',
-    category: 'Fragrances',
-    keywords: ['fragrance', 'perfume', 'scent', 'eau de parfum', 'body mist'],
-  },
-  fragrances: {
-    suffix: 'Premium Fragrance',
-    category: 'Fragrances',
-    keywords: ['fragrances', 'perfume', 'perfumes', 'scent', 'eau de toilette'],
-  },
-  perfume: {
-    suffix: 'Luxury Perfume',
-    category: 'Fragrances',
-    keywords: ['perfume', 'fragrance', 'eau de parfum', 'luxury perfume'],
-  },
+
   // -- Treatments & Others --
   treatments: {
     suffix: 'Beauty Treatment',
@@ -183,10 +168,7 @@ export function buildSeoDescription(
       const desc = `Shop ${title} at Crazy Gels.${priceStr} Luxury skincare crafted with premium ingredients for radiant results. Free EU shipping.`;
       if (desc.length <= 160) return desc;
     }
-    if (category === 'fragrances') {
-      const desc = `Shop ${title} at Crazy Gels.${priceStr} Premium fragrances and perfumes for every occasion. Free EU shipping available.`;
-      if (desc.length <= 160) return desc;
-    }
+
   }
 
   // Fallback: use product description trimmed to 155 chars + CTA
@@ -227,10 +209,6 @@ const GOOGLE_PRODUCT_CATEGORIES: Record<string, string> = {
   serum: 'Health & Beauty > Personal Care > Skin Care > Facial Serums',
   'collagen masks': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
   'face mask': 'Health & Beauty > Personal Care > Skin Care > Facial Masks',
-  // Fragrances
-  fragrance: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-  fragrances: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
-  perfume: 'Health & Beauty > Personal Care > Cosmetics > Perfume & Cologne',
   // Treatments
   treatments: 'Health & Beauty > Personal Care > Skin Care',
 };
