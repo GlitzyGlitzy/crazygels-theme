@@ -210,15 +210,15 @@ export default function ImportReviewsPage() {
               className="flex items-center gap-2 px-5 py-2 bg-[#9E6B73] text-white text-sm font-medium rounded-lg hover:bg-[#8A5C64] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isRunning ? (
-                <>
+                <span className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Importing {currentIndex}/{totalProducts}...
-                </>
+                  <span>Importing {currentIndex}/{totalProducts}...</span>
+                </span>
               ) : (
-                <>
+                <span className="flex items-center gap-2">
                   <Upload className="w-4 h-4" />
-                  Import Reviews
-                </>
+                  <span>Import Reviews</span>
+                </span>
               )}
             </button>
           </div>
