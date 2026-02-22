@@ -1,5 +1,13 @@
 import Link from 'next/link';
-import { Instagram } from 'lucide-react';
+import { Instagram, Facebook } from 'lucide-react';
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 0 0-.79-.05A6.34 6.34 0 0 0 3.15 15a6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.71a8.21 8.21 0 0 0 4.76 1.52V6.79a4.85 4.85 0 0 1-1-.1z" />
+    </svg>
+  );
+}
 import { NewsletterForm } from '@/components/klaviyo/newsletter-form';
 import { CrazyGelsIcon } from '@/components/ui/crazy-gels-logo';
 
@@ -41,22 +49,33 @@ export function Footer() {
               The first biohacking beauty platform treating skin, hair, and nails as one interconnected biological system.
             </p>
             <div className="flex gap-3">
-              {[
-                { name: "Instagram", label: "Follow us on Instagram", href: "https://www.instagram.com/crazy.gels" },
-                { name: "TikTok", label: "Follow us on TikTok", href: "https://www.tiktok.com/@cazygels" },
-                { name: "Facebook", label: "Follow us on Facebook", href: "https://www.facebook.com/crazygels" }
-              ].map((social) => (
-                <a
-                  key={social.name}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-[#E8E8E8]/5 border border-[#00D4AA]/20 flex items-center justify-center text-[#E8E8E8]/60 hover:text-[#00D4AA] hover:border-[#00D4AA]/50 transition-all"
-                  aria-label={social.label}
-                >
-                  <Instagram className="w-5 h-5" aria-hidden="true" />
-                </a>
-              ))}
+              <a
+                href="https://www.instagram.com/crazy.gels"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#E8E8E8]/5 border border-[#00D4AA]/20 flex items-center justify-center text-[#E8E8E8]/60 hover:text-[#00D4AA] hover:border-[#00D4AA]/50 transition-all"
+                aria-label="Follow us on Instagram"
+              >
+                <Instagram className="w-5 h-5" aria-hidden="true" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@crazygels"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#E8E8E8]/5 border border-[#00D4AA]/20 flex items-center justify-center text-[#E8E8E8]/60 hover:text-[#00D4AA] hover:border-[#00D4AA]/50 transition-all"
+                aria-label="Follow us on TikTok"
+              >
+                <TikTokIcon className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.facebook.com/crazygels"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 rounded-full bg-[#E8E8E8]/5 border border-[#00D4AA]/20 flex items-center justify-center text-[#E8E8E8]/60 hover:text-[#00D4AA] hover:border-[#00D4AA]/50 transition-all"
+                aria-label="Follow us on Facebook"
+              >
+                <Facebook className="w-5 h-5" aria-hidden="true" />
+              </a>
             </div>
           </div>
 
