@@ -1,17 +1,67 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 /**
- * Proxy that catches ALL old Shopify locale-prefix URLs and strips the prefix.
- *
- * Shopify stores can have 20+ locale prefixes like /en, /de, /fr, /fi, /it, /es, /nl,
- * /ja, /ko, /pt, /sv, /da, /pl, /cs, /th, /zh-CN, /zh-TW, etc.
- *
- * Instead of adding individual redirect rules for each locale in next.config.mjs,
- * this proxy uses a regex to match all 2-letter and xx-XX locale prefixes
- * and issues a single 301 redirect to the path without the prefix.
- *
- * This preserves all Google Search Console traffic from old Shopify locale URLs.
+ * Proxy that:
+ * 1. Blocks known bots, scrapers, and suspicious traffic
+ * 2. Catches ALL old Shopify locale-prefix URLs and strips the prefix
+ * 3. Flattens Shopify collection-nested product URLs
  */
+
+// ── Bot Protection ──────────────────────────────────────────────────────────
+
+// Known malicious bot / scraper user-agent keywords (lowercase)
+const BLOCKED_UA_KEYWORDS = [
+  'semrush', 'ahrefs', 'dotbot', 'mj12bot', 'blexbot', 'seekport',
+  'megaindex', 'serpstat', 'dataforseo', 'zoominfobot', 'censys',
+  'netcrawl', 'scanning', 'masscan', 'zgrab', 'httpclient',
+  'python-requests', 'python-urllib', 'go-http-client', 'java/',
+  'libwww-perl', 'wget', 'curl/', 'scrapy', 'headlesschrome',
+  'phantomjs', 'selenium', 'puppeteer', 'nightmare', 'sqlmap',
+  'nikto', 'nmap', 'dirbuster', 'gobuster', 'nuclei', 'httpx',
+  'petalbot', 'bytespider', 'bytedance', 'yandexbot', 'baiduspider',
+  'sogou', 'exabot', 'ahc/', 'cf-browser', 'coccocbot',
+];
+
+// Paths that bots commonly probe (vulnerability scanners)
+const BLOCKED_PATHS = [
+  '/wp-admin', '/wp-login', '/wp-content', '/wp-includes',
+  '/xmlrpc.php', '/.env', '/.git', '/phpmyadmin',
+  '/admin.php', '/administrator', '/config.php',
+  '/vendor/', '/node_modules/', '/debug/', '/test/',
+  '/.well-known/security.txt',
+];
+
+// File extensions bots scan for
+const BLOCKED_EXTENSIONS = [
+  '.php', '.asp', '.aspx', '.jsp', '.cgi', '.sql', '.bak', '.old',
+  '.log', '.ini', '.conf', '.yml', '.yaml', '.toml', '.sh', '.bash',
+];
+
+function isBlockedBot(request: NextRequest): boolean {
+  const ua = (request.headers.get('user-agent') || '').toLowerCase();
+  const { pathname } = request.nextUrl;
+  const pathLower = pathname.toLowerCase();
+
+  // 1. Block empty user-agents (almost always bots)
+  if (!ua || ua.length < 10) return true;
+
+  // 2. Block known bad user-agent keywords
+  if (BLOCKED_UA_KEYWORDS.some((kw) => ua.includes(kw))) return true;
+
+  // 3. Block probes to common vulnerability paths
+  if (BLOCKED_PATHS.some((p) => pathLower.startsWith(p))) return true;
+
+  // 4. Block requests for non-web file extensions
+  if (BLOCKED_EXTENSIONS.some((ext) => pathLower.endsWith(ext))) return true;
+
+  // 5. Block requests with no accept header (most real browsers send one)
+  const accept = request.headers.get('accept');
+  if (!accept && request.method === 'GET') return true;
+
+  return false;
+}
+
+// ── Locale Handling ─────────────────────────────────────────────────────────
 
 // All known Shopify locale prefixes (2-letter ISO 639-1 codes + regional variants)
 const SHOPIFY_LOCALE_PREFIXES = new Set([
@@ -31,6 +81,11 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
 ]);
 
 export default function proxy(request: NextRequest) {
+  // ── 0. Bot protection ──
+  if (isBlockedBot(request)) {
+    return new NextResponse('Not Found', { status: 404 });
+  }
+
   const { pathname } = request.nextUrl;
   const url = request.nextUrl.clone();
 
