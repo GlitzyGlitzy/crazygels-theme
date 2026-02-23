@@ -7,14 +7,10 @@
  *   Mindestpreisspanne, Maximale Preisspanne, Preisspanne Währung, GTINs
  */
 
-import { neon } from '@neondatabase/serverless';
-import { readFileSync } from 'fs';
-import { createHash } from 'crypto';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const { neon } = require('@neondatabase/serverless');
+const { readFileSync } = require('fs');
+const { createHash } = require('crypto');
+const { join } = require('path');
 
 const DATABASE_URL = process.env.DATABASE_URL;
 if (!DATABASE_URL) {
