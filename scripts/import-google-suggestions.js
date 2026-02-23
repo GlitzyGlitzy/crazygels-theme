@@ -54,83 +54,75 @@ function priceTier(minP, maxP) {
   return 'luxury';
 }
 
+function esc(val) {
+  if (val === null || val === undefined) return 'NULL';
+  return "'" + String(val).replace(/'/g, "''") + "'";
+}
+
 (async function main() {
   try {
     console.log('[v0] Fetching CSV...');
-    var csvUrl = 'https://blobs.vusercontent.net/blob/Produkte%20und%20Marken%2C%20die%20Kunden%20auf%20Google%20kaufen_2026-02-22_20_55_48-Usz9zwHRsTcowOdzwIyMHr25EhXKBt.csv';
-    var res = await fetch(csvUrl);
-    if (!res.ok) { console.error('Fetch failed: ' + res.status); return; }
+    var res = await fetch('https://blobs.vusercontent.net/blob/Produkte%20und%20Marken%2C%20die%20Kunden%20auf%20Google%20kaufen_2026-02-22_20_55_48-Usz9zwHRsTcowOdzwIyMHr25EhXKBt.csv');
     var raw = await res.text();
-    console.log('[v0] CSV fetched, size: ' + raw.length + ' chars');
-
     var lines = raw.split('\n').filter(function(l) { return l.trim().length > 0; });
     var dataLines = lines.slice(3);
     console.log('[v0] Data rows: ' + dataLines.length);
 
-    var imported = 0;
+    // Build ALL value tuples, deduplicating by product_hash
+    var seenHashes = {};
+    var allValues = [];
     var skipped = 0;
-    var errors = 0;
-
+    var dupes = 0;
     for (var i = 0; i < dataLines.length; i++) {
+      var fields = parseCSVLine(dataLines[i]);
+      if (fields.length < 4) { skipped++; continue; }
+      var title = fields[1];
+      var brand = fields[2];
+      if (!title || title === 'Titel') { skipped++; continue; }
+      var rank = parseInt(fields[0], 10);
+      var minPrice = fields[4] ? parseFloat(fields[4]) : null;
+      var maxPrice = fields[5] ? parseFloat(fields[5]) : null;
+      var currency = fields[6];
+      var ph = makeHash(title, brand);
+
+      // Skip duplicates within the CSV
+      if (seenHashes[ph]) { dupes++; continue; }
+      seenHashes[ph] = true;
+
+      var cat = guessCategory(title);
+      var tier = priceTier(minPrice, maxPrice);
+
+      allValues.push('(' + [
+        esc(ph), esc(title), esc(brand || null), esc(cat), esc(tier),
+        maxPrice !== null ? maxPrice : 'NULL',
+        minPrice !== null ? minPrice : 'NULL',
+        esc(currency || 'EUR'), esc('google_suggestion'), esc('research'),
+        esc(fields[3] || null), esc('google_rank_' + rank), 'NOW()', 'NOW()'
+      ].join(',') + ')');
+    }
+    console.log('[v0] Parsed ' + allValues.length + ' unique products, skipped ' + skipped + ', dupes ' + dupes);
+
+    // Insert in large batches of 500 using sql.query (only ~15 network calls)
+    var BATCH = 500;
+    var imported = 0;
+    var errors = 0;
+    var prefix = 'INSERT INTO product_catalog (product_hash,display_name,brand,category,price_tier,price_original,retail_price,price_currency,source,status,review_signals,acquisition_lead,created_at,updated_at) VALUES ';
+    var suffix = ' ON CONFLICT (product_hash) DO UPDATE SET review_signals=EXCLUDED.review_signals,acquisition_lead=EXCLUDED.acquisition_lead,price_original=COALESCE(EXCLUDED.price_original,product_catalog.price_original),retail_price=COALESCE(EXCLUDED.retail_price,product_catalog.retail_price),updated_at=NOW()';
+
+    for (var b = 0; b < allValues.length; b += BATCH) {
+      var chunk = allValues.slice(b, b + BATCH);
       try {
-        var fields = parseCSVLine(dataLines[i]);
-        if (fields.length < 4) { skipped++; continue; }
-
-        var title = fields[1];
-        var brand = fields[2];
-        var availability = fields[3];
-        var minPStr = fields[4];
-        var maxPStr = fields[5];
-        var currency = fields[6];
-
-        if (!title || title === 'Titel') { skipped++; continue; }
-
-        var rank = parseInt(fields[0], 10);
-        var minPrice = minPStr ? parseFloat(minPStr) : null;
-        var maxPrice = maxPStr ? parseFloat(maxPStr) : null;
-        var ph = makeHash(title, brand);
-        var cat = guessCategory(title);
-        var tier = priceTier(minPrice, maxPrice);
-        var br = brand || null;
-        var cur = currency || 'EUR';
-        var avail = availability || null;
-        var lead = 'google_rank_' + rank;
-
-        await sql`INSERT INTO product_catalog
-          (product_hash, display_name, brand, category, price_tier,
-           price_original, retail_price, price_currency, source, status,
-           review_signals, acquisition_lead, created_at, updated_at)
-          VALUES
-          (${ph}, ${title}, ${br}, ${cat}, ${tier},
-           ${maxPrice}, ${minPrice}, ${cur}, ${'google_suggestion'}, ${'research'},
-           ${avail}, ${lead}, NOW(), NOW())
-          ON CONFLICT (product_hash) DO UPDATE SET
-            review_signals = EXCLUDED.review_signals,
-            acquisition_lead = EXCLUDED.acquisition_lead,
-            price_original = COALESCE(EXCLUDED.price_original, product_catalog.price_original),
-            retail_price = COALESCE(EXCLUDED.retail_price, product_catalog.retail_price),
-            updated_at = NOW()`;
-
-        imported++;
+        await sql.query(prefix + chunk.join(',') + suffix);
+        imported += chunk.length;
+        console.log('[v0] Batch ' + Math.floor(b / BATCH + 1) + ': inserted ' + chunk.length + ' (total: ' + imported + ')');
       } catch (e) {
-        errors++;
-        if (errors <= 5) console.error('[v0] Row ' + i + ' error: ' + e.message);
-      }
-
-      if ((i + 1) % 500 === 0) {
-        console.log('[v0] Progress: ' + (i + 1) + '/' + dataLines.length + ' (imported=' + imported + ', errors=' + errors + ')');
+        errors += chunk.length;
+        console.error('[v0] Batch error at ' + b + ': ' + e.message.substring(0, 200));
       }
     }
 
-    console.log('[v0] Import complete: imported=' + imported + ', skipped=' + skipped + ', errors=' + errors);
-
-    var summary = await sql`SELECT category, COUNT(*)::int AS cnt FROM product_catalog WHERE source = ${'google_suggestion'} GROUP BY category ORDER BY cnt DESC`;
-    console.log('[v0] By category:');
-    for (var j = 0; j < summary.length; j++) {
-      console.log('  ' + summary[j].category + ': ' + summary[j].cnt);
-    }
+    console.log('[v0] DONE: imported=' + imported + ', skipped=' + skipped + ', errors=' + errors);
   } catch (e) {
     console.error('[v0] Fatal: ' + e.message);
-    console.error(e.stack);
   }
 })();
