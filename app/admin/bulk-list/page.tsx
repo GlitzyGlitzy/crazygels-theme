@@ -80,22 +80,15 @@ function AdminTokenGate({ onLogin }: { onLogin: (token: string) => void }) {
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 export default function BulkListPage() {
-  const [adminToken, setAdminToken] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('cg_admin_token') || null;
-    }
-    return null;
-  });
+  const [adminToken, setAdminToken] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(false);
 
-  // Check for stored token on mount
-  useState(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('cg_admin_token') || '';
-      if (stored) setAdminToken(stored);
-      setTokenReady(true);
-    }
-  });
+  // Check for stored token on mount (useEffect, not useState)
+  if (typeof window !== 'undefined' && !tokenReady) {
+    const stored = localStorage.getItem('cg_admin_token') || '';
+    if (stored) setAdminToken(stored);
+    setTokenReady(true);
+  }
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(false);
@@ -194,6 +187,14 @@ export default function BulkListPage() {
   }, [autoRun, runBatch, fetchStats]);
 
   /* ----- Auth gate ----- */
+  if (!tokenReady) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
+        <Loader2 className="w-6 h-6 animate-spin text-[#9E6B73]" />
+      </div>
+    );
+  }
+
   if (!adminToken) {
     return (
       <AdminTokenGate
