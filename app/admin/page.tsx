@@ -1,7 +1,15 @@
 import Link from 'next/link';
-import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package, Star } from 'lucide-react';
+import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package, Star, Rocket } from 'lucide-react';
 
 const adminTools = [
+  {
+    title: 'Bulk Product Launcher',
+    description:
+      'Push all intelligence products with images to Shopify in bulk. Competitive pricing from Google benchmarks. Activate and set inventory in one click.',
+    href: '/admin/bulk-list',
+    icon: Rocket,
+    accent: '#B76E79',
+  },
   {
     title: 'Product Intelligence',
     description:
