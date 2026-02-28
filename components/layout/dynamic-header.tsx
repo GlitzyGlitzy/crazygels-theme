@@ -61,8 +61,9 @@ const menuItems: MenuItem[] = [
   },
   { label: "Blog", href: "/blog" },
   {
-    label: "Consult",
+    label: "Free Consult",
     href: "/consult",
+    color: "#B76E79",
     submenu: [
       { label: "Skin Consultation", href: "/consult/skin" },
       { label: "Hair Consultation", href: "/consult/hair" },

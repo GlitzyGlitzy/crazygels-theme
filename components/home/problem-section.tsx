@@ -10,31 +10,32 @@ export function ProblemSection() {
         </p>
 
         <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-light text-[var(--bio-text)] text-center mb-8 leading-tight text-balance">
-          {"You're Not a Collection of Parts."}
+          {"Too Many Products."}
           <br />
-          <span className="text-[var(--bio-text-muted)]">So Why Treat Yourself Like One?</span>
+          <span className="text-[var(--bio-text-muted)]">Not Enough Guidance.</span>
         </h2>
 
         <div className="space-y-6 text-base md:text-lg text-[var(--bio-text-muted)] leading-relaxed max-w-3xl mx-auto">
           <p>
-            Your dermatologist looks at your skin. Your trichologist looks at your hair.
-            Your manicurist looks at your nails.{" "}
+            Thousands of skincare, hair care, and nail products. Endless influencer recommendations.{" "}
             <span className="text-[var(--bio-text)]">
-              None of them talk to each other. None of them see the system.
+              How do you know what actually works for you?
             </span>
           </p>
 
           <p>
-            The truth:{" "}
+            The reality:{" "}
             <span className="text-[var(--bio-teal)]">
-              brittle nails + thinning hair + dull skin = one biological signal.
+              most people waste money on products that are not right for their skin type, hair
+              texture, or nail concerns.
             </span>{" "}
-            Collagen breakdown. Nutrient deficiency. Oxidative stress. Hormonal disruption.
+            Generic advice leads to generic results.
           </p>
 
           <p>
-            The waste: buying 12 products from 8 brands that don&apos;t know each other exist.
-            Hoping something works. Never knowing why it doesn&apos;t.
+            What you need is an expert who understands your unique needs and recommends
+            the right products -- not the most expensive ones, not the most hyped ones,
+            but the right ones for you.
           </p>
         </div>
 

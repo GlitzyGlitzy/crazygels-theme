@@ -3,23 +3,23 @@ import { Eye, Cloud, Factory, Lock } from "lucide-react"
 const techStack = [
   {
     icon: Eye,
-    title: "GPT-4V Multimodal AI",
-    description: "Analyzes visual biomarkers invisible to the human eye across skin, scalp, and nail surfaces.",
+    title: "AI-Powered Matching",
+    description: "Our consultant analyzes your concerns and matches you with the right products from thousands of options.",
   },
   {
     icon: Cloud,
-    title: "Environmental APIs",
-    description: "Real-time UV, pollution, humidity, and water hardness integration for adaptive formulations.",
+    title: "Expert Knowledge Base",
+    description: "Recommendations built on dermatologist-approved guidelines and real customer reviews.",
   },
   {
     icon: Factory,
-    title: "Micro-Batch Manufacturing",
-    description: "100-unit minimum, 24-hour turnaround. True personalization, not mass-produced segments.",
+    title: "Curated Catalog",
+    description: "Every product in our store is hand-selected for quality, efficacy, and value from trusted brands.",
   },
   {
     icon: Lock,
-    title: "Blockchain Traceability",
-    description: "Every ingredient, every batch, every outcome logged. Full transparency from lab to skin.",
+    title: "Privacy First",
+    description: "Your data stays yours. GDPR-compliant. No tracking, no selling data, no spam.",
   },
 ]
 
@@ -31,12 +31,12 @@ export function TechnologySection() {
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12">
         <div className="text-center mb-12 md:mb-16">
           <p className="text-[11px] font-medium tracking-[0.3em] text-[var(--bio-teal)] uppercase mb-4">
-            The Technology
+            Why Crazy Gels
           </p>
           <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-light text-[var(--bio-text)] text-balance">
-            Computer Vision. Biological Intelligence.
+            Smart Recommendations.
             <br />
-            <span className="text-[var(--bio-teal)]">Precision Manufacturing.</span>
+            <span className="text-[var(--bio-teal)]">Trusted Products.</span>
           </h2>
         </div>
 
@@ -57,9 +57,9 @@ export function TechnologySection() {
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 py-6 px-6 border border-[var(--bio-teal)]/10 bg-[var(--bio-teal)]/5 text-center md:text-left">
           <Lock className="w-5 h-5 text-[var(--bio-teal)] shrink-0" />
           <p className="text-sm text-[var(--bio-text-muted)]">
-            Your biological data is{" "}
-            <span className="text-[var(--bio-text)]">encrypted, anonymized, and never sold.</span>{" "}
-            GDPR-compliant. EU-hosted. You own your Bio-Profile.
+            Your personal data is{" "}
+            <span className="text-[var(--bio-text)]">encrypted, private, and never sold.</span>{" "}
+            GDPR-compliant. EU-hosted. We respect your privacy.
           </p>
         </div>
       </div>
