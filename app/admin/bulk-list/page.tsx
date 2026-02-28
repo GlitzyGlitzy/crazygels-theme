@@ -106,12 +106,15 @@ export default function BulkListPage() {
     if (!adminToken) return;
     setLoading(true);
     setStatusMessage('');
+    console.log("[v0] fetchStats called with token:", adminToken?.substring(0, 5) + "...");
     try {
       const res = await fetch('/api/admin/bulk-list', {
         headers: { 'x-admin-token': adminToken },
       });
+      console.log("[v0] fetchStats response status:", res.status);
       if (!res.ok) {
         const err = await res.json();
+        console.log("[v0] fetchStats error body:", err);
         setStatusMessage(`Error: ${err.error || res.statusText}`);
         setLoading(false);
         return;
