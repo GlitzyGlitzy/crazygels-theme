@@ -123,6 +123,19 @@ function getGoogleCategory(productType: string, title: string): string {
   return DEFAULT_CATEGORY;
 }
 
+/**
+ * Upgrade Shopify CDN image URLs to high resolution (1200x1200).
+ * Google recommends at least 800x800 for Shopping ads; 1200x1200 is ideal.
+ * Shopify CDN supports on-the-fly resizing via _WIDTHxHEIGHT suffix.
+ */
+function highResImage(url: string): string {
+  if (!url) return url;
+  // Remove any existing Shopify size suffix (e.g. _100x100, _small, _medium, _large, _grande)
+  const cleaned = url.replace(/(_\d+x\d+|_small|_medium|_large|_grande|_master|_compact|_pico|_icon|_thumb)(\.[a-z]+)/i, '$2');
+  // Insert 1200x1200 size before the file extension
+  return cleaned.replace(/(\.[a-z]+)(\?.*)?$/i, '_1200x1200$1$2');
+}
+
 function extractOption(
   selectedOptions: { name: string; value: string }[],
   ...names: string[]
@@ -247,8 +260,8 @@ export async function GET() {
       <g:description>${escapeXml(seoDescription || description)}</g:description>
       <g:link>${escapeXml(variantUrl)}</g:link>
       <g:canonical_link>${escapeXml(productUrl)}</g:canonical_link>
-      <g:image_link>${escapeXml(variantImage)}</g:image_link>
-${additionalImages.map((img: string) => `      <g:additional_image_link>${escapeXml(img)}</g:additional_image_link>`).join('\n')}
+      <g:image_link>${escapeXml(highResImage(variantImage))}</g:image_link>
+${additionalImages.map((img: string) => `      <g:additional_image_link>${escapeXml(highResImage(img))}</g:additional_image_link>`).join('\n')}
       <g:availability>${isAvailable ? 'in_stock' : 'out_of_stock'}</g:availability>
 ${hasSale ? `      <g:price>${compareAtPrice} ${currency}</g:price>\n      <g:sale_price>${price} ${currency}</g:sale_price>` : `      <g:price>${price} ${currency}</g:price>`}
       <g:brand>${escapeXml(p.vendor || 'Crazy Gels')}</g:brand>
@@ -425,6 +438,9 @@ ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:ite
         <g:service>Standard</g:service>
         <g:price>0.00 EUR</g:price>
       </g:shipping>
+      <g:max_handling_time>1</g:max_handling_time>
+      <g:min_handling_time>0</g:min_handling_time>
+      <g:shipping_label>standard</g:shipping_label>
     </item>`;
 
         items.push(item);

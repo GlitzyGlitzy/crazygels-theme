@@ -108,7 +108,7 @@ const jsonLd = {
   sameAs: [
     'https://www.instagram.com/crazy.gels',
     'https://www.facebook.com/crazygels',
-    'https://www.tiktok.com/@cazygels',
+    'https://www.tiktok.com/@crazygels',
   ],
   contactPoint: {
     '@type': 'ContactPoint',
