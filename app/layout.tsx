@@ -20,9 +20,9 @@ const _cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: 'Crazy Gels | Biohacking Beauty — AI-Powered Skin, Hair & Nail Optimization',
-  description: 'The first biohacking platform that treats skin, hair, and nails as one interconnected system. AI-powered bio-analysis, precision formulations, and biological optimization. Start your free scan today.',
-  keywords: 'biohacking beauty, AI skin analysis, hair analysis, nail health, biological optimization, personalized skincare, bio-score, precision formulations, collagen, keratin',
+  title: 'Crazy Gels | AI Beauty Consultant — Expert Skin, Hair & Nail Product Recommendations',
+  description: 'Get personalized beauty product recommendations powered by AI. Expert-backed skin care, hair care, and nail product suggestions tailored to your unique needs. Free consultation, curated catalog, real reviews.',
+  keywords: 'beauty consultant, AI skincare recommendations, hair care products, gel nails, nail wraps, personalized beauty, skincare routine, expert product recommendations, beauty advisor, skin analysis',
   authors: [{ name: 'Crazy Gels' }],
   creator: 'Crazy Gels',
   publisher: 'Crazy Gels',
@@ -41,8 +41,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'Crazy Gels | Biohacking Beauty — AI-Powered Skin, Hair & Nail Optimization',
-    description: 'The first biohacking platform that treats skin, hair, and nails as one interconnected system. AI-powered bio-analysis and precision formulations.',
+    title: 'Crazy Gels | AI Beauty Consultant — Expert Product Recommendations',
+    description: 'Get personalized beauty product recommendations powered by AI. Expert-backed skin care, hair care, and nail product suggestions tailored to you.',
     url: 'https://crazygels.com',
     siteName: 'Crazy Gels',
     images: [

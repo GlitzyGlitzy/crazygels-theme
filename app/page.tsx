@@ -19,7 +19,7 @@ export default function HomePage() {
       {/* Announcement Bar */}
       <div className="bg-[var(--bio-teal)] py-2 md:py-2.5">
         <p className="text-center text-[10px] md:text-[11px] font-medium tracking-[0.15em] md:tracking-[0.2em] text-[var(--bio-dark)] uppercase px-4">
-          Free Bio-Analysis for All New Members — Start Optimizing Today
+          Free AI Beauty Consultant — Get Personalized Product Recommendations Today
         </p>
       </div>
 

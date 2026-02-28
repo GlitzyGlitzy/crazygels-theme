@@ -3,24 +3,24 @@ import { Camera, Zap, RefreshCw } from "lucide-react"
 const steps = [
   {
     number: "01",
-    title: "SCAN",
+    title: "TELL US",
     icon: Camera,
     description:
-      "Upload three photos. 30 seconds. Our AI analyzes 147 biological markers across your skin, scalp, and nails. No questionnaires. No guessing.",
+      "Answer a few quick questions about your skin type, hair goals, or nail concerns. Our AI consultant learns your unique needs in under a minute.",
   },
   {
     number: "02",
-    title: "OPTIMIZE",
+    title: "GET MATCHED",
     icon: Zap,
     description:
-      "Receive your Bio-Score and personalized protocol. Not products \u2014 biological interventions. Skin serum + scalp treatment + nail complex, engineered to work as one system.",
+      "Receive personalized product recommendations backed by expert knowledge. Skincare, hair care, and nail products curated specifically for you.",
   },
   {
     number: "03",
-    title: "EVOLVE",
+    title: "SHOP & GLOW",
     icon: RefreshCw,
     description:
-      "Your biology changes weekly. Your environment changes daily. Your formulas adapt in real-time. UV spike? Antioxidants increase. Stress week? Anti-inflammatories activate.",
+      "Browse your matches, read real reviews, and shop confidently. Come back anytime for updated recommendations as your routine evolves.",
   },
 ]
 
@@ -35,7 +35,7 @@ export function HowItWorksSection() {
             How It Works
           </p>
           <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-light text-[var(--bio-text)] text-balance">
-            Three Steps to Biological Optimization
+            Three Steps to Your Perfect Routine
           </h2>
         </div>
 

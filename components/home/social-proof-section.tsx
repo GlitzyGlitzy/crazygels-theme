@@ -1,34 +1,33 @@
-import { Star } from "lucide-react"
+import { Sparkles, ShieldCheck, Users, Zap } from "lucide-react"
 
-const testimonials = [
+const reasons = [
   {
-    quote:
-      "I\u2019ve spent \u20AC10,000 on dermatologists. Crazy Gels found the root cause in 30 seconds\u2014copper deficiency showing in my nails, affecting my hair, destroying my skin. Three months later, my Bio-Score went from 48 to 79.",
-    author: "Sarah K.",
-    location: "Berlin",
-    score: "48 \u2192 79",
+    icon: Sparkles,
+    title: "Personalized",
+    description: "Every recommendation is tailored to your unique skin type, hair texture, and nail concerns.",
   },
   {
-    quote:
-      "As a biohacker, I track everything. Oura, CGM, blood panels. Crazy Gels is the missing piece\u2014external biology finally connected to internal metrics.",
-    author: "Marcus T.",
-    location: "Amsterdam",
-    score: "61 \u2192 88",
+    icon: ShieldCheck,
+    title: "Expert-Backed",
+    description: "Our product catalog is curated using dermatologist-approved guidelines and real ingredient science.",
   },
   {
-    quote:
-      "My nails were the canary in the coal mine. Crazy Gels saw it, connected it to my scalp inflammation, fixed my skin as a side effect. This is how beauty should work.",
-    author: "Elena R.",
-    location: "Paris",
-    score: "52 \u2192 83",
+    icon: Users,
+    title: "Community Reviews",
+    description: "See real feedback from customers with similar concerns before you buy.",
+  },
+  {
+    icon: Zap,
+    title: "Instant Results",
+    description: "Get your personalized routine in under 2 minutes. No appointments, no waiting.",
   },
 ]
 
 const stats = [
-  { value: "50,000+", label: "Bio-Profiles Created" },
-  { value: "94%", label: "Report Visible Improvement" },
-  { value: "147", label: "Biological Markers Analyzed" },
-  { value: "30s", label: "Average Scan Time" },
+  { value: "500+", label: "Curated Products" },
+  { value: "Free", label: "AI Consultation" },
+  { value: "24/7", label: "Always Available" },
+  { value: "2 min", label: "To Your Routine" },
 ]
 
 export function SocialProofSection() {
@@ -37,11 +36,11 @@ export function SocialProofSection() {
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-12">
         <div className="text-center mb-12 md:mb-16">
           <p className="text-[11px] font-medium tracking-[0.3em] text-[var(--bio-teal)] uppercase mb-4">
-            Real Results
+            Why Customers Choose Us
           </p>
           <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-light text-[var(--bio-text)] text-balance">
-            50,000 Bio-Profiles.{" "}
-            <span className="text-[var(--bio-teal)]">94% Report Visible Improvement.</span>
+            Smart Beauty Shopping.{" "}
+            <span className="text-[var(--bio-teal)]">Powered by AI.</span>
           </h2>
         </div>
 
@@ -60,35 +59,16 @@ export function SocialProofSection() {
           ))}
         </div>
 
-        {/* Testimonials */}
-        <div className="grid md:grid-cols-3 gap-4 md:gap-6">
-          {testimonials.map((t) => (
+        {/* Reasons grid */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {reasons.map((r) => (
             <div
-              key={t.author}
-              className="border border-[var(--bio-border)] bg-[var(--bio-card)] p-6 md:p-8 flex flex-col"
+              key={r.title}
+              className="border border-[var(--bio-border)] bg-[var(--bio-card)] p-6 md:p-8"
             >
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} className="w-3.5 h-3.5 fill-[var(--bio-teal)] text-[var(--bio-teal)]" />
-                ))}
-              </div>
-
-              <p className="text-sm text-[var(--bio-text)] leading-relaxed mb-6 flex-1">
-                {`"${t.quote}"`}
-              </p>
-
-              <div className="flex items-end justify-between pt-4 border-t border-[var(--bio-border)]">
-                <div>
-                  <p className="text-sm font-medium text-[var(--bio-text)]">{t.author}</p>
-                  <p className="text-xs text-[var(--bio-text-muted)]">{t.location}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-mono tracking-wider text-[var(--bio-text-muted)] uppercase">
-                    Bio-Score
-                  </p>
-                  <p className="font-mono text-sm font-bold text-[var(--bio-teal)]">{t.score}</p>
-                </div>
-              </div>
+              <r.icon className="w-6 h-6 text-[var(--bio-teal)] mb-4" />
+              <h3 className="text-sm font-semibold text-[var(--bio-text)] mb-2">{r.title}</h3>
+              <p className="text-xs text-[var(--bio-text-muted)] leading-relaxed">{r.description}</p>
             </div>
           ))}
         </div>

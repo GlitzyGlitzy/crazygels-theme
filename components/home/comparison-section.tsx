@@ -2,24 +2,24 @@ import { X, Check } from "lucide-react"
 
 const comparisons = [
   {
-    old: "Treats symptoms (dry skin, split ends)",
-    new: "Treats root causes (cellular hydration, protein synthesis)",
+    old: "Random product hauls from social media",
+    new: "AI-matched products based on your needs",
   },
   {
-    old: "Static formulas (same bottle for 6 months)",
-    new: "Dynamic evolution (adjusts every 28-day cycle)",
+    old: "One-size-fits-all recommendations",
+    new: "Personalized routine for your skin, hair, and nails",
   },
   {
-    old: 'Generic segments ("for dry skin")',
-    new: "N-of-1 personalization (your exact biology)",
+    old: 'Guessing what works ("this influencer uses it")',
+    new: "Expert-backed suggestions with real reviews",
   },
   {
-    old: "Isolated products (12 brands, no coordination)",
-    new: "System protocols (integrated interventions)",
+    old: "Buying 12 products and using 3",
+    new: "A curated set that actually works together",
   },
   {
-    old: "Hope and marketing",
-    new: "Data and outcomes",
+    old: "Overpaying for hype and packaging",
+    new: "Best value products selected for quality",
   },
 ]
 
@@ -32,9 +32,9 @@ export function ComparisonSection() {
             The Difference
           </p>
           <h2 className="font-serif text-2xl md:text-4xl lg:text-5xl font-light text-[var(--bio-text)] mb-4 text-balance">
-            {"This Isn't Skincare."}
+            {"Shopping Without a Plan?"}
             <br />
-            <span className="text-[var(--bio-teal)]">This Is Biological Optimization.</span>
+            <span className="text-[var(--bio-teal)]">Let Us Be Your Guide.</span>
           </h2>
         </div>
 
@@ -42,12 +42,12 @@ export function ComparisonSection() {
         <div className="hidden md:grid grid-cols-2 gap-4 mb-4">
           <div className="px-6 py-3">
             <span className="font-mono text-xs font-medium tracking-[0.15em] text-[var(--bio-text-muted)] uppercase">
-              Old Beauty
+              Without Us
             </span>
           </div>
           <div className="px-6 py-3">
             <span className="font-mono text-xs font-medium tracking-[0.15em] text-[var(--bio-teal)] uppercase">
-              Biohacking
+              With Crazy Gels
             </span>
           </div>
         </div>
