@@ -91,8 +91,16 @@ function generateProductHtml(product: {
   `.trim();
 }
 
+function extractToken(request: NextRequest): string | null {
+  const xToken = request.headers.get("x-admin-token");
+  if (xToken) return xToken;
+  const auth = request.headers.get("authorization");
+  if (auth?.startsWith("Bearer ")) return auth.slice(7);
+  return null;
+}
+
 export async function POST(request: NextRequest) {
-  const adminToken = request.headers.get("x-admin-token");
+  const adminToken = extractToken(request);
   if (adminToken !== process.env.ADMIN_TOKEN) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -292,7 +300,7 @@ export async function POST(request: NextRequest) {
 
 // GET: Check how many products are ready to list
 export async function GET(request: NextRequest) {
-  const adminToken = request.headers.get("x-admin-token");
+  const adminToken = extractToken(request);
   if (adminToken !== process.env.ADMIN_TOKEN) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
