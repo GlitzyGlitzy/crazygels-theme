@@ -101,6 +101,7 @@ function extractToken(request: NextRequest): string | null {
 
 export async function POST(request: NextRequest) {
   const adminToken = extractToken(request);
+  console.log("[v0] POST bulk-list - received token:", JSON.stringify(adminToken?.substring(0, 5)), "env token:", JSON.stringify(process.env.ADMIN_TOKEN?.substring(0, 5)), "match:", adminToken === process.env.ADMIN_TOKEN);
   if (adminToken !== process.env.ADMIN_TOKEN) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -301,6 +302,7 @@ export async function POST(request: NextRequest) {
 // GET: Check how many products are ready to list
 export async function GET(request: NextRequest) {
   const adminToken = extractToken(request);
+  console.log("[v0] GET bulk-list - received token:", JSON.stringify(adminToken?.substring(0, 5)), "env token:", JSON.stringify(process.env.ADMIN_TOKEN?.substring(0, 5)), "match:", adminToken === process.env.ADMIN_TOKEN);
   if (adminToken !== process.env.ADMIN_TOKEN) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
