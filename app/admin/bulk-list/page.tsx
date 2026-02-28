@@ -130,7 +130,7 @@ export default function BulkListPage() {
             Bulk Product Launcher
           </h1>
           <p className="text-sm text-[#8A7B6F] mt-1">
-            Push intelligence products with images to Shopify, set competitive prices, and activate them for sale.
+            Push intelligence products with images to Shopify, set competitive Google-benchmarked prices, and activate them for sale.
           </p>
         </div>
 
