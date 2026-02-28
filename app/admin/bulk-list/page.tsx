@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Rocket, Loader2, CheckCircle, XCircle, Package, AlertTriangle } from 'lucide-react';
 
@@ -83,12 +83,12 @@ export default function BulkListPage() {
   const [adminToken, setAdminToken] = useState<string | null>(null);
   const [tokenReady, setTokenReady] = useState(false);
 
-  // Check for stored token on mount (useEffect, not useState)
-  if (typeof window !== 'undefined' && !tokenReady) {
+  // Load stored token on mount
+  useEffect(() => {
     const stored = localStorage.getItem('cg_admin_token') || '';
     if (stored) setAdminToken(stored);
     setTokenReady(true);
-  }
+  }, []);
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(false);
@@ -106,15 +106,23 @@ export default function BulkListPage() {
     if (!adminToken) return;
     setLoading(true);
     setStatusMessage('');
-    console.log("[v0] fetchStats called with token:", adminToken?.substring(0, 5) + "...");
+    console.log("[v0] fetchStats - sending token:", JSON.stringify(adminToken));
     try {
       const res = await fetch('/api/admin/bulk-list', {
         headers: { 'x-admin-token': adminToken },
       });
-      console.log("[v0] fetchStats response status:", res.status);
+      console.log("[v0] fetchStats - response status:", res.status);
       if (!res.ok) {
         const err = await res.json();
-        console.log("[v0] fetchStats error body:", err);
+        console.log("[v0] fetchStats - error response:", JSON.stringify(err));
+        if (res.status === 401) {
+          // Token is invalid -- clear it and show login gate
+          localStorage.removeItem('cg_admin_token');
+          setAdminToken(null);
+          setStatusMessage('Session expired. Please log in again.');
+          setLoading(false);
+          return;
+        }
         setStatusMessage(`Error: ${err.error || res.statusText}`);
         setLoading(false);
         return;
@@ -164,6 +172,13 @@ export default function BulkListPage() {
       return null;
     }
   }, [batchSize, inventory, adminToken]);
+
+  // Auto-fetch stats when token becomes available
+  useEffect(() => {
+    if (adminToken && tokenReady) {
+      fetchStats();
+    }
+  }, [adminToken, tokenReady, fetchStats]);
 
   const startBulkList = useCallback(async () => {
     setRunning(true);
