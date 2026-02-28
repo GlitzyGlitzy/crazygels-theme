@@ -106,17 +106,20 @@ export default function BulkListPage() {
     if (!adminToken) return;
     setLoading(true);
     setStatusMessage('');
+    console.log("[v0] fetchStats - sending token:", JSON.stringify(adminToken));
     try {
       const res = await fetch('/api/admin/bulk-list', {
         headers: { 'x-admin-token': adminToken },
       });
+      console.log("[v0] fetchStats - response status:", res.status);
       if (!res.ok) {
         const err = await res.json();
+        console.log("[v0] fetchStats - error response:", JSON.stringify(err));
         if (res.status === 401) {
           // Token is invalid -- clear it and show login gate
           localStorage.removeItem('cg_admin_token');
           setAdminToken(null);
-          setStatusMessage('');
+          setStatusMessage('Session expired. Please log in again.');
           setLoading(false);
           return;
         }

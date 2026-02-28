@@ -101,8 +101,12 @@ function extractToken(request: NextRequest): string | null {
 
 export async function POST(request: NextRequest) {
   const adminToken = extractToken(request);
-  console.log("[v0] POST bulk-list - received token:", JSON.stringify(adminToken?.substring(0, 5)), "env token:", JSON.stringify(process.env.ADMIN_TOKEN?.substring(0, 5)), "match:", adminToken === process.env.ADMIN_TOKEN);
-  if (adminToken !== process.env.ADMIN_TOKEN) {
+  const envToken = process.env.ADMIN_TOKEN;
+  console.log("[v0] POST bulk-list - received:", JSON.stringify(adminToken), "env:", JSON.stringify(envToken), "match:", adminToken === envToken);
+  if (!envToken) {
+    return NextResponse.json({ error: "ADMIN_TOKEN env var not set" }, { status: 500 });
+  }
+  if (adminToken !== envToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -302,8 +306,12 @@ export async function POST(request: NextRequest) {
 // GET: Check how many products are ready to list
 export async function GET(request: NextRequest) {
   const adminToken = extractToken(request);
-  console.log("[v0] GET bulk-list - received token:", JSON.stringify(adminToken?.substring(0, 5)), "env token:", JSON.stringify(process.env.ADMIN_TOKEN?.substring(0, 5)), "match:", adminToken === process.env.ADMIN_TOKEN);
-  if (adminToken !== process.env.ADMIN_TOKEN) {
+  const envToken = process.env.ADMIN_TOKEN;
+  console.log("[v0] GET bulk-list - received:", JSON.stringify(adminToken), "env:", JSON.stringify(envToken), "match:", adminToken === envToken);
+  if (!envToken) {
+    return NextResponse.json({ error: "ADMIN_TOKEN env var not set" }, { status: 500 });
+  }
+  if (adminToken !== envToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
