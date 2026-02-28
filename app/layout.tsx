@@ -150,7 +150,7 @@ export default function RootLayout({
         <AnalyticsScripts gtmId={GTM_ID} gaMeasurementId={GA_MEASUREMENT_ID} />
         <GtmNoscript gtmId={GTM_ID} />
         {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        {/* Analytics disabled - crashes in v0 sandbox */}
         <KlaviyoScript />
       </body>
     </html>
