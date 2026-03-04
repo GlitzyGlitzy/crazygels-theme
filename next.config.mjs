@@ -13,7 +13,7 @@ const nextConfig = {
     return [
       // ── Locale prefixes ──────────────────────────────────────
       // ALL old Shopify locale prefix URLs (/en, /de, /fr, /fi, /it, /es, etc.)
-      // are handled by middleware.ts — 301 redirects strip locale prefixes.
+      // are handled by proxy.ts — 301 redirects strip locale prefixes.
 
       // ── Shopify collection-nested product URLs ─────────────────
       // Old Shopify pattern: /collections/:collection/products/:handle
