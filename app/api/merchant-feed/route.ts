@@ -438,6 +438,16 @@ ${variants.length > 1 ? `      <g:item_group_id>${escapeXml(itemGroupId)}</g:ite
         <g:service>Standard</g:service>
         <g:price>0.00 EUR</g:price>
       </g:shipping>
+      <g:shipping>
+        <g:country>BR</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
+      <g:shipping>
+        <g:country>GE</g:country>
+        <g:service>Standard</g:service>
+        <g:price>0.00 EUR</g:price>
+      </g:shipping>
       <g:max_handling_time>1</g:max_handling_time>
       <g:min_handling_time>0</g:min_handling_time>
       <g:shipping_label>standard</g:shipping_label>
