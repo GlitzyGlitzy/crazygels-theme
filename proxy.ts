@@ -82,7 +82,7 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
   'es-mx', 'es-ar', 'en-au', 'en-ca', 'en-nz', 'en-ie', 'en-sg',
 ]);
 
-export default function proxy(request: NextRequest) {
+export default function middleware(request: NextRequest) {
   // ── 0. Bot protection ──
   if (isBlockedBot(request)) {
     return new NextResponse('Not Found', { status: 404 });
