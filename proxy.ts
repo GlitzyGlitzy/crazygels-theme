@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 /**
  * proxy.ts (Next.js 16 — replaces middleware.ts)
+ * Last updated: 2026-03-10
  *
  * 1. Blocks known bots, scrapers, and suspicious traffic
  * 2. Catches ALL old Shopify locale-prefix URLs and 301-redirects without prefix
