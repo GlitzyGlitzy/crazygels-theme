@@ -79,17 +79,9 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/favicon.ico',
-        sizes: '48x48',
-      },
-      {
         url: '/icon-dark-32x32.png',
         sizes: '32x32',
         type: 'image/png',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
       },
     ],
     apple: [
@@ -99,7 +91,7 @@ export const metadata: Metadata = {
         type: 'image/png',
       },
     ],
-    shortcut: '/favicon.ico',
+    shortcut: '/icon-dark-32x32.png',
   },
   generator: 'v0.app'
 }
