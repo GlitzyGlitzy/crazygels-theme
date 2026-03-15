@@ -83,12 +83,17 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
 ]);
 
 export default function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Debug logging - remove after testing
+  console.log('[v0] proxy.ts hit:', pathname);
+
   // ── 0. Bot protection ──
   if (isBlockedBot(request)) {
+    console.log('[v0] blocked as bot:', pathname);
     return new NextResponse('Not Found', { status: 404 });
   }
 
-  const { pathname } = request.nextUrl;
   const url = request.nextUrl.clone();
 
   // ── 1. Strip locale prefixes (handles double-locale like /no/no/products/...) ──
@@ -121,9 +126,11 @@ export default function middleware(request: NextRequest) {
   // ── 3. Redirect if locale was stripped ──
   if (localeStripped) {
     url.pathname = cleanPath;
+    console.log('[v0] redirecting:', pathname, '->', cleanPath);
     return NextResponse.redirect(url, 301);
   }
 
+  console.log('[v0] no redirect needed:', pathname);
   return NextResponse.next();
 }
 
