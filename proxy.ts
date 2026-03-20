@@ -85,12 +85,11 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // Debug logging - remove after testing
-  console.log('[v0] proxy.ts hit:', pathname);
+  console.log('[v0-proxy] incoming:', pathname);
 
   // ── 0. Bot protection ──
   if (isBlockedBot(request)) {
-    console.log('[v0] blocked as bot:', pathname);
+    console.log('[v0-proxy] BLOCKED as bot:', pathname);
     return new NextResponse('Not Found', { status: 404 });
   }
 
@@ -101,15 +100,19 @@ export default function middleware(request: NextRequest) {
   let localeStripped = false;
 
   // Keep stripping locale prefixes until none remain (handles /no/no/... , /da/en/... etc.)
+  // Fixed regex: matches /{locale}/ or /{locale} at the start, captures the rest
   let safetyCounter = 0;
-  while (safetyCounter < 3) {
-    const localeMatch = cleanPath.match(/^\/([a-z]{2}(?:-[a-z]{2})?)(?:\/(.*))?$/i);
+  while (safetyCounter < 5) {
+    // Match: /xx or /xx-yy at start, optionally followed by more path
+    const localeMatch = cleanPath.match(/^\/([a-z]{2}(?:-[a-z]{2})?)(?:\/|$)(.*)/i);
     if (!localeMatch) break;
 
     const prefix = localeMatch[1]!.toLowerCase();
     if (!SHOPIFY_LOCALE_PREFIXES.has(prefix)) break;
 
-    cleanPath = localeMatch[2] ? `/${localeMatch[2]}` : '/';
+    // Rest of path (may be empty)
+    const rest = localeMatch[2] || '';
+    cleanPath = rest ? `/${rest}` : '/';
     localeStripped = true;
     safetyCounter++;
   }
@@ -126,11 +129,11 @@ export default function middleware(request: NextRequest) {
   // ── 3. Redirect if locale was stripped ──
   if (localeStripped) {
     url.pathname = cleanPath;
-    console.log('[v0] redirecting:', pathname, '->', cleanPath);
+    console.log('[v0-proxy] REDIRECT:', pathname, '->', cleanPath);
     return NextResponse.redirect(url, 301);
   }
 
-  console.log('[v0] no redirect needed:', pathname);
+  console.log('[v0-proxy] PASS:', pathname);
   return NextResponse.next();
 }
 
