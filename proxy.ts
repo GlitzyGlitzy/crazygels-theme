@@ -84,9 +84,12 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  console.log('[v0-proxy] incoming:', pathname);
 
   // ── 0. Bot protection ──
   if (isBlockedBot(request)) {
+    console.log('[v0-proxy] BLOCKED as bot:', pathname);
     return new NextResponse('Not Found', { status: 404 });
   }
 
@@ -126,9 +129,11 @@ export default function middleware(request: NextRequest) {
   // ── 3. Redirect if locale was stripped ──
   if (localeStripped) {
     url.pathname = cleanPath;
+    console.log('[v0-proxy] REDIRECT:', pathname, '->', cleanPath);
     return NextResponse.redirect(url, 301);
   }
 
+  console.log('[v0-proxy] PASS:', pathname);
   return NextResponse.next();
 }
 
