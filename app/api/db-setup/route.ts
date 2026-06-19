@@ -92,6 +92,10 @@ export async function POST(req: NextRequest) {
       ["created_at", "TIMESTAMPTZ DEFAULT NOW()"],
       ["display_name", "VARCHAR(500)"],
       ["category", "VARCHAR(100)"],
+      ["retail_price", "NUMERIC(10,2)"],
+      ["currency", "VARCHAR(10)"],
+      ["source_url", "TEXT"],
+      ["shopify_handle", "TEXT"],
     ];
 
     // Re-read columns after possible table creation

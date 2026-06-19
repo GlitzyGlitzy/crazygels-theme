@@ -45,6 +45,7 @@ interface CatalogProduct {
   image_url: string | null;
   description_generated: string | null;
   status: string;
+  shopify_handle: string | null;
 }
 
 async function findMatches(
@@ -61,7 +62,7 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status
+             image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled', 'research')
@@ -81,7 +82,7 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status
+             image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled', 'research')
@@ -100,7 +101,7 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status
+             image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled', 'research')
@@ -119,7 +120,7 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status
+             image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled', 'research')
@@ -180,11 +181,12 @@ function formatProduct(p: CatalogProduct) {
     category: p.category,
     product_type: p.product_type,
     price_tier: p.price_tier,
-    efficacy_score: p.efficacy_score,
+    efficacy_score: p.efficacy_score ?? 0,
     review_signals: p.review_signals,
     key_actives: p.key_actives,
     suitable_for: p.suitable_for,
     image_url: p.image_url,
     description: p.description_generated,
+    shopify_handle: p.shopify_handle,
   };
 }

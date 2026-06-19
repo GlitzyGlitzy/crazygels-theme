@@ -226,11 +226,12 @@ export async function listProduct(productHash: string) {
         updated_at = NOW()
     WHERE product_hash = ${productHash}`;
 
-  // Always update the catalog status and store the Shopify product ID
+  // Always update the catalog status and store the Shopify product ID + handle
   await sql`
     UPDATE product_catalog
     SET status = 'listed',
         retail_price = COALESCE(retail_price, ${Number(retailPrice)}),
+        shopify_handle = ${shopifyResponse.product.handle},
         updated_at = NOW()
     WHERE product_hash = ${productHash}`;
 

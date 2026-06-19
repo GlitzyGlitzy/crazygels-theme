@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { ShoppingBag, Bell, ThumbsUp, Sparkles, FlaskConical, Star } from 'lucide-react'
 
 interface Recommendation {
@@ -14,6 +15,7 @@ interface Recommendation {
   image_url?: string | null
   description?: string | null
   availability: 'in_stock' | 'coming_soon' | 'research'
+  shopify_handle?: string | null
   fulfillment?: string
   delivery?: string
   votes?: number
@@ -75,6 +77,7 @@ function ProductCard({
   icon: Icon,
   disabled,
   onVote,
+  href,
 }: {
   product: Recommendation
   cta: string
@@ -83,6 +86,7 @@ function ProductCard({
   icon: React.ElementType
   disabled?: boolean
   onVote?: (hash: string) => void
+  href?: string
 }) {
   return (
     <div
@@ -154,6 +158,14 @@ function ProductCard({
                 <span className="text-[10px] opacity-60">({product.votes})</span>
               )}
             </button>
+          ) : href ? (
+            <Link
+              href={href}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#1A1A1A] text-white text-xs font-medium tracking-[0.1em] uppercase rounded-full hover:bg-[#9E6B73] transition-all duration-300"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              {cta}
+            </Link>
           ) : (
             <button
               disabled={disabled}
@@ -223,10 +235,11 @@ export default function RecommendationGrid({
               <ProductCard
                 key={product.product_hash}
                 product={product}
-                cta="Add to Cart"
+                cta="Shop Now"
                 badge="In Stock"
                 badgeStyle="bg-[#1A1A1A] text-white"
                 icon={ShoppingBag}
+                href={product.shopify_handle ? `/products/${product.shopify_handle}` : undefined}
               />
             ))}
           </div>
