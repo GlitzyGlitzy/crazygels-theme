@@ -167,9 +167,7 @@ export async function GET() {
       if (!p.handle || !p.title) { skippedNoHandle++; continue; }
 
       // Skip products without images (causes "Missing product image" disapproval)
-      const imageUrls = (p.images as unknown as { url: string }[])?.map?.((img) => img.url)
-        || p.images?.edges?.map?.((e: { node: { url: string } }) => e.node.url)
-        || [];
+      const imageUrls = p.images?.map((img) => img.url) || [];
       const mainImage = imageUrls[0] || p.featuredImage?.url || '';
       if (!mainImage) { skippedNoImage++; continue; }
 

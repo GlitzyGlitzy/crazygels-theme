@@ -367,11 +367,8 @@ export async function POST(request: NextRequest) {
         shopifyProducts = catalogProducts.map((p: Record<string, unknown>) => ({
           id: p.product_hash as string,
           title: p.display_name as string,
-          vendor: null,
-          productType: (p.product_type as string) || (p.category as string) || null,
-          handle: null,
+          productType: (p.product_type as string) || (p.category as string) || undefined,
           tags: [],
-          description: null,
           price: p.retail_price ? Number(p.retail_price) : undefined,
         }));
       }
@@ -411,7 +408,8 @@ export async function POST(request: NextRequest) {
       `;
 
       // Also try ingredient-based matching if we got few results
-      let extraCandidates: typeof candidates = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let extraCandidates: any[] = [];
       const shopifyActives = extractActives(`${sp.title} ${sp.description || ""}`);
       if (candidates.length < 3 && shopifyActives.length > 0) {
         const activePatterns = shopifyActives.map((a) => a.replace(/ /g, "_"));
@@ -703,7 +701,7 @@ async function fetchShopifyProducts(): Promise<ShopifyInput[]> {
       }
     `;
 
-    const res = await fetch(endpoint, {
+    const res: Response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -715,8 +713,10 @@ async function fetchShopifyProducts(): Promise<ShopifyInput[]> {
       }),
     });
 
-    const data = await res.json();
-    const edges = data?.data?.products?.edges || [];
+    type ShopifyEdge = { cursor: string; node: { id: string; title: string; vendor?: string; productType?: string; handle?: string; tags?: string[]; description?: string; priceRange?: { minVariantPrice?: { amount: string } } } };
+    type ShopifyFeedResponse = { data?: { products?: { edges?: ShopifyEdge[]; pageInfo?: { hasNextPage: boolean } } } };
+    const data = await res.json() as ShopifyFeedResponse;
+    const edges: ShopifyEdge[] = data?.data?.products?.edges || [];
 
     for (const edge of edges) {
       const node = edge.node;

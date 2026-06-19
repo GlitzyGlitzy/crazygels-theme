@@ -161,7 +161,8 @@ export default function BulkListPage() {
         setAllResults((prev) => [...prev, ...data.results]);
       }
       if (data.errors) {
-        setAllErrors((prev) => [...prev, ...data.errors]);
+        const errs = data.errors;
+        setAllErrors((prev) => [...prev, ...errs]);
       }
       setBatchCount((prev) => prev + 1);
       setRemaining(data.remaining);

@@ -178,7 +178,7 @@ const reshapeProducts = (products: ShopifyProduct[]): Product[] => {
 
 const reshapeCollection = (collection: ShopifyCollection): Collection | undefined => {
   if (!collection) return undefined;
-  return { ...collection };
+  return { ...collection } as unknown as Collection;
 };
 
 const reshapeCollections = (collections: ShopifyCollection[]): Collection[] => {
@@ -619,7 +619,7 @@ export async function getCollections(): Promise<Collection[]> {
   let cursor: string | null = null;
 
   while (hasNextPage) {
-    const res = await shopifyFetch<{
+    const res: { body: { data: { collections: Connection<ShopifyCollection> } } } = await shopifyFetch<{
       data: { collections: Connection<ShopifyCollection> };
       variables: { first: number; after: string | null; country: string };
     }>({
@@ -629,7 +629,7 @@ export async function getCollections(): Promise<Collection[]> {
       revalidate: CACHE_TIMES.collections,
     });
 
-    const collections = res.body.data.collections;
+    const collections: Connection<ShopifyCollection> = res.body.data.collections;
     allCollections = allCollections.concat(removeEdgesAndNodes(collections));
     hasNextPage = collections.pageInfo.hasNextPage;
     cursor = collections.pageInfo.endCursor;
@@ -690,7 +690,7 @@ export async function getAllCollectionProducts({
   const pageSize = 250;
 
   while (hasNextPage) {
-    const res = await shopifyFetch<{
+    const res: { body: { data: { collection: { products: Connection<ShopifyProduct> } | null } } } = await shopifyFetch<{
       data: { collection: { products: Connection<ShopifyProduct> } | null };
       variables: {
         handle: string;
@@ -715,7 +715,7 @@ export async function getAllCollectionProducts({
     });
 
     if (!res.body.data.collection) return [];
-    const products = res.body.data.collection.products;
+    const products: Connection<ShopifyProduct> = res.body.data.collection.products;
     allProducts.push(...removeEdgesAndNodes(products));
     hasNextPage = products.pageInfo.hasNextPage;
     cursor = products.pageInfo.endCursor;
@@ -887,7 +887,7 @@ export async function getAllArticles({
   const pageSize = 50;
 
   while (hasNextPage) {
-    const res = await shopifyFetch<{
+    const res: { body: { data: { articles: Connection<ShopifyBlogArticle> } } } = await shopifyFetch<{
       data: { articles: Connection<ShopifyBlogArticle> };
       variables: {
         first: number;
@@ -909,7 +909,7 @@ export async function getAllArticles({
       revalidate: CACHE_TIMES.products,
     });
 
-    const articles = res.body.data.articles;
+    const articles: Connection<ShopifyBlogArticle> = res.body.data.articles;
     allArticles.push(...removeEdgesAndNodes(articles));
     hasNextPage = articles.pageInfo.hasNextPage;
     cursor = articles.pageInfo.endCursor;
@@ -971,7 +971,7 @@ export async function getAllBlogArticles(handle: string): Promise<BlogArticle[]>
   const pageSize = 50;
 
   while (hasNextPage) {
-    const res = await shopifyFetch<{
+    const res: { body: { data: { blog: { articles: Connection<ShopifyBlogArticle> } | null } } } = await shopifyFetch<{
       data: { blog: { articles: Connection<ShopifyBlogArticle> } | null };
       variables: { handle: string; first: number; after?: string };
     }>({
@@ -982,7 +982,7 @@ export async function getAllBlogArticles(handle: string): Promise<BlogArticle[]>
     });
 
     if (!res.body.data.blog) return [];
-    const articles = res.body.data.blog.articles;
+    const articles: Connection<ShopifyBlogArticle> = res.body.data.blog.articles;
     allArticles.push(...removeEdgesAndNodes(articles));
     hasNextPage = articles.pageInfo.hasNextPage;
     cursor = articles.pageInfo.endCursor;

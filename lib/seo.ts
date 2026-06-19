@@ -257,7 +257,7 @@ export function buildProductJsonLd(product: {
   tags?: string[];
   availableForSale: boolean;
   featuredImage?: { url: string; width?: number; height?: number; altText?: string };
-  images: { edges: { node: { url: string; altText?: string } }[] };
+  images: { url: string; altText?: string }[];
   priceRange: {
     minVariantPrice: { amount: string; currencyCode: string };
     maxVariantPrice: { amount: string; currencyCode: string };
@@ -294,7 +294,7 @@ export function buildProductJsonLd(product: {
     .slice(0, 5000) || product.title;
 
   // Build all product images (Google recommends multiple angles)
-  const imageUrls = (product.images?.edges ?? []).map((img: { node: { url: string } }) => img.node.url);
+  const imageUrls = (product.images ?? []).map((img) => img.url);
   if (product.featuredImage?.url && !imageUrls.includes(product.featuredImage.url)) {
     imageUrls.unshift(product.featuredImage.url);
   }

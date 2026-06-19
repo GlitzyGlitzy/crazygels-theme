@@ -143,7 +143,7 @@ function normaliseScrapedProduct(raw: ImportProduct): AnonymisedProduct {
       notable: [],
     },
     market_signals: {},
-    acquisition_lead: raw.url || null,
+    acquisition_lead: raw.url || undefined,
     last_updated: raw.scraped_at,
   };
 }
@@ -226,7 +226,7 @@ function promoteProduct(anon: AnonymisedProduct) {
     // Real data from scraper (price, image, URL, brand, description)
     image_url: raw.image_url || null,
     retail_price: raw.price && raw.price > 0 ? raw.price : null,
-    currency: raw.price && raw.price > 0 ? (raw.currency || "EUR") : null,
+    currency: raw.price && raw.price > 0 ? "EUR" : null,
     source_url: raw.url || anon.acquisition_lead || null,
     brand: raw.brand || anon.brand_type || null,
     description_generated: raw.description || null,

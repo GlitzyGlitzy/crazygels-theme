@@ -54,9 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           });
         }
         // Also include additional images from the product
-        const productImages = Array.isArray(product.images)
-          ? (product.images as { url: string; altText?: string }[])
-          : product.images?.edges?.map((e: { node: { url: string; altText?: string } }) => e.node) || [];
+        const productImages = product.images?.slice(0, 5) || [];
         for (const img of productImages.slice(0, 5)) {
           if (img.url && !images.some(i => i.url === img.url)) {
             images.push({ url: img.url, title: img.altText || product.title });

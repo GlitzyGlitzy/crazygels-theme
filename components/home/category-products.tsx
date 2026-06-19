@@ -9,7 +9,7 @@ import { Product, Collection } from "@/lib/shopify/types"
 // Product Card Component
 function ProductCard({ product }: { product: Product }) {
   const price = product.priceRange?.minVariantPrice
-  const compareAtPrice = product.variants?.[0]?.compareAtPrice
+  const compareAtPrice = product.variants?.edges?.[0]?.node?.compareAtPrice
   const hasDiscount = compareAtPrice && price && parseFloat(compareAtPrice.amount) > parseFloat(price.amount)
   const tags = product.tags || []
   const isNew = tags.includes("new") || tags.includes("New")
@@ -245,7 +245,7 @@ export async function CategoryProducts() {
     <div className="bg-[#FFFEF9]">
       {validCollections.map(({ collection, products, color }) => (
         <CategorySection
-          key={collection.id}
+          key={collection.handle}
           collection={collection}
           products={products}
           colorAccent={color}
