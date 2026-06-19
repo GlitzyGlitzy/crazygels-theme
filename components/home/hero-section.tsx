@@ -20,16 +20,17 @@ export function HeroSection() {
             </div>
 
             <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-light leading-[1.05] tracking-tight text-[var(--bio-text)] mb-5 md:mb-6 text-balance">
-              Your Skin <span className="text-[var(--bio-teal)]">Deserves</span>
+              Skincare, <span className="text-[var(--bio-teal)]">Cosmetics</span>
               <br />
-              Expert
+              and Beauty Tools
               <br />
-              <span className="italic">Recommendations.</span>
+              <span className="italic">Chosen for You.</span>
             </h1>
 
             <p className="text-base md:text-lg text-[var(--bio-text-muted)] leading-relaxed max-w-lg mb-8">
-              AI-powered beauty consultant that analyzes your skin, hair, and nails to recommend
-              the perfect products. Expert-backed suggestions. Personalized routines. Real results.
+              Shop expert-curated skincare, makeup, hair care, nail care, and beauty tools.
+              Our AI beauty consultant helps match your routine to your skin goals, hair needs,
+              and everyday style.
             </p>
 
             <Link
@@ -41,7 +42,7 @@ export function HeroSection() {
             </Link>
 
             <p className="mt-4 text-xs text-[var(--bio-text-muted)]">
-              No credit card required. Free forever. GDPR compliant.
+              Browse products first or start with a free consultation. GDPR compliant.
             </p>
           </div>
 
@@ -66,23 +67,23 @@ export function HeroSection() {
                       <path d="M2 12l10 5 10-5" />
                     </svg>
                   </div>
-                  <p className="text-[var(--bio-teal)] font-mono text-sm font-medium">AI CONSULTANT</p>
-                  <p className="text-[var(--bio-text)] font-mono text-lg font-bold mt-1">Expert Picks</p>
+                  <p className="text-[var(--bio-teal)] font-mono text-sm font-medium">BEAUTY MATCH</p>
+                  <p className="text-[var(--bio-text)] font-mono text-lg font-bold mt-1">Shop Smarter</p>
                 </div>
               </div>
 
               {/* Floating data points */}
               <div className="absolute top-8 right-4 px-3 py-2 bg-[var(--bio-card)] border border-[var(--bio-border)] text-xs font-mono">
                 <span className="text-[var(--bio-teal)]">SKIN</span>
-                <span className="text-[var(--bio-text-muted)] ml-2">matched</span>
+                <span className="text-[var(--bio-text-muted)] ml-2">skincare</span>
               </div>
               <div className="absolute bottom-16 left-0 px-3 py-2 bg-[var(--bio-card)] border border-[var(--bio-border)] text-xs font-mono">
-                <span className="text-[var(--bio-teal)]">HAIR</span>
-                <span className="text-[var(--bio-text-muted)] ml-2">curated</span>
+                <span className="text-[var(--bio-teal)]">MAKEUP</span>
+                <span className="text-[var(--bio-text-muted)] ml-2">cosmetics</span>
               </div>
               <div className="absolute bottom-4 right-8 px-3 py-2 bg-[var(--bio-card)] border border-[var(--bio-border)] text-xs font-mono">
-                <span className="text-[var(--bio-teal)]">NAILS</span>
-                <span className="text-[var(--bio-text-muted)] ml-2">recommended</span>
+                <span className="text-[var(--bio-teal)]">TOOLS</span>
+                <span className="text-[var(--bio-text-muted)] ml-2">beauty</span>
               </div>
             </div>
           </div>

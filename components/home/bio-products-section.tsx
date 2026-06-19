@@ -58,6 +58,11 @@ const VIRTUAL_KEYWORDS: Record<string, string[]> = {
     "collagen", "mask", "face mask", "overnight mask", "sleeping mask", "sheet mask",
     "moisturizing cream", "moisturizer", "face cream", "night cream", "day cream",
   ],
+  cosmetics: [
+    "makeup", "cosmetic", "foundation", "concealer", "mascara", "lipstick", "lip gloss",
+    "blush", "bronzer", "highlighter", "eyeshadow", "brow", "makeup remover",
+    "cleansing oil", "micellar", "lip balm", "tint",
+  ],
 
 }
 
@@ -96,11 +101,12 @@ async function CollectionProducts({
 }
 
 const HOMEPAGE_COLLECTIONS = [
-  { handle: "skincare", title: "Skin Optimization", subtitle: "Barrier repair & cellular renewal" },
-  { handle: "haircare", title: "Scalp & Hair System", subtitle: "Follicle health & growth support" },
-  { handle: "gel-nail-wraps", title: "Nail Intelligence", subtitle: "Keratin quality & structural support" },
-  { handle: "collagen-masks", title: "Collagen Protocols", subtitle: "Deep hydration & protein synthesis" },
-  { handle: "treatments", title: "Bio-Tools & Treatments", subtitle: "Advanced delivery systems" },
+  { handle: "skincare", title: "Skincare", subtitle: "Serums, moisturizers, cleansers & masks" },
+  { handle: "cosmetics", title: "Cosmetics", subtitle: "Makeup, lip care & beauty essentials" },
+  { handle: "treatments", title: "Beauty Tools & Treatments", subtitle: "UV lamps, application tools & kits" },
+  { handle: "haircare", title: "Hair Care", subtitle: "Scalp care, masks, oils & styling" },
+  { handle: "gel-nail-wraps", title: "Gel Nail Wraps", subtitle: "Semi-cured nail strips & nail care" },
+  { handle: "collagen-masks", title: "Collagen Masks", subtitle: "Hydrating face masks & glow treatments" },
 ]
 
 export function BioProductsSection() {
@@ -118,7 +124,8 @@ export function BioProductsSection() {
             Curated Biological Interventions
           </h2>
           <p className="mt-4 text-sm text-[var(--luxury-gray)] max-w-lg mx-auto">
-            Precision-selected products for every layer of your biology.
+            Shop the core Crazy Gels categories: skincare, cosmetics, beauty tools,
+            hair care, nail care, and targeted treatments.
           </p>
         </div>
 

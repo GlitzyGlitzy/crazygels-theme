@@ -55,6 +55,11 @@ const COLLECTION_SEO: Record<string, { title: string; description: string; keywo
     description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free EU shipping.',
     keywords: 'skincare products, face serum, moisturizer, face mask, anti-aging, skin care',
   },
+  cosmetics: {
+    title: 'Cosmetics & Makeup - Beauty Essentials | Crazy Gels',
+    description: 'Shop cosmetics and makeup essentials at Crazy Gels. Lip care, complexion products, makeup removers, applicators and everyday beauty picks. Free EU shipping.',
+    keywords: 'cosmetics, makeup, beauty essentials, lip care, makeup remover, complexion products',
+  },
   'skin-care': {
     title: 'Skincare Products - Serums, Moisturizers & Masks | Crazy Gels',
     description: 'Shop luxury skincare at Crazy Gels. Premium serums, moisturizers, face masks and treatments for radiant, youthful skin. Free EU shipping.',
@@ -145,6 +150,7 @@ export async function generateStaticParams() {
       { handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'nails' },
       { handle: 'haircare' }, { handle: 'hair-care' },
       { handle: 'skincare' }, { handle: 'skin-care' },
+      { handle: 'cosmetics' },
       { handle: 'collagen-masks' }, { handle: 'treatments' },
       { handle: 'sets' }, { handle: 'best-sellers' }, { handle: 'new-arrivals' },
     ];
@@ -156,7 +162,7 @@ export async function generateStaticParams() {
       handle: collection.handle,
     }));
     // Always include virtual collections
-    const virtualHandles = ['collagen-masks', 'sets', 'best-sellers', 'new-arrivals'];
+    const virtualHandles = ['cosmetics', 'collagen-masks', 'sets', 'best-sellers', 'new-arrivals'];
     for (const vh of virtualHandles) {
       if (!params.some(p => p.handle === vh)) {
         params.push({ handle: vh });
@@ -166,7 +172,7 @@ export async function generateStaticParams() {
   } catch {
     return [
       { handle: 'gel-nail-wraps' }, { handle: 'french-styles' }, { handle: 'nails' },
-      { handle: 'haircare' }, { handle: 'skincare' },
+      { handle: 'haircare' }, { handle: 'skincare' }, { handle: 'cosmetics' },
       { handle: 'collagen-masks' }, { handle: 'treatments' },
     ];
   }
@@ -179,6 +185,12 @@ const VIRTUAL_COLLECTIONS: Record<string, { title: string; description: string; 
     description: 'Luxurious overnight collagen face masks for radiant, youthful skin. Hydrating, firming, and anti-aging masks crafted with premium ingredients.',
     image: '/images/collagen-masks.jpg',
     keywords: ['collagen', 'mask', 'face mask', 'overnight mask', 'sleeping mask', 'sheet mask', 'peel off', 'clay mask'],
+  },
+  cosmetics: {
+    title: 'Cosmetics',
+    description: 'Makeup, lip care, complexion products, beauty applicators, and everyday cosmetic essentials curated by Crazy Gels.',
+    image: '/images/cosmetics.jpg',
+    keywords: ['makeup', 'cosmetic', 'foundation', 'concealer', 'mascara', 'lipstick', 'lip gloss', 'blush', 'bronzer', 'highlighter', 'eyeshadow', 'brow', 'makeup remover', 'micellar', 'lip balm', 'tint'],
   },
 };
 
@@ -204,6 +216,11 @@ const COLLECTION_KEYWORDS: Record<string, string[]> = {
     'retinol', 'vitamin c', 'hyaluronic', 'spf', 'sunscreen', 'anti-aging',
     'brightening', 'exfoliant', 'cream', 'lotion', 'eye cream', 'oil',
     'essence', 'mist', 'glow', 'skincare', 'skin care', 'derma',
+  ],
+  cosmetics: [
+    'makeup', 'cosmetic', 'foundation', 'concealer', 'mascara', 'lipstick',
+    'lip gloss', 'blush', 'bronzer', 'highlighter', 'eyeshadow', 'brow',
+    'makeup remover', 'cleansing oil', 'micellar', 'lip balm', 'tint',
   ],
   treatments: [
     'treatment', 'uv lamp', 'led lamp', 'nail lamp', 'nail prep', 'base coat',

@@ -20,13 +20,13 @@ export function Footer() {
           <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-14">
             <div className="text-center lg:text-left shrink-0 lg:max-w-xs">
               <p className="text-[#00D4AA] text-xs font-medium tracking-[0.25em] uppercase mb-2">
-                Bio-Updates
+                Beauty Updates
               </p>
               <h2 className="text-xl md:text-2xl font-light tracking-wide text-[#E8E8E8] leading-snug mb-2">
-                Join the <span className="italic text-[#00D4AA]">Optimization Lab</span>
+                Join the <span className="italic text-[#00D4AA]">Beauty Edit</span>
               </h2>
               <p className="text-[#E8E8E8]/50 text-sm leading-relaxed">
-                Get early access to new formulations, biohacking tips, and member-only protocols.
+                Get new skincare, cosmetics, beauty tools, nail drops, and member-only offers.
               </p>
             </div>
             <div className="flex-1 w-full">
@@ -46,7 +46,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-[#E8E8E8]/60 text-sm leading-relaxed mt-4 mb-6">
-              The first biohacking beauty platform treating skin, hair, and nails as one interconnected biological system.
+              Skincare, cosmetics, beauty tools, hair care, and semi-cured gel nail wraps curated for smarter routines.
             </p>
             <div className="flex gap-3">
               <a
@@ -81,10 +81,11 @@ export function Footer() {
 
           {[
             { title: "Shop", links: [
-              { name: "Skin Optimization", href: "/collections/skincare" },
-              { name: "Scalp & Hair System", href: "/collections/haircare" },
-              { name: "Nail Intelligence", href: "/collections/gel-nail-wraps" },
-              { name: "Bio-Tools", href: "/collections/treatments" },
+              { name: "Skincare", href: "/collections/skincare" },
+              { name: "Cosmetics", href: "/collections/cosmetics" },
+              { name: "Beauty Tools", href: "/collections/treatments?subcategory=beauty-tools" },
+              { name: "Hair Care", href: "/collections/haircare" },
+              { name: "Gel Nail Wraps", href: "/collections/gel-nail-wraps" },
             ] },
             { title: "Help", links: [
               { name: "FAQ", href: "/pages/faq" },
@@ -95,7 +96,7 @@ export function Footer() {
             { title: "Company", links: [
               { name: "About Crazy Gels", href: "/pages/about" },
               { name: "Blog", href: "/blog" },
-              { name: "Bio-Analysis", href: "/consult" },
+              { name: "AI Beauty Consultant", href: "/consult" },
               { name: "Skin Consultation", href: "/consult/skin" },
               { name: "Hair Consultation", href: "/consult/hair" },
             ] }

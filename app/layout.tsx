@@ -105,7 +105,7 @@ const jsonLd = {
   name: 'Crazy Gels',
   url: 'https://crazygels.com',
   logo: 'https://crazygels.com/logo.png',
-  description: 'Biohacking beauty platform — AI-powered skin, hair & nail biological optimization',
+  description: 'AI-powered beauty shopping platform for skincare, cosmetics, beauty tools, hair care and gel nail wraps.',
   sameAs: [
     'https://www.instagram.com/crazy.gels',
     'https://www.facebook.com/crazygels',
