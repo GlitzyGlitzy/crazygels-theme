@@ -4,9 +4,10 @@ import { NextResponse, type NextRequest } from 'next/server';
  * proxy.ts (Next.js 16 — replaces middleware.ts)
  * Last updated: 2026-03-10
  *
- * 1. Blocks known bots, scrapers, and suspicious traffic
- * 2. Catches ALL old Shopify locale-prefix URLs and 301-redirects without prefix
- * 3. Flattens Shopify collection-nested product URLs
+ * 1. Protects admin pages with the admin session cookie
+ * 2. Blocks known bots, scrapers, and suspicious traffic
+ * 3. Catches ALL old Shopify locale-prefix URLs and 301-redirects without prefix
+ * 4. Flattens Shopify collection-nested product URLs
  */
 
 // ── Bot Protection ──────────────────────────────────────────────────────────
@@ -86,6 +87,21 @@ export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   console.log('[v0-proxy] incoming:', pathname);
+
+  // ── 0. Admin protection ──
+  if (pathname.startsWith('/admin/login')) {
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith('/admin')) {
+    const session = request.cookies.get('cg_admin_session')?.value;
+    if (!session || session !== process.env.ADMIN_TOKEN) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/admin/login';
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
 
   // ── 0. Bot protection ──
   if (isBlockedBot(request)) {
