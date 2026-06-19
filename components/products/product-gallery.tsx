@@ -11,21 +11,11 @@ export function ProductGallery({ product }: { product: Product }) {
   const [isZoomed, setIsZoomed] = useState(false);
   const touchStartX = useRef(0);
 
-  const images = product.images.length > 0 
-    ? product.images 
-    : product.featuredImage 
-      ? [product.featuredImage] 
+  const images = product.images.length > 0
+    ? product.images
+    : product.featuredImage
+      ? [product.featuredImage]
       : [];
-
-  if (images.length === 0) {
-    return (
-      <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center">
-        <span className="text-muted-foreground">No image available</span>
-      </div>
-    );
-  }
-
-  const currentImage = images[selectedIndex];
 
   const goToPrevious = useCallback(() => {
     setSelectedIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -36,6 +26,16 @@ export function ProductGallery({ product }: { product: Product }) {
     setSelectedIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
     setIsZoomed(false);
   }, [images.length]);
+
+  if (images.length === 0) {
+    return (
+      <div className="aspect-square rounded-2xl bg-muted flex items-center justify-center">
+        <span className="text-muted-foreground">No image available</span>
+      </div>
+    );
+  }
+
+  const currentImage = images[selectedIndex];
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;

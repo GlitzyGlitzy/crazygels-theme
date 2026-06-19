@@ -98,7 +98,7 @@ export type Product = {
   };
   variants: Connection<ProductVariant>;
   featuredImage: Image;
-  images: Connection<Image>;
+  images: Image[];
   seo: SEO;
   tags: string[];
   updatedAt: string;

@@ -38,9 +38,7 @@ const endpoint = isShopifyConfigured ? `https://${domain}${SHOPIFY_GRAPHQL_API_E
 type ExtractVariables<T> = T extends { variables: object } ? T['variables'] : never;
 
 let lastRequestTime = 0;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const requestQueue: (() => void)[] = [];
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let isProcessingQueue = false;
 
 async function waitForRateLimit(): Promise<void> {
@@ -568,7 +566,7 @@ export async function getAllProducts({
   const pageSize = 250;
 
   while (hasNextPage) {
-    const res = await shopifyFetch<{
+    const res: { body: { data: { products: Connection<ShopifyProduct> } } } = await shopifyFetch<{
       data: { products: Connection<ShopifyProduct> };
       variables: {
         query?: string;
@@ -592,7 +590,7 @@ export async function getAllProducts({
       },
     });
 
-    const products = res.body.data.products;
+    const products: Connection<ShopifyProduct> = res.body.data.products;
     allProducts.push(...removeEdgesAndNodes(products));
     hasNextPage = products.pageInfo.hasNextPage;
     cursor = products.pageInfo.endCursor;
@@ -1118,7 +1116,7 @@ const reshapeCart = (cart: ShopifyCart): Cart => {
       currencyCode: 'EUR',
     };
   }
-  return { ...cart, lines: cart.lines };
+  return { ...cart, lines: cart.lines } as unknown as Cart;
 };
 
 export async function createCart(): Promise<Cart> {
@@ -1164,7 +1162,7 @@ export async function updateCart(
     data: { cartLinesUpdate: { cart: ShopifyCart } };
     variables: {
       cartId: string;
-      lines: { id: string; merchandiseId: string; quantity: number }[];
+      lines: { id: string; merchandiseId?: string; quantity: number }[];
     };
   }>({
     query: updateCartMutation,

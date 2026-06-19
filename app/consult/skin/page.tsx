@@ -132,7 +132,7 @@ export default function SkinConsultPage() {
       api: '/api/consult/chat',
       body: { consultType: 'skin' },
     }),
-    initialMessages: [],
+    messages: [],
   });
 
   const isLoading = status === 'streaming' || status === 'submitted';

@@ -1,7 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!verifyAdmin(req)) return unauthorized();
   const diagnostics: Record<string, unknown> = {
     rds_host: process.env.RDS_HOST ? `${process.env.RDS_HOST.slice(0, 20)}...` : "NOT SET",
     rds_port: process.env.RDS_PORT || "5432 (default)",
@@ -29,13 +31,13 @@ export async function GET() {
       WHERE table_schema = 'public'
       ORDER BY table_name
     `;
-    diagnostics.tables = tables.map((t: { table_name: string }) => t.table_name);
+    diagnostics.tables = tables.map((t) => (t as { table_name: string }).table_name);
 
     // Step 3: Count product_catalog if it exists
     let productCount = 0;
     let sampleProduct = null;
     const hasProductCatalog = tables.some(
-      (t: { table_name: string }) => t.table_name === "product_catalog"
+      (t) => (t as { table_name: string }).table_name === "product_catalog"
     );
     if (hasProductCatalog) {
       const [countResult] = await sql`SELECT COUNT(*) as count FROM product_catalog`;

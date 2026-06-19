@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /**
  * POST /api/import-products
@@ -233,6 +234,7 @@ function promoteProduct(anon: AnonymisedProduct) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
 

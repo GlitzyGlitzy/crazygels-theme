@@ -7,6 +7,7 @@
  * Body: { asin: string, handle: string, productId: string, marketplace?: string }
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { verifyAdmin, unauthorized } from '@/lib/admin-auth';
 
 const JUDGEME_BASE = 'https://judge.me/api/v1';
 const JUDGEME_SHOP_DOMAIN = process.env.JUDGEME_SHOP_DOMAIN || '';
@@ -165,6 +166,7 @@ async function postReviewToJudgeMe(
 }
 
 export async function POST(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
     const { asin, handle, productId, marketplace = 'de' } = body;

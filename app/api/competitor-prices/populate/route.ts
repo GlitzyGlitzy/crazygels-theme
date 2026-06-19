@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sql from '@/lib/db';
+import { verifyAdmin, unauthorized } from '@/lib/admin-auth';
 
 /**
  * POST /api/competitor-prices/populate
@@ -233,6 +234,7 @@ function estimatePrice(
 }
 
 export async function POST(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     if (!process.env.DATABASE_URL) {
       return NextResponse.json(

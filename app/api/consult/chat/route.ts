@@ -1,4 +1,4 @@
-import { streamText, convertToModelMessages, tool } from 'ai';
+import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai';
 import { z } from 'zod';
 import { buildProductCatalog, catalogToPromptText } from '@/lib/shopify/product-catalog';
 import sql from '@/lib/db';
@@ -194,7 +194,7 @@ ${stockedText}
     system: systemPrompt,
     messages: await convertToModelMessages(messages),
     tools,
-    maxSteps: 5,
+    stopWhen: stepCountIs(5),
   });
 
   return result.toUIMessageStreamResponse();

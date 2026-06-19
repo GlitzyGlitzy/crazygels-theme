@@ -130,7 +130,7 @@ export default function HairConsultPage() {
       api: '/api/consult/chat',
       body: { consultType: 'hair' },
     }),
-    initialMessages: [],
+    messages: [],
   });
 
   const isLoading = status === 'streaming' || status === 'submitted';

@@ -192,7 +192,8 @@ export async function GET() {
       const mpn = p.id?.split('/').pop() || p.handle;
 
       // Process each variant as a separate item (Google recommends this for variants)
-      const variants = p.variants?.edges?.map((e: { node: Record<string, unknown> }) => e.node) || [];
+      type VariantNode = { id?: string; title?: string; availableForSale?: boolean; price?: { amount?: string; currencyCode?: string }; compareAtPrice?: { amount?: string } | null; image?: { url?: string } | null; selectedOptions?: { name: string; value: string }[] };
+      const variants: VariantNode[] = p.variants?.edges?.map((e: { node: VariantNode }) => e.node) || [];
 
       for (const variant of variants) {
         const variantId = variant.id?.split('/').pop() || '';

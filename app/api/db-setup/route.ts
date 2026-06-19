@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /** Helper: run SQL, return null on success or error string on failure */
 async function run(query: string): Promise<string | null> {
@@ -11,7 +12,8 @@ async function run(query: string): Promise<string | null> {
   }
 }
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  if (!verifyAdmin(req)) return unauthorized();
   const log: string[] = [];
 
   try {
@@ -26,7 +28,7 @@ export async function POST() {
       FROM information_schema.tables
       WHERE table_schema = 'public'
     `;
-    const tableNames = existingTables.map((t: { table_name: string }) => t.table_name);
+    const tableNames = existingTables.map((t) => (t as { table_name: string }).table_name);
     log.push(`Existing tables: ${tableNames.join(", ") || "none"}`);
 
     // Step 3: Check existing columns on product_catalog (if it exists)
@@ -37,7 +39,7 @@ export async function POST() {
         FROM information_schema.columns
         WHERE table_schema = 'public' AND table_name = 'product_catalog'
       `;
-      existingCatalogCols = cols.map((c: { column_name: string }) => c.column_name);
+      existingCatalogCols = cols.map((c) => (c as { column_name: string }).column_name);
       log.push(`product_catalog columns: ${existingCatalogCols.join(", ")}`);
     }
 
@@ -98,7 +100,7 @@ export async function POST() {
       FROM information_schema.columns
       WHERE table_schema = 'public' AND table_name = 'product_catalog'
     `;
-    const currentCols = new Set(colsNow.map((c: { column_name: string }) => c.column_name));
+    const currentCols = new Set(colsNow.map((c) => (c as { column_name: string }).column_name));
 
     for (const [col, def] of requiredCols) {
       if (!currentCols.has(col)) {

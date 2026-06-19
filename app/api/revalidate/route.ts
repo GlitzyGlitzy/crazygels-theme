@@ -4,29 +4,32 @@ import { TAGS } from '@/lib/shopify/constants';
 
 /**
  * Revalidation Endpoint -- Instant Shopify Updates
- * 
- * Two ways to trigger instant cache purges:
- * 
- * 1. MANUAL (no setup needed):
- *    curl -X POST https://crazygels.com/api/revalidate?tag=products
- *    curl -X POST https://crazygels.com/api/revalidate?tag=collections
- *    curl -X POST https://crazygels.com/api/revalidate  (purges everything)
  *
- * 2. SHOPIFY WEBHOOKS (optional, for fully automatic):
+ * Two ways to trigger instant cache purges:
+ *
+ * 1. MANUAL (requires auth):
+ *    curl -X POST -H "Authorization: Bearer $REVALIDATE_SECRET" \
+ *      https://crazygels.com/api/revalidate?tag=products
+ *    Set REVALIDATE_SECRET env var (falls back to ADMIN_TOKEN if unset).
+ *
+ * 2. SHOPIFY WEBHOOKS (fully automatic, uses HMAC):
  *    Shopify Admin > Settings > Notifications > Webhooks
  *    URL: https://crazygels.com/api/revalidate
  *    Events: Product update/create/delete, Collection update/create/delete
- *    If you set this up, also add SHOPIFY_REVALIDATION_SECRET env var
- *    to match the webhook signing secret shown in Shopify Admin.
- *
- * Without the secret, the endpoint works but without HMAC verification.
+ *    Set SHOPIFY_REVALIDATION_SECRET to the webhook signing secret.
  */
 
 export async function POST(req: NextRequest) {
   try {
-    // ── Option A: Manual revalidation via ?tag= query param ──
+    // ── Option A: Manual revalidation via ?tag= query param (requires auth) ──
     const tagParam = req.nextUrl.searchParams.get('tag');
     if (tagParam) {
+      const secret = process.env.REVALIDATE_SECRET || process.env.ADMIN_TOKEN;
+      const provided = req.headers.get('authorization')?.replace('Bearer ', '');
+      if (!secret || provided !== secret) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+
       const validTags = [TAGS.products, TAGS.collections, TAGS.cart, TAGS.blog];
       const tagsToRevalidate = tagParam === 'all' ? [TAGS.products, TAGS.collections] : [tagParam];
       

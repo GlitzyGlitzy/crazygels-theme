@@ -344,7 +344,8 @@ export function buildProductJsonLd(product: {
   };
 
   // Build per-variant offers with attributes
-  const offers = (product.variants?.edges ?? []).map((edge: { node: Record<string, unknown> }) => {
+  type VariantNode = { id: string; title?: string; availableForSale: boolean; price: { amount: string; currencyCode: string }; compareAtPrice?: { amount: string } | null; image?: { url: string } | null; selectedOptions: { name: string; value: string }[] };
+  const offers = (product.variants?.edges ?? []).map((edge: { node: VariantNode }) => {
     const variant = edge.node;
     const variantId = variant.id.split('/').pop() || variant.id;
     const attrs = extractVariantAttributes(variant.selectedOptions);
