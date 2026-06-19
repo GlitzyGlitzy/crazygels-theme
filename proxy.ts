@@ -83,7 +83,7 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
   'es-mx', 'es-ar', 'en-au', 'en-ca', 'en-nz', 'en-ie', 'en-sg',
 ]);
 
-export default function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   console.log('[v0-proxy] incoming:', pathname);
