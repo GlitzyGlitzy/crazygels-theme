@@ -78,22 +78,15 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      {
-        url: '/icon-dark-32x32.png',
-        sizes: '32x32',
-        type: 'image/png',
-      },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-dark-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
     ],
     apple: [
-      {
-        url: '/apple-icon.png',
-        sizes: '180x180',
-        type: 'image/png',
-      },
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/icon-dark-32x32.png',
+    shortcut: '/favicon.ico',
   },
-  generator: 'v0.app'
 }
 
 export const viewport = {
