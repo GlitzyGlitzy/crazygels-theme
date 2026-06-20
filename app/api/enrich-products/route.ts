@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -341,6 +342,7 @@ async function analyzePricePosition(
 /* ------------------------------------------------------------------ */
 
 export async function POST(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
     const mode = body.mode || "match"; // "match" | "auto" | "benchmark"
@@ -573,6 +575,7 @@ export async function POST(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 
 export async function GET(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     const { searchParams } = new URL(request.url);
     const confidence = searchParams.get("confidence"); // high, medium, low
@@ -748,6 +751,7 @@ async function fetchShopifyProducts(): Promise<ShopifyInput[]> {
 /* ------------------------------------------------------------------ */
 
 export async function PATCH(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
     const { action } = body;

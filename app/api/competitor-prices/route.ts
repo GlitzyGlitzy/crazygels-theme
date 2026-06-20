@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sql from '@/lib/db';
+import { verifyAdmin, unauthorized } from '@/lib/admin-auth';
 
 /* ------------------------------------------------------------------ */
 /*  GET /api/competitor-prices                                         */
@@ -7,6 +8,7 @@ import sql from '@/lib/db';
 /* ------------------------------------------------------------------ */
 
 export async function GET(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     if (!process.env.DATABASE_URL) {
       return NextResponse.json(
@@ -117,6 +119,7 @@ export async function GET(request: NextRequest) {
 /* ------------------------------------------------------------------ */
 
 export async function POST(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     const body = await request.json();
     const { prices } = body as {

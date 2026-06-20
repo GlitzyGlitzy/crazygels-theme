@@ -391,7 +391,8 @@ export async function POST(request: NextRequest) {
 }
 
 // GET: Return current product catalog stats
-export async function GET() {
+export async function GET(request: NextRequest) {
+  if (!verifyAdmin(request)) return unauthorized();
   try {
     const [catalogCount] = await sql`SELECT COUNT(*) as count FROM product_catalog`;
     const [anonCount] = await sql`SELECT COUNT(*) as count FROM anonymised_products`;

@@ -1,12 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { resolve } from "dns/promises";
 import { createConnection } from "net";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /**
  * Deep connectivity diagnostic for RDS.
  * Tests DNS -> TCP -> SSL -> Postgres layer by layer.
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  if (!verifyAdmin(req)) return unauthorized();
   const host = process.env.RDS_HOST || "";
   const port = parseInt(process.env.RDS_PORT || "5432");
   const database = process.env.RDS_DATABASE || "crazygels";
