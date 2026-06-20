@@ -1,7 +1,7 @@
 import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
-import { buildProductCatalog, catalogToPromptText } from '@/lib/shopify/product-catalog';
+import { buildProductCatalog, catalogToPromptText, selectBestProducts } from '@/lib/shopify/product-catalog';
 import sql from '@/lib/db';
 
 // Fetch stocked products from product_catalog DB that are approved for sale
@@ -73,21 +73,15 @@ export async function POST(req: Request) {
     getStockedIntelligenceProducts(consultType),
   ]);
   const relevantProducts = consultType === 'skin' ? catalog.skinProducts : catalog.hairProducts;
-  const productCatalogText = catalogToPromptText(relevantProducts, consultType);
+  // Top 60 products for the AI prompt — keeps the system prompt ~6-8k tokens instead of 30k+
+  const promptProducts = selectBestProducts(relevantProducts, 60);
+  const productCatalogText = catalogToPromptText(promptProducts, consultType);
   const stockedText = stockedToPromptText(stockedProducts);
-  
-  console.log(`[v0] Consult ${consultType}: ${relevantProducts.length} Shopify + ${stockedProducts.length} stocked intelligence products`);
-  
-  const productListForTool = relevantProducts.map(p => ({
-    handle: p.handle,
-    title: p.title,
-    price: p.price,
-    compareAtPrice: p.compareAtPrice,
-    imageUrl: p.imageUrl,
-    description: p.description.slice(0, 150),
-    concerns: p.concerns,
-    subcategories: p.subcategories,
-  }));
+
+  console.log(`[consult] ${consultType}: ${relevantProducts.length} total, ${promptProducts.length} in prompt, ${stockedProducts.length} stocked`);
+
+  // Full product map (all handles) used by the tool executor for handle resolution
+  const productMap = new Map(relevantProducts.map(p => [p.handle, p]));
 
   // Define system prompt based on consultation type
   const systemPrompt = consultType === 'skin' 
@@ -166,13 +160,19 @@ ${stockedText}
         routineSummary: z.string().describe('A brief paragraph summarizing the recommended routine and how to use the products together'),
       }),
       execute: async ({ assessedType, primaryConcerns, recommendedHandles, reasonsMap, routineSummary }) => {
-        // Match recommended handles to actual product data
         const recommendedProducts = recommendedHandles
           .map(handle => {
-            const product = productListForTool.find(p => p.handle === handle);
+            const product = productMap.get(handle);
             if (!product) return null;
             return {
-              ...product,
+              handle: product.handle,
+              title: product.title,
+              price: product.price,
+              compareAtPrice: product.compareAtPrice,
+              imageUrl: product.imageUrl,
+              url: `/products/${product.handle}`,
+              description: product.description.slice(0, 150),
+              concerns: product.concerns,
               reason: reasonsMap[handle] || 'Recommended for your needs',
             };
           })

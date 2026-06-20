@@ -31,6 +31,7 @@ interface RecommendedProduct {
   price: string;
   compareAtPrice?: string;
   imageUrl?: string;
+  url?: string;
   description: string;
   concerns: string[];
   reason: string;
@@ -48,7 +49,7 @@ interface ToolOutput {
 function ProductCard({ product, accent }: { product: RecommendedProduct; accent: string }) {
   return (
     <Link
-      href={`/products/${product.handle}`}
+      href={product.url ?? `/products/${product.handle}`}
       className="group block bg-[#FAFAF8] border border-[#E8E4DC] rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300"
       style={{ ['--accent' as string]: accent }}
     >

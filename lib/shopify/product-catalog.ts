@@ -186,27 +186,29 @@ function productToCatalogItem(product: Product, type: 'skin' | 'hair'): CatalogP
   }
 }
 
-// Build the full product catalog from ALL Shopify products, classified for skin and hair consultants
-// Wrapped in React cache() to deduplicate within a single server render
-export const buildProductCatalog = cache(async function buildProductCatalog(): Promise<ProductCatalog> {
+// Module-level cache to avoid re-fetching 700+ products on every chat message
+let _catalogCache: ProductCatalog | null = null
+let _catalogCacheAt = 0
+const CATALOG_TTL_MS = 60_000 // 60 seconds
+
+async function fetchAndBuildCatalog(): Promise<ProductCatalog> {
   if (!isShopifyConfigured) {
     return { skinProducts: [], hairProducts: [], allProducts: [] }
   }
-  
+
   const skinProducts: CatalogProduct[] = []
   const hairProducts: CatalogProduct[] = []
   const allProducts: CatalogProduct[] = []
-  
+
   try {
-    // Pull ALL 774 products from the store using cursor-based pagination
     const allShopifyProducts = await getAllProducts({})
-    
+
     for (const product of allShopifyProducts) {
       if (!product.availableForSale) continue
-      
+
       const searchText = getSearchText(product)
       const classification = classifyProduct(searchText)
-      
+
       if (classification === 'skin' || classification === 'both') {
         const catalogItem = productToCatalogItem(product, 'skin')
         skinProducts.push(catalogItem)
@@ -215,18 +217,45 @@ export const buildProductCatalog = cache(async function buildProductCatalog(): P
       if (classification === 'hair' || classification === 'both') {
         const catalogItem = productToCatalogItem(product, 'hair')
         hairProducts.push(catalogItem)
-        // Only add to allProducts once if it's both
         if (classification !== 'both') allProducts.push(catalogItem)
       }
-      // Products that match neither skin nor hair are skipped (e.g. nail wraps)
     }
-    
   } catch (error) {
     console.error('[product-catalog] Failed to build catalog:', error)
   }
-  
+
   return { skinProducts, hairProducts, allProducts }
+}
+
+// Build the full product catalog from ALL Shopify products, classified for skin and hair consultants.
+// Uses a module-level TTL cache so the expensive Shopify fetch is shared across API requests.
+export const buildProductCatalog = cache(async function buildProductCatalog(): Promise<ProductCatalog> {
+  const now = Date.now()
+  if (_catalogCache && now - _catalogCacheAt < CATALOG_TTL_MS) return _catalogCache
+  const catalog = await fetchAndBuildCatalog()
+  _catalogCache = catalog
+  _catalogCacheAt = now
+  return catalog
 })
+
+// Score a product by how useful it is for AI recommendations:
+// products with images, matched concerns, and subcategories rank higher.
+function scoreProduct(p: CatalogProduct): number {
+  return (
+    (p.imageUrl ? 4 : 0) +
+    Math.min(p.concerns.length, 4) +
+    Math.min(p.subcategories.length, 3) +
+    (p.description.length > 80 ? 1 : 0)
+  )
+}
+
+// Pick the top N best products for the AI system prompt.
+// Keeps the prompt small enough for the model to reason well (~60 products ≈ 6–8k tokens).
+export function selectBestProducts(products: CatalogProduct[], n: number): CatalogProduct[] {
+  return [...products]
+    .sort((a, b) => scoreProduct(b) - scoreProduct(a))
+    .slice(0, n)
+}
 
 // Generate a text-based product catalog for the AI system prompt
 export function catalogToPromptText(products: CatalogProduct[], type: 'skin' | 'hair'): string {
