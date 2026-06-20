@@ -43,8 +43,8 @@
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   /* Dark mode overrides for better contrast */
-  --luxury-charcoal: #CCCCCC;
-  --luxury-gray: #AAAAAA;
+  --luxury-charcoal: #E0E0E0;
+  --luxury-gray: #B0B0B0;
   --card: oklch(0.145 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
@@ -340,3 +340,8 @@ html {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Utility classes */
+.high-contrast-text { color: var(--luxury-charcoal); }
+.skip-link { position: absolute; left: -999px; top: -999px; background: var(--luxury-cream); color: var(--luxury-charcoal); padding: 0.5rem 1rem; z-index: 1000; }
+.skip-link:focus { left: 1rem; top: 1rem; }

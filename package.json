@@ -13,7 +13,8 @@
     "scrape:sephora": "node scripts/scrape-all.mjs --source sephora",
     "scrape:ulta": "node scripts/scrape-all.mjs --source ulta",
     "scrape:amazon": "node scripts/scrape-all.mjs --source amazon",
-    "scrape:dry": "node scripts/scrape-all.mjs --dry-run"
+    "scrape:dry": "node scripts/scrape-all.mjs --dry-run",
+    "lighthouse": "npx lighthouse http://localhost:3000 --output=html --output=json"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.85",

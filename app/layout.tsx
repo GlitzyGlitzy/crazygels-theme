@@ -150,7 +150,11 @@ export default function RootLayout({
       <body className={`${_geist.variable} ${_geistMono.variable} ${_cormorant.variable} font-sans antialiased`} suppressHydrationWarning>
         <AnalyticsScripts gtmId={GTM_ID} gaMeasurementId={GA_MEASUREMENT_ID} />
         <GtmNoscript gtmId={GTM_ID} />
-        {children}
+        {/* Skip link for accessibility */}
+        <a href="#main" className="skip-link">Skip to main content</a>
+        <main id="main">
+          {children}
+        </main>
         {/* Analytics disabled - crashes in v0 sandbox */}
         <KlaviyoScript />
       </body>
