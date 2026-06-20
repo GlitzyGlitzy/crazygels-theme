@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -73,7 +73,48 @@ type LogEntry = {
   message: string;
 };
 
+function AdminTokenGate({ onLogin }: { onLogin: (token: string) => void }) {
+  const [token, setToken] = useState("");
+
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (token.trim()) onLogin(token.trim());
+        }}
+        className="mx-4 w-full max-w-sm rounded-2xl border border-[#E8E4DC] bg-white p-8 shadow-sm"
+      >
+        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#9E6B73]">
+          Internal Access
+        </p>
+        <h2 className="mt-1 font-serif text-xl font-light text-[#1A1A1A]">
+          Scraper Pipeline
+        </h2>
+        <p className="mt-2 text-xs text-[#9B9B9B]">
+          Enter your admin token to access the database import tool.
+        </p>
+        <input
+          type="password"
+          value={token}
+          onChange={(e) => setToken(e.target.value)}
+          placeholder="Admin token"
+          className="mt-5 h-10 w-full rounded-lg border border-[#E8E4DC] bg-[#FAFAF8] px-4 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:border-[#9E6B73] focus:outline-none"
+        />
+        <button
+          type="submit"
+          className="mt-3 h-10 w-full rounded-lg bg-[#9E6B73] text-sm font-medium text-white transition-colors hover:bg-[#8A5B63]"
+        >
+          Access Dashboard
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function ScraperTestPage() {
+  const [adminToken, setAdminToken] = useState<string | null>(null);
+  const [tokenReady, setTokenReady] = useState(false);
   const [dbStatus, setDbStatus] = useState<DBStatus | null>(null);
   const [healthResult, setHealthResult] = useState<HealthResult | null>(null);
   const [diagnoseSteps, setDiagnoseSteps] = useState<DiagnoseStep[] | null>(null);
@@ -82,6 +123,12 @@ export default function ScraperTestPage() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [loading, setLoading] = useState<string | null>(null);
   const [jsonInput, setJsonInput] = useState("");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("cg_admin_token") || "";
+    if (stored) setAdminToken(stored);
+    setTokenReady(true);
+  }, []);
 
   const addLog = useCallback(
     (level: LogEntry["level"], message: string) => {
@@ -101,7 +148,10 @@ export default function ScraperTestPage() {
     setLoading("setup");
     addLog("info", "Setting up database tables...");
     try {
-      const res = await fetch("/api/db-setup", { method: "POST" });
+      const res = await fetch("/api/db-setup", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       const data = await res.json();
       setDbStatus(data);
       if (data.status === "success") {
@@ -134,7 +184,9 @@ export default function ScraperTestPage() {
     setLoading("health");
     addLog("info", "Checking database health...");
     try {
-      const res = await fetch("/api/db-health");
+      const res = await fetch("/api/db-health", {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       const data: HealthResult = await res.json();
       setHealthResult(data);
       if (data.status === "connected") {
@@ -162,7 +214,9 @@ export default function ScraperTestPage() {
     setLoading("stats");
     addLog("info", "Loading catalog stats...");
     try {
-      const res = await fetch("/api/import-products");
+      const res = await fetch("/api/import-products", {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       const data: CatalogStats = await res.json();
       setCatalogStats(data);
       if (data.status === "connected") {
@@ -181,7 +235,9 @@ export default function ScraperTestPage() {
     setDiagnoseSteps(null);
     addLog("info", "Running deep connection diagnostics (DNS -> TCP -> Postgres)...");
     try {
-      const res = await fetch("/api/db-diagnose");
+      const res = await fetch("/api/db-diagnose", {
+        headers: { Authorization: `Bearer ${adminToken}` },
+      });
       const data = await res.json();
       setDiagnoseSteps(data.steps || []);
       const failed = (data.steps || []).filter((s: DiagnoseStep) => s.status === "fail");
@@ -216,7 +272,10 @@ export default function ScraperTestPage() {
 
       const res = await fetch("/api/import-products", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${adminToken}`,
+        },
         body: JSON.stringify({ products }),
       });
       const data: ImportResult = await res.json();
@@ -315,6 +374,19 @@ export default function ScraperTestPage() {
         return "text-[#6B5B4F]";
     }
   };
+
+  if (!tokenReady) return null;
+
+  if (!adminToken) {
+    return (
+      <AdminTokenGate
+        onLogin={(t) => {
+          localStorage.setItem("cg_admin_token", t);
+          setAdminToken(t);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
