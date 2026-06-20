@@ -4,9 +4,22 @@ import { useState, useTransition } from 'react';
 import { Product, ProductVariant } from '@/lib/shopify/types';
 import { Button } from '@/components/ui/button';
 import { cn, formatPrice } from '@/lib/utils';
-import { Plus, Minus, ShoppingBag, Heart, Share2, Check } from 'lucide-react';
+import { Plus, Minus, ShoppingBag, Heart, Share2, Check, ShieldCheck, Truck, RotateCcw, Sparkles } from 'lucide-react';
 import { addItemToCart } from '@/lib/shopify/actions';
 import { trackAddedToCart } from '@/lib/klaviyo-client';
+import { trackGrowthEvent } from '@/lib/analytics-client';
+
+const quantityBundles = [
+  { quantity: 1, label: 'Try it', note: 'Single product' },
+  { quantity: 2, label: 'Routine pair', note: 'Use morning and night' },
+  { quantity: 3, label: 'Stock up', note: 'Best for replenishment' },
+];
+
+const confidenceItems = [
+  { icon: ShieldCheck, title: 'Secure checkout', detail: 'Protected by Shopify' },
+  { icon: Truck, title: 'Free shipping target', detail: 'Progress shown in cart' },
+  { icon: RotateCcw, title: 'Easy returns', detail: '14-day policy' },
+];
 
 export function ProductInfo({ product }: { product: Product }) {
   const variants = (product.variants?.edges ?? []).map((edge) => edge.node);
@@ -72,6 +85,15 @@ export function ProductInfo({ product }: { product: Product }) {
           quantity,
           variantName: selectedVariant.title !== 'Default Title' ? selectedVariant.title : undefined,
         });
+        trackGrowthEvent('add_to_cart', {
+          product_id: product.id,
+          product_name: product.title,
+          variant_id: selectedVariant.id,
+          quantity,
+          value: parseFloat(selectedVariant.price.amount) * quantity,
+          currency: selectedVariant.price.currencyCode,
+          bundle_tier: quantity >= 3 ? 'stock_up' : quantity === 2 ? 'routine_pair' : 'single',
+        });
 
         setIsAdded(true);
         setTimeout(() => setIsAdded(false), 2000);
@@ -94,6 +116,11 @@ export function ProductInfo({ product }: { product: Product }) {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(url);
+        trackGrowthEvent('product_share', {
+          product_id: product.id,
+          product_name: product.title,
+          method: 'clipboard',
+        });
         setShareMessage('Link copied!');
         setTimeout(() => setShareMessage(null), 2000);
       }
@@ -109,6 +136,11 @@ export function ProductInfo({ product }: { product: Product }) {
 
   const handleFavorite = () => {
     setIsFavorited((prev) => !prev);
+    trackGrowthEvent('product_wishlist_toggle', {
+      product_id: product.id,
+      product_name: product.title,
+      favorited: !isFavorited,
+    });
   };
 
   const decreaseQuantity = () => {
@@ -159,6 +191,19 @@ export function ProductInfo({ product }: { product: Product }) {
           {product.description.length > 200 ? '...' : ''}
         </p>
       )}
+
+      {/* Confidence Strip */}
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+        {confidenceItems.map((item) => (
+          <div key={item.title} className="flex items-start gap-2 rounded-lg border border-[#8C3F48]/15 bg-white/60 p-3">
+            <item.icon className="mt-0.5 h-4 w-4 shrink-0 text-[#8C3F48]" aria-hidden="true" />
+            <div>
+              <p className="text-xs font-semibold text-[#2C2C2C]">{item.title}</p>
+              <p className="mt-0.5 text-[11px] leading-snug text-[#2C2C2C]/60">{item.detail}</p>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Variant Selectors */}
       {hasMultipleVariants && (
@@ -232,6 +277,47 @@ export function ProductInfo({ product }: { product: Product }) {
           {!isAvailable && (
             <span className="text-sm text-destructive">Out of Stock</span>
           )}
+        </div>
+      </div>
+
+      {/* Bundle Quantity Shortcuts */}
+      <div className="rounded-lg border border-[#8C3F48]/15 bg-[#FFFEF9] p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-[#8C3F48]" aria-hidden="true" />
+          <p className="text-sm font-semibold text-[#2C2C2C]">Build a better routine</p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {quantityBundles.map((bundle) => {
+            const isSelected = quantity === bundle.quantity;
+
+            return (
+              <button
+                key={bundle.quantity}
+                type="button"
+                onClick={() => {
+                  setQuantity(bundle.quantity);
+                  trackGrowthEvent('product_bundle_quantity_select', {
+                    product_id: product.id,
+                    product_name: product.title,
+                    quantity: bundle.quantity,
+                    bundle_label: bundle.label,
+                  });
+                }}
+                className={cn(
+                  'rounded-lg border px-3 py-3 text-left transition-all',
+                  isSelected
+                    ? 'border-[#8C3F48] bg-[#8C3F48]/10'
+                    : 'border-[#8C3F48]/15 bg-white hover:border-[#8C3F48]/40'
+                )}
+                aria-pressed={isSelected}
+              >
+                <span className="block text-sm font-semibold text-[#2C2C2C]">{bundle.label}</span>
+                <span className="mt-1 block text-xs text-[#2C2C2C]/60">
+                  {bundle.quantity}x - {bundle.note}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

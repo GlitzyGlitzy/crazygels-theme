@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { klaviyoIdentify } from '@/lib/klaviyo-client';
+import { trackGrowthEvent } from '@/lib/analytics-client';
 import { Gift, Sparkles, Mail } from 'lucide-react';
 
 export function NewsletterForm() {
@@ -28,6 +29,10 @@ export function NewsletterForm() {
         }
 
         klaviyoIdentify({ email: email.trim() });
+        trackGrowthEvent('newsletter_signup', {
+          source: 'website-footer',
+          incentive: 'first_order_discount',
+        });
         setStatus('success');
         setEmail('');
       } catch (err) {

@@ -15,34 +15,34 @@ export function HeroSection() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-[var(--bio-teal)]/20 rounded-full mb-6">
               <span className="w-2 h-2 rounded-full bg-[var(--bio-teal)] animate-pulse" />
               <span className="text-[11px] font-medium tracking-[0.2em] text-[var(--bio-teal)] uppercase">
-                AI Beauty Consultant
+                Routine Builder
               </span>
             </div>
 
             <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl xl:text-7xl font-light leading-[1.05] tracking-tight text-[var(--bio-text)] mb-5 md:mb-6 text-balance">
-              Skincare, <span className="text-[var(--bio-teal)]">Cosmetics</span>
+              Beauty routines <span className="text-[var(--bio-teal)]">matched</span>
               <br />
-              and Beauty Tools
+              to your goals,
               <br />
-              <span className="italic">Chosen for You.</span>
+              <span className="italic">ready to buy.</span>
             </h1>
 
             <p className="text-base md:text-lg text-[var(--bio-text-muted)] leading-relaxed max-w-lg mb-8">
-              Shop expert-curated skincare, makeup, hair care, nail care, and beauty tools.
-              Our AI beauty consultant helps match your routine to your skin goals, hair needs,
-              and everyday style.
+              Shop skincare, makeup, hair care, nail care, and beauty tools with a clear plan:
+              take the free consult, get matched products, then build a routine or bundle that
+              fits your skin goals, hair needs, and everyday style.
             </p>
 
             <Link
               href="/consult"
               className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--bio-teal)] text-[var(--bio-dark)] text-sm font-semibold tracking-[0.05em] uppercase transition-all duration-300 hover:shadow-[0_0_30px_rgba(0,212,170,0.3)]"
             >
-              Get Your Free Consultation
+              Build My Free Routine
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
             <p className="mt-4 text-xs text-[var(--bio-text-muted)]">
-              Browse products first or start with a free consultation. GDPR compliant.
+              No credit card required. Secure checkout, real reviews, and easy returns.
             </p>
           </div>
 
@@ -67,8 +67,8 @@ export function HeroSection() {
                       <path d="M2 12l10 5 10-5" />
                     </svg>
                   </div>
-                  <p className="text-[var(--bio-teal)] font-mono text-sm font-medium">BEAUTY MATCH</p>
-                  <p className="text-[var(--bio-text)] font-mono text-lg font-bold mt-1">Shop Smarter</p>
+                  <p className="text-[var(--bio-teal)] font-mono text-sm font-medium">ROUTINE MATCH</p>
+                  <p className="text-[var(--bio-text)] font-mono text-lg font-bold mt-1">Buy Confidently</p>
                 </div>
               </div>
 

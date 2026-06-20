@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { DynamicHeader } from "@/components/layout/dynamic-header"
 import { Footer } from "@/components/layout/footer"
 import { HeroSection } from "@/components/home/hero-section"
+import { LevelOneGrowthSection } from "@/components/home/level-one-growth-section"
 import { BeautyCategoriesSection } from "@/components/home/beauty-categories-section"
 import { ProblemSection } from "@/components/home/problem-section"
 import { BioScanSection } from "@/components/home/bio-scan-section"
@@ -76,7 +77,7 @@ export default function HomePage() {
       {/* Announcement Bar */}
       <div className="bg-[var(--bio-teal)] py-2 md:py-2.5">
         <p className="text-center text-[10px] md:text-[11px] font-medium tracking-[0.15em] md:tracking-[0.2em] text-[var(--bio-dark)] uppercase px-4">
-          Free AI Beauty Consultant — Get Personalized Product Recommendations Today
+          Free AI Beauty Consultant - Build a routine, buy with confidence, reorder smarter
         </p>
       </div>
 
@@ -88,6 +89,7 @@ export default function HomePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }}
         />
         <HeroSection />
+        <LevelOneGrowthSection />
         <BeautyCategoriesSection />
         <ProblemSection />
         <BioScanSection />

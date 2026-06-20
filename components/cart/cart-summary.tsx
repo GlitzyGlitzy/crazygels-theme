@@ -5,6 +5,7 @@ import { Cart } from '@/lib/shopify/types';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/utils';
 import { Tag, ChevronRight, CreditCard, Shield } from 'lucide-react';
+import { trackGrowthEvent } from '@/lib/analytics-client';
 
 export function CartSummary({ cart }: { cart: Cart }) {
   const [promoCode, setPromoCode] = useState('');
@@ -23,6 +24,12 @@ export function CartSummary({ cart }: { cart: Cart }) {
   const handleApplyPromo = async () => {
     if (!promoCode.trim()) return;
     setIsApplyingPromo(true);
+    trackGrowthEvent('promo_code_apply_attempt', {
+      cart_id: cart.id,
+      subtotal,
+      currency: currencyCode,
+      code_entered: true,
+    });
     // TODO: Implement promo code application via Shopify API
     setTimeout(() => setIsApplyingPromo(false), 1000);
   };
@@ -107,6 +114,17 @@ export function CartSummary({ cart }: { cart: Cart }) {
         {/* Checkout Button */}
         <a
           href={cart.checkoutUrl}
+          onClick={() => {
+            trackGrowthEvent('begin_checkout', {
+              cart_id: cart.id,
+              item_count: cart.totalQuantity,
+              subtotal,
+              shipping,
+              value: total + shipping,
+              currency: currencyCode,
+              free_shipping_unlocked: shipping === 0,
+            });
+          }}
           className="w-full mt-4 bg-[var(--brand-accent)] hover:bg-[var(--brand-accent-dark)] text-white font-medium py-4 px-6 rounded-full transition-all flex items-center justify-center gap-2 group"
         >
           <CreditCard className="w-5 h-5" />
