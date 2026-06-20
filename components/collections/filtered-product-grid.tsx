@@ -32,9 +32,12 @@ export function FilteredProductGrid({
   const activeSubcategory = searchParams.get('subcategory') || '';
 
   // Read filters from URL
-  const activeTypes = searchParams.get('type')?.split(',').filter(Boolean) || [];
-  const activePrice = searchParams.get('price')?.split(',').filter(Boolean) || [];
-  const activeColors = searchParams.get('color')?.split(',').filter(Boolean) || [];
+  const typeParam = searchParams.get('type');
+  const priceParam = searchParams.get('price');
+  const colorParam = searchParams.get('color');
+  const activeTypes = useMemo(() => typeParam?.split(',').filter(Boolean) || [], [typeParam]);
+  const activePrice = useMemo(() => priceParam?.split(',').filter(Boolean) || [], [priceParam]);
+  const activeColors = useMemo(() => colorParam?.split(',').filter(Boolean) || [], [colorParam]);
   const setsOnly = searchParams.get('sets') === 'true';
 
   const hasActiveFilters = activeTypes.length > 0 || activePrice.length > 0 || activeColors.length > 0 || setsOnly;

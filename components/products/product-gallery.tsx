@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Product } from '@/lib/shopify/types';
 import { ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
@@ -57,9 +58,11 @@ export function ProductGallery({ product }: { product: Product }) {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <img
+        <Image
           src={currentImage.url}
           alt={currentImage.altText || `${product.title} - ${product.productType || 'Beauty Product'} | Crazy Gels`}
+          fill
+          sizes="(min-width: 1024px) 50vw, 100vw"
           className={cn(
             'absolute inset-0 w-full h-full object-cover transition-transform duration-500',
             isZoomed ? 'scale-150 cursor-zoom-out' : 'cursor-zoom-in'
@@ -144,11 +147,12 @@ export function ProductGallery({ product }: { product: Product }) {
                 aria-label={`View image ${index + 1}`}
                 aria-current={selectedIndex === index ? 'true' : undefined}
               >
-                <img
+                <Image
                   src={image.url}
                   alt={image.altText || `${product.title} - ${product.productType || 'Beauty Product'} view ${index + 1}`}
+                  fill
+                  sizes="80px"
                   className="absolute inset-0 w-full h-full object-cover"
-                  loading="lazy"
                 />
               </button>
           ))}

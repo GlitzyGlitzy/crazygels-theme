@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Product } from '@/lib/shopify/types';
 import { shortenProductTitle, formatPrice } from '@/lib/utils';
 
@@ -15,11 +16,12 @@ export function ProductCard({ product }: { product: Product }) {
     >
       <div className="relative aspect-square overflow-hidden bg-muted">
         {featuredImage?.url ? (
-          <img
+          <Image
             src={featuredImage.url}
             alt={featuredImage.altText || title}
+            fill
+            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
           />
         ) : (
           <div className="flex h-full items-center justify-center text-muted-foreground">

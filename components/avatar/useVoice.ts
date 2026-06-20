@@ -70,7 +70,6 @@ export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
   const [voices, setVoices]                     = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoiceURI, setSelectedVoiceURI] = useState('');
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef  = useRef<any>(null);
   const voiceRef        = useRef<SpeechSynthesisVoice | null>(null);
   const mouthTimerRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -82,7 +81,6 @@ export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
     const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
     const hasMic = !!SR;
@@ -136,7 +134,6 @@ export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
   const startListening = useCallback(() => {
     if (typeof window === 'undefined') return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
     const SR = w.SpeechRecognition || w.webkitSpeechRecognition;
 
@@ -162,7 +159,6 @@ export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
 
     recognition.onstart = () => setListening(true);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onresult = (e: any) => {
       let interim = '';
       let finalText = '';
@@ -178,7 +174,6 @@ export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
       }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onerror = (e: any) => {
       const map: Record<string, RecognitionError> = {
         'not-allowed': 'not-allowed',

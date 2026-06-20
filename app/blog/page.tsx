@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 
 import { getAllArticles, isShopifyConfigured } from '@/lib/shopify';
 import { DynamicHeader } from '@/components/layout/dynamic-header';
@@ -120,9 +121,11 @@ async function BlogArticles() {
             <div className="grid md:grid-cols-2 gap-0">
               <div className="relative aspect-[16/10] md:aspect-auto">
                 {featuredArticle.image ? (
-                  <img
+                  <Image
                     src={featuredArticle.image.url}
                     alt={featuredArticle.image.altText || featuredArticle.title}
+                    fill
+                    sizes="(min-width: 768px) 50vw, 100vw"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
@@ -172,11 +175,12 @@ async function BlogArticles() {
                 >
                   <div className="relative aspect-[16/10]">
                     {article.image?.url ? (
-                      <img
+                      <Image
                         src={article.image.url}
                         alt={article.image.altText || article.title}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
                       />
                     ) : (
                     <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/10 to-[#C9A9A6]/10 flex items-center justify-center">

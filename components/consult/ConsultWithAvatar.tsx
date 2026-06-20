@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback, type ElementType } from 'reac
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, type UIMessage } from 'ai';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft, Send, Loader2, Sparkles, User, RefreshCcw,
   ShoppingBag, ExternalLink, Mic, MicOff, Volume2, VolumeX, ChevronDown,
@@ -55,11 +56,12 @@ function ProductCard({ product, accent }: { product: RecommendedProduct; accent:
     >
       <div className="aspect-square relative bg-[#F5F3EF] overflow-hidden">
         {product.imageUrl ? (
-          <img
+          <Image
             src={product.imageUrl}
             alt={product.title}
+            fill
+            sizes="(min-width: 768px) 320px, 100vw"
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

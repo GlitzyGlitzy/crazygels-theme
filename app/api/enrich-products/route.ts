@@ -410,7 +410,6 @@ export async function POST(request: NextRequest) {
       `;
 
       // Also try ingredient-based matching if we got few results
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let extraCandidates: any[] = [];
       const shopifyActives = extractActives(`${sp.title} ${sp.description || ""}`);
       if (candidates.length < 3 && shopifyActives.length > 0) {
