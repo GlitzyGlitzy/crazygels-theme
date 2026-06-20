@@ -2,7 +2,7 @@
 
 export type AvatarState = 'idle' | 'listening' | 'thinking' | 'speaking';
 
-export function DoctorAvatar({ state, className = '' }: { state: AvatarState; className?: string }) {
+export function DoctorAvatar({ state, mouthOpen = false, className = '' }: { state: AvatarState; mouthOpen?: boolean; className?: string }) {
   return (
     <div className={`relative ${className}`} aria-label="Dr. Maya beauty consultant avatar">
       <style>{`
@@ -32,14 +32,12 @@ export function DoctorAvatar({ state, className = '' }: { state: AvatarState; cl
           transform-box: fill-box;
           transform-origin: 50% 50%;
           transform: scaleY(0);
+          transition: transform 0.09s ease-in-out;
         }
-        .maya-speaking .maya-gap {
-          animation: maya-speak 0.26s ease-in-out infinite alternate;
-        }
-        @keyframes maya-speak {
-          from { transform: scaleY(0.08); }
-          to   { transform: scaleY(1); }
-        }
+        /* Slightly parted during speech (fallback for browsers without onboundary) */
+        .maya-speaking .maya-gap { transform: scaleY(0.12); }
+        /* Full open when a word boundary fires */
+        .maya-mouth-open .maya-gap { transform: scaleY(1); }
 
         /* ── Thinking brows ── */
         .maya-brow-l { transition: transform 0.35s ease; }
@@ -74,7 +72,7 @@ export function DoctorAvatar({ state, className = '' }: { state: AvatarState; cl
       <svg
         viewBox="0 0 300 380"
         className={`dr-maya w-full h-full ${
-          state === 'speaking'  ? 'maya-speaking'  :
+          state === 'speaking'  ? `maya-speaking${mouthOpen ? ' maya-mouth-open' : ''}` :
           state === 'listening' ? 'maya-listening' :
           state === 'thinking'  ? 'maya-thinking'  : ''
         }`}

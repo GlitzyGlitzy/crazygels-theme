@@ -5,6 +5,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 export interface UseVoiceReturn {
   listening: boolean;
   speaking: boolean;
+  mouthOpen: boolean;
   supported: boolean;
   startListening: () => void;
   stopListening: () => void;
@@ -15,11 +16,13 @@ export interface UseVoiceReturn {
 export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
   const [listening, setListening] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [mouthOpen, setMouthOpen] = useState(false);
   const [supported, setSupported] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const recognitionRef = useRef<any>(null);
   const voiceRef = useRef<SpeechSynthesisVoice | null>(null);
+  const mouthTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -102,8 +105,24 @@ export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
     utt.volume = 1;
 
     utt.onstart = () => setSpeaking(true);
-    utt.onend   = () => setSpeaking(false);
-    utt.onerror = () => setSpeaking(false);
+
+    // Sync mouth to word boundaries — fires per word in Chrome/Edge
+    utt.onboundary = (e: SpeechSynthesisEvent) => {
+      if (e.name !== 'word') return;
+      if (mouthTimerRef.current) clearTimeout(mouthTimerRef.current);
+      setMouthOpen(true);
+      // Estimate word duration: charLength chars × ~70ms, min 150ms
+      const wordLen = (e as SpeechSynthesisEvent & { charLength?: number }).charLength ?? 5;
+      mouthTimerRef.current = setTimeout(() => setMouthOpen(false), Math.max(150, wordLen * 70));
+    };
+
+    const closeMouth = () => {
+      setSpeaking(false);
+      setMouthOpen(false);
+      if (mouthTimerRef.current) clearTimeout(mouthTimerRef.current);
+    };
+    utt.onend   = closeMouth;
+    utt.onerror = closeMouth;
 
     window.speechSynthesis.speak(utt);
   }, []);
@@ -111,7 +130,9 @@ export function useVoice(onTranscript: (text: string) => void): UseVoiceReturn {
   const stopSpeaking = useCallback(() => {
     window.speechSynthesis?.cancel();
     setSpeaking(false);
+    setMouthOpen(false);
+    if (mouthTimerRef.current) clearTimeout(mouthTimerRef.current);
   }, []);
 
-  return { listening, speaking, supported, startListening, stopListening, speak, stopSpeaking };
+  return { listening, speaking, mouthOpen, supported, startListening, stopListening, speak, stopSpeaking };
 }

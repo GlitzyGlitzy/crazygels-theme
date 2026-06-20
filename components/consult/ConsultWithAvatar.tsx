@@ -160,7 +160,7 @@ export function ConsultWithAvatar({
     sendMessage({ text });
   }, [isLoading, sendMessage]);
 
-  const { listening, speaking, supported, startListening, stopListening, speak, stopSpeaking } = useVoice(handleTranscript);
+  const { listening, speaking, mouthOpen, supported, startListening, stopListening, speak, stopSpeaking } = useVoice(handleTranscript);
 
   // Auto-speak when streaming finishes and a new assistant message arrived
   useEffect(() => {
@@ -256,7 +256,7 @@ export function ConsultWithAvatar({
 
             {/* Avatar */}
             <div className="w-full max-w-[220px] md:max-w-full aspect-[3/4]">
-              <DoctorAvatar state={avatarState} className="w-full h-full drop-shadow-xl" />
+              <DoctorAvatar state={avatarState} mouthOpen={mouthOpen} className="w-full h-full drop-shadow-xl" />
             </div>
 
             {/* Status + controls */}
