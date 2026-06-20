@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
 import crypto from "crypto";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /**
  * POST /api/admin/scrape-obf
@@ -15,13 +16,6 @@ import crypto from "crypto";
  */
 
 const USD_TO_EUR = 0.92;
-
-function verifyAdmin(req: NextRequest): boolean {
-  const token =
-    req.headers.get("x-admin-token") ||
-    req.headers.get("authorization")?.replace("Bearer ", "");
-  return token === process.env.ADMIN_TOKEN;
-}
 
 // Brand -> typical EUR price range (midpoint used as retail_price)
 const BRAND_PRICES: Record<string, { price: number; tier: string }> = {
@@ -174,9 +168,7 @@ function makeHash(source: string, id: string, name: string): string {
 }
 
 export async function POST(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   if (!process.env.DATABASE_URL) {
     return NextResponse.json(
@@ -291,9 +283,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   // Return staging stats
   const stats = await sql`

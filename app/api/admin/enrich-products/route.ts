@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /**
  * POST /api/admin/enrich-products
@@ -13,13 +14,6 @@ import sql from "@/lib/db";
  *
  * Accepts optional { batch_size, dry_run } in the body.
  */
-
-function verifyAdmin(req: NextRequest): boolean {
-  const token =
-    req.headers.get("x-admin-token") ||
-    req.headers.get("authorization")?.replace("Bearer ", "");
-  return token === process.env.ADMIN_TOKEN;
-}
 
 // Price suggestions based on tier -- ONLY used when user explicitly clicks "Set Prices"
 // These are suggestions for YOUR selling prices (with margin), not market research prices.
@@ -98,9 +92,7 @@ async function searchOpenBeautyFacts(
 }
 
 export async function POST(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   try {
     const body = await req.json().catch(() => ({}));
@@ -207,9 +199,7 @@ export async function POST(req: NextRequest) {
  * Returns stats on enrichment progress.
  */
 export async function GET(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   try {
     const stats = await sql<{

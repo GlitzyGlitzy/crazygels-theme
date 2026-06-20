@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
-
-function verifyAdmin(req: NextRequest): boolean {
-  const token =
-    req.headers.get("authorization")?.replace("Bearer ", "") ||
-    req.headers.get("x-admin-token");
-  return token === process.env.ADMIN_TOKEN;
-}
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 function csvEscape(value: string | number | boolean | undefined | null): string {
   if (value === undefined || value === null) return "";
@@ -55,9 +49,7 @@ const GOOGLE_CATEGORIES: Record<string, string> = {
 };
 
 export async function GET(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   try {
     const rows = await sql`

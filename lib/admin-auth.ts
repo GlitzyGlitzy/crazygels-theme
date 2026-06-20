@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export function verifyAdmin(req: NextRequest): boolean {
-  const token = req.headers.get("authorization")?.replace("Bearer ", "");
-  return !!token && token === process.env.ADMIN_TOKEN;
+  const expected = process.env.ADMIN_TOKEN;
+  if (!expected) return false;
+
+  const token =
+    req.cookies.get("cg_admin_session")?.value ||
+    req.headers.get("authorization")?.replace(/^Bearer\s+/i, "") ||
+    req.headers.get("x-admin-token");
+
+  return token === expected;
 }
 
 export function unauthorized(): NextResponse {

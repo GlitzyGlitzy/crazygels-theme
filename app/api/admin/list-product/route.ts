@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { listProduct, updateInventory } from "@/lib/shopify/list-product";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 export async function POST(request: NextRequest) {
-  // Verify admin token
-  const adminToken = request.headers.get("x-admin-token");
-  if (adminToken !== process.env.ADMIN_TOKEN) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(request)) return unauthorized();
 
   try {
     const body = await request.json();

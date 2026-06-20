@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN?.replace(
   /^https?:\/\//,
@@ -91,24 +92,8 @@ function generateProductHtml(product: {
   `.trim();
 }
 
-function extractToken(request: NextRequest): string | null {
-  const xToken = request.headers.get("x-admin-token");
-  if (xToken) return xToken;
-  const auth = request.headers.get("authorization");
-  if (auth?.startsWith("Bearer ")) return auth.slice(7);
-  return null;
-}
-
 export async function POST(request: NextRequest) {
-  const adminToken = extractToken(request);
-  const envToken = process.env.ADMIN_TOKEN;
-  console.log("[v0] POST bulk-list - received:", JSON.stringify(adminToken), "env:", JSON.stringify(envToken), "match:", adminToken === envToken);
-  if (!envToken) {
-    return NextResponse.json({ error: "ADMIN_TOKEN env var not set" }, { status: 500 });
-  }
-  if (adminToken !== envToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(request)) return unauthorized();
 
   if (!SHOPIFY_STORE || !SHOPIFY_ADMIN_TOKEN) {
     return NextResponse.json(
@@ -305,15 +290,7 @@ export async function POST(request: NextRequest) {
 
 // GET: Check how many products are ready to list
 export async function GET(request: NextRequest) {
-  const adminToken = extractToken(request);
-  const envToken = process.env.ADMIN_TOKEN;
-  console.log("[v0] GET bulk-list - received:", JSON.stringify(adminToken), "env:", JSON.stringify(envToken), "match:", adminToken === envToken);
-  if (!envToken) {
-    return NextResponse.json({ error: "ADMIN_TOKEN env var not set" }, { status: 500 });
-  }
-  if (adminToken !== envToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(request)) return unauthorized();
 
   const stats = await sql<
     { category: string; ready: number; listed: number }[]

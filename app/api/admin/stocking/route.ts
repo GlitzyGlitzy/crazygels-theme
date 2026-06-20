@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
-
-function verifyAdmin(req: NextRequest): boolean {
-  const token =
-    req.headers.get("authorization")?.replace("Bearer ", "") ||
-    req.headers.get("x-admin-token");
-  return token === process.env.ADMIN_TOKEN;
-}
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /* ── GET: fetch all stocking decisions with product catalog data ── */
 export async function GET(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   try {
     const { searchParams } = new URL(req.url);
@@ -72,9 +64,7 @@ export async function GET(req: NextRequest) {
 
 /* ── POST: create or update a stocking decision ── */
 export async function POST(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   try {
     const body = await req.json();

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
 import { buildSeoTitle, buildSeoDescription } from "@/lib/seo";
+import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
 /**
  * GET /api/export-catalog-csv
@@ -12,13 +13,6 @@ import { buildSeoTitle, buildSeoDescription } from "@/lib/seo";
  * This is different from /api/export-products-csv which exports EXISTING Shopify products.
  * This endpoint exports SCRAPED products from the intelligence DB that are NOT yet on Shopify.
  */
-
-function verifyAdmin(req: NextRequest): boolean {
-  const token =
-    req.headers.get("x-admin-token") ||
-    req.headers.get("authorization")?.replace("Bearer ", "");
-  return !!token && token === process.env.ADMIN_TOKEN;
-}
 
 interface CatalogProduct {
   product_hash: string;
@@ -187,9 +181,7 @@ function buildProductRow(p: CatalogProduct): string[] {
 }
 
 export async function GET(req: NextRequest) {
-  if (!verifyAdmin(req)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  if (!verifyAdmin(req)) return unauthorized();
 
   try {
     const { searchParams } = new URL(req.url);
