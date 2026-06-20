@@ -1,9 +1,81 @@
 'use client';
 
+import drMayaImg from '@/assets/avatars/dr-maya.png';
+
 export type AvatarState = 'idle' | 'listening' | 'thinking' | 'speaking';
 
 export function DoctorAvatar({ state, mouthOpen = false, className = '' }: { state: AvatarState; mouthOpen?: boolean; className?: string }) {
   return (
+    <div className={`relative ${className}`} aria-label="Dr. Maya beauty consultant avatar">
+      <style>{`
+        .dr-maya {
+          animation: maya-breathe 5s ease-in-out infinite;
+        }
+        @keyframes maya-breathe {
+          0%, 100% { transform: translateY(0px); }
+          50%       { transform: translateY(-4px); }
+        }
+
+        /* ── Blink ── */
+        .maya-lid {
+          transform-box: fill-box;
+          transform-origin: 50% 0%;
+          transform: scaleY(0);
+          animation: maya-blink 5s infinite;
+        }
+        .maya-lid-r { animation-delay: 0.06s; }
+        @keyframes maya-blink {
+          0%, 84%, 94%, 100% { transform: scaleY(0); }
+          89%                { transform: scaleY(1); }
+        }
+
+        /* ── Speaking mouth ── */
+        .maya-gap {
+          transform-box: fill-box;
+          transform-origin: 50% 50%;
+          transform: scaleY(0);
+          transition: transform 0.09s ease-in-out;
+        }
+        .maya-speaking .maya-gap { transform: scaleY(0.12); }
+        .maya-mouth-open .maya-gap { transform: scaleY(1); }
+
+        /* ── Thinking brows ── */
+        .maya-brow-l { transition: transform 0.35s ease; }
+        .maya-brow-r { transition: transform 0.35s ease; }
+        .maya-thinking .maya-brow-l {
+          transform-box: fill-box;
+          transform-origin: right center;
+          transform: translate(-2px, -4px) rotate(-8deg);
+        }
+        .maya-thinking .maya-brow-r {
+          transform-box: fill-box;
+          transform-origin: left center;
+          transform: translate(2px, -4px) rotate(8deg);
+        }
+
+        /* ── Listening pulse rings ── */
+        .maya-ring { opacity: 0; }
+        .maya-listening .maya-ring {
+          animation: maya-pulse 1.6s ease-out infinite;
+          transform-box: fill-box;
+          transform-origin: 50% 50%;
+          opacity: 1;
+        }
+        .maya-listening .maya-ring-2 { animation-delay: 0.52s; }
+        .maya-listening .maya-ring-3 { animation-delay: 1.04s; }
+        @keyframes maya-pulse {
+          0%   { transform: scale(1);    opacity: 0.55; }
+          100% { transform: scale(1.45); opacity: 0; }
+        }
+      `}</style>
+
+      <img
+        src={drMayaImg}
+        alt="Dr. Maya avatar"
+        className={`w-full h-full object-cover ${state === 'listening' ? 'animate-pulse' : ''}`}
+      />
+    </div>
+  );
     <div className={`relative ${className}`} aria-label="Dr. Maya beauty consultant avatar">
       <style>{`
         .dr-maya {
@@ -69,29 +141,6 @@ export function DoctorAvatar({ state, mouthOpen = false, className = '' }: { sta
         }
       `}</style>
 
-      <svg
-        viewBox="0 0 300 380"
-        className={`dr-maya w-full h-full ${
-          state === 'speaking'  ? `maya-speaking${mouthOpen ? ' maya-mouth-open' : ''}` :
-          state === 'listening' ? 'maya-listening' :
-          state === 'thinking'  ? 'maya-thinking'  : ''
-        }`}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <defs>
-          <linearGradient id="maya-bg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#F9F5F1" />
-            <stop offset="100%" stopColor="#EDE6DD" />
-          </linearGradient>
-          <radialGradient id="maya-face-g" cx="42%" cy="36%" r="64%">
-            <stop offset="0%" stopColor="#F5CAA8" />
-            <stop offset="100%" stopColor="#D2905A" />
-          </radialGradient>
-          <radialGradient id="maya-coat-g" cx="50%" cy="0%" r="100%">
-            <stop offset="0%" stopColor="#FFFFFF" />
-            <stop offset="100%" stopColor="#EEE9E2" />
-          </radialGradient>
-          <filter id="maya-drop" x="-20%" y="-20%" width="140%" height="140%">
             <feDropShadow dx="0" dy="6" stdDeviation="11" floodColor="rgba(70,35,10,0.18)" />
           </filter>
         </defs>
