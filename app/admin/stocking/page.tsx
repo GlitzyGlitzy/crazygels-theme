@@ -387,28 +387,16 @@ export default function StockingPage() {
   const [editingExisting, setEditingExisting] = useState<StockingDecision | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
-  const [adminToken, setAdminToken] = useState<string | null>(null);
-  const [tokenReady, setTokenReady] = useState(false);
   const [bulkSelected, setBulkSelected] = useState<Set<string>>(new Set());
   const [bulkSaving, setBulkSaving] = useState(false);
 
-  useEffect(() => {
-    const stored = localStorage.getItem("cg_admin_token") || "";
-    setAdminToken(stored);
-    setTokenReady(true);
-  }, []);
-
   const fetchDecisions = useCallback(async () => {
-    if (!adminToken) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/admin/stocking?decision=${filter}&limit=200`,
-        { headers: { Authorization: `Bearer ${adminToken}` } }
-      );
+      const res = await fetch(`/api/admin/stocking?decision=${filter}&limit=200`);
       if (!res.ok) {
-        if (res.status === 401) throw new Error("Unauthorized");
+        if (res.status === 401) { window.location.href = "/admin/login"; return; }
         throw new Error("Failed to fetch");
       }
       const data = await res.json();
@@ -419,58 +407,33 @@ export default function StockingPage() {
     } finally {
       setLoading(false);
     }
-  }, [filter, adminToken]);
+  }, [filter]);
 
   const fetchUnstocked = useCallback(async () => {
-    if (!adminToken) return;
     try {
-      // Fetch research + sampled products not yet in stocking_decisions
-      const res = await fetch(
-        `/api/admin/demand-signals?status=research&sort=efficacy&limit=2000`,
-        { headers: { Authorization: `Bearer ${adminToken}` } }
-      );
+      const res = await fetch(`/api/admin/stocking?mode=unstocked&limit=2000`);
       if (!res.ok) return;
       const data = await res.json();
-      // Also fetch sampled
-      const res2 = await fetch(
-        `/api/admin/demand-signals?status=sampled&sort=efficacy&limit=2000`,
-        { headers: { Authorization: `Bearer ${adminToken}` } }
-      );
-      const data2 = res2.ok ? await res2.json() : { signals: [] };
-
-      const allSignals = [...data.signals, ...data2.signals];
-      const stockedHashes = new Set(
-        decisions.map((d) => d.product_hash)
-      );
-      setUnstocked(
-        allSignals.filter(
-          (s: UnstockedProduct) => !stockedHashes.has(s.product_hash)
-        )
-      );
+      setUnstocked(data.products);
     } catch {
       /* silently fail */
     }
-  }, [adminToken, decisions]);
+  }, []);
 
   useEffect(() => {
-    if (!tokenReady) return;
-    if (adminToken) fetchDecisions();
-    else setLoading(false);
-  }, [fetchDecisions, adminToken, tokenReady]);
+    fetchDecisions();
+  }, [fetchDecisions]);
 
   useEffect(() => {
-    if (showAdd && adminToken) fetchUnstocked();
-  }, [showAdd, adminToken, fetchUnstocked]);
+    if (showAdd) fetchUnstocked();
+  }, [showAdd, fetchUnstocked]);
 
   const handleSave = async (data: Record<string, unknown>) => {
     setSaving(true);
     try {
       const res = await fetch("/api/admin/stocking", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${adminToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
       if (!res.ok) {
@@ -539,52 +502,93 @@ export default function StockingPage() {
   const handleBulkAdd = async () => {
     if (bulkSelected.size === 0) return;
     setBulkSaving(true);
-    let success = 0;
-    let failed = 0;
+
     const selectedProducts = unstocked.filter((p) =>
       bulkSelected.has(p.product_hash)
     );
+
+    let success = 0;
+    let failed = 0;
+    const alreadyExisting: UnstockedProduct[] = [];
+
+    // First pass: skip_existing=true so we never silently overwrite
     for (const p of selectedProducts) {
       try {
         const res = await fetch("/api/admin/stocking", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${adminToken}`,
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             product_hash: p.product_hash,
             decision: "stock",
             initial_quantity: 10,
             fulfillment_method: "in_house",
             priority: "medium",
+            skip_existing: true,
           }),
         });
-        if (res.ok) success++;
-        else failed++;
+        if (res.ok) {
+          const data = await res.json();
+          if (data.skipped) alreadyExisting.push(p);
+          else success++;
+        } else {
+          failed++;
+        }
       } catch {
         failed++;
       }
     }
+
     setBulkSaving(false);
+
+    // If some products already had decisions, ask before overwriting
+    if (alreadyExisting.length > 0) {
+      const names = alreadyExisting
+        .slice(0, 5)
+        .map((p) => `• ${p.display_name}`)
+        .join("\n");
+      const more =
+        alreadyExisting.length > 5
+          ? `\n• …and ${alreadyExisting.length - 5} more`
+          : "";
+      const confirmed = window.confirm(
+        `${alreadyExisting.length} product${alreadyExisting.length === 1 ? "" : "s"} already had stocking decisions and were skipped:\n${names}${more}\n\nOverwrite their existing decisions with "stock"?`
+      );
+      if (confirmed) {
+        setBulkSaving(true);
+        for (const p of alreadyExisting) {
+          try {
+            const res = await fetch("/api/admin/stocking", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                product_hash: p.product_hash,
+                decision: "stock",
+                initial_quantity: 10,
+                fulfillment_method: "in_house",
+                priority: "medium",
+              }),
+            });
+            if (res.ok) success++;
+            else failed++;
+          } catch {
+            failed++;
+          }
+        }
+        setBulkSaving(false);
+      }
+    }
+
     setBulkSelected(new Set());
     setShowAdd(false);
     fetchDecisions();
-    alert(`Bulk add complete: ${success} added, ${failed} failed`);
+    fetchUnstocked();
+
+    const parts = [`${success} added`];
+    if (alreadyExisting.length > 0 && success < selectedProducts.length - failed)
+      parts.push(`${alreadyExisting.length} skipped (already had decisions)`);
+    if (failed) parts.push(`${failed} failed`);
+    alert(`Bulk add complete: ${parts.join(", ")}`);
   };
-
-  /* Auth gate */
-  if (!tokenReady) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E8E4DC] border-t-[#9E6B73]" />
-      </div>
-    );
-  }
-
-  if (!adminToken) {
-    return <AdminTokenGate onLogin={(t) => { localStorage.setItem("cg_admin_token", t); setAdminToken(t); }} />;
-  }
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]">
@@ -608,9 +612,7 @@ export default function StockingPage() {
   <button
   onClick={async () => {
     try {
-      const res = await fetch("/api/admin/stocking/export-csv", {
-        headers: { "x-admin-token": adminToken },
-      });
+      const res = await fetch("/api/admin/stocking/export-csv");
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(err.error || `Export failed (${res.status})`);
@@ -955,43 +957,6 @@ export default function StockingPage() {
           saving={saving}
         />
       )}
-    </div>
-  );
-}
-
-/* ── Auth Gate ── */
-
-function AdminTokenGate({ onLogin }: { onLogin: (token: string) => void }) {
-  const [token, setToken] = useState("");
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (token.trim()) onLogin(token.trim());
-        }}
-        className="mx-4 w-full max-w-sm rounded-2xl border border-[#E8E4DC] bg-white p-8 shadow-sm"
-      >
-        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#9E6B73]">
-          Internal Access
-        </p>
-        <h2 className="mt-1 font-serif text-xl font-light text-[#1A1A1A]">
-          Stocking Decisions
-        </h2>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Admin token"
-          className="mt-5 h-10 w-full rounded-lg border border-[#E8E4DC] bg-[#FAFAF8] px-4 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:border-[#9E6B73] focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="mt-4 w-full rounded-full bg-[#1A1A1A] py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#9E6B73]"
-        >
-          Enter Dashboard
-        </button>
-      </form>
     </div>
   );
 }

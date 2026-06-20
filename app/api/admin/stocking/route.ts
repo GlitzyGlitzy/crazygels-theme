@@ -2,12 +2,43 @@ import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
 import { verifyAdmin, unauthorized } from "@/lib/admin-auth";
 
-/* ── GET: fetch all stocking decisions with product catalog data ── */
+/* ── GET: fetch stocking decisions or unstocked catalog products ── */
 export async function GET(req: NextRequest) {
   if (!verifyAdmin(req)) return unauthorized();
 
   try {
     const { searchParams } = new URL(req.url);
+    const mode = searchParams.get("mode");
+
+    // mode=unstocked — catalog products with no stocking_decisions row
+    if (mode === "unstocked") {
+      const limit = Math.min(parseInt(searchParams.get("limit") || "500"), 2000);
+      const rows = await sql`
+        SELECT
+          pc.product_hash,
+          pc.display_name,
+          pc.category,
+          pc.price_tier,
+          pc.efficacy_score,
+          pc.key_actives,
+          pc.suitable_for,
+          pc.status,
+          CASE
+            WHEN pc.efficacy_score >= 0.3 THEN 'high'
+            WHEN pc.efficacy_score >= 0.15 THEN 'medium'
+            ELSE 'low'
+          END as demand_tier,
+          CASE WHEN pc.acquisition_lead IS NOT NULL THEN true ELSE false END as has_source
+        FROM product_catalog pc
+        LEFT JOIN stocking_decisions sd ON pc.product_hash = sd.product_hash
+        WHERE sd.product_hash IS NULL
+          AND pc.status IN ('research', 'sampled')
+        ORDER BY pc.efficacy_score DESC NULLS LAST
+        LIMIT ${limit}
+      `;
+      return NextResponse.json({ products: rows, total: rows.length });
+    }
+
     const decision = searchParams.get("decision") || "all";
     const limit = Math.min(parseInt(searchParams.get("limit") || "200"), 500);
 
@@ -77,6 +108,7 @@ export async function POST(req: NextRequest) {
       fulfillment_method = "in_house",
       priority = "medium",
       notes,
+      skip_existing = false,
     } = body;
 
     if (!product_hash) {
@@ -86,31 +118,45 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    console.log("[v0] stocking upsert:", { product_hash, decision, retail_price, initial_quantity, fulfillment_method, priority });
+    console.log("[v0] stocking upsert:", { product_hash, decision, retail_price, initial_quantity, fulfillment_method, priority, skip_existing });
 
-    // Upsert: insert or update if already exists
-    const rows = await sql`
-      INSERT INTO stocking_decisions (
-        product_hash, decision, retail_price, initial_quantity,
-        fulfillment_method, priority, notes
-      ) VALUES (
-        ${product_hash}, ${decision}, ${retail_price || null},
-        ${initial_quantity || null}, ${fulfillment_method},
-        ${priority}, ${notes || null}
-      )
-      ON CONFLICT (product_hash) DO UPDATE SET
-        decision = EXCLUDED.decision,
-        retail_price = COALESCE(EXCLUDED.retail_price, stocking_decisions.retail_price),
-        initial_quantity = COALESCE(EXCLUDED.initial_quantity, stocking_decisions.initial_quantity),
-        fulfillment_method = EXCLUDED.fulfillment_method,
-        priority = EXCLUDED.priority,
-        notes = EXCLUDED.notes,
-        updated_at = NOW()
-      RETURNING *
-    `;
+    const rows = skip_existing
+      ? await sql`
+          INSERT INTO stocking_decisions (
+            product_hash, decision, retail_price, initial_quantity,
+            fulfillment_method, priority, notes
+          ) VALUES (
+            ${product_hash}, ${decision}, ${retail_price || null},
+            ${initial_quantity || null}, ${fulfillment_method},
+            ${priority}, ${notes || null}
+          )
+          ON CONFLICT (product_hash) DO NOTHING
+          RETURNING *
+        `
+      : await sql`
+          INSERT INTO stocking_decisions (
+            product_hash, decision, retail_price, initial_quantity,
+            fulfillment_method, priority, notes
+          ) VALUES (
+            ${product_hash}, ${decision}, ${retail_price || null},
+            ${initial_quantity || null}, ${fulfillment_method},
+            ${priority}, ${notes || null}
+          )
+          ON CONFLICT (product_hash) DO UPDATE SET
+            decision = EXCLUDED.decision,
+            retail_price = COALESCE(EXCLUDED.retail_price, stocking_decisions.retail_price),
+            initial_quantity = COALESCE(EXCLUDED.initial_quantity, stocking_decisions.initial_quantity),
+            fulfillment_method = EXCLUDED.fulfillment_method,
+            priority = EXCLUDED.priority,
+            notes = EXCLUDED.notes,
+            updated_at = NOW()
+          RETURNING *
+        `;
 
-    // If decision is 'stock', also update product_catalog status to 'listed'
-    if (decision === "stock") {
+    // rows.length === 0 means DO NOTHING fired (row already existed)
+    const skipped = rows.length === 0;
+
+    if (!skipped && decision === "stock") {
       await sql`
         UPDATE product_catalog
         SET status = 'listed', updated_at = NOW()
@@ -118,7 +164,7 @@ export async function POST(req: NextRequest) {
       `;
     }
 
-    return NextResponse.json({ success: true, decision: rows[0] });
+    return NextResponse.json({ success: true, skipped, decision: rows[0] ?? null });
   } catch (error) {
     console.error("[stocking] POST error:", error);
     const message = error instanceof Error ? error.message : String(error);
