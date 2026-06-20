@@ -1,4 +1,5 @@
 import sql from "@/lib/db";
+import { isListingReady } from "@/lib/product-readiness";
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE_DOMAIN?.replace(
   /^https?:\/\//,
@@ -23,6 +24,7 @@ interface CatalogProduct {
   retail_price: number | null;
   currency: string | null;
   source_url: string | null;
+  status: string | null;
 }
 
 interface SourceIntelligence {
@@ -127,7 +129,8 @@ export async function getProductFromCatalog(
   const result = await sql<CatalogProduct[]>`
     SELECT product_hash, display_name, category, product_type, price_tier,
            efficacy_score, key_actives, suitable_for, contraindications,
-           image_url, description_generated, retail_price, currency, source_url
+           image_url, description_generated, retail_price, currency, source_url,
+           status
     FROM product_catalog WHERE product_hash = ${productHash}`;
 
   if (result.length === 0) {
@@ -150,6 +153,12 @@ export async function getSourceIntelligence(
 
 export async function listProduct(productHash: string) {
   const product = await getProductFromCatalog(productHash);
+  if (!isListingReady(product)) {
+    throw new Error(
+      "Product must be reviewed/sampled and enriched with suitable_for, key_actives, and contraindications before listing."
+    );
+  }
+
   const source = await getSourceIntelligence(productHash);
 
   // Use retail_price from catalog if enriched, then source wholesale, then tier default

@@ -71,6 +71,11 @@ const TYPE_DEFAULTS: Record<string, string[]> = {
   fragrance: ["general_fragrance"],
 };
 
+function isOpenBeautyFactsSource(source?: string | null) {
+  const normalised = (source || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  return normalised === "openbeautyfacts" || normalised === "obf";
+}
+
 // Raw format from http_scraper.py
 interface ScrapedProduct {
   product_hash: string;
@@ -192,7 +197,7 @@ function promoteProduct(anon: AnonymisedProduct) {
     }
   }
 
-  if (suitableFor.size === 0) {
+  if (suitableFor.size === 0 && !isOpenBeautyFactsSource(anon.source)) {
     const defaults = TYPE_DEFAULTS[productType] || ["general"];
     defaults.forEach((d) => suitableFor.add(d));
   }

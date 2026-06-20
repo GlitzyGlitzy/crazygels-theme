@@ -91,6 +91,11 @@ CATEGORY_TYPE_MAP = {
 }
 
 
+def is_open_beauty_facts_source(source: str | None) -> bool:
+    normalised = re.sub(r"[^a-z0-9]", "", (source or "").lower())
+    return normalised in {"openbeautyfacts", "obf"}
+
+
 def promote_product(anon: dict, staging: dict = None) -> dict:
     """Convert an anonymised product into a product_catalog entry.
 
@@ -117,7 +122,9 @@ def promote_product(anon: dict, staging: dict = None) -> dict:
         if active in name_lower:
             contraindications.update(contras)
 
-    if not suitable_for:
+    source = s.get("source") or anon.get("source", "unknown")
+
+    if not suitable_for and not is_open_beauty_facts_source(source):
         defaults = {
             "serum": ["general_skincare"],
             "moisturizer": ["dryness", "dehydration"],
@@ -165,7 +172,7 @@ def promote_product(anon: dict, staging: dict = None) -> dict:
         "price_currency": price_currency if price_original > 0 else None,
         "status": "research",
         "acquisition_lead": anon.get("acquisition_lead"),
-        "source": s.get("source") or anon.get("source", "unknown"),
+        "source": source,
         "created_at": datetime.utcnow().isoformat(),
     }
 

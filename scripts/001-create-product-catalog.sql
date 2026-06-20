@@ -17,6 +17,9 @@ CREATE TABLE IF NOT EXISTS product_catalog (
     image_url TEXT,
     description_generated TEXT,
     status VARCHAR(20) DEFAULT 'research',
+    -- research = scraped/internal only
+    -- reviewed = enriched with suitable_for, key_actives, contraindications
+    -- sampled/listed = eligible for public recommendations
     acquisition_lead VARCHAR(64),
     source VARCHAR(50),
     created_at TIMESTAMPTZ DEFAULT NOW(),

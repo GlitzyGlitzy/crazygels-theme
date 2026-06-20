@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS product_catalog (
 
     -- Pipeline status
     status          VARCHAR(20) DEFAULT 'research',
-                    -- 'research'  = scraped, not yet sampled
+                    -- 'research'  = scraped/internal only
+                    -- 'reviewed'  = enriched and internally approved
                     -- 'sampled'   = sample ordered, being tested
                     -- 'listed'    = live on Shopify
                     -- 'delisted'  = removed from store

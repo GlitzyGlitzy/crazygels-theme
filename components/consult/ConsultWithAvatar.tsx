@@ -353,9 +353,9 @@ export function ConsultWithAvatar({
                          style={{ background: `${accent}18` }}>
                       <Sparkles className="w-8 h-8" style={{ color: accent }} />
                     </div>
-                    <h2 className="text-xl font-serif text-[#1A1A1A] mb-2">Hi, I'm Dr. Maya</h2>
+                    <h2 className="text-xl font-serif text-[#1A1A1A] mb-2">Hi, I&apos;m Dr. Maya</h2>
                     <p className="text-[#666] max-w-xs mx-auto mb-6 text-sm leading-relaxed">
-                      {placeholder}. Tap a topic below or speak — I'll ask a few questions and then recommend the right products for you.
+                      {placeholder}. Tap a topic below or speak — I&apos;ll ask a few questions and then recommend the right products for you.
                     </p>
                     <div className="flex flex-wrap justify-center gap-2">
                       {suggestions.map(s => (

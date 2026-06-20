@@ -164,7 +164,7 @@ export default function BulkListPage() {
 
       <div className="mx-auto max-w-4xl px-6 py-8">
         <p className="text-sm text-[#8A7B6F] mb-8">
-          Push intelligence products with images to Shopify, set competitive Google-benchmarked prices, and activate them for sale.
+          Push reviewed, enriched intelligence products to Shopify, set competitive Google-benchmarked prices, and activate them for sale.
         </p>
 
         {/* Status message */}
@@ -192,7 +192,7 @@ export default function BulkListPage() {
               <div className="grid grid-cols-2 gap-4 mb-5">
                 <div className="rounded-xl bg-[#F5F0EB] p-5">
                   <p className="text-3xl font-light text-[#B76E79]">{stats.total_ready}</p>
-                  <p className="text-xs text-[#8A7B6F] mt-1">Ready to list (have images)</p>
+                  <p className="text-xs text-[#8A7B6F] mt-1">Ready to list (reviewed + enriched)</p>
                 </div>
                 <div className="rounded-xl bg-[#F5F0EB] p-5">
                   <p className="text-3xl font-light text-[#1A1A1A]">{stats.total_listed}</p>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { isPublicRecommendationReady } from "@/lib/product-readiness";
 
 export async function POST(req: NextRequest) {
   try {
@@ -42,6 +43,7 @@ interface CatalogProduct {
   review_signals: string;
   key_actives: string[] | null;
   suitable_for: string[] | null;
+  contraindications: string[] | null;
   image_url: string | null;
   description_generated: string | null;
   status: string;
@@ -62,10 +64,13 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status, shopify_handle
+             contraindications, image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled')
+        AND COALESCE(array_length(key_actives, 1), 0) > 0
+        AND COALESCE(array_length(suitable_for, 1), 0) > 0
+        AND contraindications IS NOT NULL
         AND NOT (contraindications && ${sensitivities})
         AND price_tier = ${priceTier}
         AND product_type = ${category}
@@ -78,10 +83,13 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status, shopify_handle
+             contraindications, image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled')
+        AND COALESCE(array_length(key_actives, 1), 0) > 0
+        AND COALESCE(array_length(suitable_for, 1), 0) > 0
+        AND contraindications IS NOT NULL
         AND NOT (contraindications && ${sensitivities})
         AND price_tier = ${priceTier}
       ORDER BY
@@ -93,10 +101,13 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status, shopify_handle
+             contraindications, image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled')
+        AND COALESCE(array_length(key_actives, 1), 0) > 0
+        AND COALESCE(array_length(suitable_for, 1), 0) > 0
+        AND contraindications IS NOT NULL
         AND NOT (contraindications && ${sensitivities})
         AND product_type = ${category}
       ORDER BY
@@ -108,10 +119,13 @@ async function findMatches(
     result = await sql<CatalogProduct[]>`
       SELECT product_hash, display_name, category, product_type, price_tier,
              efficacy_score, review_signals, key_actives, suitable_for,
-             image_url, description_generated, status, shopify_handle
+             contraindications, image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
         AND status IN ('listed', 'sampled')
+        AND COALESCE(array_length(key_actives, 1), 0) > 0
+        AND COALESCE(array_length(suitable_for, 1), 0) > 0
+        AND contraindications IS NOT NULL
         AND NOT (contraindications && ${sensitivities})
       ORDER BY
         CASE WHEN status = 'listed' THEN 1 ELSE 2 END,
@@ -131,8 +145,9 @@ async function findMatches(
 }
 
 function blendRecommendations(matches: CatalogProduct[], researchCount: number) {
-  const listed = matches.filter((m) => m.status === "listed").slice(0, 3);
-  const sampled = matches.filter((m) => m.status === "sampled").slice(0, 2);
+  const readyMatches = matches.filter(isPublicRecommendationReady);
+  const listed = readyMatches.filter((m) => m.status === "listed").slice(0, 3);
+  const sampled = readyMatches.filter((m) => m.status === "sampled").slice(0, 2);
 
   return {
     primary: listed.map((p) => ({

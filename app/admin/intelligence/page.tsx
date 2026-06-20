@@ -133,6 +133,10 @@ function StatusPill({ status }: { status: string }) {
       style: "bg-[#F5F3EF] text-[#6B5B4F]",
       icon: FlaskConical,
     },
+    reviewed: {
+      style: "bg-[#5B7E9E]/10 text-[#5B7E9E]",
+      icon: CheckCircle,
+    },
     sampled: {
       style: "bg-[#B76E79]/10 text-[#B76E79]",
       icon: Clock,
@@ -553,7 +557,7 @@ export default function IntelligenceDashboard() {
         {/* Filters */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
-            {["research", "sampled", "listed"].map((s) => (
+            {["research", "reviewed", "sampled", "listed"].map((s) => (
               <button
                 key={s}
                 onClick={() => setStatusFilter(s)}
@@ -922,4 +926,3 @@ export default function IntelligenceDashboard() {
     </div>
   );
 }
-

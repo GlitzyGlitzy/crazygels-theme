@@ -118,6 +118,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (decision === "stock") {
+      const ready = await sql<{ product_hash: string }[]>`
+        SELECT product_hash
+        FROM product_catalog
+        WHERE product_hash = ${product_hash}
+          AND status IN ('reviewed', 'sampled')
+          AND COALESCE(array_length(key_actives, 1), 0) > 0
+          AND COALESCE(array_length(suitable_for, 1), 0) > 0
+          AND contraindications IS NOT NULL
+        LIMIT 1
+      `;
+
+      if (ready.length === 0) {
+        return NextResponse.json(
+          {
+            error:
+              "Stocking requires reviewed/sampled status plus suitable_for, key_actives, and contraindications enrichment.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     console.log("[v0] stocking upsert:", { product_hash, decision, retail_price, initial_quantity, fulfillment_method, priority, skip_existing });
 
     const rows = skip_existing

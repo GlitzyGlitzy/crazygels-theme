@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     const activateImmediately = body.activate !== false; // default true
     const defaultInventory = body.inventory || 50;
 
-    // Find products with images that haven't been listed yet
+    // Find reviewed/sampled products with required recommendation enrichment.
     const products = await sql<
       {
         product_hash: string;
@@ -130,7 +130,10 @@ export async function POST(request: NextRequest) {
              suitable_for, description_generated, efficacy_score
       FROM product_catalog
       WHERE image_url IS NOT NULL AND image_url != ''
-        AND status != 'listed'
+        AND status IN ('reviewed', 'sampled')
+        AND COALESCE(array_length(key_actives, 1), 0) > 0
+        AND COALESCE(array_length(suitable_for, 1), 0) > 0
+        AND contraindications IS NOT NULL
       ORDER BY
         CASE WHEN brand IS NOT NULL AND brand != '' THEN 0 ELSE 1 END,
         category,
@@ -141,7 +144,7 @@ export async function POST(request: NextRequest) {
     if (products.length === 0) {
       return NextResponse.json({
         success: true,
-        message: "No more products to list. All products with images have been listed.",
+        message: "No reviewed, enriched products are ready to list.",
         listed: 0,
         remaining: 0,
       });
@@ -150,7 +153,11 @@ export async function POST(request: NextRequest) {
     // Count remaining for progress tracking
     const remaining = await sql<{ count: number }[]>`
       SELECT COUNT(*)::int as count FROM product_catalog
-      WHERE image_url IS NOT NULL AND image_url != '' AND status != 'listed'
+      WHERE image_url IS NOT NULL AND image_url != ''
+        AND status IN ('reviewed', 'sampled')
+        AND COALESCE(array_length(key_actives, 1), 0) > 0
+        AND COALESCE(array_length(suitable_for, 1), 0) > 0
+        AND contraindications IS NOT NULL
     `;
 
     const results: {
@@ -296,7 +303,13 @@ export async function GET(request: NextRequest) {
     { category: string; ready: number; listed: number }[]
   >`
     SELECT category,
-      COUNT(*) FILTER (WHERE status != 'listed' AND image_url IS NOT NULL AND image_url != '')::int as ready,
+      COUNT(*) FILTER (
+        WHERE status IN ('reviewed', 'sampled')
+          AND image_url IS NOT NULL AND image_url != ''
+          AND COALESCE(array_length(key_actives, 1), 0) > 0
+          AND COALESCE(array_length(suitable_for, 1), 0) > 0
+          AND contraindications IS NOT NULL
+      )::int as ready,
       COUNT(*) FILTER (WHERE status = 'listed')::int as listed
     FROM product_catalog
     WHERE image_url IS NOT NULL AND image_url != ''

@@ -23,6 +23,10 @@ async function getStockedIntelligenceProducts(consultType: string) {
       FROM stocking_decisions sd
       JOIN product_catalog pc ON sd.product_hash = pc.product_hash
       WHERE sd.decision = 'stock'
+        AND pc.status IN ('sampled', 'listed')
+        AND COALESCE(array_length(pc.key_actives, 1), 0) > 0
+        AND COALESCE(array_length(pc.suitable_for, 1), 0) > 0
+        AND pc.contraindications IS NOT NULL
       ORDER BY pc.efficacy_score DESC NULLS LAST
       LIMIT 100
     `;
