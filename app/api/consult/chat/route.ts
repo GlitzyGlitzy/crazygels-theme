@@ -1,4 +1,5 @@
 import { streamText, convertToModelMessages, tool, stepCountIs } from 'ai';
+import { anthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 import { buildProductCatalog, catalogToPromptText } from '@/lib/shopify/product-catalog';
 import sql from '@/lib/db';
@@ -91,7 +92,7 @@ export async function POST(req: Request) {
   // Define system prompt based on consultation type
   const systemPrompt = consultType === 'skin' 
     ? `You are a friendly and knowledgeable virtual beauty consultant specializing in skincare. 
-Your name is "Glow" and you work for CrazyGels beauty store.
+Your name is "Dr. Maya" and you work for CrazyGels beauty store.
 
 Your role is to:
 1. Ask thoughtful questions about the user's skin type, concerns, and current routine (2-4 questions max)
@@ -122,7 +123,7 @@ They may not yet be in the store but can be mentioned as "coming soon" if highly
 ${stockedText}
 ===== END INTELLIGENCE PRODUCTS =====` : ''}`
     : `You are a friendly and knowledgeable virtual beauty consultant specializing in hair care.
-Your name is "Glow" and you work for CrazyGels beauty store.
+Your name is "Dr. Maya" and you work for CrazyGels beauty store.
 
 Your role is to:
 1. Ask thoughtful questions about the user's hair type, concerns, and styling goals (2-4 questions max)
@@ -190,7 +191,7 @@ ${stockedText}
   };
 
   const result = streamText({
-    model: 'openai/gpt-4o-mini',
+    model: anthropic('claude-haiku-4-5'),
     system: systemPrompt,
     messages: await convertToModelMessages(messages),
     tools,

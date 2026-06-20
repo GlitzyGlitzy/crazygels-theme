@@ -16,6 +16,7 @@
     "scrape:dry": "node scripts/scrape-all.mjs --dry-run"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.85",
     "@ai-sdk/react": "^3.0.72",
     "@hookform/resolvers": "^3.10.0",
     "@neondatabase/serverless": "^1.0.2",
