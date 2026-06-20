@@ -22,7 +22,7 @@ export function DoctorAvatar({
   return (
     <div className={`relative ${className} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)]`} aria-label="Dr. Maya beauty consultant avatar" tabIndex={0} role="img" >
       <img
-          src={drMayaImg}
+          src={drMayaImg.src}
           alt="Dr. Maya avatar"
           className={`w-full h-full object-cover ${state === 'listening' ? 'animate-pulse' : ''}`} 
         />
