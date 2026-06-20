@@ -31,7 +31,7 @@ const DEFAULT_COLLECTIONS = [
     handle: 'gel-nail-wraps',
     title: 'Gel Nail Wraps',
     description: 'Premium semi-cured gel nail wraps for a salon finish at home',
-    gradient: 'from-[#B76E79] to-[#A15D67]',
+    gradient: 'from-[#8C3F48] to-[#A15D67]',
   },
   {
     handle: 'french-styles',
@@ -49,13 +49,13 @@ const DEFAULT_COLLECTIONS = [
     handle: 'skincare',
     title: 'Skincare',
     description: 'Luxurious skincare for radiant results',
-    gradient: 'from-[#B76E79] to-[#9E6B73]',
+    gradient: 'from-[#8C3F48] to-[#9E6B73]',
   },
   {
     handle: 'collagen-masks',
     title: 'Collagen Masks',
     description: 'Luxurious overnight collagen face masks for radiant, youthful skin',
-    gradient: 'from-[#B76E79] to-[#C9A9A6]',
+    gradient: 'from-[#8C3F48] to-[#C9A9A6]',
   },
   {
     handle: 'treatments',
@@ -68,27 +68,27 @@ const DEFAULT_COLLECTIONS = [
 export default async function CollectionsPage() {
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
-      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#B76E79]/20" />}>
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#8C3F48]/20" />}>
         <DynamicHeader />
       </Suspense>
       <main>
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
-        <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-[#B76E79]/10 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#8C3F48]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
+        <div className="absolute top-20 left-10 h-72 w-72 rounded-full bg-[#8C3F48]/10 blur-3xl" />
         <div className="absolute bottom-10 right-10 h-72 w-72 rounded-full bg-[#C9A9A6]/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           <Link
             href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm text-[#2C2C2C]/60 transition-colors hover:text-[#B76E79]"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-[#2C2C2C]/60 transition-colors hover:text-[#8C3F48]"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to Home
           </Link>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#B76E79]">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#8C3F48]">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-4xl font-light tracking-tight text-[#2C2C2C] sm:text-5xl lg:text-6xl">
@@ -162,16 +162,16 @@ async function CollectionsGrid() {
           <Link
             key={collection.handle}
             href={`/collections/${collection.handle}`}
-            className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9] transition-all hover:border-[#B76E79]/50 hover:shadow-xl hover:shadow-[#B76E79]/10"
+            className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#8C3F48]/20 bg-[#FFFEF9] transition-all hover:border-[#8C3F48]/50 hover:shadow-xl hover:shadow-[#8C3F48]/10"
           >
             <div className={`absolute inset-0 bg-gradient-to-br ${collection.gradient} opacity-10 transition-opacity group-hover:opacity-20`} />
             <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/50 to-transparent" />
             <div className="relative p-8">
-              <h3 className="text-2xl font-medium text-[#2C2C2C] group-hover:text-[#B76E79] transition-colors">
+              <h3 className="text-2xl font-medium text-[#2C2C2C] group-hover:text-[#8C3F48] transition-colors">
                 {collection.title}
               </h3>
               <p className="mt-2 text-[#2C2C2C]/60">{collection.description}</p>
-              <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#B76E79]">
+              <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#8C3F48]">
                 Shop Now
                 <ChevronLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-1" />
               </span>
@@ -189,7 +189,7 @@ async function CollectionsGrid() {
     <Link
       key={vc.handle}
       href={`/collections/${vc.handle}`}
-      className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9] transition-all hover:border-[#B76E79]/50 hover:shadow-xl hover:shadow-[#B76E79]/10"
+      className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#8C3F48]/20 bg-[#FFFEF9] transition-all hover:border-[#8C3F48]/50 hover:shadow-xl hover:shadow-[#8C3F48]/10"
     >
       <Image
         src={vc.image}
@@ -200,11 +200,11 @@ async function CollectionsGrid() {
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/60 to-transparent" />
       <div className="relative p-8">
-        <h3 className="text-2xl font-medium text-[#2C2C2C] group-hover:text-[#B76E79] transition-colors">
+        <h3 className="text-2xl font-medium text-[#2C2C2C] group-hover:text-[#8C3F48] transition-colors">
           {vc.title}
         </h3>
         <p className="mt-2 line-clamp-2 text-[#2C2C2C]/60">{vc.description}</p>
-        <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#B76E79]">
+        <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#8C3F48]">
           Shop Now
           <ChevronLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-1" />
         </span>
@@ -217,7 +217,7 @@ async function CollectionsGrid() {
   <Link
   key={collection.handle}
   href={`/collections/${collection.handle}`}
-  className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9] transition-all hover:border-[#B76E79]/50 hover:shadow-xl hover:shadow-[#B76E79]/10"
+  className="group relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-2xl border border-[#8C3F48]/20 bg-[#FFFEF9] transition-all hover:border-[#8C3F48]/50 hover:shadow-xl hover:shadow-[#8C3F48]/10"
           >
             {collection.image?.url ? (
               <>
@@ -232,18 +232,18 @@ async function CollectionsGrid() {
               </>
             ) : (
             <>
-              <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/10 to-[#C9A9A6]/10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#8C3F48]/10 to-[#C9A9A6]/10" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9] via-[#FFFEF9]/50 to-transparent" />
             </>
           )}
           <div className="relative p-8">
-            <h3 className="text-2xl font-medium text-[#2C2C2C] group-hover:text-[#B76E79] transition-colors">
+            <h3 className="text-2xl font-medium text-[#2C2C2C] group-hover:text-[#8C3F48] transition-colors">
               {collection.title}
             </h3>
             {collection.description && (
               <p className="mt-2 line-clamp-2 text-[#2C2C2C]/60">{collection.description}</p>
             )}
-            <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#B76E79]">
+            <span className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[#8C3F48]">
               Shop Now
               <ChevronLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-1" />
             </span>

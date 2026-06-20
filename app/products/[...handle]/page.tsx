@@ -133,21 +133,21 @@ export default async function ProductPage({
         }}
       />
 
-      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#B76E79]/20" />}>
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#8C3F48]/20" />}>
         <DynamicHeader />
       </Suspense>
 
       {/* Breadcrumb */}
       <nav className="mx-auto max-w-7xl px-4 py-3 md:py-4" aria-label="Breadcrumb">
         <ol className="flex items-center gap-2 text-xs md:text-sm text-[#2C2C2C]/60 overflow-x-auto">
-          <li><Link href="/" className="hover:text-[#B76E79] transition-colors">Home</Link></li>
+          <li><Link href="/" className="hover:text-[#8C3F48] transition-colors">Home</Link></li>
           <li aria-hidden="true">/</li>
-          <li><Link href="/collections" className="hover:text-[#B76E79] transition-colors">Collections</Link></li>
+          <li><Link href="/collections" className="hover:text-[#8C3F48] transition-colors">Collections</Link></li>
           {product.productType && (
             <>
               <li aria-hidden="true">/</li>
               <li>
-                <Link href={`/collections/${product.productType.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-[#B76E79] transition-colors">
+                <Link href={`/collections/${product.productType.toLowerCase().replace(/\s+/g, '-')}`} className="hover:text-[#8C3F48] transition-colors">
                   {product.productType}
                 </Link>
               </li>
@@ -165,10 +165,10 @@ export default async function ProductPage({
         </div>
 
         {/* Trust Badges */}
-        <div className="mt-8 md:mt-12 grid grid-cols-2 gap-3 md:gap-4 border-y border-[#B76E79]/10 py-6 md:py-8 md:grid-cols-4">
+        <div className="mt-8 md:mt-12 grid grid-cols-2 gap-3 md:gap-4 border-y border-[#8C3F48]/10 py-6 md:py-8 md:grid-cols-4">
           <div className="flex flex-col items-center gap-1.5 md:gap-2 text-center">
-            <div className="rounded-full bg-[#B76E79]/10 p-2.5 md:p-3">
-              <Truck className="h-5 w-5 md:h-6 md:w-6 text-[#B76E79]" />
+            <div className="rounded-full bg-[#8C3F48]/10 p-2.5 md:p-3">
+              <Truck className="h-5 w-5 md:h-6 md:w-6 text-[#8C3F48]" />
             </div>
             <span className="text-xs md:text-sm font-medium text-[#2C2C2C]">Free Shipping</span>
             <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">EU-wide delivery</span>
@@ -181,8 +181,8 @@ export default async function ProductPage({
             <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">100% Protected</span>
           </div>
           <div className="flex flex-col items-center gap-1.5 md:gap-2 text-center">
-            <div className="rounded-full bg-[#B76E79]/10 p-2.5 md:p-3">
-              <RotateCcw className="h-5 w-5 md:h-6 md:w-6 text-[#B76E79]" />
+            <div className="rounded-full bg-[#8C3F48]/10 p-2.5 md:p-3">
+              <RotateCcw className="h-5 w-5 md:h-6 md:w-6 text-[#8C3F48]" />
             </div>
             <span className="text-xs md:text-sm font-medium text-[#2C2C2C]">Easy Returns</span>
             <span className="text-[10px] md:text-xs text-[#2C2C2C]/60">14-Day Policy</span>

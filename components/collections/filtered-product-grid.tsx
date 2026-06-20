@@ -92,9 +92,9 @@ export function FilteredProductGrid({
       )}
 
       {filteredProducts.length === 0 ? (
-        <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9]">
-          <div className="mb-4 h-16 w-16 rounded-full bg-[#B76E79]/20 flex items-center justify-center">
-            <Grid3X3 className="h-8 w-8 text-[#B76E79]" />
+        <div className="flex min-h-[300px] flex-col items-center justify-center rounded-2xl border border-[#8C3F48]/20 bg-[#FFFEF9]">
+          <div className="mb-4 h-16 w-16 rounded-full bg-[#8C3F48]/20 flex items-center justify-center">
+            <Grid3X3 className="h-8 w-8 text-[#8C3F48]" />
           </div>
           <h3 className="text-lg font-semibold text-[#2C2C2C]">No matching products</h3>
           <p className="mt-2 text-[#2C2C2C]/60 text-center max-w-sm">

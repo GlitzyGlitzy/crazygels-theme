@@ -123,7 +123,7 @@ function StatCard({
 
 function SignalBadge({ tier }: { tier: string }) {
   const styles: Record<string, string> = {
-    high: "bg-[#B76E79]/10 text-[#B76E79] border-[#B76E79]/20",
+    high: "bg-[#8C3F48]/10 text-[#8C3F48] border-[#8C3F48]/20",
     medium: "bg-[#9E6B73]/10 text-[#9E6B73] border-[#9E6B73]/20",
     strong: "bg-[#4A7C59]/10 text-[#4A7C59] border-[#4A7C59]/20",
     partial: "bg-[#C4963C]/10 text-[#C4963C] border-[#C4963C]/20",
@@ -151,7 +151,7 @@ function StatusPill({ status }: { status: string }) {
       icon: CheckCircle,
     },
     sampled: {
-      style: "bg-[#B76E79]/10 text-[#B76E79]",
+      style: "bg-[#8C3F48]/10 text-[#8C3F48]",
       icon: Clock,
     },
     listed: {
@@ -505,7 +505,7 @@ export default function IntelligenceDashboard() {
               label="High Market Demand"
               value={stats.high_market_demand ?? 0}
               icon={TrendingUp}
-              accent="#B76E79"
+              accent="#8C3F48"
             />
             <StatCard
               label="Avg Efficacy"
@@ -615,9 +615,9 @@ export default function IntelligenceDashboard() {
 
         {/* Error */}
         {error && (
-          <div className="mb-6 flex items-center gap-3 rounded-xl border border-[#B76E79]/30 bg-[#B76E79]/5 px-5 py-4">
-            <AlertCircle className="h-5 w-5 shrink-0 text-[#B76E79]" />
-            <p className="text-sm text-[#B76E79]">{error}</p>
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-[#8C3F48]/30 bg-[#8C3F48]/5 px-5 py-4">
+            <AlertCircle className="h-5 w-5 shrink-0 text-[#8C3F48]" />
+            <p className="text-sm text-[#8C3F48]">{error}</p>
           </div>
         )}
 
@@ -886,16 +886,16 @@ export default function IntelligenceDashboard() {
                   className={`flex items-start gap-3 rounded-lg border p-4 ${
                     listingResult.success
                       ? "border-[#4A7C59]/30 bg-[#4A7C59]/5"
-                      : "border-[#B76E79]/30 bg-[#B76E79]/5"
+                      : "border-[#8C3F48]/30 bg-[#8C3F48]/5"
                   }`}
                 >
                   {listingResult.success ? (
                     <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#4A7C59]" />
                   ) : (
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#B76E79]" />
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[#8C3F48]" />
                   )}
                   <div>
-                    <p className={`text-sm ${listingResult.success ? "text-[#4A7C59]" : "text-[#B76E79]"}`}>
+                    <p className={`text-sm ${listingResult.success ? "text-[#4A7C59]" : "text-[#8C3F48]"}`}>
                       {listingResult.message}
                     </p>
                     {listingResult.handle && (

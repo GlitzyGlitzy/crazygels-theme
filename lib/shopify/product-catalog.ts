@@ -7,15 +7,17 @@ import type { Product } from './types'
 // ──────────────────────────────────────────────
 const SKIN_KEYWORDS = [
   'skin', 'face', 'facial', 'serum', 'moisturizer', 'cleanser', 'toner',
-  'mask', 'collagen', 'retinol', 'vitamin c', 'hyaluronic', 'spf', 'sunscreen',
+  'collagen', 'retinol', 'vitamin c', 'hyaluronic', 'spf', 'sunscreen',
   'anti-aging', 'wrinkle', 'pore', 'acne', 'blemish', 'dark spot', 'brightening',
-  'exfoliant', 'peel', 'cream', 'lotion', 'eye cream', 'night cream',
-  'day cream', 'oil', 'essence', 'mist', 'glow', 'radiance', 'complexion',
+  'exfoliant', 'peel', 'essence', 'mist', 'glow', 'radiance', 'complexion',
   'derma', 'skincare', 'hydrating', 'nourishing', 'firming', 'vegan serum',
-  'overnight', 'collagen mask', 'face mask', 'treatment oil',
-  'lip', 'body butter', 'body lotion', 'hand cream', 'foot cream',
-  'neck cream', 'decollete', 'sheet mask', 'sleeping mask', 'clay mask',
-  'charcoal', 'rose water', 'micellar', 'makeup remover', 'cleansing oil',
+  // Specific cream / oil / lotion / mask phrases — avoids matching hair products
+  'face cream', 'eye cream', 'night cream', 'day cream', 'body cream', 'hand cream',
+  'foot cream', 'neck cream', 'body lotion', 'body butter',
+  'face oil', 'facial oil', 'cleansing oil', 'treatment oil', 'skin oil',
+  'face mask', 'collagen mask', 'sheet mask', 'sleeping mask', 'clay mask',
+  'decollete', 'rose water', 'micellar', 'makeup remover',
+  'lip', 'body scrub', 'body wash',
 ]
 
 const HAIR_KEYWORDS = [
@@ -152,14 +154,22 @@ function matchesSubcategories(searchText: string, subcatMap: Record<string, stri
   return matched
 }
 
-function classifyProduct(searchText: string): 'skin' | 'hair' | 'both' | 'none' {
-  const isSkin = SKIN_KEYWORDS.some(kw => searchText.includes(kw))
-  const isHair = HAIR_KEYWORDS.some(kw => searchText.includes(kw))
-  
-  if (isSkin && isHair) return 'both'
-  if (isSkin) return 'skin'
-  if (isHair) return 'hair'
-  return 'none'
+function classifyProduct(searchText: string, productType: string): 'skin' | 'hair' | 'both' | 'none' {
+  // productType is set explicitly in Shopify admin — trust it over keyword heuristics
+  const pt = productType.toLowerCase()
+  if (/\b(hair|shampoo|conditioner|scalp)\b/.test(pt)) return 'hair'
+  if (/\b(skin|face|facial|serum|moisturizer)\b/.test(pt)) return 'skin'
+
+  const skinCount = SKIN_KEYWORDS.filter(kw => searchText.includes(kw)).length
+  const hairCount = HAIR_KEYWORDS.filter(kw => searchText.includes(kw)).length
+
+  if (skinCount === 0 && hairCount === 0) return 'none'
+  if (skinCount > 0 && hairCount === 0) return 'skin'
+  if (hairCount > 0 && skinCount === 0) return 'hair'
+  // Both match: assign to the dominant category (≥2× the other) to avoid over-populating 'both'
+  if (skinCount >= hairCount * 2) return 'skin'
+  if (hairCount >= skinCount * 2) return 'hair'
+  return 'both'
 }
 
 function productToCatalogItem(product: Product, type: 'skin' | 'hair'): CatalogProduct {
@@ -207,7 +217,7 @@ async function fetchAndBuildCatalog(): Promise<ProductCatalog> {
       if (!product.availableForSale) continue
 
       const searchText = getSearchText(product)
-      const classification = classifyProduct(searchText)
+      const classification = classifyProduct(searchText, product.productType || '')
 
       if (classification === 'skin' || classification === 'both') {
         const catalogItem = productToCatalogItem(product, 'skin')

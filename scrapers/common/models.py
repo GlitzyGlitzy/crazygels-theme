@@ -10,6 +10,7 @@ class Source(str, Enum):
     SEPHORA = "sephora"
     ULTA = "ulta"
     AMAZON = "amazon"
+    ALIEXPRESS = "aliexpress"
 
 
 class Category(str, Enum):

@@ -29,7 +29,7 @@ function StarRating({ rating, size = 16 }: { rating: number; size?: number }) {
           <Star
             key={star}
             size={size}
-            className={filled ? 'text-[#B76E79] fill-[#B76E79]' : 'text-[#E8E4DC]'}
+            className={filled ? 'text-[#8C3F48] fill-[#8C3F48]' : 'text-[#E8E4DC]'}
             aria-hidden="true"
           />
         );
@@ -43,10 +43,10 @@ function RatingBar({ stars, count, total }: { stars: number; count: number; tota
   return (
     <div className="flex items-center gap-2 text-sm">
       <span className="w-8 text-right text-[#6B5B4F] font-medium">{stars}</span>
-      <Star size={12} className="text-[#B76E79] fill-[#B76E79]" aria-hidden="true" />
+      <Star size={12} className="text-[#8C3F48] fill-[#8C3F48]" aria-hidden="true" />
       <div className="flex-1 h-2 bg-[#F0ECE6] rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#B76E79] rounded-full transition-all duration-500"
+          className="h-full bg-[#8C3F48] rounded-full transition-all duration-500"
           style={{ width: `${pct}%` }}
         />
       </div>
@@ -154,7 +154,7 @@ export function ProductReviews({ reviews, rating, reviewCount, productTitle }: P
       {reviews.length > 3 && !showAll && (
         <button
           onClick={() => setShowAll(true)}
-          className="mt-6 mx-auto flex items-center gap-1.5 text-sm font-medium text-[#9E6B73] hover:text-[#B76E79] transition-colors"
+          className="mt-6 mx-auto flex items-center gap-1.5 text-sm font-medium text-[#9E6B73] hover:text-[#8C3F48] transition-colors"
         >
           Show all {reviews.length} reviews
           <ChevronDown size={16} />

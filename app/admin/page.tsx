@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package, Star, Rocket } from 'lucide-react';
+import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package, Star, Rocket, ShoppingBag } from 'lucide-react';
 import LogoutButton from './LogoutButton';
 
 const adminTools = [
@@ -9,7 +9,7 @@ const adminTools = [
       'Push all intelligence products with images to Shopify in bulk. Competitive pricing from Google benchmarks. Activate and set inventory in one click.',
     href: '/admin/bulk-list',
     icon: Rocket,
-    accent: '#B76E79',
+    accent: '#8C3F48',
   },
   {
     title: 'Product Intelligence',
@@ -66,6 +66,14 @@ const adminTools = [
     href: '/admin/scraper-test',
     icon: Database,
     accent: '#5B7E9E',
+  },
+  {
+    title: 'AliExpress Scraper',
+    description:
+      'Run and manage the AliExpress product scraper (luminati-io pattern). Targets nail gel, UV gel, nail art, and beauty categories. Import results to the product catalog.',
+    href: '/admin/aliexpress',
+    icon: ShoppingBag,
+    accent: '#E8622C',
   },
 ];
 

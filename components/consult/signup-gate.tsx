@@ -120,7 +120,7 @@ export function SignupGate({ consultType, children }: SignupGateProps) {
   if (isChecking) {
     return (
       <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 text-[#B76E79] animate-spin" />
+        <Loader2 className="w-6 h-6 text-[#8C3F48] animate-spin" />
       </div>
     );
   }
@@ -132,7 +132,7 @@ export function SignupGate({ consultType, children }: SignupGateProps) {
 
   // Signup gate
   const accentColor = consultType === 'skin' ? '#9E6B73' : '#6B5B4F';
-  const accentColorLight = consultType === 'skin' ? '#B76E79' : '#8A7B6F';
+  const accentColorLight = consultType === 'skin' ? '#8C3F48' : '#8A7B6F';
   const title = consultType === 'skin' ? 'Skin Analysis' : 'Hair Analysis';
   const subtitle = consultType === 'skin'
     ? 'Get a personalized skincare routine based on your unique skin type and concerns.'
@@ -178,7 +178,7 @@ export function SignupGate({ consultType, children }: SignupGateProps) {
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setError(''); }}
                     placeholder="your@email.com"
-                    className="w-full bg-[#FAFAF8] border border-[#E8E4DC] rounded-xl pl-11 pr-4 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#B76E79]/50 transition-colors"
+                    className="w-full bg-[#FAFAF8] border border-[#E8E4DC] rounded-xl pl-11 pr-4 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#8C3F48]/50 transition-colors"
                     autoComplete="email"
                     autoFocus
                   />
@@ -195,7 +195,7 @@ export function SignupGate({ consultType, children }: SignupGateProps) {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="Sarah"
-                  className="w-full bg-[#FAFAF8] border border-[#E8E4DC] rounded-xl px-4 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#B76E79]/50 transition-colors"
+                  className="w-full bg-[#FAFAF8] border border-[#E8E4DC] rounded-xl px-4 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none focus:border-[#8C3F48]/50 transition-colors"
                   autoComplete="given-name"
                 />
               </div>

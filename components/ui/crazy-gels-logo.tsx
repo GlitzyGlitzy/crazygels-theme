@@ -43,7 +43,7 @@ export function CrazyGelsLogo({ className = "" }: { className?: string }) {
     <span className={`flex items-center gap-2 md:gap-3 ${className}`}>
       <CrazyGelsIcon className="w-8 h-8 md:w-10 md:h-10" />
       <span className="text-xl md:text-2xl font-light tracking-[0.2em] text-[#2C2C2C]">
-        CRAZY <span className="font-medium text-[#B76E79]">GELS</span>
+        CRAZY <span className="font-medium text-[#8C3F48]">GELS</span>
       </span>
     </span>
   )

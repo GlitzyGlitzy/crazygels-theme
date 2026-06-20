@@ -148,7 +148,7 @@ export default function BulkListPage() {
               Internal
             </p>
             <h1 className="font-serif text-2xl font-light tracking-tight text-[#1A1A1A] flex items-center gap-2">
-              <Rocket className="w-5 h-5 text-[#B76E79]" />
+              <Rocket className="w-5 h-5 text-[#8C3F48]" />
               Bulk Product Launcher
             </h1>
           </div>
@@ -191,7 +191,7 @@ export default function BulkListPage() {
             <div>
               <div className="grid grid-cols-2 gap-4 mb-5">
                 <div className="rounded-xl bg-[#F5F0EB] p-5">
-                  <p className="text-3xl font-light text-[#B76E79]">{stats.total_ready}</p>
+                  <p className="text-3xl font-light text-[#8C3F48]">{stats.total_ready}</p>
                   <p className="text-xs text-[#8A7B6F] mt-1">Ready to list (reviewed + enriched)</p>
                 </div>
                 <div className="rounded-xl bg-[#F5F0EB] p-5">
@@ -280,7 +280,7 @@ export default function BulkListPage() {
           <button
             onClick={startBulkList}
             disabled={running}
-            className="w-full h-12 bg-[#B76E79] text-white font-medium rounded-xl transition-colors hover:bg-[#A25D68] disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full h-12 bg-[#8C3F48] text-white font-medium rounded-xl transition-colors hover:bg-[#A25D68] disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {running ? (
               <>
@@ -302,7 +302,7 @@ export default function BulkListPage() {
         {(allResults.length > 0 || allErrors.length > 0) && (
           <div className="rounded-2xl border border-[#E8E4DC] bg-white p-6 shadow-sm">
             <h2 className="font-serif text-lg font-light text-[#1A1A1A] mb-4 flex items-center gap-2">
-              <Package className="w-5 h-5 text-[#B76E79]" />
+              <Package className="w-5 h-5 text-[#8C3F48]" />
               Results
               <span className="ml-auto text-xs font-mono text-[#9B9B9B]">
                 {allResults.length} listed &middot; {allErrors.length} failed
@@ -325,7 +325,7 @@ export default function BulkListPage() {
                         <span className="text-[#1A1A1A]">{r.name}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-[#B76E79] font-medium font-mono text-xs">
+                        <span className="text-[#8C3F48] font-medium font-mono text-xs">
                           EUR {r.price}
                         </span>
                         <span className="text-[10px] text-green-700 bg-green-50 px-2 py-0.5 rounded-full uppercase tracking-wider">

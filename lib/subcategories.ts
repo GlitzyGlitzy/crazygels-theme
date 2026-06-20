@@ -37,7 +37,7 @@ const HAIR_SUBCATEGORIES: Subcategory[] = [
 
 // ── SKINCARE ─────────────────────────────────────
 const SKIN_SUBCATEGORIES: Subcategory[] = [
-  { slug: 'face-cream', label: 'Face Creams', keywords: ['moisturizer', 'cream', 'day cream', 'night cream', 'gel cream', 'face cream', 'emulsion', 'hydrating cream'] },
+  { slug: 'face-cream', label: 'Face Creams', keywords: ['moisturizer', 'face cream', 'day cream', 'night cream', 'gel cream', 'emulsion', 'hydrating cream'] },
   { slug: 'wash-gels', label: 'Wash Gels & Cleansers', keywords: ['cleanser', 'cleansing', 'wash', 'micellar', 'makeup remover', 'cleansing oil', 'foam', 'gel cleanser', 'face wash'] },
   { slug: 'toners', label: 'Toners & Essences', keywords: ['toner', 'essence', 'tonic', 'astringent', 'mist', 'rose water', 'prep'] },
   { slug: 'serums', label: 'Serums', keywords: ['serum', 'ampoule', 'concentrate', 'booster', 'vegan serum', 'treatment oil', 'elixir'] },
@@ -96,12 +96,27 @@ export function getSubcategoriesForCollection(handle: string): Subcategory[] {
   return COLLECTION_SUBCATEGORIES[handle.toLowerCase()] || [];
 }
 
+// Terms that immediately disqualify a product from skin subcategories (and vice-versa).
+// Keeps hair products out of face-cream / serums buckets and skin products out of hair styling.
+const SKIN_SUBCAT_EXCLUSIONS = ['shampoo', 'conditioner', 'hair mask', 'hair oil', 'hair serum',
+  'argan oil', 'castor oil', 'scalp', 'curl cream', 'hair spray'];
+const HAIR_SUBCAT_EXCLUSIONS = ['face wash', 'face cream', 'moisturizer', 'facial', 'eye cream',
+  'sunscreen', 'toner', 'face oil'];
+
+const SKIN_SUBCAT_SLUGS = new Set(['face-cream', 'wash-gels', 'toners', 'serums', 'face-masks',
+  'eye-care', 'sun-protection', 'lip-care', 'body-care', 'exfoliants']);
+const HAIR_SUBCAT_SLUGS = new Set(['shampoo', 'conditioner', 'hair-masks', 'oils-serums',
+  'leave-in', 'styling', 'hair-growth', 'heat-protection', 'color-care', 'extensions', 'tools',
+  'curl-texture']);
+
 /**
  * Check if a product matches a subcategory by scanning its title,
  * description, tags, and productType for the subcategory keywords.
  */
 export function productMatchesSubcategory(product: Product, subcategory: Subcategory): boolean {
   const text = `${product.title} ${product.description} ${product.tags?.join(' ') || ''} ${product.productType || ''}`.toLowerCase();
+  if (SKIN_SUBCAT_SLUGS.has(subcategory.slug) && SKIN_SUBCAT_EXCLUSIONS.some((e) => text.includes(e))) return false;
+  if (HAIR_SUBCAT_SLUGS.has(subcategory.slug) && HAIR_SUBCAT_EXCLUSIONS.some((e) => text.includes(e))) return false;
   return subcategory.keywords.some((kw) => text.includes(kw.toLowerCase()));
 }
 

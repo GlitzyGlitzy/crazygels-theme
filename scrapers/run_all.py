@@ -29,12 +29,14 @@ SCRAPERS = {
     "sephora": "scrapers/sephora/scraper_api.py",
     "ulta": "scrapers/ulta/scraper_api.py",
     "amazon": "scrapers/amazon/scraper_api.py",
+    "aliexpress": "scrapers/aliexpress/scraper_api.py",
 }
 
 OUTPUT_FILES = {
     "sephora": "data/sephora_intelligence.json",
     "ulta": "data/ulta_intelligence.json",
     "amazon": "data/amazon_intelligence.json",
+    "aliexpress": "data/aliexpress_intelligence.json",
 }
 
 
@@ -126,7 +128,7 @@ def merge_outputs(output_path: str) -> int:
 def main():
     parser = argparse.ArgumentParser(description="Run all intelligence scrapers")
     parser.add_argument(
-        "--sources", default="sephora,ulta,amazon",
+        "--sources", default="sephora,ulta,amazon,aliexpress",
         help="Comma-separated list of sources (default: all)",
     )
     parser.add_argument("--pages", type=int, default=2, help="Pages per category")
@@ -170,7 +172,7 @@ def main():
         try:
             from scrapers.common.s3_uploader import upload_raw_batched, upload_anonymised, log_scrape_run
 
-            source_map = {"sephora": "sephora_de", "amazon": "amazon_de", "ulta": "ulta"}
+            source_map = {"sephora": "sephora_de", "amazon": "amazon_de", "ulta": "ulta", "aliexpress": "aliexpress"}
             for source in sources:
                 filepath = OUTPUT_FILES[source]
                 if not os.path.exists(filepath):

@@ -44,15 +44,15 @@ function FilterDropdown({
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${
           activeCount > 0
-            ? 'border-[#B76E79] bg-[#B76E79]/10 text-[#A15D67]'
-            : 'border-[#B76E79]/20 bg-[#FFFEF9] text-[#2C2C2C] hover:border-[#B76E79]/40'
+            ? 'border-[#8C3F48] bg-[#8C3F48]/10 text-[#A15D67]'
+            : 'border-[#8C3F48]/20 bg-[#FFFEF9] text-[#2C2C2C] hover:border-[#8C3F48]/40'
         }`}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
         <span>{label}</span>
         {activeCount > 0 && (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#B76E79] text-[10px] font-bold text-white">
+          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#8C3F48] text-[10px] font-bold text-white">
             {activeCount}
           </span>
         )}
@@ -63,7 +63,7 @@ function FilterDropdown({
 
       {isOpen && (
         <div
-          className="absolute left-0 z-50 mt-2 w-56 origin-top-left rounded-xl border border-[#B76E79]/20 bg-[#FFFEF9] p-1 shadow-xl max-h-64 overflow-y-auto"
+          className="absolute left-0 z-50 mt-2 w-56 origin-top-left rounded-xl border border-[#8C3F48]/20 bg-[#FFFEF9] p-1 shadow-xl max-h-64 overflow-y-auto"
           role="listbox"
           aria-multiselectable="true"
         >
@@ -75,8 +75,8 @@ function FilterDropdown({
                 onClick={() => onToggle(option)}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                   isSelected
-                    ? 'bg-[#B76E79]/10 text-[#A15D67]'
-                    : 'text-[#2C2C2C] hover:bg-[#B76E79]/5'
+                    ? 'bg-[#8C3F48]/10 text-[#A15D67]'
+                    : 'text-[#2C2C2C] hover:bg-[#8C3F48]/5'
                 }`}
                 role="option"
                 aria-selected={isSelected}
@@ -195,8 +195,8 @@ export function ProductFilters({ filterOptions }: { filterOptions: FilterOptions
           onClick={toggleSets}
           className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${
             setsOnly
-              ? 'border-[#B76E79] bg-[#B76E79]/10 text-[#A15D67]'
-              : 'border-[#B76E79]/20 bg-[#FFFEF9] text-[#2C2C2C] hover:border-[#B76E79]/40'
+              ? 'border-[#8C3F48] bg-[#8C3F48]/10 text-[#A15D67]'
+              : 'border-[#8C3F48]/20 bg-[#FFFEF9] text-[#2C2C2C] hover:border-[#8C3F48]/40'
           }`}
         >
           <span>Sets Only</span>
@@ -216,7 +216,7 @@ export function ProductFilters({ filterOptions }: { filterOptions: FilterOptions
       )}
 
       {isPending && (
-        <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#B76E79] border-t-transparent" />
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-[#8C3F48] border-t-transparent" />
       )}
     </>
   );
@@ -234,14 +234,14 @@ export function ProductFilters({ filterOptions }: { filterOptions: FilterOptions
           onClick={() => setMobileOpen(!mobileOpen)}
           className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${
             totalActiveFilters > 0
-              ? 'border-[#B76E79] bg-[#B76E79]/10 text-[#A15D67]'
-              : 'border-[#B76E79]/20 bg-[#FFFEF9] text-[#2C2C2C] hover:border-[#B76E79]/40'
+              ? 'border-[#8C3F48] bg-[#8C3F48]/10 text-[#A15D67]'
+              : 'border-[#8C3F48]/20 bg-[#FFFEF9] text-[#2C2C2C] hover:border-[#8C3F48]/40'
           }`}
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
           <span>Filters</span>
           {totalActiveFilters > 0 && (
-            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#B76E79] text-[10px] font-bold text-white">
+            <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#8C3F48] text-[10px] font-bold text-white">
               {totalActiveFilters}
             </span>
           )}

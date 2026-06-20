@@ -83,7 +83,7 @@ function ConfidenceBadge({ level }: { level: string }) {
   const styles: Record<string, string> = {
     high: "bg-[#4A7C59]/10 text-[#4A7C59] border-[#4A7C59]/20",
     medium: "bg-[#C4963C]/10 text-[#C4963C] border-[#C4963C]/20",
-    low: "bg-[#B76E79]/10 text-[#B76E79] border-[#B76E79]/20",
+    low: "bg-[#8C3F48]/10 text-[#8C3F48] border-[#8C3F48]/20",
   };
   return (
     <span
@@ -99,7 +99,7 @@ function PricePositionBadge({ position }: { position: string | null }) {
   const config: Record<string, { icon: typeof TrendingUp; style: string; label: string }> = {
     underpriced: { icon: TrendingUp, style: "text-[#4A7C59]", label: "Underpriced" },
     fair: { icon: Minus, style: "text-[#6B5B4F]", label: "Fair" },
-    overpriced: { icon: TrendingDown, style: "text-[#B76E79]", label: "Overpriced" },
+    overpriced: { icon: TrendingDown, style: "text-[#8C3F48]", label: "Overpriced" },
   };
   const { icon: Icon, style, label } = config[position] || config.fair;
   return (
@@ -277,7 +277,7 @@ function EnrichmentDetail({
               className={`rounded-xl border p-4 ${
                 row.margin_opportunity > 0
                   ? "border-[#4A7C59]/20 bg-[#4A7C59]/5"
-                  : "border-[#B76E79]/20 bg-[#B76E79]/5"
+                  : "border-[#8C3F48]/20 bg-[#8C3F48]/5"
               }`}
             >
               <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[#9B9B9B]">
@@ -287,7 +287,7 @@ function EnrichmentDetail({
                 className={`mt-1 text-xl font-semibold ${
                   row.margin_opportunity > 0
                     ? "text-[#4A7C59]"
-                    : "text-[#B76E79]"
+                    : "text-[#8C3F48]"
                 }`}
               >
                 {row.margin_opportunity > 0 ? "+" : ""}
@@ -349,7 +349,7 @@ function EnrichmentDetail({
                 </p>
                 <p className="mt-1 text-sm text-[#6B5B4F]">
                   Your price:{" "}
-                  <span className="font-semibold text-[#B76E79]">
+                  <span className="font-semibold text-[#8C3F48]">
                     EUR {Number(row.shopify_price).toFixed(2)}
                   </span>{" "}
                   &rarr; Benchmark:{" "}
@@ -385,7 +385,7 @@ function EnrichmentDetail({
             </button>
             <button
               onClick={() => onStatusChange(row.id, "rejected")}
-              className="flex-1 rounded-full border border-[#E8E4DC] px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#B76E79] hover:text-[#B76E79]"
+              className="flex-1 rounded-full border border-[#E8E4DC] px-4 py-2.5 text-xs font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#8C3F48] hover:text-[#8C3F48]"
             >
               Reject
             </button>
@@ -984,7 +984,7 @@ export default function EnrichmentDashboard() {
   const logLevelColor = (level: LogEntry["level"]) => {
     switch (level) {
       case "success": return "text-[#4A7C59]";
-      case "error": return "text-[#B76E79]";
+      case "error": return "text-[#8C3F48]";
       case "warning": return "text-[#C4963C]";
       default: return "text-[#6B5B4F]";
     }
@@ -1236,7 +1236,7 @@ export default function EnrichmentDashboard() {
                 <p className="text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Skipped</p>
               </div>
               <div className="rounded-lg bg-white/60 p-2 text-center">
-                <p className="text-lg font-bold text-[#B76E79]">{priceProgress.failed}</p>
+                <p className="text-lg font-bold text-[#8C3F48]">{priceProgress.failed}</p>
                 <p className="text-[9px] font-medium uppercase tracking-wider text-[#9B9B9B]">Failed</p>
               </div>
             </div>
@@ -1257,7 +1257,7 @@ export default function EnrichmentDashboard() {
                     {priceProgress.results.map((r, i) => (
                       <tr key={i} className="border-b border-[#E8E4DC]/50 last:border-0">
                         <td className="max-w-[200px] truncate px-3 py-1.5 text-[#1A1A1A]">{r.title}</td>
-                        <td className="px-3 py-1.5 text-[#B76E79] line-through">EUR {r.old_price.toFixed(2)}</td>
+                        <td className="px-3 py-1.5 text-[#8C3F48] line-through">EUR {r.old_price.toFixed(2)}</td>
                         <td className="px-3 py-1.5 font-medium text-[#4A7C59]">EUR {r.new_price.toFixed(2)}</td>
                         <td className="px-3 py-1.5">
                           <span
@@ -1266,7 +1266,7 @@ export default function EnrichmentDashboard() {
                                 ? "bg-[#4A7C59]/10 text-[#4A7C59]"
                                 : r.status.startsWith("skipped")
                                   ? "bg-[#9B9B9B]/10 text-[#9B9B9B]"
-                                  : "bg-[#B76E79]/10 text-[#B76E79]"
+                                  : "bg-[#8C3F48]/10 text-[#8C3F48]"
                             }`}
                           >
                             {r.status === "adjusted"
@@ -1470,7 +1470,7 @@ export default function EnrichmentDashboard() {
                 <button
                   onClick={handleRejectAll}
                   disabled={loading !== null}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E4DC] px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#B76E79] hover:text-[#B76E79] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#E8E4DC] px-4 py-1.5 text-[10px] font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#8C3F48] hover:text-[#8C3F48] disabled:opacity-50"
                 >
                   {loading === "reject_all" ? (
                     <Loader2 className="h-3 w-3 animate-spin" />

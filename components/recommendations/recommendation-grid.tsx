@@ -60,7 +60,7 @@ function PriceTierBadge({ tier }: { tier: string }) {
     budget: { label: 'Budget-Friendly', style: 'bg-[#F5F3EF] text-[#6B5B4F] border-[#E8E4DC]' },
     mid: { label: 'Mid-Range', style: 'bg-[#F5F3EF] text-[#6B5B4F] border-[#E8E4DC]' },
     premium: { label: 'Premium', style: 'bg-[#9E6B73]/10 text-[#9E6B73] border-[#9E6B73]/20' },
-    luxury: { label: 'Luxury', style: 'bg-[#B76E79]/10 text-[#B76E79] border-[#B76E79]/20' },
+    luxury: { label: 'Luxury', style: 'bg-[#8C3F48]/10 text-[#8C3F48] border-[#8C3F48]/20' },
   }
   const { label, style } = config[tier] || config.mid
   return (
@@ -232,8 +232,8 @@ export default function RecommendationGrid({
         <section>
           <div className="mb-6 md:mb-8">
             <div className="flex items-center gap-2 mb-1.5">
-              <Sparkles className="w-4 h-4 text-[#B76E79]" />
-              <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#B76E79] uppercase">
+              <Sparkles className="w-4 h-4 text-[#8C3F48]" />
+              <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#8C3F48] uppercase">
                 Coming to Crazy Gels
               </p>
             </div>
@@ -251,7 +251,7 @@ export default function RecommendationGrid({
                 product={product}
                 cta="Notify Me"
                 badge="Testing Now"
-                badgeStyle="bg-[#B76E79] text-white"
+                badgeStyle="bg-[#8C3F48] text-white"
                 icon={Bell}
                 disabled
               />

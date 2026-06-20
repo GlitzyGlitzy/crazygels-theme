@@ -7,7 +7,7 @@ export default function SkinConsultPage() {
   return (
     <ConsultWithAvatar
       consultType="skin"
-      accent="#B76E79"
+      accent="#8C3F48"
       Icon={Droplets}
       title="Skin Analysis"
       placeholder="Tell me about your skin concerns"

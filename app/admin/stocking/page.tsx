@@ -108,7 +108,7 @@ function StatCard({
 function PriorityBadge({ priority }: { priority: string }) {
   const styles: Record<string, string> = {
     urgent: "bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/20",
-    high: "bg-[#B76E79]/10 text-[#B76E79] border-[#B76E79]/20",
+    high: "bg-[#8C3F48]/10 text-[#8C3F48] border-[#8C3F48]/20",
     medium: "bg-[#C4963C]/10 text-[#C4963C] border-[#C4963C]/20",
     low: "bg-[#E8E4DC] text-[#6B5B4F] border-[#E8E4DC]",
   };
@@ -703,7 +703,7 @@ export default function StockingPage() {
           </div>
         )}
         {error && (
-          <div className="rounded-xl border border-[#B76E79]/20 bg-[#B76E79]/5 p-6 text-center text-sm text-[#B76E79]">
+          <div className="rounded-xl border border-[#8C3F48]/20 bg-[#8C3F48]/5 p-6 text-center text-sm text-[#8C3F48]">
             {error}
           </div>
         )}

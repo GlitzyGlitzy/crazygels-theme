@@ -36,14 +36,14 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
         {hasDiscount && availableForSale && (
-          <div className="absolute left-2 top-2 rounded-full bg-[#B76E79] px-2 py-1 text-xs font-semibold text-white">
+          <div className="absolute left-2 top-2 rounded-full bg-[#8C3F48] px-2 py-1 text-xs font-semibold text-white">
             Sale
           </div>
         )}
       </div>
       <div className="flex flex-1 flex-col p-3 md:p-4">
         <h3
-          className="line-clamp-2 text-xs md:text-sm font-medium text-foreground group-hover:text-[#B76E79] transition-colors"
+          className="line-clamp-2 text-xs md:text-sm font-medium text-foreground group-hover:text-[#8C3F48] transition-colors"
           title={title}
         >
           {shortenProductTitle(title)}

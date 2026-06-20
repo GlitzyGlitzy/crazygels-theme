@@ -52,13 +52,13 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
   }
 
   return (
-    <header className="sticky top-0 z-50 bg-[#FAF7F2]/98 backdrop-blur-xl border-b border-[#B76E79]/20">
+    <header className="sticky top-0 z-50 bg-[#FAF7F2]/98 backdrop-blur-xl border-b border-[#8C3F48]/20">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 text-[#2C2C2C] hover:text-[#B76E79] transition-colors"
+            className="md:hidden p-2 text-[#2C2C2C] hover:text-[#8C3F48] transition-colors"
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileMenuOpen}
           >
@@ -81,7 +81,7 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
               >
                 <Link
                   href={item.href}
-                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-widest transition-colors text-[#2C2C2C] hover:text-[#B76E79]"
+                  className="flex items-center gap-1 px-4 py-2 text-sm font-medium uppercase tracking-widest transition-colors text-[#2C2C2C] hover:text-[#8C3F48]"
                   style={item.color ? { color: item.color } : undefined}
                 >
                   {item.label}
@@ -89,7 +89,7 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
                 </Link>
 
                 {item.submenu && activeDropdown === item.label && (
-                  <div className={`absolute top-full left-0 bg-[#FFFEF9] border border-[#B76E79]/20 rounded-xl shadow-2xl py-3 mt-1 z-50 ${
+                  <div className={`absolute top-full left-0 bg-[#FFFEF9] border border-[#8C3F48]/20 rounded-xl shadow-2xl py-3 mt-1 z-50 ${
                     item.submenu.length > 6 ? 'w-[28rem] grid grid-cols-2 gap-x-1' : 'w-56'
                   }`}>
                     {item.submenu.map((subitem, idx) => (
@@ -98,8 +98,8 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
                         href={subitem.href}
                         className={`block px-4 py-2 text-sm transition-colors ${
                           idx === 0
-                            ? 'font-medium text-[#B76E79] hover:bg-[#B76E79]/5'
-                            : 'text-[#2C2C2C]/80 hover:text-[#B76E79] hover:bg-[#B76E79]/5'
+                            ? 'font-medium text-[#8C3F48] hover:bg-[#8C3F48]/5'
+                            : 'text-[#2C2C2C]/80 hover:text-[#8C3F48] hover:bg-[#8C3F48]/5'
                         }`}
                       >
                         {subitem.label}
@@ -113,13 +113,13 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
           {/* Right Icons */}
           <div className="flex items-center gap-2 md:gap-4">
-            <button className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#B76E79] transition-colors" aria-label="Search products">
+            <button className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#8C3F48] transition-colors" aria-label="Search products">
               <Search className="w-5 h-5" aria-hidden="true" />
             </button>
-            <Link href="/account" className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#B76E79] transition-colors" aria-label="My account">
+            <Link href="/account" className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#8C3F48] transition-colors" aria-label="My account">
               <User className="w-5 h-5" aria-hidden="true" />
             </Link>
-            <Link href="/cart" className="relative p-2 text-[#2C2C2C]/70 hover:text-[#B76E79] transition-colors" aria-label="Shopping cart">
+            <Link href="/cart" className="relative p-2 text-[#2C2C2C]/70 hover:text-[#8C3F48] transition-colors" aria-label="Shopping cart">
               <ShoppingBag className="w-5 h-5" aria-hidden="true" />
             </Link>
           </div>
@@ -128,7 +128,7 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#FFFEF9] border-t border-[#B76E79]/20 max-h-[calc(100vh-4rem)] overflow-y-auto">
+        <div className="md:hidden bg-[#FFFEF9] border-t border-[#8C3F48]/20 max-h-[calc(100vh-4rem)] overflow-y-auto">
           <nav className="px-4 py-4 space-y-1" aria-label="Mobile navigation">
             {/* Mobile-only Search & Account */}
             <Link
@@ -136,15 +136,15 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
               className="flex items-center gap-3 py-3 text-base font-medium tracking-wide text-[#2C2C2C]"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <Search className="w-5 h-5 text-[#B76E79]" aria-hidden="true" />
+              <Search className="w-5 h-5 text-[#8C3F48]" aria-hidden="true" />
               Search
             </Link>
             <Link
               href="/account"
-              className="flex items-center gap-3 py-3 text-base font-medium tracking-wide text-[#2C2C2C] border-b border-[#B76E79]/10 mb-2 pb-4"
+              className="flex items-center gap-3 py-3 text-base font-medium tracking-wide text-[#2C2C2C] border-b border-[#8C3F48]/10 mb-2 pb-4"
               onClick={() => setMobileMenuOpen(false)}
             >
-              <User className="w-5 h-5 text-[#B76E79]" aria-hidden="true" />
+              <User className="w-5 h-5 text-[#8C3F48]" aria-hidden="true" />
               My Account
             </Link>
             {menuItems.map((item) => (

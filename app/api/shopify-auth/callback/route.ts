@@ -80,7 +80,7 @@ export async function GET(request: Request) {
           <p style="color:#9B9B9B;font-size:12px;margin:0"><strong>Granted scopes:</strong> ${scope}</p>
           <p style="color:#9B9B9B;font-size:12px;margin:4px 0 0"><strong>Shop:</strong> ${shop}</p>
         </div>
-        <p style="color:#B76E79;font-size:12px;margin-top:16px"><strong>Security note:</strong> This token is shown once. Do not share it publicly. You can bookmark this page but the token will not be shown again on refresh.</p>
+        <p style="color:#8C3F48;font-size:12px;margin-top:16px"><strong>Security note:</strong> This token is shown once. Do not share it publicly. You can bookmark this page but the token will not be shown again on refresh.</p>
         `
       ),
       { headers: { "Content-Type": "text/html" } }

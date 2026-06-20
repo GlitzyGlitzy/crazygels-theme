@@ -123,7 +123,7 @@ export function ProductInfo({ product }: { product: Product }) {
     <div className="flex flex-col gap-4 md:gap-6">
       {/* Title & Price */}
       <div>
-        <p className="text-xs md:text-sm font-medium text-[#B76E79] uppercase tracking-widest">
+        <p className="text-xs md:text-sm font-medium text-[#8C3F48] uppercase tracking-widest">
           {product.vendor || 'Crazy Gels'}
         </p>
         <h1 className="mt-1 text-2xl md:text-3xl font-bold tracking-tight lg:text-4xl text-balance">
@@ -140,7 +140,7 @@ export function ProductInfo({ product }: { product: Product }) {
               <span className="text-base md:text-lg text-muted-foreground line-through">
                 {formatPrice(selectedVariant.compareAtPrice.amount, selectedVariant.compareAtPrice.currencyCode)}
               </span>
-              <span className="rounded-full bg-[#B76E79]/10 px-2 py-1 text-xs font-medium tracking-wide text-[#A15D67]">
+              <span className="rounded-full bg-[#8C3F48]/10 px-2 py-1 text-xs font-medium tracking-wide text-[#A15D67]">
                 SAVE {Math.round(
                   ((parseFloat(selectedVariant.compareAtPrice.amount) - parseFloat(selectedVariant.price.amount)) /
                     parseFloat(selectedVariant.compareAtPrice.amount)) *
@@ -185,7 +185,7 @@ export function ProductInfo({ product }: { product: Product }) {
                       className={cn(
                         'relative rounded-lg border-2 px-3 md:px-4 py-2 text-xs md:text-sm font-medium transition-all min-h-[40px]',
                         isSelected
-                          ? 'border-[#B76E79] bg-[#B76E79]/10 text-[#A15D67]'
+                          ? 'border-[#8C3F48] bg-[#8C3F48]/10 text-[#A15D67]'
                           : 'border-border hover:border-muted-foreground',
                         isDisabled && 'cursor-not-allowed opacity-50'
                       )}
@@ -245,7 +245,7 @@ export function ProductInfo({ product }: { product: Product }) {
             'flex-1 gap-2 text-base md:text-lg font-medium transition-all min-h-[48px]',
             isAdded
               ? 'bg-green-600 hover:bg-green-700'
-              : 'bg-[#B76E79] hover:bg-[#A15D67] text-white'
+              : 'bg-[#8C3F48] hover:bg-[#A15D67] text-white'
           )}
         >
           {isPending ? (
@@ -271,14 +271,14 @@ export function ProductInfo({ product }: { product: Product }) {
           onClick={handleFavorite}
           className={cn(
             'px-3 md:px-4 transition-all min-h-[48px]',
-            isFavorited && 'border-[#B76E79] bg-[#B76E79]/10'
+            isFavorited && 'border-[#8C3F48] bg-[#8C3F48]/10'
           )}
           aria-label={isFavorited ? 'Remove from wishlist' : 'Add to wishlist'}
           aria-pressed={isFavorited}
         >
           <Heart className={cn(
             'h-5 w-5 transition-colors',
-            isFavorited ? 'fill-[#B76E79] text-[#B76E79]' : ''
+            isFavorited ? 'fill-[#8C3F48] text-[#8C3F48]' : ''
           )} />
         </Button>
 

@@ -44,8 +44,8 @@ export function SubcategoryNav({ subcategories, totalCount }: SubcategoryNavProp
           onClick={() => setSubcategory('')}
           className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
             !activeSubcategory
-              ? 'bg-[#B76E79] text-white shadow-sm'
-              : 'bg-[#FFFEF9] text-[#2C2C2C]/70 border border-[#B76E79]/20 hover:border-[#B76E79]/40 hover:text-[#2C2C2C]'
+              ? 'bg-[var(--brand-accent)] text-white shadow-sm'
+              : 'bg-[#FFFEF9] text-[#2C2C2C]/70 border border-[#8C3F48]/20 hover:border-[#8C3F48]/40 hover:text-[#2C2C2C]'
           }`}
         >
           All
@@ -58,8 +58,8 @@ export function SubcategoryNav({ subcategories, totalCount }: SubcategoryNavProp
             onClick={() => setSubcategory(subcategory.slug)}
             className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
               activeSubcategory === subcategory.slug
-                ? 'bg-[#B76E79] text-white shadow-sm'
-                : 'bg-[#FFFEF9] text-[#2C2C2C]/70 border border-[#B76E79]/20 hover:border-[#B76E79]/40 hover:text-[#2C2C2C]'
+                ? 'bg-[var(--brand-accent)] text-white shadow-sm'
+                : 'bg-[#FFFEF9] text-[#2C2C2C]/70 border border-[#8C3F48]/20 hover:border-[#8C3F48]/40 hover:text-[#2C2C2C]'
             }`}
           >
             {subcategory.label}

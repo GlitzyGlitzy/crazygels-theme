@@ -113,7 +113,7 @@ export default function ExportPage() {
           <button
             onClick={handleCatalogDownload}
             disabled={catalogLoading}
-            className="block w-full text-center bg-[#9E6B73] text-white py-3 px-6 rounded-lg text-sm font-medium hover:bg-[#B76E79] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="block w-full text-center bg-[#9E6B73] text-white py-3 px-6 rounded-lg text-sm font-medium hover:bg-[#8C3F48] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {catalogLoading ? 'Exporting catalog...' : catalogDone ? 'Downloaded! Click again' : 'Download Catalog CSV'}
           </button>
@@ -187,7 +187,7 @@ export default function ExportPage() {
         </div>
 
         <div className="mt-6 pt-4 border-t border-[#E8E4DE] flex items-center justify-between">
-          <Link href="/admin" className="text-sm text-[#B76E79] hover:underline">
+          <Link href="/admin" className="text-sm text-[#8C3F48] hover:underline">
             All Admin Tools
           </Link>
           <Link href="/" className="text-sm text-[#6B5B4F] hover:underline">

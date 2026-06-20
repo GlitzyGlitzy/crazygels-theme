@@ -40,8 +40,8 @@ export function NewsletterForm() {
   if (status === 'success') {
     return (
       <div className="w-full max-w-xl mx-auto text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#B76E79]/20 mb-4">
-          <svg className="h-7 w-7 text-[#B76E79]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#8C3F48]/20 mb-4">
+          <svg className="h-7 w-7 text-[#8C3F48]" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
           </svg>
         </div>
@@ -65,7 +65,7 @@ export function NewsletterForm() {
           { icon: Mail, text: 'Weekly beauty tips' },
         ].map((perk) => (
           <span key={perk.text} className="inline-flex items-center gap-1.5 text-[#FAF7F2]/60 text-xs tracking-wide">
-            <perk.icon className="w-3.5 h-3.5 text-[#B76E79]" aria-hidden="true" />
+            <perk.icon className="w-3.5 h-3.5 text-[#8C3F48]" aria-hidden="true" />
             {perk.text}
           </span>
         ))}
@@ -93,13 +93,13 @@ export function NewsletterForm() {
             placeholder="Your email address"
             required
             disabled={isPending}
-            className="w-full pl-10 pr-5 py-3.5 bg-white/[0.07] border border-[#B76E79]/25 rounded-full text-[#FAF7F2] text-sm placeholder:text-[#FAF7F2]/35 focus:outline-none focus:border-[#B76E79] focus:ring-2 focus:ring-[#B76E79]/20 focus:bg-white/[0.1] transition-all disabled:opacity-50"
+            className="w-full pl-10 pr-5 py-3.5 bg-white/[0.07] border border-[#8C3F48]/25 rounded-full text-[#FAF7F2] text-sm placeholder:text-[#FAF7F2]/35 focus:outline-none focus:border-[#8C3F48] focus:ring-2 focus:ring-[#8C3F48]/20 focus:bg-white/[0.1] transition-all disabled:opacity-50"
           />
         </div>
         <button
           type="submit"
           disabled={isPending}
-          className="px-7 py-3.5 bg-[#B76E79] text-white text-sm font-medium tracking-wider rounded-full hover:bg-[#A15D67] active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-[#B76E79]/50 focus:ring-offset-2 focus:ring-offset-[#2C2C2C] disabled:opacity-50 whitespace-nowrap"
+          className="px-7 py-3.5 bg-[#8C3F48] text-white text-sm font-medium tracking-wider rounded-full hover:bg-[#A15D67] active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-[#8C3F48]/50 focus:ring-offset-2 focus:ring-offset-[#2C2C2C] disabled:opacity-50 whitespace-nowrap"
         >
           {isPending ? (
             <span className="inline-flex items-center gap-2">

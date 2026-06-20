@@ -131,7 +131,7 @@ function ProductRecommendations({ output, accent }: { output: ToolOutput; accent
 
 export interface ConsultWithAvatarProps {
   consultType: 'skin' | 'hair';
-  accent: string;         // e.g. '#B76E79'
+  accent: string;         // e.g. '#8C3F48'
   Icon: ElementType;      // Lucide icon
   title: string;
   placeholder: string;

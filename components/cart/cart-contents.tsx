@@ -49,7 +49,7 @@ function CartLineItem({
       <div className="flex-1 min-w-0">
         <Link 
           href={`/products/${product.handle}`}
-          className="text-[#2C2C2C] font-medium hover:text-[#B76E79] transition-colors line-clamp-2"
+          className="text-[#2C2C2C] font-medium hover:text-[#8C3F48] transition-colors line-clamp-2"
         >
           {product.title}
         </Link>

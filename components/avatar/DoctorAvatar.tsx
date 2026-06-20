@@ -1,5 +1,5 @@
 'use client';
-
+import drMayaImg from '@/assets/avatars/dr-maya.png';
 export type AvatarState = 'idle' | 'listening' | 'thinking' | 'speaking';
 
 export function DoctorAvatar({
@@ -20,7 +20,33 @@ export function DoctorAvatar({
   ].filter(Boolean).join(' ');
 
   return (
-    <div className={`relative ${className}`} aria-label="Dr. Maya beauty consultant avatar">
+    <div className={`relative ${className} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-accent)]`} aria-label="Dr. Maya beauty consultant avatar" tabIndex={0} role="img" >
+      <img
+          src={drMayaImg}
+          alt="Dr. Maya avatar"
+          className={`w-full h-full object-cover ${state === 'listening' ? 'animate-pulse' : ''}`} 
+        />
+        <svg viewBox="0 0 300 380" xmlns="http://www.w3.org/2000/svg" className="hidden">
+          <defs>
+            <filter id="maya-drop" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="6" stdDeviation="11" floodColor="rgba(70,35,10,0.18)" />
+            </filter>
+            <linearGradient id="maya-bg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#F9F5F1" />
+              <stop offset="100%" stopColor="#EDE6DD" />
+            </linearGradient>
+            <linearGradient id="maya-face-g" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#E8B07A" />
+              <stop offset="60%"  stopColor="#D4904E" />
+              <stop offset="100%" stopColor="#C07838" />
+            </linearGradient>
+            <linearGradient id="maya-coat-g" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#F5F2EE" />
+              <stop offset="100%" stopColor="#E8E4DC" />
+            </linearGradient>
+          </defs>
+          <rect width="300" height="380" fill="url(#maya-bg)" />
+        </svg>
       <style>{`
         .dr-maya {
           animation: maya-breathe 5s ease-in-out infinite;
@@ -110,18 +136,18 @@ export function DoctorAvatar({
         </defs>
 
         <rect width="300" height="380" fill="url(#maya-bg)" />
-        <circle cx="28"  cy="28"  r="2"   fill="#B76E79" opacity="0.07" />
-        <circle cx="272" cy="28"  r="2"   fill="#B76E79" opacity="0.07" />
-        <circle cx="28"  cy="352" r="2"   fill="#B76E79" opacity="0.07" />
-        <circle cx="272" cy="352" r="2"   fill="#B76E79" opacity="0.07" />
-        <circle cx="150" cy="18"  r="1.5" fill="#B76E79" opacity="0.05" />
+        <circle cx="28"  cy="28"  r="2"   fill="var(--brand-accent)" opacity="0.07" />
+        <circle cx="272" cy="28"  r="2"   fill="var(--brand-accent)" opacity="0.07" />
+        <circle cx="28"  cy="352" r="2"   fill="var(--brand-accent)" opacity="0.07" />
+        <circle cx="272" cy="352" r="2"   fill="var(--brand-accent)" opacity="0.07" />
+        <circle cx="150" cy="18"  r="1.5" fill="var(--brand-accent)" opacity="0.05" />
 
-        <circle cx="150" cy="162" r="86" fill="none" stroke="#B76E79" strokeWidth="2"   className="maya-ring" />
-        <circle cx="150" cy="162" r="86" fill="none" stroke="#B76E79" strokeWidth="1.5" className="maya-ring maya-ring-2" />
-        <circle cx="150" cy="162" r="86" fill="none" stroke="#B76E79" strokeWidth="1"   className="maya-ring maya-ring-3" />
+        <circle cx="150" cy="162" r="86" fill="none" stroke="var(--brand-accent)" strokeWidth="2"   className="maya-ring" />
+        <circle cx="150" cy="162" r="86" fill="none" stroke="var(--brand-accent)" strokeWidth="1.5" className="maya-ring maya-ring-2" />
+        <circle cx="150" cy="162" r="86" fill="none" stroke="var(--brand-accent)" strokeWidth="1"   className="maya-ring maya-ring-3" />
 
         <path d="M 0 380 L 22 296 Q 150 258 278 296 L 300 380 Z" fill="url(#maya-coat-g)" />
-        <path d="M 22 296 Q 150 258 278 296" stroke="#DDD6CD" strokeWidth="1" fill="none" />
+        <path d="M 22 296 Q 150 258 278 296" stroke="var(--brand-accent)" strokeWidth="1" fill="none" />
         <path d="M 144 261 L 115 292 L 104 342 L 88 380 L 146 380 Z" fill="#ECEAE5" />
         <path d="M 156 261 L 185 292 L 196 342 L 212 380 L 154 380 Z" fill="#ECEAE5" />
         <path d="M 144 261 L 130 286 L 130 380 L 170 380 L 170 286 L 156 261 Z" fill="#6DB5C2" />
@@ -201,10 +227,10 @@ export function DoctorAvatar({
         <circle cx="150" cy="273" r="4" fill="#B4C4CE" />
 
         <rect x="60" y="300" width="74" height="35" rx="5" fill="white" stroke="#DDD8D0" strokeWidth="1" />
-        <rect x="60" y="300" width="74" height="11" rx="5" fill="#B76E79" />
+        <rect x="60" y="300" width="74" height="11" rx="5" fill="#8C3F48" />
         <text x="97" y="309" textAnchor="middle" fill="white"   fontSize="6.5" fontFamily="system-ui,sans-serif" fontWeight="700" letterSpacing="0.5">DR. MAYA</text>
         <text x="97" y="321" textAnchor="middle" fill="#555"    fontSize="5.5" fontFamily="system-ui,sans-serif">Beauty Specialist</text>
-        <text x="97" y="330" textAnchor="middle" fill="#B76E79" fontSize="5"   fontFamily="system-ui,sans-serif">CrazyGels</text>
+        <text x="97" y="330" textAnchor="middle" fill="#8C3F48" fontSize="5"   fontFamily="system-ui,sans-serif">CrazyGels</text>
       </svg>
     </div>
   );

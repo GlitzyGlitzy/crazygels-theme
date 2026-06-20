@@ -141,7 +141,7 @@ export function ProductGallery({ product }: { product: Product }) {
                 className={cn(
                   'relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition-all',
                   selectedIndex === index
-                    ? 'border-[#B76E79] ring-2 ring-[#B76E79]/20'
+                    ? 'border-[#8C3F48] ring-2 ring-[#8C3F48]/20'
                     : 'border-transparent hover:border-border'
                 )}
                 aria-label={`View image ${index + 1}`}

@@ -162,8 +162,8 @@ export default function RecommendationsPage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-8 rounded-xl border border-[#B76E79]/30 bg-[#B76E79]/5 px-5 py-4">
-            <p className="text-sm text-[#B76E79]">{error}</p>
+          <div className="mb-8 rounded-xl border border-[#8C3F48]/30 bg-[#8C3F48]/5 px-5 py-4">
+            <p className="text-sm text-[#8C3F48]">{error}</p>
           </div>
         )}
 

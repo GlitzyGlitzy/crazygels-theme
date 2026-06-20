@@ -195,7 +195,9 @@ const VIRTUAL_COLLECTIONS: Record<string, { title: string; description: string; 
   },
 };
 
-// Keyword-based augmentation: catch products not manually assigned to a Shopify collection
+// Keyword-based augmentation: catch products not manually assigned to a Shopify collection.
+// Use specific multi-word phrases instead of bare ambiguous terms (e.g. 'face cream' not 'cream',
+// 'face oil' not 'oil') to prevent hair products from matching skincare keywords and vice-versa.
 const COLLECTION_KEYWORDS: Record<string, string[]> = {
   'gel-nail-wraps': [
     'gel nail', 'nail wrap', 'semi-cured', 'gel strip', 'nail sticker', 'nail art',
@@ -213,10 +215,16 @@ const COLLECTION_KEYWORDS: Record<string, string[]> = {
     'curl', 'frizz', 'volume', 'extensions', 'wig', 'ponytail', 'clip-in',
   ],
   skincare: [
-    'skin', 'face', 'facial', 'serum', 'moisturizer', 'cleanser', 'toner',
-    'retinol', 'vitamin c', 'hyaluronic', 'spf', 'sunscreen', 'anti-aging',
-    'brightening', 'exfoliant', 'cream', 'lotion', 'eye cream', 'oil',
-    'essence', 'mist', 'glow', 'skincare', 'skin care', 'derma',
+    // Primary identifiers
+    'skin', 'face', 'facial', 'skincare', 'skin care', 'derma',
+    // Product types — specific enough not to match hair products
+    'serum', 'moisturizer', 'cleanser', 'toner', 'retinol', 'vitamin c',
+    'hyaluronic', 'spf', 'sunscreen', 'anti-aging', 'brightening', 'exfoliant',
+    'essence', 'mist',
+    // Cream / lotion / oil — use specific phrases so curl cream / hair oil don't match
+    'face cream', 'eye cream', 'night cream', 'day cream', 'body cream', 'hand cream',
+    'body lotion', 'skin lotion', 'body butter',
+    'face oil', 'facial oil', 'cleansing oil', 'skin oil',
   ],
   cosmetics: [
     'makeup', 'cosmetic', 'foundation', 'concealer', 'mascara', 'lipstick',
@@ -230,10 +238,21 @@ const COLLECTION_KEYWORDS: Record<string, string[]> = {
   ],
 };
 
-function matchesCollectionKeywords(product: { title: string; description: string; tags: string[]; productType: string }, handle: string): boolean {
-  const keywords = COLLECTION_KEYWORDS[handle];
-  if (!keywords) return false;
+// If any of these terms appear in a product's text, it is disqualified from the given collection
+// even if a keyword also matched — guards against short keyword false-positives.
+const COLLECTION_EXCLUSIONS: Record<string, string[]> = {
+  skincare: ['shampoo', 'conditioner', 'hair mask', 'hair oil', 'hair serum', 'hair spray',
+    'argan oil', 'castor oil', 'scalp', 'hair care', 'haircare', 'wig', 'extension', 'curl cream'],
+  haircare: ['face wash', 'face cream', 'moisturizer', 'facial serum', 'eye cream',
+    'sunscreen', 'toner', 'face oil', 'facial oil'],
+};
+
+type ProductLike = { title: string; description: string; tags: string[]; productType: string };
+
+function matchesCollection(product: ProductLike, handle: string, keywords: string[]): boolean {
   const text = `${product.title} ${product.description} ${product.tags?.join(' ') || ''} ${product.productType || ''}`.toLowerCase();
+  const exclusions = COLLECTION_EXCLUSIONS[handle];
+  if (exclusions?.some((excl) => text.includes(excl))) return false;
   return keywords.some((kw) => text.includes(kw.toLowerCase()));
 }
 
@@ -295,7 +314,7 @@ export default async function CollectionPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
-      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#B76E79]/20" />}>
+      <Suspense fallback={<div className="h-16 md:h-20 bg-[#FAF7F2] border-b border-[#8C3F48]/20" />}>
         <DynamicHeader />
       </Suspense>
 
@@ -314,15 +333,15 @@ export default async function CollectionPage({
               <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2]/60 via-[#FAF7F2]/80 to-[#FAF7F2]" />
             </div>
           ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#8C3F48]/5 via-[#FAF7F2] to-[#C9A9A6]/5" />
           )}
 
           <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <nav aria-label="Breadcrumb">
               <ol className="flex items-center gap-2 text-sm text-[#2C2C2C]/60 mb-6">
-                <li><Link href="/" className="hover:text-[#B76E79] transition-colors">Home</Link></li>
+                <li><Link href="/" className="hover:text-[#8C3F48] transition-colors">Home</Link></li>
                 <li aria-hidden="true">/</li>
-                <li><Link href="/collections" className="hover:text-[#B76E79] transition-colors">Collections</Link></li>
+                <li><Link href="/collections" className="hover:text-[#8C3F48] transition-colors">Collections</Link></li>
                 <li aria-hidden="true">/</li>
                 <li className="text-[#2C2C2C]" aria-current="page">{collection.title}</li>
               </ol>
@@ -379,10 +398,7 @@ async function ProductCount({
 
   let products;
   if (keywords) {
-    products = allProducts.filter((p) => {
-      const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
-      return keywords.some((kw) => text.includes(kw.toLowerCase()));
-    });
+    products = allProducts.filter((p) => matchesCollection(p, handle, keywords));
   } else {
     products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
@@ -407,25 +423,22 @@ async function CollectionProducts({
 
   let products;
   if (keywords) {
-    products = allProducts.filter((p) => {
-      const text = `${p.title} ${p.description} ${p.tags?.join(' ') || ''} ${p.productType || ''}`.toLowerCase();
-      return keywords.some((kw) => text.includes(kw.toLowerCase()));
-    });
+    products = allProducts.filter((p) => matchesCollection(p, handle, keywords));
   } else {
     products = await getAllCollectionProducts({ handle, sortKey, reverse });
   }
 
   if (products.length === 0) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-[#B76E79]/20 bg-[#FFFEF9]">
-        <div className="mb-4 h-16 w-16 rounded-full bg-[#B76E79]/20 flex items-center justify-center">
-          <Grid3X3 className="h-8 w-8 text-[#B76E79]" />
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-2xl border border-[#8C3F48]/20 bg-[#FFFEF9]">
+        <div className="mb-4 h-16 w-16 rounded-full bg-[#8C3F48]/20 flex items-center justify-center">
+          <Grid3X3 className="h-8 w-8 text-[#8C3F48]" />
         </div>
         <h3 className="text-lg font-semibold text-[#2C2C2C]">No products found</h3>
         <p className="mt-2 text-[#2C2C2C]/60">Check back soon for new arrivals</p>
         <Link
           href="/collections"
-          className="mt-6 rounded-full bg-[#B76E79] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A15D67]"
+          className="mt-6 rounded-full bg-[#8C3F48] px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-[#A15D67]"
         >
           Browse All Collections
         </Link>
@@ -456,7 +469,7 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
     if (related.length === 0) return null;
 
     return (
-      <section className="border-t border-[#B76E79]/10 bg-[#FFFEF9] py-16">
+      <section className="border-t border-[#8C3F48]/10 bg-[#FFFEF9] py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="mb-8 text-2xl font-medium text-[#2C2C2C]">Explore More Collections</h2>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -464,7 +477,7 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
               <Link
                 key={collection.handle}
                 href={`/collections/${collection.handle}`}
-                className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#B76E79]/20"
+                className="group relative flex aspect-[16/9] flex-col justify-end overflow-hidden rounded-2xl bg-[#FFFEF9] border border-[#8C3F48]/20"
               >
                 {collection.image ? (
                   <Image
@@ -475,11 +488,11 @@ async function RelatedCollections({ currentHandle }: { currentHandle: string }) 
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="absolute inset-0 bg-gradient-to-br from-[#B76E79]/20 to-[#C9A9A6]/20" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#8C3F48]/20 to-[#C9A9A6]/20" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#FFFEF9]/90 via-[#FFFEF9]/40 to-transparent" />
                 <div className="relative p-6">
-                  <h3 className="text-xl font-medium text-[#2C2C2C] group-hover:text-[#B76E79] transition-colors">
+                  <h3 className="text-xl font-medium text-[#2C2C2C] group-hover:text-[#8C3F48] transition-colors">
                     {collection.title}
                   </h3>
                 </div>
@@ -498,21 +511,21 @@ function CollectionNotConfigured() {
   return (
     <main className="min-h-screen bg-[#FAF7F2] flex items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-[#B76E79]/20 flex items-center justify-center">
-          <SlidersHorizontal className="h-10 w-10 text-[#B76E79]" />
+        <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-[#8C3F48]/20 flex items-center justify-center">
+          <SlidersHorizontal className="h-10 w-10 text-[#8C3F48]" />
         </div>
         <h1 className="text-2xl font-medium text-[#2C2C2C] mb-4">Connect Your Shopify Store</h1>
         <p className="text-[#2C2C2C]/60 mb-8">
           Add your Shopify credentials to display collections and products.
         </p>
-        <div className="bg-[#FFFEF9] rounded-xl p-6 text-left border border-[#B76E79]/20">
+        <div className="bg-[#FFFEF9] rounded-xl p-6 text-left border border-[#8C3F48]/20">
           <p className="text-[#2C2C2C]/40 text-sm mb-3">Required environment variables:</p>
           <code className="block text-[#A15D67] text-sm mb-1">SHOPIFY_STORE_DOMAIN</code>
           <code className="block text-[#A15D67] text-sm">SHOPIFY_STOREFRONT_ACCESS_TOKEN</code>
         </div>
         <Link
           href="/"
-          className="mt-8 inline-flex items-center gap-2 text-[#B76E79] hover:underline"
+          className="mt-8 inline-flex items-center gap-2 text-[#8C3F48] hover:underline"
         >
           <ChevronLeft className="h-4 w-4" />
           Back to Home
