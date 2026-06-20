@@ -6,7 +6,7 @@ import { DefaultChatTransport, type UIMessage } from 'ai';
 import Link from 'next/link';
 import {
   ArrowLeft, Send, Loader2, Sparkles, User, RefreshCcw,
-  ShoppingBag, ExternalLink, Mic, MicOff, Volume2, VolumeX,
+  ShoppingBag, ExternalLink, Mic, MicOff, Volume2, VolumeX, ChevronDown,
 } from 'lucide-react';
 
 import { SignupGate } from '@/components/consult/signup-gate';
@@ -160,7 +160,12 @@ export function ConsultWithAvatar({
     sendMessage({ text });
   }, [isLoading, sendMessage]);
 
-  const { listening, speaking, mouthOpen, supported, startListening, stopListening, speak, stopSpeaking } = useVoice(handleTranscript);
+  const {
+    listening, speaking, mouthOpen, supported,
+    interimTranscript, recognitionError,
+    voices, selectedVoiceURI, setVoiceURI,
+    startListening, stopListening, speak, stopSpeaking,
+  } = useVoice(handleTranscript);
 
   // Auto-speak when streaming finishes and a new assistant message arrived
   useEffect(() => {
@@ -296,6 +301,37 @@ export function ConsultWithAvatar({
                 </button>
               </div>
 
+              {/* Voice selector */}
+              {supported && voices.length > 1 && (
+                <div className="relative w-full max-w-[200px]">
+                  <select
+                    value={selectedVoiceURI}
+                    onChange={e => setVoiceURI(e.target.value)}
+                    title="Choose Dr. Maya's voice"
+                    className="w-full appearance-none text-[11px] bg-white border border-[#E8E4DC] rounded-full px-3 py-1.5 pr-7 text-[#666] focus:outline-none cursor-pointer"
+                    style={{ color: '#666' }}
+                  >
+                    {voices.map(v => (
+                      <option key={v.voiceURI} value={v.voiceURI}>
+                        {v.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[#999] pointer-events-none" />
+                </div>
+              )}
+
+              {/* Recognition error */}
+              {recognitionError && recognitionError !== 'aborted' && (
+                <p className="text-[10px] text-red-400 text-center leading-tight px-2">
+                  {recognitionError === 'not-allowed' && 'Mic access denied — allow it in browser settings.'}
+                  {recognitionError === 'no-speech'   && 'No speech detected. Try again.'}
+                  {recognitionError === 'network'     && 'Network error during voice recognition.'}
+                  {recognitionError === 'audio-capture' && 'No microphone found.'}
+                  {recognitionError === 'unsupported' && 'Voice not supported in this browser.'}
+                </p>
+              )}
+
               {!supported && (
                 <p className="text-[10px] text-[#999] text-center leading-tight">
                   Voice not supported in this browser.<br />Use Chrome or Edge for voice input.
@@ -412,12 +448,13 @@ export function ConsultWithAvatar({
                 <form onSubmit={handleSubmit} className="flex gap-2">
                   <input
                     type="text"
-                    value={input}
-                    onChange={e => setInput(e.target.value)}
-                    placeholder={listening ? 'Listening…' : `Ask Dr. Maya about your ${consultType}…`}
-                    disabled={isLoading || listening}
+                    value={listening ? interimTranscript : input}
+                    onChange={e => !listening && setInput(e.target.value)}
+                    placeholder={listening ? 'Listening — speak now…' : `Ask Dr. Maya about your ${consultType}…`}
+                    disabled={isLoading}
+                    readOnly={listening}
                     className="flex-1 bg-white border border-[#E8E4DC] rounded-full px-5 py-3 text-[#1A1A1A] text-sm placeholder:text-[#9B9B9B] focus:outline-none transition-colors"
-                    style={{ ['--tw-ring-color' as string]: accent }}
+                    style={listening ? { borderColor: accent, color: '#666' } : { ['--tw-ring-color' as string]: accent }}
                   />
 
                   {/* Mic button (inline with input) */}
