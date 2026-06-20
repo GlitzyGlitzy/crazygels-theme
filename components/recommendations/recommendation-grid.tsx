@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { ShoppingBag, Bell, ThumbsUp, Sparkles, FlaskConical, Star } from 'lucide-react'
+import { ShoppingBag, Bell, Sparkles, FlaskConical, Star } from 'lucide-react'
 
 interface Recommendation {
   product_hash: string
@@ -14,19 +14,18 @@ interface Recommendation {
   suitable_for?: string[]
   image_url?: string | null
   description?: string | null
-  availability: 'in_stock' | 'coming_soon' | 'research'
+  availability: 'in_stock' | 'coming_soon'
   shopify_handle?: string | null
   fulfillment?: string
   delivery?: string
-  votes?: number
 }
 
 interface RecommendationData {
   primary: Recommendation[]
   secondary: Recommendation[]
-  research: Recommendation[]
   meta?: {
     total_matches: number
+    research_interest_count?: number
     timestamp: string
   }
 }
@@ -76,7 +75,6 @@ function ProductCard({
   badgeStyle,
   icon: Icon,
   disabled,
-  onVote,
   href,
 }: {
   product: Recommendation
@@ -85,7 +83,6 @@ function ProductCard({
   badgeStyle: string
   icon: React.ElementType
   disabled?: boolean
-  onVote?: (hash: string) => void
   href?: string
 }) {
   return (
@@ -147,18 +144,7 @@ function ProductCard({
 
         {/* CTA */}
         <div className="mt-auto">
-          {onVote ? (
-            <button
-              onClick={() => onVote(product.product_hash)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 border-2 border-[#9E6B73] text-[#9E6B73] text-xs font-medium tracking-[0.1em] uppercase rounded-full hover:bg-[#9E6B73] hover:text-white transition-all duration-300"
-            >
-              <ThumbsUp className="w-3.5 h-3.5" />
-              {cta}
-              {product.votes != null && product.votes > 0 && (
-                <span className="text-[10px] opacity-60">({product.votes})</span>
-              )}
-            </button>
-          ) : href ? (
+          {href ? (
             <Link
               href={href}
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#1A1A1A] text-white text-xs font-medium tracking-[0.1em] uppercase rounded-full hover:bg-[#9E6B73] transition-all duration-300"
@@ -189,17 +175,10 @@ export default function RecommendationGrid({
 }: {
   recommendations: RecommendationData
 }) {
-  const [votes, setVotes] = useState<Record<string, number>>({})
-
-  const handleVote = (hash: string) => {
-    setVotes((prev) => ({ ...prev, [hash]: (prev[hash] || 0) + 1 }))
-  }
-
   const hasPrimary = recommendations.primary.length > 0
   const hasSecondary = recommendations.secondary.length > 0
-  const hasResearch = recommendations.research.length > 0
 
-  if (!hasPrimary && !hasSecondary && !hasResearch) {
+  if (!hasPrimary && !hasSecondary) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <FlaskConical className="w-12 h-12 text-[#E8E4DC] mb-4" />
@@ -279,42 +258,9 @@ export default function RecommendationGrid({
         </section>
       )}
 
-      {/* RESEARCH: Community vote to stock */}
-      {hasResearch && (
-        <section>
-          <div className="mb-6 md:mb-8">
-            <div className="flex items-center gap-2 mb-1.5">
-              <FlaskConical className="w-4 h-4 text-[#6B5B4F]" />
-              <p className="text-[10px] md:text-[11px] font-medium tracking-[0.3em] text-[#6B5B4F] uppercase">
-                Community Selection
-              </p>
-            </div>
-            <h2 className="font-serif text-xl md:text-2xl lg:text-3xl font-light tracking-tight text-[#1A1A1A]">
-              Vote to Stock
-            </h2>
-            <p className="text-sm text-[#666666] mt-1 max-w-lg">
-              Our intelligence engine identified these as optimal matches for your biology. Vote to fast-track them to our store.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 lg:gap-6">
-            {recommendations.research.map((product) => (
-              <ProductCard
-                key={product.product_hash}
-                product={{ ...product, votes: (product.votes || 0) + (votes[product.product_hash] || 0) }}
-                cta="Vote to Stock"
-                badge="Research"
-                badgeStyle="bg-[#6B5B4F] text-white"
-                icon={FlaskConical}
-                onVote={handleVote}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
       {/* Metadata */}
       {recommendations.meta && (
-        <div className="border-t border-[#E8E4DC] pt-4">
+        <div className="border-t border-[#E8E4DC] pt-4 space-y-1">
           <p className="text-[10px] text-[#9B9B9B] tracking-wider">
             {recommendations.meta.total_matches} products analyzed &middot; Last updated{' '}
             {new Date(recommendations.meta.timestamp).toLocaleDateString('en-US', {
@@ -324,6 +270,12 @@ export default function RecommendationGrid({
               minute: '2-digit',
             })}
           </p>
+          {(recommendations.meta.research_interest_count ?? 0) > 0 && (
+            <p className="text-[10px] text-[#9B9B9B] tracking-wider flex items-center gap-1.5">
+              <FlaskConical className="w-3 h-3" />
+              {recommendations.meta.research_interest_count} additional products are being evaluated for future availability
+            </p>
+          )}
         </div>
       )}
     </div>

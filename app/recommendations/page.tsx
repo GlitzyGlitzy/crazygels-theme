@@ -10,9 +10,9 @@ import { Footer } from '@/components/layout/footer';
 interface RecommendationData {
   primary: any[];
   secondary: any[];
-  research: any[];
   meta?: {
     total_matches: number;
+    research_interest_count?: number;
     timestamp: string;
   };
 }
@@ -94,8 +94,7 @@ export default function RecommendationsPage() {
             Personalized Recommendations
           </h1>
           <p className="text-sm text-[#666666] mt-2 max-w-xl">
-            Select your skin concerns below to see products matched across our store,
-            upcoming samples, and community-voted research picks.
+            Select your skin concerns below to see products matched across our store and upcoming samples.
           </p>
         </div>
 

@@ -12,8 +12,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const matches = await findMatches(skinProfile);
-    const blended = blendRecommendations(matches);
+    const { matches, researchCount } = await findMatches(skinProfile);
+    const blended = blendRecommendations(matches, researchCount);
 
     return NextResponse.json(blended);
   } catch (error) {
@@ -50,7 +50,7 @@ interface CatalogProduct {
 
 async function findMatches(
   skinProfile: SkinProfile
-): Promise<CatalogProduct[]> {
+): Promise<{ matches: CatalogProduct[]; researchCount: number }> {
   const concerns = skinProfile.concerns;
   const sensitivities = skinProfile.sensitivities || [];
   const priceTier = skinProfile.priceTier;
@@ -65,16 +65,12 @@ async function findMatches(
              image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
-        AND status IN ('listed', 'sampled', 'research')
+        AND status IN ('listed', 'sampled')
         AND NOT (contraindications && ${sensitivities})
         AND price_tier = ${priceTier}
         AND product_type = ${category}
       ORDER BY
-        CASE
-          WHEN status = 'listed' THEN 1
-          WHEN status = 'sampled' THEN 2
-          ELSE 3
-        END,
+        CASE WHEN status = 'listed' THEN 1 ELSE 2 END,
         efficacy_score DESC NULLS LAST,
         random()
       LIMIT 20`;
@@ -85,15 +81,11 @@ async function findMatches(
              image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
-        AND status IN ('listed', 'sampled', 'research')
+        AND status IN ('listed', 'sampled')
         AND NOT (contraindications && ${sensitivities})
         AND price_tier = ${priceTier}
       ORDER BY
-        CASE
-          WHEN status = 'listed' THEN 1
-          WHEN status = 'sampled' THEN 2
-          ELSE 3
-        END,
+        CASE WHEN status = 'listed' THEN 1 ELSE 2 END,
         efficacy_score DESC NULLS LAST,
         random()
       LIMIT 20`;
@@ -104,15 +96,11 @@ async function findMatches(
              image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
-        AND status IN ('listed', 'sampled', 'research')
+        AND status IN ('listed', 'sampled')
         AND NOT (contraindications && ${sensitivities})
         AND product_type = ${category}
       ORDER BY
-        CASE
-          WHEN status = 'listed' THEN 1
-          WHEN status = 'sampled' THEN 2
-          ELSE 3
-        END,
+        CASE WHEN status = 'listed' THEN 1 ELSE 2 END,
         efficacy_score DESC NULLS LAST,
         random()
       LIMIT 20`;
@@ -123,26 +111,28 @@ async function findMatches(
              image_url, description_generated, status, shopify_handle
       FROM product_catalog
       WHERE suitable_for && ${concerns}
-        AND status IN ('listed', 'sampled', 'research')
+        AND status IN ('listed', 'sampled')
         AND NOT (contraindications && ${sensitivities})
       ORDER BY
-        CASE
-          WHEN status = 'listed' THEN 1
-          WHEN status = 'sampled' THEN 2
-          ELSE 3
-        END,
+        CASE WHEN status = 'listed' THEN 1 ELSE 2 END,
         efficacy_score DESC NULLS LAST,
         random()
       LIMIT 20`;
   }
 
-  return result;
+  const [countRow] = await sql<[{ count: string }]>`
+    SELECT COUNT(*)::text AS count
+    FROM product_catalog
+    WHERE suitable_for && ${concerns}
+      AND status = 'research'
+      AND NOT (contraindications && ${sensitivities})`;
+
+  return { matches: result, researchCount: parseInt(countRow?.count ?? "0", 10) };
 }
 
-function blendRecommendations(matches: CatalogProduct[]) {
+function blendRecommendations(matches: CatalogProduct[], researchCount: number) {
   const listed = matches.filter((m) => m.status === "listed").slice(0, 3);
   const sampled = matches.filter((m) => m.status === "sampled").slice(0, 2);
-  const research = matches.filter((m) => m.status === "research").slice(0, 3);
 
   return {
     primary: listed.map((p) => ({
@@ -159,16 +149,9 @@ function blendRecommendations(matches: CatalogProduct[]) {
       notify_me: true,
     })),
 
-    research: research.map((p) => ({
-      ...formatProduct(p),
-      availability: "research" as const,
-      message:
-        "Our AI identified this as optimal for your biology. Vote to fast-track.",
-      vote_to_stock: true,
-    })),
-
     meta: {
       total_matches: matches.length,
+      research_interest_count: researchCount,
       timestamp: new Date().toISOString(),
     },
   };
