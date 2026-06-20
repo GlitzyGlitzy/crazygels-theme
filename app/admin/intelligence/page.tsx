@@ -25,7 +25,7 @@ import {
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
 
-interface DemandSignal {
+interface ProductSignal {
   product_hash: string;
   display_name: string;
   category: string;
@@ -37,7 +37,13 @@ interface DemandSignal {
   suitable_for: string[] | null;
   contraindications: string[] | null;
   status: string;
-  demand_tier: string;
+  efficacy_tier: string;
+  market_demand_tier: string;
+  ingredient_match_tier: string;
+  review_confidence_tier: string;
+  active_count: number;
+  review_count: number;
+  rating: number | null;
   acquisition_lead: string | null;
   has_source: boolean;
   source: string | null;
@@ -52,7 +58,8 @@ interface DemandSignal {
 interface Stats {
   total: number;
   with_source: number;
-  high_demand: number;
+  high_formula_evidence: number;
+  high_market_demand: number;
   avg_efficacy: string | number;
   catalog_total: number;
   enriched_price: number;
@@ -112,11 +119,15 @@ function StatCard({
   );
 }
 
-function DemandBadge({ tier }: { tier: string }) {
+function SignalBadge({ tier }: { tier: string }) {
   const styles: Record<string, string> = {
     high: "bg-[#B76E79]/10 text-[#B76E79] border-[#B76E79]/20",
     medium: "bg-[#9E6B73]/10 text-[#9E6B73] border-[#9E6B73]/20",
+    strong: "bg-[#4A7C59]/10 text-[#4A7C59] border-[#4A7C59]/20",
+    partial: "bg-[#C4963C]/10 text-[#C4963C] border-[#C4963C]/20",
     low: "bg-[#E8E4DC] text-[#6B5B4F] border-[#E8E4DC]",
+    weak: "bg-[#E8E4DC] text-[#6B5B4F] border-[#E8E4DC]",
+    unknown: "bg-[#F5F3EF] text-[#9B9B9B] border-[#E8E4DC]",
   };
   return (
     <span
@@ -302,7 +313,7 @@ function SourceModal({
 /* ------------------------------------------------------------------ */
 
 export default function IntelligenceDashboard() {
-  const [signals, setSignals] = useState<DemandSignal[]>([]);
+  const [signals, setSignals] = useState<ProductSignal[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -317,7 +328,7 @@ export default function IntelligenceDashboard() {
   const [revealLoading, setRevealLoading] = useState<string | null>(null);
 
   // Shopify listing state
-  const [listingProduct, setListingProduct] = useState<DemandSignal | null>(null);
+  const [listingProduct, setListingProduct] = useState<ProductSignal | null>(null);
   const [listingLoading, setListingLoading] = useState(false);
   const [listingResult, setListingResult] = useState<{ success: boolean; message: string; handle?: string } | null>(null);
 
@@ -375,7 +386,7 @@ export default function IntelligenceDashboard() {
     }
   };
 
-  const handleListOnShopify = async (product: DemandSignal) => {
+  const handleListOnShopify = async (product: ProductSignal) => {
     setListingLoading(true);
     setListingResult(null);
     try {
@@ -489,8 +500,8 @@ export default function IntelligenceDashboard() {
               accent="#6B5B4F"
             />
             <StatCard
-              label="High Demand"
-              value={stats.high_demand}
+              label="High Market Demand"
+              value={stats.high_market_demand ?? 0}
               icon={TrendingUp}
               accent="#B76E79"
             />
@@ -633,7 +644,13 @@ export default function IntelligenceDashboard() {
                     </button>
                   </th>
                   <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] md:table-cell">
-                    Demand
+                    Ingredients
+                  </th>
+                  <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] lg:table-cell">
+                    Reviews
+                  </th>
+                  <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] lg:table-cell">
+                    Market
                   </th>
                   <th className="hidden px-4 py-3 text-[10px] font-medium uppercase tracking-[0.15em] text-[#9B9B9B] lg:table-cell">
                     Price
@@ -704,9 +721,24 @@ export default function IntelligenceDashboard() {
                       </div>
                     </td>
 
-                    {/* Demand */}
+                    {/* Ingredient match */}
                     <td className="hidden px-4 py-3.5 md:table-cell">
-                      <DemandBadge tier={signal.demand_tier} />
+                      <SignalBadge tier={signal.ingredient_match_tier} />
+                    </td>
+
+                    {/* Review confidence */}
+                    <td className="hidden px-4 py-3.5 lg:table-cell">
+                      <div className="flex flex-col gap-1">
+                        <SignalBadge tier={signal.review_confidence_tier} />
+                        <span className="text-[10px] text-[#9B9B9B]">
+                          {signal.review_count ? `${signal.review_count.toLocaleString()} reviews` : "No reviews"}
+                        </span>
+                      </div>
+                    </td>
+
+                    {/* Market demand */}
+                    <td className="hidden px-4 py-3.5 lg:table-cell">
+                      <SignalBadge tier={signal.market_demand_tier} />
                     </td>
 
                     {/* Price */}

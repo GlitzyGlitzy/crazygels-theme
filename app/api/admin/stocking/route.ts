@@ -14,26 +14,65 @@ export async function GET(req: NextRequest) {
     if (mode === "unstocked") {
       const limit = Math.min(parseInt(searchParams.get("limit") || "500"), 2000);
       const rows = await sql`
+        WITH scored AS (
+          SELECT
+            pc.product_hash,
+            pc.display_name,
+            pc.category,
+            pc.price_tier,
+            pc.efficacy_score,
+            pc.key_actives,
+            pc.suitable_for,
+            pc.status,
+            COALESCE(array_length(pc.key_actives, 1), 0) as active_count,
+            CASE
+              WHEN (ap.efficacy_signals->>'review_count') ~ '^[0-9]+$'
+                THEN (ap.efficacy_signals->>'review_count')::int
+              ELSE 0
+            END as review_count,
+            CASE
+              WHEN (ap.efficacy_signals->>'rating') ~ '^[0-9]+([.][0-9]+)?$'
+                THEN (ap.efficacy_signals->>'rating')::numeric
+              ELSE NULL
+            END as rating,
+            CASE WHEN pc.acquisition_lead IS NOT NULL THEN true ELSE false END as has_source
+          FROM product_catalog pc
+          LEFT JOIN stocking_decisions sd ON pc.product_hash = sd.product_hash
+          LEFT JOIN anonymised_products ap ON ap.product_hash = pc.product_hash
+          WHERE sd.product_hash IS NULL
+            AND pc.status IN ('research', 'sampled')
+        )
         SELECT
-          pc.product_hash,
-          pc.display_name,
-          pc.category,
-          pc.price_tier,
-          pc.efficacy_score,
-          pc.key_actives,
-          pc.suitable_for,
-          pc.status,
+          scored.*,
           CASE
-            WHEN pc.efficacy_score >= 0.3 THEN 'high'
-            WHEN pc.efficacy_score >= 0.15 THEN 'medium'
+            WHEN efficacy_score >= 0.75 THEN 'high'
+            WHEN efficacy_score >= 0.5 THEN 'medium'
             ELSE 'low'
-          END as demand_tier,
-          CASE WHEN pc.acquisition_lead IS NOT NULL THEN true ELSE false END as has_source
-        FROM product_catalog pc
-        LEFT JOIN stocking_decisions sd ON pc.product_hash = sd.product_hash
-        WHERE sd.product_hash IS NULL
-          AND pc.status IN ('research', 'sampled')
-        ORDER BY pc.efficacy_score DESC NULLS LAST
+          END as efficacy_tier,
+          CASE
+            WHEN review_count >= 1000 THEN 'high'
+            WHEN review_count >= 100 THEN 'medium'
+            WHEN review_count > 0 THEN 'low'
+            ELSE 'unknown'
+          END as market_demand_tier,
+          CASE
+            WHEN active_count >= 3 THEN 'strong'
+            WHEN active_count >= 1 THEN 'partial'
+            ELSE 'weak'
+          END as ingredient_match_tier,
+          CASE
+            WHEN review_count >= 500 AND rating >= 4.2 THEN 'high'
+            WHEN review_count >= 50 AND rating >= 3.8 THEN 'medium'
+            WHEN review_count > 0 OR rating IS NOT NULL THEN 'low'
+            ELSE 'unknown'
+          END as review_confidence_tier,
+          CASE
+            WHEN efficacy_score >= 0.75 THEN 'high'
+            WHEN efficacy_score >= 0.5 THEN 'medium'
+            ELSE 'low'
+          END as demand_tier
+        FROM scored
+        ORDER BY efficacy_score DESC NULLS LAST
         LIMIT ${limit}
       `;
       return NextResponse.json({ products: rows, total: rows.length });

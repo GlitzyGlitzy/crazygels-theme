@@ -64,7 +64,13 @@ interface UnstockedProduct {
   key_actives: string[] | null;
   suitable_for: string[] | null;
   status: string;
-  demand_tier: string;
+  efficacy_tier: string;
+  market_demand_tier: string;
+  ingredient_match_tier: string;
+  review_confidence_tier: string;
+  active_count: number;
+  review_count: number;
+  rating: number | null;
   has_source: boolean;
 }
 
