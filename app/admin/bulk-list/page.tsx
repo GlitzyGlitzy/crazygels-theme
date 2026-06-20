@@ -35,60 +35,9 @@ interface Stats {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Auth gate – same pattern as intelligence + stocking pages          */
-/* ------------------------------------------------------------------ */
-function AdminTokenGate({ onLogin }: { onLogin: (token: string) => void }) {
-  const [token, setToken] = useState('');
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (token.trim()) onLogin(token.trim());
-        }}
-        className="mx-4 w-full max-w-sm rounded-2xl border border-[#E8E4DC] bg-white p-8 shadow-sm"
-      >
-        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#9E6B73]">
-          Internal Access
-        </p>
-        <h2 className="mt-1 font-serif text-xl font-light text-[#1A1A1A]">
-          Bulk Product Launcher
-        </h2>
-        <p className="mt-2 text-xs text-[#9B9B9B]">
-          Enter your admin token to access the bulk listing tool.
-        </p>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Admin token"
-          className="mt-5 h-10 w-full rounded-lg border border-[#E8E4DC] bg-[#FAFAF8] px-4 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:border-[#9E6B73] focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="mt-3 h-10 w-full rounded-lg bg-[#9E6B73] text-sm font-medium text-white transition-colors hover:bg-[#8A5B63]"
-        >
-          Access Dashboard
-        </button>
-      </form>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
 /*  Main page                                                          */
 /* ------------------------------------------------------------------ */
 export default function BulkListPage() {
-  const [adminToken, setAdminToken] = useState<string | null>(null);
-  const [tokenReady, setTokenReady] = useState(false);
-
-  // Load stored token on mount
-  useEffect(() => {
-    const stored = localStorage.getItem('cg_admin_token') || '';
-    if (stored) setAdminToken(stored);
-    setTokenReady(true);
-  }, []);
 
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(false);
@@ -103,26 +52,17 @@ export default function BulkListPage() {
   const [statusMessage, setStatusMessage] = useState('');
 
   const fetchStats = useCallback(async () => {
-    if (!adminToken) return;
     setLoading(true);
     setStatusMessage('');
-    console.log("[v0] fetchStats - sending token:", JSON.stringify(adminToken));
     try {
-      const res = await fetch('/api/admin/bulk-list', {
-        headers: { 'x-admin-token': adminToken },
-      });
-      console.log("[v0] fetchStats - response status:", res.status);
+      const res = await fetch('/api/admin/bulk-list');
       if (!res.ok) {
-        const err = await res.json();
-        console.log("[v0] fetchStats - error response:", JSON.stringify(err));
         if (res.status === 401) {
-          // Token is invalid -- clear it and show login gate
           localStorage.removeItem('cg_admin_token');
-          setAdminToken(null);
-          setStatusMessage('Session expired. Please log in again.');
-          setLoading(false);
+          window.location.href = '/admin/login';
           return;
         }
+        const err = await res.json();
         setStatusMessage(`Error: ${err.error || res.statusText}`);
         setLoading(false);
         return;
@@ -134,17 +74,13 @@ export default function BulkListPage() {
       setStatusMessage(`Network error: ${err instanceof Error ? err.message : 'Failed to fetch'}`);
     }
     setLoading(false);
-  }, [adminToken]);
+  }, []);
 
   const runBatch = useCallback(async (): Promise<BatchResponse | null> => {
-    if (!adminToken) return null;
     try {
       const res = await fetch('/api/admin/bulk-list', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-admin-token': adminToken,
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           batch_size: batchSize,
           activate: true,
@@ -172,14 +108,11 @@ export default function BulkListPage() {
       setStatusMessage(`Network error: ${err instanceof Error ? err.message : 'Failed'}`);
       return null;
     }
-  }, [batchSize, inventory, adminToken]);
+  }, [batchSize, inventory]);
 
-  // Auto-fetch stats when token becomes available
   useEffect(() => {
-    if (adminToken && tokenReady) {
-      fetchStats();
-    }
-  }, [adminToken, tokenReady, fetchStats]);
+    fetchStats();
+  }, [fetchStats]);
 
   const startBulkList = useCallback(async () => {
     setRunning(true);
@@ -204,26 +137,6 @@ export default function BulkListPage() {
     setRunning(false);
     fetchStats();
   }, [autoRun, runBatch, fetchStats]);
-
-  /* ----- Auth gate ----- */
-  if (!tokenReady) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
-        <Loader2 className="w-6 h-6 animate-spin text-[#9E6B73]" />
-      </div>
-    );
-  }
-
-  if (!adminToken) {
-    return (
-      <AdminTokenGate
-        onLogin={(t) => {
-          localStorage.setItem('cg_admin_token', t);
-          setAdminToken(t);
-        }}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#FAFAF8]" suppressHydrationWarning>

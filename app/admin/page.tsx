@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BarChart3, Download, CheckCircle, ArrowRight, Database, Sparkles, Package, Star, Rocket } from 'lucide-react';
+import LogoutButton from './LogoutButton';
 
 const adminTools = [
   {
@@ -82,12 +83,15 @@ export default function AdminPage() {
               Admin Dashboard
             </h1>
           </div>
-          <Link
-            href="/"
-            className="rounded-full border border-[#E8E4DC] px-4 py-2 text-xs font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#9E6B73] hover:text-[#9E6B73]"
-          >
-            Back to Site
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="rounded-full border border-[#E8E4DC] px-4 py-2 text-xs font-medium uppercase tracking-wider text-[#6B5B4F] transition-colors hover:border-[#9E6B73] hover:text-[#9E6B73]"
+            >
+              Back to Site
+            </Link>
+            <LogoutButton />
+          </div>
         </div>
       </header>
 

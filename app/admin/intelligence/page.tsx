@@ -326,28 +326,17 @@ export default function IntelligenceDashboard() {
   // Delay all rendering until after hydration to avoid GTM insertBefore errors
   const [mounted, setMounted] = useState(false);
 
-  // Read token in useEffect to avoid hydration mismatch
-  const [adminToken, setAdminToken] = useState<string | null>(null);
-  const [tokenReady, setTokenReady] = useState(false);
-
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("cg_admin_token") || "";
-    setAdminToken(stored);
-    setTokenReady(true);
   }, []);
 
   const fetchSignals = useCallback(async () => {
-    if (!adminToken) return;
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=2000`,
-        { headers: { Authorization: `Bearer ${adminToken}` } }
-      );
+      const res = await fetch(`/api/admin/demand-signals?status=${statusFilter}&sort=${sortBy}&limit=2000`);
       if (!res.ok) {
-        if (res.status === 401) throw new Error("Unauthorized -- set admin token");
+        if (res.status === 401) { window.location.href = "/admin/login"; return; }
         throw new Error("Failed to fetch");
       }
       const data = await res.json();
@@ -358,23 +347,18 @@ export default function IntelligenceDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [statusFilter, sortBy, adminToken]);
+  }, [statusFilter, sortBy]);
 
   useEffect(() => {
-    if (!tokenReady) return;
-    if (adminToken) fetchSignals();
-    else setLoading(false);
-  }, [fetchSignals, adminToken, tokenReady]);
+    if (mounted) fetchSignals();
+  }, [fetchSignals, mounted]);
 
   const handleReveal = async (acquisitionLead: string) => {
     setRevealLoading(acquisitionLead);
     try {
       const res = await fetch("/api/admin/reveal-source", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${adminToken}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ acquisition_lead: acquisitionLead }),
       });
       if (!res.ok) throw new Error("Failed to reveal source");
@@ -393,10 +377,7 @@ export default function IntelligenceDashboard() {
     try {
       const res = await fetch("/api/admin/list-product", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-token": adminToken || "",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ product_hash: product.product_hash }),
       });
       const data = await res.json();
@@ -424,10 +405,7 @@ export default function IntelligenceDashboard() {
     try {
       const res = await fetch("/api/admin/enrich-products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-token": adminToken || "",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ batch_size: 200, price_only: priceOnly }),
       });
       const data = await res.json();
@@ -452,18 +430,12 @@ export default function IntelligenceDashboard() {
     );
   });
 
-  /* ----- Wait for client mount + token check ----- */
-  if (!mounted || !tokenReady) {
+  if (!mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#E8E4DC] border-t-[#9E6B73]" />
       </div>
     );
-  }
-
-  /* ----- Auth gate ----- */
-  if (!adminToken) {
-    return <AdminTokenGate onLogin={(t) => { localStorage.setItem("cg_admin_token", t); setAdminToken(t); }} />;
   }
 
   return (
@@ -951,49 +923,3 @@ export default function IntelligenceDashboard() {
   );
 }
 
-/* ------------------------------------------------------------------ */
-/*  Admin Token Gate                                                    */
-/* ------------------------------------------------------------------ */
-
-function AdminTokenGate({ onLogin }: { onLogin: (token: string) => void }) {
-  const [token, setToken] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (token.trim()) {
-      onLogin(token.trim());
-    }
-  };
-
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-[#FAFAF8]">
-      <form
-        onSubmit={handleSubmit}
-        className="mx-4 w-full max-w-sm rounded-2xl border border-[#E8E4DC] bg-white p-8 shadow-sm"
-      >
-        <p className="text-[10px] font-medium uppercase tracking-[0.3em] text-[#9E6B73]">
-          Internal Access
-        </p>
-        <h2 className="mt-1 font-serif text-xl font-light text-[#1A1A1A]">
-          Product Intelligence
-        </h2>
-        <p className="mt-2 text-xs text-[#9B9B9B]">
-          Enter your admin token to access the intelligence dashboard.
-        </p>
-        <input
-          type="password"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          placeholder="Admin token"
-          className="mt-5 h-10 w-full rounded-lg border border-[#E8E4DC] bg-[#FAFAF8] px-4 text-sm text-[#1A1A1A] placeholder:text-[#9B9B9B] focus:border-[#9E6B73] focus:outline-none"
-        />
-        <button
-          type="submit"
-          className="mt-4 w-full rounded-full bg-[#1A1A1A] py-2.5 text-xs font-medium uppercase tracking-[0.15em] text-white transition-colors hover:bg-[#9E6B73]"
-        >
-          Enter Dashboard
-        </button>
-      </form>
-    </div>
-  );
-}

@@ -17,11 +17,8 @@ export default function ExportPage() {
     setCatalogError('');
     setCatalogDone(false);
 
-    const token = localStorage.getItem('cg_admin_token') || '';
     try {
-      const res = await fetch(`/api/export-catalog-csv?status=all`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(`/api/export-catalog-csv?status=all`);
 
       if (!res.ok) {
         const errData = await res.json().catch(() => null);

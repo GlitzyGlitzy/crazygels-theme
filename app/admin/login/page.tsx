@@ -30,8 +30,6 @@ function AdminLoginForm() {
         return;
       }
 
-      // Sync token to localStorage so existing per-page API calls keep working
-      localStorage.setItem('cg_admin_token', token);
       router.push(redirect);
     } catch {
       setError('Network error — please try again');
