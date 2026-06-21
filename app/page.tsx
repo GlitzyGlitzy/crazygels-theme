@@ -13,6 +13,7 @@ import { SocialProofSection } from "@/components/home/social-proof-section"
 import { BioProductsSection } from "@/components/home/bio-products-section"
 import { PricingSection } from "@/components/home/pricing-section"
 import { FinalCtaSection } from "@/components/home/final-cta-section"
+import { getLocaleUrl } from "@/lib/i18n"
 
 export const revalidate = 300
 
@@ -33,6 +34,12 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "https://crazygels.com",
+    languages: {
+      en: getLocaleUrl("en"),
+      de: getLocaleUrl("de"),
+      fr: getLocaleUrl("fr"),
+      "x-default": "https://crazygels.com",
+    },
   },
   openGraph: {
     title: "Crazy Gels | Skincare, Cosmetics, Beauty Tools & AI Beauty Consultant",

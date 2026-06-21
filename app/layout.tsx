@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { AnalyticsScripts } from '@/components/analytics-scripts'
 import { KlaviyoScript } from '@/components/klaviyo/klaviyo-script'
 import { GtmNoscript } from '@/components/gtm-noscript'
+import { getLocaleUrl } from '@/lib/i18n'
 import './globals.css'
 
 const GTM_ID = 'GTM-W7NQG2QL'
@@ -35,8 +36,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://crazygels.com',
     languages: {
-      'de-DE': 'https://crazygels.com',
-      'en': 'https://crazygels.com',
+      en: getLocaleUrl('en'),
+      de: getLocaleUrl('de'),
+      fr: getLocaleUrl('fr'),
       'x-default': 'https://crazygels.com',
     },
   },
@@ -136,7 +138,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="de" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"

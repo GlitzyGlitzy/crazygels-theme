@@ -5,6 +5,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Menu, X, ShoppingBag, Search, User, ChevronDown } from "lucide-react"
 import { CrazyGelsLogo } from "@/components/ui/crazy-gels-logo"
+import { LanguageSwitcher } from "@/components/i18n/language-switcher"
+import { isLocale, type Locale } from "@/lib/i18n"
 
 export interface MenuItem {
   label: string
@@ -23,6 +25,8 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pathname = usePathname()
+  const activeLocaleSegment = pathname.split("/")[1] || ""
+  const activeLocale: Locale | undefined = isLocale(activeLocaleSegment) ? activeLocaleSegment : undefined
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -113,6 +117,9 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
 
           {/* Right Icons */}
           <div className="flex items-center gap-2 md:gap-4">
+            <div className="hidden lg:block">
+              <LanguageSwitcher activeLocale={activeLocale} compact />
+            </div>
             <button className="hidden md:flex p-2 text-[#2C2C2C]/70 hover:text-[#8C3F48] transition-colors" aria-label="Search products">
               <Search className="w-5 h-5" aria-hidden="true" />
             </button>
@@ -147,6 +154,9 @@ export function HeaderClient({ menuItems }: HeaderClientProps) {
               <User className="w-5 h-5 text-[#8C3F48]" aria-hidden="true" />
               My Account
             </Link>
+            <div className="border-b border-[#8C3F48]/10 pb-4">
+              <LanguageSwitcher activeLocale={activeLocale} onSelect={() => setMobileMenuOpen(false)} />
+            </div>
             {menuItems.map((item) => (
               <div key={item.label}>
                 <div className="flex items-center justify-between">

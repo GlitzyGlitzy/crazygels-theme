@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getAllProducts, getCollections, getBlogs, getAllBlogArticles, isShopifyConfigured } from '@/lib/shopify';
+import { getLocaleUrl, locales } from '@/lib/i18n';
 
 const BASE_URL = 'https://crazygels.com';
 
@@ -13,6 +14,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ──
   const staticPages: MetadataRoute.Sitemap = [
     { url: BASE_URL, lastModified: now, changeFrequency: 'daily', priority: 1.0 },
+    ...locales.map((locale) => ({
+      url: getLocaleUrl(locale),
+      lastModified: now,
+      changeFrequency: 'daily' as const,
+      priority: 0.95,
+    })),
     { url: `${BASE_URL}/collections`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${BASE_URL}/blog`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE_URL}/consult`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },

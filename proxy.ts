@@ -66,6 +66,8 @@ function isBlockedBot(request: NextRequest): boolean {
 
 // ── Locale Handling ─────────────────────────────────────────────────────────
 
+const SUPPORTED_LANDING_LOCALES = new Set(['en', 'de', 'fr']);
+
 // All known Shopify locale prefixes (2-letter ISO 639-1 codes + regional variants)
 const SHOPIFY_LOCALE_PREFIXES = new Set([
   'en', 'de', 'fr', 'fi', 'it', 'es', 'nl', 'ja', 'ko', 'pt', 'sv',
@@ -85,6 +87,7 @@ const SHOPIFY_LOCALE_PREFIXES = new Set([
 
 export default function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const host = (request.headers.get('host') || '').toLowerCase().split(':')[0] || '';
   
   console.log('[v0-proxy] incoming:', pathname);
 
@@ -111,7 +114,24 @@ export default function proxy(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
-  // ── 1. Strip locale prefixes (handles double-locale like /no/no/products/...) ──
+  // ── 1. Subdomain language landing pages ──
+  // en.crazygels.com, de.crazygels.com, fr.crazygels.com serve localized
+  // landing pages at their root while deeper catalog routes remain canonical.
+  const subdomain = host.split('.')[0];
+  if (subdomain && SUPPORTED_LANDING_LOCALES.has(subdomain) && pathname === '/') {
+    url.pathname = `/${subdomain}`;
+    console.log('[v0-proxy] REWRITE language subdomain:', host, '->', url.pathname);
+    return NextResponse.rewrite(url);
+  }
+
+  // Supported locale landing paths are now real Next.js pages.
+  // Keep /en, /de, /fr but continue stripping legacy paths such as /de/products/...
+  const supportedLandingMatch = pathname.match(/^\/([a-z]{2})(?:\/?)$/i);
+  if (supportedLandingMatch && SUPPORTED_LANDING_LOCALES.has(supportedLandingMatch[1]!.toLowerCase())) {
+    return NextResponse.next();
+  }
+
+  // ── 2. Strip locale prefixes (handles double-locale like /no/no/products/...) ──
   let cleanPath = pathname;
   let localeStripped = false;
 
@@ -133,7 +153,7 @@ export default function proxy(request: NextRequest) {
     safetyCounter++;
   }
 
-  // ── 2. Flatten Shopify collection-nested product URLs ──
+  // ── 3. Flatten Shopify collection-nested product URLs ──
   // /collections/:collection/products/:handle -> /products/:handle
   const collectionProductMatch = cleanPath.match(/^\/collections\/[^/]+\/products\/(.+)$/i);
   if (collectionProductMatch) {
@@ -142,7 +162,7 @@ export default function proxy(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  // ── 3. Redirect if locale was stripped ──
+  // ── 4. Redirect if locale was stripped ──
   if (localeStripped) {
     url.pathname = cleanPath;
     console.log('[v0-proxy] REDIRECT:', pathname, '->', cleanPath);
